@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
         # --- Crear Productos Base ---
         product_names = ['Papa', 'Tomate', 'Café', 'Maíz', 'Aguacate', 'Lechuga', 'Zanahoria', 'Fresa']
-        products = [Product.objects.create(name=name) for name in product_names]
+        products = [Product.objects.create(nombre=name) for name in product_names]
         self.stdout.write(f'{len(products)} productos base creados.')
 
         # --- Crear 10 Productores con Cultivos y Publicaciones ---
@@ -57,23 +57,23 @@ class Command(BaseCommand):
                 estimated_quantity = random.randint(50, 500)
                 
                 crop = Crop.objects.create(
-                    product=random.choice(products),
-                    producer=user,
-                    estimated_quantity=estimated_quantity,
-                    unit='kg',
-                    status=crop_status,
-                    estimated_availability_date=timezone.now().date() + timedelta(days=random.randint(-10, 10))
+                    nombre_producto=random.choice(product_names),
+                    productor=user,
+                    cantidad_estimada=estimated_quantity,
+                    unidad_medida='kg',
+                    estado=crop_status.replace('listo para cosechar', 'listo_cosecha').replace(' ', '_'),
+                    fecha_disponibilidad=timezone.now().date() + timedelta(days=random.randint(-10, 10))
                 )
 
                 # Crear una publicación para los cultivos listos
                 if crop_status in ['listo para cosechar', 'cosechado']:
                     Publication.objects.create(
-                        crop=crop,
-                        price_per_unit=round(random.uniform(0.5, 5.0), 2),
-                        available_quantity=estimated_quantity - random.randint(0, 20),
-                        status='disponible'
+                        cultivo=crop,
+                        precio_por_unidad=round(random.uniform(0.5, 5.0), 2),
+                        cantidad_disponible=estimated_quantity - random.randint(0, 20),
+                        estado='disponible'
                     )
-                    self.stdout.write(f'  -> Publicación creada para el cultivo de {crop.product.name}')
+                    self.stdout.write(f'  -> Publicación creada para el cultivo de {crop.nombre_producto}')
 
         # --- Crear 10 Compradores ---
         for i in range(10):

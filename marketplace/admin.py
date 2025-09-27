@@ -4,58 +4,64 @@ from .models import Publication
 
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
-    list_display = ('crop_info', 'producer_info', 'price_per_unit', 'available_quantity', 'status', 'status_badge', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('crop__product__name', 'crop__producer__first_name', 'crop__producer__last_name')
-    list_editable = ('status',)
+    list_display = ('cultivo_info', 'productor_info', 'precio_por_unidad', 'cantidad_disponible', 'estado', 'estado_badge', 'created_at')
+    list_filter = ('estado', 'created_at')
+    search_fields = ('cultivo__nombre_producto', 'cultivo__productor__first_name', 'cultivo__productor__last_name')
+    list_editable = ('estado',)
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
     
     fieldsets = (
-        ('Información del Producto', {
-            'fields': ('crop',)
+        ('Información del Cultivo', {
+            'fields': ('cultivo',)
         }),
         ('Detalles de Venta', {
-            'fields': ('price_per_unit', 'available_quantity')
+            'fields': ('precio_por_unidad', 'cantidad_disponible', 'cantidad_minima')
         }),
-        ('Estado', {
-            'fields': ('status',)
+        ('Descripción y Estado', {
+            'fields': ('descripcion', 'estado')
         }),
     )
     
-    def crop_info(self, obj):
-        return f"{obj.crop.product.name} ({obj.crop.estimated_quantity} {obj.crop.unit})"
-    crop_info.short_description = 'Cultivo'
+    def cultivo_info(self, obj):
+        return f"{obj.cultivo.nombre_producto} ({obj.cultivo.cantidad_estimada} {obj.cultivo.unidad_medida})"
+    cultivo_info.short_description = 'Cultivo'
     
-    def producer_info(self, obj):
-        return f"{obj.crop.producer.first_name} {obj.crop.producer.last_name}"
-    producer_info.short_description = 'Productor'
+    def productor_info(self, obj):
+        return f"{obj.cultivo.productor.first_name} {obj.cultivo.productor.last_name}"
+    productor_info.short_description = 'Productor'
     
-    def status_badge(self, obj):
+    def estado_badge(self, obj):
         colors = {
             'disponible': 'green',
             'vendido': 'orange',
-            'caducado': 'red',
+            'pausado': 'blue',
+            'agotado': 'red',
         }
-        color = colors.get(obj.status, 'gray')
+        color = colors.get(obj.estado, 'gray')
         return format_html(
             '<span style="color: {}; font-weight: bold;">{}</span>',
-            color, obj.get_status_display()
+            color, obj.get_estado_display()
         )
-    status_badge.short_description = 'Estado'
+    estado_badge.short_description = 'Estado Visual'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('crop__product', 'crop__producer')
+        return super().get_queryset(request).select_related('cultivo__productor')
 
 # Acciones personalizadas
 @admin.action(description='Marcar publicaciones como disponibles')
 def mark_available(modeladmin, request, queryset):
-    updated = queryset.update(status='disponible')
+    updated = queryset.update(estado='disponible')
     modeladmin.message_user(request, f'{updated} publicaciones marcadas como disponibles.')
 
 @admin.action(description='Marcar publicaciones como vendidas')
 def mark_sold(modeladmin, request, queryset):
-    updated = queryset.update(status='vendido')
+    updated = queryset.update(estado='vendido')
     modeladmin.message_user(request, f'{updated} publicaciones marcadas como vendidas.')
 
-PublicationAdmin.actions = [mark_available, mark_sold]
+@admin.action(description='Pausar publicaciones')
+def pause_publications(modeladmin, request, queryset):
+    updated = queryset.update(estado='pausado')
+    modeladmin.message_user(request, f'{updated} publicaciones pausadas.')
+
+PublicationAdmin.actions = [mark_available, mark_sold, pause_publications]

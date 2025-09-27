@@ -3,23 +3,61 @@ from django.conf import settings
 from core.models import BaseModel
 
 class Product(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Producto")
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+
+    class Meta:
+        verbose_name = "Producto"
+        verbose_name_plural = "Productos"
 
     def __str__(self):
-        return self.name
+        return self.nombre
 
 class Crop(BaseModel):
-    STATUS_CHOICES = (
-        ('en crecimiento', 'En crecimiento'),
-        ('listo para cosechar', 'Listo para cosechar'),
+    ESTADO_CHOICES = (
+        ('sembrado', 'Sembrado'),
+        ('en_crecimiento', 'En Crecimiento'),
+        ('listo_cosecha', 'Listo para Cosecha'),
         ('cosechado', 'Cosechado'),
     )
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    producer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='crops')
-    estimated_quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    unit = models.CharField(max_length=20) # e.g., kg, ton, etc.
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
-    estimated_availability_date = models.DateField()
+    
+    UNIDAD_CHOICES = (
+        ('kg', 'Kilogramos (kg)'),
+        ('toneladas', 'Toneladas'),
+        ('libras', 'Libras'),
+        ('unidades', 'Unidades'),
+        ('cajas', 'Cajas'),
+        ('bultos', 'Bultos'),
+        ('arrobas', 'Arrobas'),
+    )
+    
+    # Información del producto
+    nombre_producto = models.CharField(max_length=100, verbose_name="Nombre del Producto", 
+                                     help_text="Ej: Tomate, Lechuga, Zanahoria, etc.")
+    
+    # Información del productor
+    productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
+                                related_name='cultivos', verbose_name="Productor")
+    
+    # Información de cantidad y medida
+    cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, 
+                                          verbose_name="Cantidad Estimada")
+    unidad_medida = models.CharField(max_length=20, choices=UNIDAD_CHOICES, 
+                                   verbose_name="Unidad de Medida")
+    
+    # Estado y fechas
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
+                            verbose_name="Estado del Cultivo")
+    fecha_disponibilidad = models.DateField(verbose_name="Fecha Estimada de Disponibilidad")
+    
+    # Información adicional
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
+                           help_text="Información adicional sobre el cultivo")
+
+    class Meta:
+        verbose_name = "Cultivo"
+        verbose_name_plural = "Cultivos"
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.estimated_quantity} {self.unit} of {self.product.name} from {self.producer.username}'
+        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.nombre_producto} - {self.productor.first_name}'

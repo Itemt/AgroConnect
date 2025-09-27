@@ -12,7 +12,7 @@ from .forms import MessageForm, OrderForm
 def create_order_view(request, publication_id):
     publication = get_object_or_404(Publication, pk=publication_id)
 
-    if request.user.role != 'Comprador' or request.user == publication.crop.producer:
+    if request.user.role != 'Comprador' or request.user == publication.cultivo.productor:
         # Redirigir si no es un comprador o si es el dueño de la publicación
         return redirect('publication_detail', publication_id=publication.id)
 
@@ -24,15 +24,15 @@ def create_order_view(request, publication_id):
             order.buyer = request.user
             
             # Calcular precio final
-            order.final_price = order.agreed_quantity * publication.price_per_unit
+            order.final_price = order.agreed_quantity * publication.precio_por_unidad
             order.status = 'acordado' # Estado inicial
             
             # Validar que la cantidad no exceda la disponible
-            if order.agreed_quantity > publication.available_quantity:
+            if order.agreed_quantity > publication.cantidad_disponible:
                 form.add_error('agreed_quantity', 'La cantidad solicitada excede la disponible.')
             else:
                 # Actualizar la cantidad disponible en la publicación
-                publication.available_quantity -= order.agreed_quantity
+                publication.cantidad_disponible -= order.agreed_quantity
                 publication.save()
                 
                 order.save()
@@ -52,7 +52,7 @@ def order_history_view(request):
     if request.user.role == 'Comprador':
         orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
     elif request.user.role == 'Productor':
-        orders = Order.objects.filter(publication__crop__producer=request.user).order_by('-created_at')
+        orders = Order.objects.filter(publication__cultivo__productor=request.user).order_by('-created_at')
     else:
         orders = []
 
@@ -62,7 +62,7 @@ def order_history_view(request):
 @login_required
 def start_or_go_to_conversation(request, publication_id):
     publication = get_object_or_404(Publication, pk=publication_id)
-    producer = publication.crop.producer
+    producer = publication.cultivo.productor
     
     # Prevenir que un productor inicie una conversación consigo mismo
     if request.user == producer:
@@ -134,7 +134,7 @@ def buyer_dashboard(request):
     
     # Pedidos recientes
     recent_orders = request.user.orders_as_buyer.select_related(
-        'publication__crop__product', 'publication__crop__producer'
+        'publication__cultivo', 'publication__cultivo__productor'
     ).order_by('-created_at')[:5]
     
     # Conversaciones activas
