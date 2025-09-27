@@ -1,8 +1,86 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome to AgroConnect{% endblock %}
+{% block title %}Bienvenido a AgroConnect{% endblock %}
 
 {% block content %}
-    <h1>Welcome to AgroConnect</h1>
-    <p>Connecting producers and buyers directly.</p>
+    <div class="hero-section">
+        <h1>Bienvenido a AgroConnect</h1>
+        <p class="hero-subtitle">Conectando productores y compradores directamente para un comercio más justo y sostenible.</p>
+        
+        {% if user.is_authenticated %}
+            <div class="user-welcome">
+                <h2>¡Hola, {{ user.first_name }}!</h2>
+                {% if user.role == 'Productor' %}
+                    <p>Como productor, puedes gestionar tus cultivos y vender directamente a compradores.</p>
+                    <div class="action-buttons">
+                        <a href="{% url 'producer_dashboard' %}" class="btn btn-primary">Ir a Mi Dashboard</a>
+                        <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
+                        <a href="{% url 'marketplace' %}" class="btn btn-outline">Explorar Marketplace</a>
+                    </div>
+                {% elif user.role == 'Comprador' %}
+                    <p>Como comprador, puedes encontrar productos frescos directamente de los productores.</p>
+                    <div class="action-buttons">
+                        <a href="{% url 'buyer_dashboard' %}" class="btn btn-primary">Ir a Mi Dashboard</a>
+                        <a href="{% url 'marketplace' %}" class="btn btn-secondary">Explorar Productos</a>
+                        <a href="{% url 'order_history' %}" class="btn btn-outline">Mis Pedidos</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="guest-welcome">
+                <h2>¿Eres productor o comprador?</h2>
+                <div class="role-cards">
+                    <div class="role-card">
+                        <h3>Soy Productor</h3>
+                        <p>Vende tus productos directamente a compradores, gestiona tus cultivos y aumenta tus ingresos.</p>
+                        <ul>
+                            <li>Gestiona tu inventario de cultivos</li>
+                            <li>Publica productos en el marketplace</li>
+                            <li>Comunícate directamente con compradores</li>
+                            <li>Controla tus ventas y pedidos</li>
+                        </ul>
+                        <a href="{% url 'register' %}" class="btn btn-primary">Registrarse como Productor</a>
+                    </div>
+                    
+                    <div class="role-card">
+                        <h3>Soy Comprador</h3>
+                        <p>Encuentra productos frescos directamente de productores locales, sin intermediarios.</p>
+                        <ul>
+                            <li>Explora productos frescos y locales</li>
+                            <li>Contacta directamente a productores</li>
+                            <li>Realiza pedidos personalizados</li>
+                            <li>Rastrea tus compras</li>
+                        </ul>
+                        <a href="{% url 'register' %}" class="btn btn-primary">Registrarse como Comprador</a>
+                    </div>
+                </div>
+                
+                <div class="login-prompt">
+                    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="features-section">
+        <h2>¿Por qué AgroConnect?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>🌱 Directo del Campo</h3>
+                <p>Productos frescos sin intermediarios, directo de los productores a tu mesa.</p>
+            </div>
+            <div class="feature-card">
+                <h3>💰 Precios Justos</h3>
+                <p>Mejores precios para productores y compradores al eliminar intermediarios.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🤝 Comunicación Directa</h3>
+                <p>Habla directamente con productores para personalizar tus pedidos.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Gestión Completa</h3>
+                <p>Herramientas para gestionar cultivos, ventas, pedidos y más.</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

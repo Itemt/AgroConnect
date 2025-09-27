@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Ventas{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Panel de Ventas</h1>
+        <div class="sales-stats">
+            <span class="stat">Total: ${{ total_sales|floatformat:2 }}</span>
+            <span class="stat">Pendientes: {{ pending_orders }}</span>
+            <span class="stat">Completados: {{ completed_orders }}</span>
+        </div>
+    </div>
+
+    {% if orders %}
+        <div class="order-history-list">
+            {% for order in orders %}
+                <div class="order-item">
+                    <h4>Pedido #{{ order.id }} - {{ order.publication.crop.product.name }}</h4>
+                    
+                    <div class="order-details">
+                        <div class="order-info">
+                            <p><strong>Comprador:</strong> {{ order.buyer.first_name }} {{ order.buyer.last_name }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.crop.unit }}</p>
+                            <p><strong>Precio por unidad:</strong> ${{ order.publication.price_per_unit }}</p>
+                            <p><strong>Total:</strong> ${{ order.final_price }}</p>
+                            <p><strong>Fecha:</strong> {{ order.created_at|date:"d M Y, P" }}</p>
+                        </div>
+                        
+                        <div class="order-status">
+                            <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span>
+                            
+                            {% if order.status == 'acordado' %}
+                                <div class="order-actions">
+                                    <button class="btn btn-info" onclick="updateOrderStatus({{ order.id }}, 'en tránsito')">
+                                        Marcar en Tránsito
+                                    </button>
+                                </div>
+                            {% elif order.status == 'en tránsito' %}
+                                <div class="order-actions">
+                                    <button class="btn btn-success" onclick="updateOrderStatus({{ order.id }}, 'entregado')">
+                                        Marcar como Entregado
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="order-contact">
+                        <a href="{% url 'start_conversation' order.publication.id %}" class="btn btn-outline">
+                            Contactar Comprador
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No tienes ventas aún</h3>
+            <p>Cuando los compradores realicen pedidos de tus productos, aparecerán aquí.</p>
+            <a href="{% url 'crop_list' %}" class="btn btn-primary">Ver Mis Cultivos</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateOrderStatus(orderId, newStatus) {
+    if (confirm('¿Estás seguro de que quieres actualizar el estado de este pedido?')) {
+        // Aquí podrías implementar una llamada AJAX para actualizar el estado
+        // Por ahora, recargamos la página
+        window.location.reload();
+    }
+}
+</script>
+{% endblock %}

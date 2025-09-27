@@ -3,21 +3,61 @@
 {% block title %}Marketplace{% endblock %}
 
 {% block content %}
-    <h1>Marketplace de Productos Frescos</h1>
-    <p>Descubre los productos ofrecidos directamente por los agricultores.</p>
+    <div class="marketplace-header">
+        <h1>Marketplace de Productos Frescos</h1>
+        <p>Descubre los productos ofrecidos directamente por los agricultores.</p>
+        
+        <!-- Barra de búsqueda -->
+        <div class="search-bar">
+            <form method="get" class="search-form">
+                <input type="text" name="search" placeholder="Buscar productos, productores..." 
+                       value="{{ search_query }}" class="search-input">
+                <button type="submit" class="search-btn">Buscar</button>
+            </form>
+        </div>
+        
+        {% if search_query %}
+            <p class="search-results">Resultados para: "<strong>{{ search_query }}</strong>" ({{ publications.count }} encontrados)</p>
+        {% endif %}
+    </div>
 
     <div class="marketplace-grid">
         {% for pub in publications %}
             <div class="product-card">
-                <h3>{{ pub.crop.product.name }}</h3>
-                <p><strong>Productor:</strong> {{ pub.crop.producer.first_name }} {{ pub.crop.producer.last_name }}</p>
-                <p><strong>Ubicación:</strong> {{ pub.crop.producer.producer_profile.location }}</p>
-                <p><strong>Cantidad Disponible:</strong> {{ pub.available_quantity }} {{ pub.crop.unit }}</p>
-                <p class="price"><strong>Precio:</strong> ${{ pub.price_per_unit }} / {{ pub.crop.unit }}</p>
-                <a href="{% url 'publication_detail' pub.id %}" class="btn-details">Ver Detalles</a>
+                <div class="product-header">
+                    <h3>{{ pub.crop.product.name }}</h3>
+                    <span class="product-category">Producto</span>
+                </div>
+                
+                <div class="product-info">
+                    <p><strong>Productor:</strong> {{ pub.crop.producer.first_name }} {{ pub.crop.producer.last_name }}</p>
+                    {% if pub.crop.producer.producer_profile.location %}
+                        <p><strong>Ubicación:</strong> {{ pub.crop.producer.producer_profile.location }}</p>
+                    {% endif %}
+                    <p><strong>Disponible:</strong> {{ pub.available_quantity }} {{ pub.crop.unit }}</p>
+                    <p class="price"><strong>Precio:</strong> ${{ pub.price_per_unit }} por {{ pub.crop.unit }}</p>
+                </div>
+                
+                <div class="product-actions">
+                    <a href="{% url 'publication_detail' pub.id %}" class="btn-details">Ver Detalles</a>
+                    {% if user.is_authenticated and user.role == 'Comprador' %}
+                        <a href="{% url 'start_conversation' pub.id %}" class="btn btn-secondary">Contactar</a>
+                    {% endif %}
+                </div>
             </div>
         {% empty %}
-            <p>No hay productos disponibles en el marketplace en este momento.</p>
+            {% if search_query %}
+                <div class="empty-state">
+                    <h3>No se encontraron productos</h3>
+                    <p>No hay productos que coincidan con tu búsqueda "{{ search_query }}".</p>
+                    <a href="{% url 'marketplace' %}" class="btn btn-primary">Ver Todos los Productos</a>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No hay productos disponibles</h3>
+                    <p>No hay productos disponibles en este momento. ¡Vuelve pronto!</p>
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}

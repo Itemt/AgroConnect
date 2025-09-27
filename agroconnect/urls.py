@@ -44,6 +44,14 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/', sales_views.conversation_detail, name='conversation_detail'),
     path('conversations/start/<int:publication_id>/', sales_views.start_or_go_to_conversation, name='start_conversation'),
 
+    # Producer Dashboard
+    path('producer/dashboard/', inventory_views.producer_dashboard, name='producer_dashboard'),
+    path('producer/crops/', inventory_views.crop_list_view, name='crop_list'),
+    path('producer/sales/', inventory_views.producer_sales_view, name='producer_sales'),
+    
+    # Buyer Dashboard
+    path('buyer/dashboard/', sales_views.buyer_dashboard, name='buyer_dashboard'),
+
     # Inventory / Crop Management
     path('inventory/crop/add/', inventory_views.crop_create_view, name='crop_add'),
     path('inventory/crop/<int:pk>/edit/', inventory_views.crop_update_view, name='crop_edit'),
@@ -51,6 +59,9 @@ urlpatterns = [
 
     # Publication Management
     path('marketplace/publish/<int:crop_id>/', marketplace_views.publication_create_view, name='publication_add'),
+    path('marketplace/publication/<int:pk>/edit/', marketplace_views.publication_edit_view, name='publication_edit'),
+    path('marketplace/publication/<int:pk>/delete/', marketplace_views.publication_delete_view, name='publication_delete'),
+    path('marketplace/my-publications/', marketplace_views.my_publications_view, name='my_publications'),
 
     # Order Management
     path('order/create/<int:publication_id>/', sales_views.create_order_view, name='create_order'),

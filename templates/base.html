@@ -15,8 +15,15 @@
         <div class="nav-links">
             <a href="{% url 'marketplace' %}">Marketplace</a>
             {% if user.is_authenticated %}
+                {% if user.role == 'Productor' %}
+                    <a href="{% url 'producer_dashboard' %}">Mi Dashboard</a>
+                    <a href="{% url 'crop_list' %}">Mis Cultivos</a>
+                    <a href="{% url 'producer_sales' %}">Mis Ventas</a>
+                {% elif user.role == 'Comprador' %}
+                    <a href="{% url 'buyer_dashboard' %}">Mi Dashboard</a>
+                    <a href="{% url 'order_history' %}">Mis Pedidos</a>
+                {% endif %}
                 <a href="{% url 'conversation_list' %}">Mis Mensajes</a>
-                <a href="{% url 'order_history' %}">Mis Pedidos</a>
                 <a href="{% url 'profile' %}">Mi Perfil</a>
                 <a href="{% url 'logout' %}">Cerrar Sesión</a>
             {% else %}

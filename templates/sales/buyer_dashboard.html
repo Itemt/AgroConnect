@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard del Comprador{% endblock %}
+
+{% block content %}
+    <div class="dashboard-container">
+        <h1>Dashboard del Comprador</h1>
+        <p>Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
+
+        <!-- Estadísticas generales -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ total_orders }}</h3>
+                <p>Pedidos Totales</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ pending_orders }}</h3>
+                <p>Pedidos Pendientes</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ completed_orders }}</h3>
+                <p>Pedidos Completados</p>
+            </div>
+            <div class="stat-card">
+                <h3>${{ total_spent|floatformat:2 }}</h3>
+                <p>Total Gastado</p>
+            </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="quick-actions">
+            <h2>Acciones Rápidas</h2>
+            <div class="action-buttons">
+                <a href="{% url 'marketplace' %}" class="btn btn-primary">Explorar Marketplace</a>
+                <a href="{% url 'order_history' %}" class="btn btn-secondary">Ver Mis Pedidos</a>
+                <a href="{% url 'conversation_list' %}" class="btn btn-info">Mis Conversaciones ({{ active_conversations }})</a>
+            </div>
+        </div>
+
+        <!-- Pedidos recientes -->
+        <div class="recent-section">
+            <h2>Pedidos Recientes</h2>
+            {% if recent_orders %}
+                <div class="recent-list">
+                    {% for order in recent_orders %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <h4>{{ order.publication.crop.product.name }}</h4>
+                                <p>Productor: {{ order.publication.crop.producer.first_name }} {{ order.publication.crop.producer.last_name }}</p>
+                                <p>Cantidad: {{ order.agreed_quantity }} {{ order.publication.crop.unit }}</p>
+                                <p>Precio por unidad: ${{ order.publication.price_per_unit }}</p>
+                                <p>Total: ${{ order.final_price }}</p>
+                                <p>Estado: <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                            </div>
+                            <div class="item-date">
+                                <small>{{ order.created_at|date:"d M Y" }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="view-all">
+                    <a href="{% url 'order_history' %}" class="btn btn-outline">Ver Todos los Pedidos</a>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No tienes pedidos aún</h3>
+                    <p>Explora el marketplace para encontrar productos frescos de productores locales.</p>
+                    <a href="{% url 'marketplace' %}" class="btn btn-primary">Explorar Marketplace</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Conversaciones activas -->
+        {% if active_conversations > 0 %}
+        <div class="recent-section">
+            <h2>Conversaciones Activas</h2>
+            <p>Tienes {{ active_conversations }} conversación{{ active_conversations|pluralize:"es" }} activa{{ active_conversations|pluralize:"s" }} con productores.</p>
+            <a href="{% url 'conversation_list' %}" class="btn btn-secondary">Ver Conversaciones</a>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

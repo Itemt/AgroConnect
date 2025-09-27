@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Cultivos{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Mis Cultivos</h1>
+        <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Nuevo Cultivo</a>
+    </div>
+
+    {% if crops %}
+        <div class="crop-list">
+            {% for crop in crops %}
+                <div class="crop-item">
+                    <div class="crop-info">
+                        <h3>{{ crop.product.name }}</h3>
+                        <p><strong>Cantidad estimada:</strong> {{ crop.estimated_quantity }} {{ crop.product.unit_of_measure }}</p>
+                        <p><strong>Fecha de plantación:</strong> {{ crop.planting_date|date:"d M Y" }}</p>
+                        <p><strong>Fecha estimada de cosecha:</strong> {{ crop.estimated_harvest_date|date:"d M Y" }}</p>
+                        <p><strong>Estado:</strong> <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span></p>
+                        
+                        {% if crop.publications.exists %}
+                            <p><strong>Publicado en marketplace:</strong> 
+                                {% for pub in crop.publications.all %}
+                                    <a href="{% url 'publication_detail' pub.pk %}">Ver publicación</a>
+                                    {% if pub.status == 'disponible' %}
+                                        <span class="status-badge" style="background-color: #28a745;">Activa</span>
+                                    {% else %}
+                                        <span class="status-badge" style="background-color: #6c757d;">Inactiva</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="crop-actions">
+                        <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
+                        
+                        {% if crop.status == 'listo para cosechar' and not crop.publications.exists %}
+                            <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
+                        {% elif crop.publications.exists %}
+                            {% for pub in crop.publications.all %}
+                                <a href="{% url 'publication_edit' pub.pk %}" class="btn-action">Editar Publicación</a>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">Eliminar</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No tienes cultivos registrados</h3>
+            <p>Comienza agregando tu primer cultivo para poder venderlo en el marketplace.</p>
+            <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Primer Cultivo</a>
+        </div>
+    {% endif %}
+{% endblock %}
