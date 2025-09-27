@@ -20,19 +20,19 @@ def create_order_view(request, publication_id):
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.publication = publication
-            order.buyer = request.user
+            order.publicacion = publication
+            order.comprador = request.user
             
             # Calcular precio final
-            order.final_price = order.agreed_quantity * publication.precio_por_unidad
-            order.status = 'acordado' # Estado inicial
+            order.precio_total = order.cantidad_acordada * publication.precio_por_unidad
+            order.estado = 'confirmado' # Estado inicial
             
             # Validar que la cantidad no exceda la disponible
-            if order.agreed_quantity > publication.cantidad_disponible:
-                form.add_error('agreed_quantity', 'La cantidad solicitada excede la disponible.')
+            if order.cantidad_acordada > publication.cantidad_disponible:
+                form.add_error('cantidad_acordada', 'La cantidad solicitada excede la disponible.')
             else:
                 # Actualizar la cantidad disponible en la publicación
-                publication.cantidad_disponible -= order.agreed_quantity
+                publication.cantidad_disponible -= order.cantidad_acordada
                 publication.save()
                 
                 order.save()
@@ -130,7 +130,7 @@ def buyer_dashboard(request):
     completed_orders = request.user.orders_as_buyer.filter(status='entregado').count()
     total_spent = request.user.orders_as_buyer.filter(
         status='entregado'
-    ).aggregate(total=Sum('final_price'))['total'] or 0
+    ).aggregate(total=Sum('precio_total'))['total'] or 0
     
     # Pedidos recientes
     recent_orders = request.user.orders_as_buyer.select_related(

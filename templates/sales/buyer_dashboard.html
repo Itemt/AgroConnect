@@ -45,12 +45,12 @@
                     {% for order in recent_orders %}
                         <div class="recent-item">
                             <div class="item-info">
-                                <h4>{{ order.publication.cultivo.nombre_producto }}</h4>
-                                <p>Productor: {{ order.publication.cultivo.productor.first_name }} {{ order.publication.cultivo.productor.last_name }}</p>
-                                <p>Cantidad: {{ order.agreed_quantity }} {{ order.publication.cultivo.unidad_medida }}</p>
-                                <p>Precio por unidad: ${{ order.publication.precio_por_unidad }}</p>
-                                <p>Total: ${{ order.final_price }}</p>
-                                <p>Estado: <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                                <h4>{{ order.publicacion.cultivo.nombre_producto }}</h4>
+                                <p>Productor: {{ order.publicacion.cultivo.productor.first_name }} {{ order.publicacion.cultivo.productor.last_name }}</p>
+                                <p>Cantidad: {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                <p>Precio por unidad: ${{ order.publicacion.precio_por_unidad }}</p>
+                                <p>Total: ${{ order.precio_total }}</p>
+                                <p>Estado: <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span></p>
                             </div>
                             <div class="item-date">
                                 <small>{{ order.created_at|date:"d M Y" }}</small>

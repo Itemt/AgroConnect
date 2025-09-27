@@ -17,16 +17,16 @@ def producer_dashboard(request):
         return redirect('index')
     
     # Estadísticas del productor
-    total_crops = request.user.crops.count()
+    total_crops = request.user.cultivos.count()
     active_publications = Publication.objects.filter(crop__producer=request.user, is_active=True).count()
     total_orders = Order.objects.filter(publication__crop__producer=request.user).count()
     total_revenue = Order.objects.filter(
         publication__crop__producer=request.user,
         status='entregado'
-    ).aggregate(total=Sum('final_price'))['total'] or 0
+    ).aggregate(total=Sum('precio_total'))['total'] or 0
     
     # Cultivos recientes
-    recent_crops = request.user.crops.select_related('product').order_by('-created_at')[:5]
+    recent_crops = request.user.cultivos.order_by('-created_at')[:5]
     
     # Pedidos recientes
     recent_orders = Order.objects.filter(
@@ -50,7 +50,7 @@ def crop_list_view(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    crops = request.user.crops.select_related('product').order_by('-created_at')
+    crops = request.user.cultivos.order_by('-created_at')
     
     context = {
         'crops': crops
@@ -68,7 +68,7 @@ def crop_create_view(request):
         form = CropForm(request.POST)
         if form.is_valid():
             crop = form.save(commit=False)
-            crop.producer = request.user
+            crop.productor = request.user
             crop.save()
             messages.success(request, 'Cultivo creado exitosamente.')
             return redirect('crop_list')
@@ -84,7 +84,7 @@ def crop_create_view(request):
 @login_required
 def crop_update_view(request, pk):
     """Editar cultivo existente"""
-    crop = get_object_or_404(Crop, pk=pk, producer=request.user)
+    crop = get_object_or_404(Crop, pk=pk, productor=request.user)
     
     if request.method == 'POST':
         form = CropForm(request.POST, instance=crop)
@@ -105,7 +105,7 @@ def crop_update_view(request, pk):
 @login_required
 def crop_delete_view(request, pk):
     """Eliminar cultivo"""
-    crop = get_object_or_404(Crop, pk=pk, producer=request.user)
+    crop = get_object_or_404(Crop, pk=pk, productor=request.user)
     
     if request.method == 'POST':
         crop.delete()
@@ -130,7 +130,7 @@ def producer_sales_view(request):
     ).select_related('publication__crop__product', 'buyer').order_by('-created_at')
     
     # Estadísticas
-    total_sales = orders.filter(status='entregado').aggregate(total=Sum('final_price'))['total'] or 0
+    total_sales = orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
     pending_orders = orders.filter(status='acordado').count()
     completed_orders = orders.filter(status='entregado').count()
     

@@ -9,20 +9,20 @@
     <div class="order-history-list">
         {% for order in orders %}
             <div class="order-item">
-                <h4>Pedido #{{ order.id }} - {{ order.publication.cultivo.nombre_producto }}</h4>
+                <h4>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h4>
                 <div class="order-details">
                     <div>
-                        <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.cultivo.unidad_medida }}</p>
-                        <p><strong>Precio Final:</strong> ${{ order.final_price }}</p>
+                        <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                        <p><strong>Precio Final:</strong> ${{ order.precio_total }}</p>
                         <p><strong>Fecha:</strong> {{ order.created_at|date:"d M Y" }}</p>
                     </div>
                     <div>
                         {% if user.role == 'Comprador' %}
-                            <p><strong>Vendedor:</strong> {{ order.publication.cultivo.productor.first_name }}</p>
+                            <p><strong>Vendedor:</strong> {{ order.publicacion.cultivo.productor.first_name }}</p>
                         {% else %}
-                            <p><strong>Comprador:</strong> {{ order.buyer.first_name }}</p>
+                            <p><strong>Comprador:</strong> {{ order.comprador.first_name }}</p>
                         {% endif %}
-                        <p><strong>Estado:</strong> <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                        <p><strong>Estado:</strong> <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span></p>
                     </div>
                 </div>
             </div>

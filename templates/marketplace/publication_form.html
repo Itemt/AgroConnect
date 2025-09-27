@@ -4,8 +4,8 @@
 
 {% block content %}
     <div class="form-container">
-        <h1>Publicar Cultivo: {{ crop.product.name }}</h1>
-        <p>Estás creando una publicación para tu cultivo de <strong>{{ crop.estimated_quantity }} {{ crop.unit }}</strong> de {{ crop.product.name }}.</p>
+        <h1>Publicar Cultivo: {{ crop.nombre_producto }}</h1>
+        <p>Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre_producto }}.</p>
         <p>Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
 
         <form method="post" class="styled-form">

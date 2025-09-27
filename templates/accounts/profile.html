@@ -28,13 +28,13 @@
                             {% for crop in crops %}
                                 <div class="crop-item">
                                     <div class="crop-info">
-                                        <strong>{{ crop.product.name }}</strong> ({{ crop.estimated_quantity }} {{ crop.unit }})
-                                        <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span>
+                                        <strong>{{ crop.nombre_producto }}</strong> ({{ crop.cantidad_estimada }} {{ crop.unidad_medida }})
+                                        <span class="status-badge status-{{ crop.estado|slugify }}">{{ crop.get_estado_display }}</span>
                                     </div>
                                     <div class="crop-actions">
                                         <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
                                         <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger">Eliminar</a>
-                                        {% if not crop.publication %}
+                                        {% if not crop.publicacion %}
                                             <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
                                         {% else %}
                                             <span class="published-info">Ya Publicado</span>

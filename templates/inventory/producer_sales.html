@@ -16,27 +16,27 @@
         <div class="order-history-list">
             {% for order in orders %}
                 <div class="order-item">
-                    <h4>Pedido #{{ order.id }} - {{ order.publication.cultivo.nombre_producto }}</h4>
+                    <h4>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h4>
                     
                     <div class="order-details">
                         <div class="order-info">
-                            <p><strong>Comprador:</strong> {{ order.buyer.first_name }} {{ order.buyer.last_name }}</p>
-                            <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.cultivo.unidad_medida }}</p>
-                            <p><strong>Precio por unidad:</strong> ${{ order.publication.precio_por_unidad }}</p>
-                            <p><strong>Total:</strong> ${{ order.final_price }}</p>
+                            <p><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                            <p><strong>Precio por unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</p>
+                            <p><strong>Total:</strong> ${{ order.precio_total }}</p>
                             <p><strong>Fecha:</strong> {{ order.created_at|date:"d M Y, P" }}</p>
                         </div>
                         
                         <div class="order-status">
-                            <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span>
+                            <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span>
                             
-                            {% if order.status == 'acordado' %}
+                            {% if order.estado == 'confirmado' %}
                                 <div class="order-actions">
                                     <button class="btn btn-info" onclick="updateOrderStatus({{ order.id }}, 'en tránsito')">
                                         Marcar en Tránsito
                                     </button>
                                 </div>
-                            {% elif order.status == 'en tránsito' %}
+                            {% elif order.estado == 'en_transito' %}
                                 <div class="order-actions">
                                     <button class="btn btn-success" onclick="updateOrderStatus({{ order.id }}, 'entregado')">
                                         Marcar como Entregado
@@ -47,7 +47,7 @@
                     </div>
                     
                     <div class="order-contact">
-                        <a href="{% url 'start_conversation' order.publication.id %}" class="btn btn-outline">
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="btn btn-outline">
                             Contactar Comprador
                         </a>
                     </div>
