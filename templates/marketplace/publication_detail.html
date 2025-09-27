@@ -22,6 +22,9 @@
             </div>
 
             <a href="{% url 'start_conversation' publication.id %}" class="btn-contact">Contactar al Productor</a>
+            {% if user.is_authenticated and user.role == 'Comprador' and user != publication.crop.producer %}
+                <a href="{% url 'create_order' publication.id %}" class="btn-buy">Hacer Pedido</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

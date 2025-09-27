@@ -20,6 +20,35 @@
                     <p><strong>Descripción de la Finca:</strong> {{ user.producer_profile.farm_description }}</p>
                     <p><strong>Cultivos Principales:</strong> {{ user.producer_profile.main_crops }}</p>
                 </div>
+
+                <div class="profile-section">
+                    <h3>Mis Cultivos y Publicaciones</h3>
+                    {% if crops %}
+                        <div class="crop-list">
+                            {% for crop in crops %}
+                                <div class="crop-item">
+                                    <div class="crop-info">
+                                        <strong>{{ crop.product.name }}</strong> ({{ crop.estimated_quantity }} {{ crop.unit }})
+                                        <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span>
+                                    </div>
+                                    <div class="crop-actions">
+                                        <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
+                                        <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger">Eliminar</a>
+                                        {% if not crop.publication %}
+                                            <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
+                                        {% else %}
+                                            <span class="published-info">Ya Publicado</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Aún no has registrado ningún cultivo.</p>
+                    {% endif %}
+                    <a href="{% url 'crop_add' %}" class="btn-add-crop">Añadir Nuevo Cultivo</a>
+                </div>
+
             {% elif user.role == 'Comprador' and user.buyer_profile %}
                 <div class="profile-section">
                     <h3>Perfil de Comprador</h3>

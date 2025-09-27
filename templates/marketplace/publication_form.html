@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Publicar en el Marketplace{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1>Publicar Cultivo: {{ crop.product.name }}</h1>
+        <p>Estás creando una publicación para tu cultivo de <strong>{{ crop.estimated_quantity }} {{ crop.unit }}</strong> de {{ crop.product.name }}.</p>
+        <p>Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
+
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Publicar en el Marketplace</button>
+        </form>
+    </div>
+{% endblock %}

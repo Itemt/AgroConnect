@@ -1,10 +1,62 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Conversation, Publication
-from .forms import MessageForm
+from .models import Conversation, Message, Order
+from marketplace.models import Publication
+from .forms import MessageForm, OrderForm
 
 # Create your views here.
+
+@login_required
+def create_order_view(request, publication_id):
+    publication = get_object_or_404(Publication, pk=publication_id)
+
+    if request.user.role != 'Comprador' or request.user == publication.crop.producer:
+        # Redirigir si no es un comprador o si es el dueño de la publicación
+        return redirect('publication_detail', publication_id=publication.id)
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.publication = publication
+            order.buyer = request.user
+            
+            # Calcular precio final
+            order.final_price = order.agreed_quantity * publication.price_per_unit
+            order.status = 'acordado' # Estado inicial
+            
+            # Validar que la cantidad no exceda la disponible
+            if order.agreed_quantity > publication.available_quantity:
+                form.add_error('agreed_quantity', 'La cantidad solicitada excede la disponible.')
+            else:
+                # Actualizar la cantidad disponible en la publicación
+                publication.available_quantity -= order.agreed_quantity
+                publication.save()
+                
+                order.save()
+                return redirect('order_history') # Redirigir al historial de pedidos
+    else:
+        form = OrderForm()
+
+    context = {
+        'form': form,
+        'publication': publication
+    }
+    return render(request, 'sales/order_form.html', context)
+
+
+@login_required
+def order_history_view(request):
+    if request.user.role == 'Comprador':
+        orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
+    elif request.user.role == 'Productor':
+        orders = Order.objects.filter(publication__crop__producer=request.user).order_by('-created_at')
+    else:
+        orders = []
+
+    return render(request, 'sales/order_history.html', {'orders': orders})
+
 
 @login_required
 def start_or_go_to_conversation(request, publication_id):
