@@ -50,9 +50,9 @@ def create_order_view(request, publication_id):
 @login_required
 def order_history_view(request):
     if request.user.role == 'Comprador':
-        orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
+        orders = Order.objects.filter(comprador=request.user).order_by('-created_at')
     elif request.user.role == 'Productor':
-        orders = Order.objects.filter(publication__cultivo__productor=request.user).order_by('-created_at')
+        orders = Order.objects.filter(publicacion__cultivo__productor=request.user).order_by('-created_at')
     else:
         orders = []
 
@@ -125,16 +125,16 @@ def buyer_dashboard(request):
         return redirect('index')
     
     # Estadísticas del comprador
-    total_orders = request.user.orders_as_buyer.count()
-    pending_orders = request.user.orders_as_buyer.filter(status='acordado').count()
-    completed_orders = request.user.orders_as_buyer.filter(status='entregado').count()
-    total_spent = request.user.orders_as_buyer.filter(
-        status='entregado'
+    total_orders = request.user.pedidos_como_comprador.count()
+    pending_orders = request.user.pedidos_como_comprador.filter(estado='confirmado').count()
+    completed_orders = request.user.pedidos_como_comprador.filter(estado='entregado').count()
+    total_spent = request.user.pedidos_como_comprador.filter(
+        estado='entregado'
     ).aggregate(total=Sum('precio_total'))['total'] or 0
     
     # Pedidos recientes
-    recent_orders = request.user.orders_as_buyer.select_related(
-        'publication__cultivo', 'publication__cultivo__productor'
+    recent_orders = request.user.pedidos_como_comprador.select_related(
+        'publicacion__cultivo', 'publicacion__cultivo__productor'
     ).order_by('-created_at')[:5]
     
     # Conversaciones activas

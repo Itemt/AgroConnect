@@ -18,11 +18,11 @@ def producer_dashboard(request):
     
     # Estadísticas del productor
     total_crops = request.user.cultivos.count()
-    active_publications = Publication.objects.filter(crop__producer=request.user, is_active=True).count()
-    total_orders = Order.objects.filter(publication__crop__producer=request.user).count()
+    active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='disponible').count()
+    total_orders = Order.objects.filter(publicacion__cultivo__productor=request.user).count()
     total_revenue = Order.objects.filter(
-        publication__crop__producer=request.user,
-        status='entregado'
+        publicacion__cultivo__productor=request.user,
+        estado='entregado'
     ).aggregate(total=Sum('precio_total'))['total'] or 0
     
     # Cultivos recientes
@@ -30,8 +30,8 @@ def producer_dashboard(request):
     
     # Pedidos recientes
     recent_orders = Order.objects.filter(
-        publication__crop__producer=request.user
-    ).select_related('publication__crop__product', 'buyer').order_by('-created_at')[:5]
+        publicacion__cultivo__productor=request.user
+    ).select_related('publicacion__cultivo', 'comprador').order_by('-created_at')[:5]
     
     context = {
         'total_crops': total_crops,
@@ -126,13 +126,13 @@ def producer_sales_view(request):
     
     # Todas las órdenes del productor
     orders = Order.objects.filter(
-        publication__crop__producer=request.user
-    ).select_related('publication__crop__product', 'buyer').order_by('-created_at')
+        publicacion__cultivo__productor=request.user
+    ).select_related('publicacion__cultivo', 'comprador').order_by('-created_at')
     
     # Estadísticas
     total_sales = orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
-    pending_orders = orders.filter(status='acordado').count()
-    completed_orders = orders.filter(status='entregado').count()
+    pending_orders = orders.filter(estado='confirmado').count()
+    completed_orders = orders.filter(estado='entregado').count()
     
     context = {
         'orders': orders,

@@ -33,7 +33,7 @@
                     <div class="crop-actions">
                         <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
                         
-                        {% if crop.estado == 'listo_cosecha' and not crop.publicacion %}
+                        {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
                             <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
                         {% elif crop.publicacion %}
                             <a href="{% url 'publication_edit' crop.publicacion.pk %}" class="btn-action">Editar Publicación</a>

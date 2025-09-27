@@ -15,7 +15,7 @@ class MessageInline(admin.TabularInline):
 class ConversationAdmin(admin.ModelAdmin):
     list_display = ('id', 'publication_info', 'participants_info', 'message_count', 'last_updated')
     list_filter = ('created_at', 'updated_at')
-    search_fields = ('publication__cultivo__nombre_producto', 'participants__first_name', 'participants__last_name')
+    search_fields = ('publicacion__cultivo__nombre_producto', 'participants__first_name', 'participants__last_name')
     inlines = [MessageInline]
     
     def publication_info(self, obj):
@@ -36,7 +36,7 @@ class ConversationAdmin(admin.ModelAdmin):
     last_updated.short_description = 'Última Actualización'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publication__cultivo__productor').prefetch_related('participants', 'messages')
+        return super().get_queryset(request).select_related('publicacion__cultivo__productor').prefetch_related('participants', 'messages')
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
