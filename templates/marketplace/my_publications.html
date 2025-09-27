@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Publicaciones{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Mis Publicaciones</h1>
+        <a href="{% url 'crop_list' %}" class="btn btn-primary">Ver Cultivos para Publicar</a>
+    </div>
+
+    {% if publications %}
+        <div class="publications-list">
+            {% for publication in publications %}
+                <div class="publication-item">
+                    <div class="publication-info">
+                        <h3>{{ publication.crop.product.name }}</h3>
+                        <p><strong>Precio por {{ publication.crop.unit }}:</strong> ${{ publication.price_per_unit }}</p>
+                        <p><strong>Cantidad disponible:</strong> {{ publication.available_quantity }} {{ publication.crop.unit }}</p>
+                        <p><strong>Estado del cultivo:</strong> <span class="status-badge status-{{ publication.crop.status|slugify }}">{{ publication.crop.get_status_display }}</span></p>
+                        <p><strong>Estado de la publicación:</strong> 
+                            {% if publication.status == 'disponible' %}
+                                <span class="status-badge" style="background-color: #28a745;">Disponible</span>
+                            {% else %}
+                                <span class="status-badge" style="background-color: #6c757d;">{{ publication.get_status_display }}</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Creada:</strong> {{ publication.created_at|date:"d M Y" }}</p>
+                        
+                        {% if publication.description %}
+                            <p><strong>Descripción:</strong> {{ publication.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="publication-actions">
+                        <a href="{% url 'publication_detail' publication.id %}" class="btn btn-info">Ver Detalle</a>
+                        <a href="{% url 'publication_edit' publication.pk %}" class="btn btn-secondary">Editar</a>
+                        
+                        {% if publication.status == 'disponible' %}
+                            <a href="{% url 'publication_delete' publication.pk %}" class="btn btn-danger" 
+                               onclick="return confirm('¿Estás seguro de que quieres cambiar el estado de esta publicación?')">
+                                Cambiar Estado
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="publication-stats">
+                        <p><strong>Pedidos recibidos:</strong> {{ publication.orders.count }}</p>
+                        <p><strong>Conversaciones:</strong> {{ publication.conversations.count }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No tienes publicaciones aún</h3>
+            <p>Para crear publicaciones, primero necesitas tener cultivos listos para cosechar.</p>
+            <div class="empty-actions">
+                <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Cultivo</a>
+                <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

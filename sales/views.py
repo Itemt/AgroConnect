@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.contrib import messages
+from django.db.models import Q, Sum
 from .models import Conversation, Message, Order
 from marketplace.models import Publication
 from .forms import MessageForm, OrderForm
@@ -115,3 +116,36 @@ def conversation_detail(request, conversation_id):
         'form': form
     }
     return render(request, 'sales/conversation_detail.html', context)
+
+@login_required
+def buyer_dashboard(request):
+    """Dashboard principal para compradores"""
+    if request.user.role != 'Comprador':
+        messages.error(request, 'Acceso denegado. Solo para compradores.')
+        return redirect('index')
+    
+    # Estadísticas del comprador
+    total_orders = request.user.orders_as_buyer.count()
+    pending_orders = request.user.orders_as_buyer.filter(status='acordado').count()
+    completed_orders = request.user.orders_as_buyer.filter(status='entregado').count()
+    total_spent = request.user.orders_as_buyer.filter(
+        status='entregado'
+    ).aggregate(total=Sum('final_price'))['total'] or 0
+    
+    # Pedidos recientes
+    recent_orders = request.user.orders_as_buyer.select_related(
+        'publication__crop__product', 'publication__crop__producer'
+    ).order_by('-created_at')[:5]
+    
+    # Conversaciones activas
+    active_conversations = request.user.conversations.count()
+    
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'total_spent': total_spent,
+        'recent_orders': recent_orders,
+        'active_conversations': active_conversations,
+    }
+    return render(request, 'sales/buyer_dashboard.html', context)

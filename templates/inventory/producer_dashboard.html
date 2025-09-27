@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard del Productor{% endblock %}
+
+{% block content %}
+    <div class="dashboard-container">
+        <h1>Dashboard del Productor</h1>
+        <p>Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tu actividad.</p>
+
+        <!-- Estadísticas generales -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ total_crops }}</h3>
+                <p>Cultivos Registrados</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ active_publications }}</h3>
+                <p>Publicaciones Activas</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ total_orders }}</h3>
+                <p>Pedidos Totales</p>
+            </div>
+            <div class="stat-card">
+                <h3>${{ total_revenue|floatformat:2 }}</h3>
+                <p>Ingresos Totales</p>
+            </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="quick-actions">
+            <h2>Acciones Rápidas</h2>
+            <div class="action-buttons">
+                <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Cultivo</a>
+                <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
+                <a href="{% url 'my_publications' %}" class="btn btn-secondary">Mis Publicaciones</a>
+                <a href="{% url 'producer_sales' %}" class="btn btn-info">Ver Ventas</a>
+            </div>
+        </div>
+
+        <!-- Cultivos recientes -->
+        <div class="recent-section">
+            <h2>Cultivos Recientes</h2>
+            {% if recent_crops %}
+                <div class="recent-list">
+                    {% for crop in recent_crops %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <h4>{{ crop.product.name }}</h4>
+                                <p>Cantidad estimada: {{ crop.estimated_quantity }} {{ crop.product.unit_of_measure }}</p>
+                                <p>Estado: <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span></p>
+                            </div>
+                            <div class="item-actions">
+                                <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
+                                {% if crop.status == 'listo para cosechar' %}
+                                    <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No tienes cultivos registrados. <a href="{% url 'crop_add' %}">Agregar el primero</a></p>
+            {% endif %}
+        </div>
+
+        <!-- Pedidos recientes -->
+        <div class="recent-section">
+            <h2>Pedidos Recientes</h2>
+            {% if recent_orders %}
+                <div class="recent-list">
+                    {% for order in recent_orders %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <h4>{{ order.publication.crop.product.name }}</h4>
+                                <p>Comprador: {{ order.buyer.first_name }} {{ order.buyer.last_name }}</p>
+                                <p>Cantidad: {{ order.agreed_quantity }} {{ order.publication.crop.product.unit_of_measure }}</p>
+                                <p>Total: ${{ order.final_price }}</p>
+                                <p>Estado: <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                            </div>
+                            <div class="item-date">
+                                <small>{{ order.created_at|date:"d M Y" }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No tienes pedidos aún.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

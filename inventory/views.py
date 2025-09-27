@@ -1,45 +1,143 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Crop
+from django.contrib import messages
+from django.db.models import Sum, Count, Q
+from .models import Crop, Product
 from .forms import CropForm
+from marketplace.models import Publication
+from sales.models import Order
 
 # Create your views here.
 
 @login_required
-def crop_create_view(request):
+def producer_dashboard(request):
+    """Dashboard principal para productores"""
     if request.user.role != 'Productor':
-        return redirect('profile') # O a una página de error
+        messages.error(request, 'Acceso denegado. Solo para productores.')
+        return redirect('index')
+    
+    # Estadísticas del productor
+    total_crops = request.user.crops.count()
+    active_publications = Publication.objects.filter(crop__producer=request.user, is_active=True).count()
+    total_orders = Order.objects.filter(publication__crop__producer=request.user).count()
+    total_revenue = Order.objects.filter(
+        publication__crop__producer=request.user,
+        status='entregado'
+    ).aggregate(total=Sum('final_price'))['total'] or 0
+    
+    # Cultivos recientes
+    recent_crops = request.user.crops.select_related('product').order_by('-created_at')[:5]
+    
+    # Pedidos recientes
+    recent_orders = Order.objects.filter(
+        publication__crop__producer=request.user
+    ).select_related('publication__crop__product', 'buyer').order_by('-created_at')[:5]
+    
+    context = {
+        'total_crops': total_crops,
+        'active_publications': active_publications,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'recent_crops': recent_crops,
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'inventory/producer_dashboard.html', context)
 
+@login_required
+def crop_list_view(request):
+    """Lista de cultivos del productor"""
+    if request.user.role != 'Productor':
+        messages.error(request, 'Acceso denegado. Solo para productores.')
+        return redirect('index')
+    
+    crops = request.user.crops.select_related('product').prefetch_related('publications').order_by('-created_at')
+    
+    context = {
+        'crops': crops
+    }
+    return render(request, 'inventory/crop_list.html', context)
+
+@login_required
+def crop_create_view(request):
+    """Crear nuevo cultivo"""
+    if request.user.role != 'Productor':
+        messages.error(request, 'Acceso denegado. Solo para productores.')
+        return redirect('index')
+    
     if request.method == 'POST':
         form = CropForm(request.POST)
         if form.is_valid():
             crop = form.save(commit=False)
             crop.producer = request.user
             crop.save()
-            return redirect('profile')
+            messages.success(request, 'Cultivo creado exitosamente.')
+            return redirect('crop_list')
     else:
         form = CropForm()
     
-    return render(request, 'inventory/crop_form.html', {'form': form})
+    context = {
+        'form': form,
+        'title': 'Agregar Nuevo Cultivo'
+    }
+    return render(request, 'inventory/crop_form.html', context)
 
 @login_required
 def crop_update_view(request, pk):
+    """Editar cultivo existente"""
     crop = get_object_or_404(Crop, pk=pk, producer=request.user)
+    
     if request.method == 'POST':
         form = CropForm(request.POST, instance=crop)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            messages.success(request, 'Cultivo actualizado exitosamente.')
+            return redirect('crop_list')
     else:
         form = CropForm(instance=crop)
-
-    return render(request, 'inventory/crop_form.html', {'form': form, 'crop': crop})
+    
+    context = {
+        'form': form,
+        'crop': crop,
+        'title': 'Editar Cultivo'
+    }
+    return render(request, 'inventory/crop_form.html', context)
 
 @login_required
 def crop_delete_view(request, pk):
+    """Eliminar cultivo"""
     crop = get_object_or_404(Crop, pk=pk, producer=request.user)
+    
     if request.method == 'POST':
         crop.delete()
-        return redirect('profile')
+        messages.success(request, 'Cultivo eliminado exitosamente.')
+        return redirect('crop_list')
     
-    return render(request, 'inventory/crop_confirm_delete.html', {'crop': crop})
+    context = {
+        'crop': crop
+    }
+    return render(request, 'inventory/crop_confirm_delete.html', context)
+
+@login_required
+def producer_sales_view(request):
+    """Panel de ventas para productores"""
+    if request.user.role != 'Productor':
+        messages.error(request, 'Acceso denegado. Solo para productores.')
+        return redirect('index')
+    
+    # Todas las órdenes del productor
+    orders = Order.objects.filter(
+        publication__crop__producer=request.user
+    ).select_related('publication__crop__product', 'buyer').order_by('-created_at')
+    
+    # Estadísticas
+    total_sales = orders.filter(status='entregado').aggregate(total=Sum('final_price'))['total'] or 0
+    pending_orders = orders.filter(status='acordado').count()
+    completed_orders = orders.filter(status='entregado').count()
+    
+    context = {
+        'orders': orders,
+        'total_sales': total_sales,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+    }
+    return render(request, 'inventory/producer_sales.html', context)
