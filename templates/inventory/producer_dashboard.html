@@ -48,11 +48,11 @@
                             <div class="item-info">
                                 <h4>{{ crop.nombre_producto }}</h4>
                                 <p>Cantidad estimada: {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
-                                <p>Estado: <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span></p>
+                                <p>Estado: <span class="status-badge status-{{ crop.estado|slugify }}">{{ crop.get_estado_display }}</span></p>
                             </div>
                             <div class="item-actions">
                                 <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
-                                {% if crop.status == 'listo para cosechar' %}
+                                {% if crop.estado == 'listo_cosecha' %}
                                     <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
                                 {% endif %}
                             </div>
@@ -72,11 +72,11 @@
                     {% for order in recent_orders %}
                         <div class="recent-item">
                             <div class="item-info">
-                                <h4>{{ order.publication.crop.product.name }}</h4>
-                                <p>Comprador: {{ order.buyer.first_name }} {{ order.buyer.last_name }}</p>
-                                <p>Cantidad: {{ order.agreed_quantity }} {{ order.publication.crop.product.unit_of_measure }}</p>
-                                <p>Total: ${{ order.final_price }}</p>
-                                <p>Estado: <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                                <h4>{{ order.publicacion.cultivo.nombre_producto }}</h4>
+                                <p>Comprador: {{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                                <p>Cantidad: {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                <p>Total: ${{ order.precio_total }}</p>
+                                <p>Estado: <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span></p>
                             </div>
                             <div class="item-date">
                                 <small>{{ order.created_at|date:"d M Y" }}</small>

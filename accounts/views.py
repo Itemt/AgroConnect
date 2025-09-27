@@ -30,8 +30,8 @@ def custom_logout(request):
 def profile_view(request):
     crops = None
     if request.user.role == 'Productor':
-        # La relación inversa desde User a Crop se llama 'crops'
-        crops = request.user.crops.all().order_by('-created_at')
+        # La relación inversa desde User a Crop se llama 'cultivos'
+        crops = request.user.cultivos.all().order_by('-created_at')
     
     context = {
         'crops': crops
