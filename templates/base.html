@@ -16,6 +16,7 @@
             <a href="{% url 'marketplace' %}">Marketplace</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'conversation_list' %}">Mis Mensajes</a>
+                <a href="{% url 'order_history' %}">Mis Pedidos</a>
                 <a href="{% url 'profile' %}">Mi Perfil</a>
                 <a href="{% url 'logout' %}">Cerrar Sesión</a>
             {% else %}
@@ -28,5 +29,8 @@
         {% block content %}
         {% endblock %}
     </div>
+
+    {% block extra_js %}
+    {% endblock %}
 </body>
 </html>

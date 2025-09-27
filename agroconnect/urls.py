@@ -16,10 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from core import views as core_views
 from accounts import views as accounts_views
 from marketplace import views as marketplace_views
 from sales import views as sales_views
+from inventory import views as inventory_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,4 +43,20 @@ urlpatterns = [
     path('conversations/', sales_views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', sales_views.conversation_detail, name='conversation_detail'),
     path('conversations/start/<int:publication_id>/', sales_views.start_or_go_to_conversation, name='start_conversation'),
+
+    # Inventory / Crop Management
+    path('inventory/crop/add/', inventory_views.crop_create_view, name='crop_add'),
+    path('inventory/crop/<int:pk>/edit/', inventory_views.crop_update_view, name='crop_edit'),
+    path('inventory/crop/<int:pk>/delete/', inventory_views.crop_delete_view, name='crop_delete'),
+
+    # Publication Management
+    path('marketplace/publish/<int:crop_id>/', marketplace_views.publication_create_view, name='publication_add'),
+
+    # Order Management
+    path('order/create/<int:publication_id>/', sales_views.create_order_view, name='create_order'),
+    path('order/history/', sales_views.order_history_view, name='order_history'),
 ]
+
+# Servir archivos estáticos en modo desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

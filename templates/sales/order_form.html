@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Realizar Pedido{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1>Confirmar Pedido</h1>
+        
+        <div class="order-summary">
+            <h3>Resumen del Producto</h3>
+            <p><strong>Producto:</strong> {{ publication.crop.product.name }}</p>
+            <p><strong>Productor:</strong> {{ publication.crop.producer.first_name }} {{ publication.crop.producer.last_name }}</p>
+            <p><strong>Precio:</strong> ${{ publication.price_per_unit }} / {{ publication.crop.unit }}</p>
+            <p><strong>Cantidad Disponible:</strong> {{ publication.available_quantity }} {{ publication.crop.unit }}</p>
+        </div>
+
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Realizar Pedido</button>
+        </form>
+    </div>
+{% endblock %}

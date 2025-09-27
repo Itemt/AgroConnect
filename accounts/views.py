@@ -4,6 +4,7 @@ from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm
 from django.contrib.auth.decorators import login_required
 from .models import ProducerProfile, BuyerProfile
+from inventory.models import Crop
 
 # Create your views here.
 
@@ -27,7 +28,15 @@ def custom_logout(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html')
+    crops = None
+    if request.user.role == 'Productor':
+        # La relación inversa desde User a Crop se llama 'crops'
+        crops = request.user.crops.all().order_by('-created_at')
+    
+    context = {
+        'crops': crops
+    }
+    return render(request, 'accounts/profile.html', context)
 
 @login_required
 def profile_edit_view(request):

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Message
+from .models import Message, Order
 
 class MessageForm(forms.ModelForm):
     class Meta:
@@ -10,4 +10,12 @@ class MessageForm(forms.ModelForm):
         }
         labels = {
             'content': '',
+        }
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['agreed_quantity']
+        labels = {
+            'agreed_quantity': 'Cantidad que deseas comprar',
         }

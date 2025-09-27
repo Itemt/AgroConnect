@@ -10,7 +10,7 @@
     {% endwith %}
 
     <div class="chat-container">
-        <div class="message-list">
+        <div class="message-list" id="message-list">
             {% for message in conversation.messages.all %}
                 <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
                     <div class="message-bubble">
@@ -23,8 +23,17 @@
         
         <form method="post" class="message-form">
             {% csrf_token %}
-            {{ form }}
+            {{ form.content }}
             <button type="submit">Enviar</button>
         </form>
     </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to bottom on page load
+    const messageList = document.getElementById('message-list');
+    messageList.scrollTop = messageList.scrollHeight;
+</script>
 {% endblock %}

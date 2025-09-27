@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if crop %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1>{% if crop %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}</h1>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">{% if crop %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}</button>
+        </form>
+    </div>
+{% endblock %}

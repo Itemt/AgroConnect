@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Pedidos{% endblock %}
+
+{% block content %}
+    <h1>Historial de Pedidos</h1>
+    <p>Aquí puedes ver todos tus pedidos realizados y recibidos.</p>
+
+    <div class="order-history-list">
+        {% for order in orders %}
+            <div class="order-item">
+                <h4>Pedido #{{ order.id }} - {{ order.publication.crop.product.name }}</h4>
+                <div class="order-details">
+                    <div>
+                        <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.crop.unit }}</p>
+                        <p><strong>Precio Final:</strong> ${{ order.final_price }}</p>
+                        <p><strong>Fecha:</strong> {{ order.created_at|date:"d M Y" }}</p>
+                    </div>
+                    <div>
+                        {% if user.role == 'Comprador' %}
+                            <p><strong>Vendedor:</strong> {{ order.publication.crop.producer.first_name }}</p>
+                        {% else %}
+                            <p><strong>Comprador:</strong> {{ order.buyer.first_name }}</p>
+                        {% endif %}
+                        <p><strong>Estado:</strong> <span class="status-badge status-{{ order.status|slugify }}">{{ order.get_status_display }}</span></p>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No tienes ningún pedido en tu historial.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

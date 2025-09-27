@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1>¿Estás seguro?</h1>
+        <p>Estás a punto de eliminar permanentemente el cultivo de <strong>{{ crop.product.name }}</strong> ({{ crop.estimated_quantity }} {{ crop.unit }}).</p>
+        <p>Esta acción no se puede deshacer.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Sí, eliminar</button>
+            <a href="{% url 'profile' %}" class="btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
