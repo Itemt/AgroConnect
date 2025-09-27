@@ -15,11 +15,11 @@ class MessageInline(admin.TabularInline):
 class ConversationAdmin(admin.ModelAdmin):
     list_display = ('id', 'publication_info', 'participants_info', 'message_count', 'last_updated')
     list_filter = ('created_at', 'updated_at')
-    search_fields = ('publication__crop__product__name', 'participants__first_name', 'participants__last_name')
+    search_fields = ('publication__cultivo__nombre_producto', 'participants__first_name', 'participants__last_name')
     inlines = [MessageInline]
     
     def publication_info(self, obj):
-        return f"{obj.publication.crop.product.name} - {obj.publication.crop.producer.first_name}"
+        return f"{obj.publication.cultivo.nombre_producto} - {obj.publication.cultivo.productor.first_name}"
     publication_info.short_description = 'Publicación'
     
     def participants_info(self, obj):
@@ -36,7 +36,7 @@ class ConversationAdmin(admin.ModelAdmin):
     last_updated.short_description = 'Última Actualización'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publication__crop__product', 'publication__crop__producer').prefetch_related('participants', 'messages')
+        return super().get_queryset(request).select_related('publication__cultivo__productor').prefetch_related('participants', 'messages')
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
@@ -58,18 +58,21 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'publication_info', 'buyer_info', 'agreed_quantity', 'final_price', 'status', 'status_badge', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('publication__crop__product__name', 'buyer__first_name', 'buyer__last_name')
-    list_editable = ('status',)
+    list_display = ('id', 'publicacion_info', 'comprador_info', 'cantidad_acordada', 'precio_total', 'estado', 'estado_badge', 'created_at')
+    list_filter = ('estado', 'created_at')
+    search_fields = ('publicacion__cultivo__nombre_producto', 'comprador__first_name', 'comprador__last_name')
+    list_editable = ('estado',)
     date_hierarchy = 'created_at'
     
     fieldsets = (
         ('Información del Pedido', {
-            'fields': ('publication', 'buyer')
+            'fields': ('publicacion', 'comprador')
         }),
         ('Detalles del Pedido', {
-            'fields': ('agreed_quantity', 'final_price', 'status')
+            'fields': ('cantidad_acordada', 'precio_total', 'estado')
+        }),
+        ('Información de Entrega', {
+            'fields': ('direccion_entrega', 'notas_comprador')
         }),
         ('Fechas', {
             'fields': ('created_at', 'updated_at'),
@@ -79,39 +82,47 @@ class OrderAdmin(admin.ModelAdmin):
     
     readonly_fields = ('created_at', 'updated_at')
     
-    def publication_info(self, obj):
-        return f"{obj.publication.crop.product.name} - {obj.publication.crop.producer.first_name}"
-    publication_info.short_description = 'Publicación'
+    def publicacion_info(self, obj):
+        return f"{obj.publicacion.cultivo.nombre_producto} - {obj.publicacion.cultivo.productor.first_name}"
+    publicacion_info.short_description = 'Publicación'
     
-    def buyer_info(self, obj):
-        return f"{obj.buyer.first_name} {obj.buyer.last_name}"
-    buyer_info.short_description = 'Comprador'
+    def comprador_info(self, obj):
+        return f"{obj.comprador.first_name} {obj.comprador.last_name}"
+    comprador_info.short_description = 'Comprador'
     
-    def status_badge(self, obj):
+    def estado_badge(self, obj):
         colors = {
-            'acordado': 'blue',
-            'en tránsito': 'orange',
+            'pendiente': 'orange',
+            'confirmado': 'blue',
+            'en_preparacion': 'purple',
+            'en_transito': 'yellow',
             'entregado': 'green',
+            'cancelado': 'red',
         }
-        color = colors.get(obj.status, 'gray')
+        color = colors.get(obj.estado, 'gray')
         return format_html(
             '<span style="color: {}; font-weight: bold;">{}</span>',
-            color, obj.get_status_display()
+            color, obj.get_estado_display()
         )
-    status_badge.short_description = 'Estado'
+    estado_badge.short_description = 'Estado Visual'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publication__crop__product', 'publication__crop__producer', 'buyer')
+        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'comprador')
 
 # Acciones personalizadas
-@admin.action(description='Marcar pedidos como en tránsito')
+@admin.action(description='Confirmar pedidos')
+def confirm_orders(modeladmin, request, queryset):
+    updated = queryset.update(estado='confirmado')
+    modeladmin.message_user(request, f'{updated} pedidos confirmados.')
+
+@admin.action(description='Marcar como en tránsito')
 def mark_in_transit(modeladmin, request, queryset):
-    updated = queryset.update(status='en tránsito')
+    updated = queryset.update(estado='en_transito')
     modeladmin.message_user(request, f'{updated} pedidos marcados como en tránsito.')
 
-@admin.action(description='Marcar pedidos como entregados')
+@admin.action(description='Marcar como entregados')
 def mark_delivered(modeladmin, request, queryset):
-    updated = queryset.update(status='entregado')
+    updated = queryset.update(estado='entregado')
     modeladmin.message_user(request, f'{updated} pedidos marcados como entregados.')
 
-OrderAdmin.actions = [mark_in_transit, mark_delivered]
+OrderAdmin.actions = [confirm_orders, mark_in_transit, mark_delivered]

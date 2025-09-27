@@ -5,15 +5,35 @@ from inventory.models import Crop
 # Create your models here.
 
 class Publication(BaseModel):
-    STATUS_CHOICES = (
+    ESTADO_CHOICES = (
         ('disponible', 'Disponible'),
         ('vendido', 'Vendido'),
-        ('caducado', 'Caducado'),
+        ('pausado', 'Pausado'),
+        ('agotado', 'Agotado'),
     )
-    crop = models.OneToOneField(Crop, on_delete=models.CASCADE)
-    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
-    available_quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='disponible')
+    
+    # Relación con el cultivo
+    cultivo = models.OneToOneField(Crop, on_delete=models.CASCADE, 
+                                 verbose_name="Cultivo", related_name='publicacion')
+    
+    # Información de precio y cantidad
+    precio_por_unidad = models.DecimalField(max_digits=10, decimal_places=2, 
+                                          verbose_name="Precio por Unidad ($)")
+    cantidad_disponible = models.DecimalField(max_digits=10, decimal_places=2, 
+                                            verbose_name="Cantidad Disponible")
+    cantidad_minima = models.DecimalField(max_digits=10, decimal_places=2, default=1,
+                                        verbose_name="Cantidad Mínima de Pedido")
+    
+    # Estado y descripción
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
+                            default='disponible', verbose_name="Estado")
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción",
+                                 help_text="Describe la calidad, características especiales, etc.")
+
+    class Meta:
+        verbose_name = "Publicación"
+        verbose_name_plural = "Publicaciones"
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f'Publication for {self.crop}'
+        return f'Publicación: {self.cultivo.nombre_producto} - {self.cultivo.productor.first_name}'

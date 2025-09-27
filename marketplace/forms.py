@@ -4,8 +4,10 @@ from .models import Publication
 class PublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
-        fields = ['price_per_unit', 'available_quantity']
-        labels = {
-            'price_per_unit': 'Precio por Unidad (ej. por kg)',
-            'available_quantity': 'Cantidad Total Disponible para la Venta',
+        fields = ['precio_por_unidad', 'cantidad_disponible', 'cantidad_minima', 'descripcion']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe la calidad, características especiales del producto...'}),
+            'precio_por_unidad': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'cantidad_disponible': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'cantidad_minima': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
         }

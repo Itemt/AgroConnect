@@ -50,7 +50,7 @@ def crop_list_view(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    crops = request.user.crops.select_related('product').prefetch_related('publications').order_by('-created_at')
+    crops = request.user.crops.select_related('product').order_by('-created_at')
     
     context = {
         'crops': crops

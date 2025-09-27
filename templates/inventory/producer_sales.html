@@ -16,13 +16,13 @@
         <div class="order-history-list">
             {% for order in orders %}
                 <div class="order-item">
-                    <h4>Pedido #{{ order.id }} - {{ order.publication.crop.product.name }}</h4>
+                    <h4>Pedido #{{ order.id }} - {{ order.publication.cultivo.nombre_producto }}</h4>
                     
                     <div class="order-details">
                         <div class="order-info">
                             <p><strong>Comprador:</strong> {{ order.buyer.first_name }} {{ order.buyer.last_name }}</p>
-                            <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.crop.unit }}</p>
-                            <p><strong>Precio por unidad:</strong> ${{ order.publication.price_per_unit }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.agreed_quantity }} {{ order.publication.cultivo.unidad_medida }}</p>
+                            <p><strong>Precio por unidad:</strong> ${{ order.publication.precio_por_unidad }}</p>
                             <p><strong>Total:</strong> ${{ order.final_price }}</p>
                             <p><strong>Fecha:</strong> {{ order.created_at|date:"d M Y, P" }}</p>
                         </div>

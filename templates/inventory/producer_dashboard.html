@@ -46,8 +46,8 @@
                     {% for crop in recent_crops %}
                         <div class="recent-item">
                             <div class="item-info">
-                                <h4>{{ crop.product.name }}</h4>
-                                <p>Cantidad estimada: {{ crop.estimated_quantity }} {{ crop.product.unit_of_measure }}</p>
+                                <h4>{{ crop.nombre_producto }}</h4>
+                                <p>Cantidad estimada: {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
                                 <p>Estado: <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span></p>
                             </div>
                             <div class="item-actions">

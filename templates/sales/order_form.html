@@ -8,10 +8,10 @@
         
         <div class="order-summary">
             <h3>Resumen del Producto</h3>
-            <p><strong>Producto:</strong> {{ publication.crop.product.name }}</p>
-            <p><strong>Productor:</strong> {{ publication.crop.producer.first_name }} {{ publication.crop.producer.last_name }}</p>
-            <p><strong>Precio:</strong> ${{ publication.price_per_unit }} / {{ publication.crop.unit }}</p>
-            <p><strong>Cantidad Disponible:</strong> {{ publication.available_quantity }} {{ publication.crop.unit }}</p>
+            <p><strong>Producto:</strong> {{ publication.cultivo.nombre_producto }}</p>
+            <p><strong>Productor:</strong> {{ publication.cultivo.productor.first_name }} {{ publication.cultivo.productor.last_name }}</p>
+            <p><strong>Precio:</strong> ${{ publication.precio_por_unidad }} / {{ publication.cultivo.unidad_medida }}</p>
+            <p><strong>Cantidad Disponible:</strong> {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
         </div>
 
         <form method="post" class="styled-form">

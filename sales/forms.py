@@ -15,7 +15,21 @@ class MessageForm(forms.ModelForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['agreed_quantity']
-        labels = {
-            'agreed_quantity': 'Cantidad que deseas comprar',
+        fields = ['cantidad_acordada', 'direccion_entrega', 'notas_comprador']
+        widgets = {
+            'cantidad_acordada': forms.NumberInput(attrs={
+                'step': '0.01', 
+                'min': '0.01',
+                'class': 'form-control'
+            }),
+            'direccion_entrega': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Ingresa tu dirección completa de entrega...',
+                'class': 'form-control'
+            }),
+            'notas_comprador': forms.Textarea(attrs={
+                'rows': 2,
+                'placeholder': 'Comentarios adicionales, preferencias, etc. (opcional)',
+                'class': 'form-control'
+            }),
         }

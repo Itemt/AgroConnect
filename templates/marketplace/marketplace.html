@@ -25,17 +25,17 @@
         {% for pub in publications %}
             <div class="product-card">
                 <div class="product-header">
-                    <h3>{{ pub.crop.product.name }}</h3>
+                    <h3>{{ pub.cultivo.nombre_producto }}</h3>
                     <span class="product-category">Producto</span>
                 </div>
                 
                 <div class="product-info">
-                    <p><strong>Productor:</strong> {{ pub.crop.producer.first_name }} {{ pub.crop.producer.last_name }}</p>
-                    {% if pub.crop.producer.producer_profile.location %}
-                        <p><strong>Ubicación:</strong> {{ pub.crop.producer.producer_profile.location }}</p>
+                    <p><strong>Productor:</strong> {{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</p>
+                    {% if pub.cultivo.productor.producer_profile.location %}
+                        <p><strong>Ubicación:</strong> {{ pub.cultivo.productor.producer_profile.location }}</p>
                     {% endif %}
-                    <p><strong>Disponible:</strong> {{ pub.available_quantity }} {{ pub.crop.unit }}</p>
-                    <p class="price"><strong>Precio:</strong> ${{ pub.price_per_unit }} por {{ pub.crop.unit }}</p>
+                    <p><strong>Disponible:</strong> {{ pub.cantidad_disponible }} {{ pub.cultivo.unidad_medida }}</p>
+                    <p class="price"><strong>Precio:</strong> ${{ pub.precio_por_unidad }} por {{ pub.cultivo.unidad_medida }}</p>
                 </div>
                 
                 <div class="product-actions">

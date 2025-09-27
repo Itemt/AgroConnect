@@ -14,21 +14,18 @@
                 <div class="crop-item">
                     <div class="crop-info">
                         <h3>{{ crop.product.name }}</h3>
-                        <p><strong>Cantidad estimada:</strong> {{ crop.estimated_quantity }} {{ crop.product.unit_of_measure }}</p>
-                        <p><strong>Fecha de plantación:</strong> {{ crop.planting_date|date:"d M Y" }}</p>
-                        <p><strong>Fecha estimada de cosecha:</strong> {{ crop.estimated_harvest_date|date:"d M Y" }}</p>
+                        <p><strong>Cantidad estimada:</strong> {{ crop.estimated_quantity }} {{ crop.unit }}</p>
+                        <p><strong>Fecha estimada de disponibilidad:</strong> {{ crop.estimated_availability_date|date:"d M Y" }}</p>
                         <p><strong>Estado:</strong> <span class="status-badge status-{{ crop.status|slugify }}">{{ crop.get_status_display }}</span></p>
                         
-                        {% if crop.publications.exists %}
+                        {% if crop.publication %}
                             <p><strong>Publicado en marketplace:</strong> 
-                                {% for pub in crop.publications.all %}
-                                    <a href="{% url 'publication_detail' pub.pk %}">Ver publicación</a>
-                                    {% if pub.status == 'disponible' %}
-                                        <span class="status-badge" style="background-color: #28a745;">Activa</span>
-                                    {% else %}
-                                        <span class="status-badge" style="background-color: #6c757d;">Inactiva</span>
-                                    {% endif %}
-                                {% endfor %}
+                                <a href="{% url 'publication_detail' crop.publication.pk %}">Ver publicación</a>
+                                {% if crop.publication.status == 'disponible' %}
+                                    <span class="status-badge" style="background-color: #28a745;">Disponible</span>
+                                {% else %}
+                                    <span class="status-badge" style="background-color: #6c757d;">{{ crop.publication.get_status_display }}</span>
+                                {% endif %}
                             </p>
                         {% endif %}
                     </div>
@@ -36,12 +33,10 @@
                     <div class="crop-actions">
                         <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
                         
-                        {% if crop.status == 'listo para cosechar' and not crop.publications.exists %}
+                        {% if crop.status == 'listo para cosechar' and not crop.publication %}
                             <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
-                        {% elif crop.publications.exists %}
-                            {% for pub in crop.publications.all %}
-                                <a href="{% url 'publication_edit' pub.pk %}" class="btn-action">Editar Publicación</a>
-                            {% endfor %}
+                        {% elif crop.publication %}
+                            <a href="{% url 'publication_edit' crop.publication.pk %}" class="btn-action">Editar Publicación</a>
                         {% endif %}
                         
                         <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">Eliminar</a>
