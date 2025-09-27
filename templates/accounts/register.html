@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Usuario{% endblock %}
+
+{% block content %}
+    <h2>Registro de Usuario</h2>
+    <form method="post" class="styled-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit">Registrarse</button>
+    </form>
+{% endblock %}

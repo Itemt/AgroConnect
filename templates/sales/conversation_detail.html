@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Conversación sobre {{ conversation.publication.crop.product.name }}{% endblock %}
+
+{% block content %}
+    {% with other_user=conversation.participants.all|get_other_user:user %}
+        <h1>Conversación con {{ other_user.first_name }} {{ other_user.last_name }}</h1>
+        <h3>Producto: {{ conversation.publication.crop.product.name }}</h3>
+    {% endwith %}
+
+    <div class="chat-container">
+        <div class="message-list">
+            {% for message in conversation.messages.all %}
+                <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                    <div class="message-bubble">
+                        <p class="message-content">{{ message.content }}</p>
+                        <small class="message-timestamp">{{ message.created_at|date:"d M, P" }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <form method="post" class="message-form">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+    <div class="profile-container">
+        <h1>Editar Perfil</h1>
+        
+        <form method="post" class="profile-form">
+            {% csrf_token %}
+            
+            <fieldset>
+                <legend>Información de la Cuenta</legend>
+                {{ user_form.as_p }}
+            </fieldset>
+
+            {% if profile_form %}
+                <fieldset>
+                    <legend>Información del Perfil de {{ user.role }}</legend>
+                    {{ profile_form.as_p }}
+                </fieldset>
+            {% endif %}
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
+    </div>
+{% endblock %}

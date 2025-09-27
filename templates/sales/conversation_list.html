@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Conversaciones{% endblock %}
+
+{% block content %}
+    <h1>Mis Conversaciones</h1>
+    <p>Aquí puedes ver todas tus conversaciones con productores y compradores.</p>
+
+    <div class="conversation-list">
+        {% for conv in conversations %}
+            <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item">
+                <div class="conversation-info">
+                    <h4>Conversación sobre: {{ conv.publication.crop.product.name }}</h4>
+                    <p>
+                        {% with other_user=conv.participants.all|get_other_user:user %}
+                            Hablando con: <strong>{{ other_user.first_name }} {{ other_user.last_name }}</strong> ({{ other_user.role }})
+                        {% endwith %}
+                    </p>
+                    <small>Última actualización: {{ conv.updated_at|date:"d M Y, P" }}</small>
+                </div>
+            </a>
+        {% empty %}
+            <p>No tienes conversaciones activas.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

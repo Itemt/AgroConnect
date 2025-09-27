@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Marketplace{% endblock %}
+
+{% block content %}
+    <h1>Marketplace de Productos Frescos</h1>
+    <p>Descubre los productos ofrecidos directamente por los agricultores.</p>
+
+    <div class="marketplace-grid">
+        {% for pub in publications %}
+            <div class="product-card">
+                <h3>{{ pub.crop.product.name }}</h3>
+                <p><strong>Productor:</strong> {{ pub.crop.producer.first_name }} {{ pub.crop.producer.last_name }}</p>
+                <p><strong>Ubicación:</strong> {{ pub.crop.producer.producer_profile.location }}</p>
+                <p><strong>Cantidad Disponible:</strong> {{ pub.available_quantity }} {{ pub.crop.unit }}</p>
+                <p class="price"><strong>Precio:</strong> ${{ pub.price_per_unit }} / {{ pub.crop.unit }}</p>
+                <a href="{% url 'publication_detail' pub.id %}" class="btn-details">Ver Detalles</a>
+            </div>
+        {% empty %}
+            <p>No hay productos disponibles en el marketplace en este momento.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

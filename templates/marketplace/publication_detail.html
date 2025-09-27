@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ publication.crop.product.name }}{% endblock %}
+
+{% block content %}
+    <div class="product-detail-container">
+        <div class="product-detail-card">
+            <h1>{{ publication.crop.product.name }}</h1>
+            
+            <div class="detail-section">
+                <h2>Información del Producto</h2>
+                <p><strong>Precio:</strong> ${{ publication.price_per_unit }} por {{ publication.crop.unit }}</p>
+                <p><strong>Cantidad Disponible:</strong> {{ publication.available_quantity }} {{ publication.crop.unit }}</p>
+                <p><strong>Fecha de Cosecha (aprox.):</strong> {{ publication.crop.estimated_availability_date }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h2>Información del Productor</h2>
+                <p><strong>Nombre:</strong> {{ publication.crop.producer.first_name }} {{ publication.crop.producer.last_name }}</p>
+                <p><strong>Ubicación:</strong> {{ publication.crop.producer.producer_profile.location }}</p>
+                <p><strong>Sobre la Finca:</strong> {{ publication.crop.producer.producer_profile.farm_description }}</p>
+            </div>
+
+            <a href="{% url 'start_conversation' publication.id %}" class="btn-contact">Contactar al Productor</a>
+        </div>
+    </div>
+{% endblock %}
