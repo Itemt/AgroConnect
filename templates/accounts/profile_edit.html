@@ -3,25 +3,88 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
-    <div class="profile-container">
-        <h1>Editar Perfil</h1>
-        
-        <form method="post" class="profile-form">
-            {% csrf_token %}
-            
-            <fieldset>
-                <legend>Información de la Cuenta</legend>
-                {{ user_form.as_p }}
-            </fieldset>
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow-lg">
+        <div class="px-6 py-8">
+            <h1 class="text-3xl font-bold text-gray-900">Editar Perfil</h1>
+            <p class="mt-2 text-sm text-gray-600">Actualiza tu información personal y de perfil.</p>
+        </div>
 
-            {% if profile_form %}
-                <fieldset>
-                    <legend>Información del Perfil de {{ user.role }}</legend>
-                    {{ profile_form.as_p }}
-                </fieldset>
-            {% endif %}
+        <div class="border-t border-gray-200 px-6 py-8">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
 
-            <button type="submit">Guardar Cambios</button>
-        </form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- User Information -->
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Información de la Cuenta</h2>
+                        {% for field in user_form %}
+                        <div class="field-wrapper">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                            <div class="mt-1">
+                                {{ field }}
+                            </div>
+                            {% if field.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Profile Information -->
+                    {% if profile_form %}
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Información del Perfil de {{ user.role }}</h2>
+                        {% for field in profile_form %}
+                        <div class="field-wrapper">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                            <div class="mt-1">
+                                {{ field }}
+                            </div>
+                            {% if field.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
+                    <a href="{% url 'profile' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm" onclick="return confirm('¿Estás seguro de que quieres guardar los cambios?')">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            const fields = form.querySelectorAll('.field-wrapper > div > *');
+            fields.forEach(field => {
+                let classList = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm';
+                if (field.tagName.toLowerCase() === 'textarea') {
+                    classList += ' h-32';
+                }
+                if (field.type === 'checkbox') {
+                    classList = 'h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500';
+                }
+                field.className = classList;
+            });
+        });
+    });
+</script>
 {% endblock %}
