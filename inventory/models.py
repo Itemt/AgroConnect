@@ -3,12 +3,27 @@ from django.conf import settings
 from core.models import BaseModel
 
 class Product(BaseModel):
+    CATEGORIA_CHOICES = (
+        ('hortalizas', 'Hortalizas'),
+        ('frutas', 'Frutas'),
+        ('cereales_granos', 'Cereales y Granos'),
+        ('leguminosas', 'Leguminosas'),
+        ('tuberculos', 'Tubérculos'),
+        ('hierbas_aromaticas', 'Hierbas Aromáticas'),
+        ('otros', 'Otros'),
+    )
+    
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Producto")
+    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, 
+                               default='otros', verbose_name="Categoría")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    imagen = models.ImageField(upload_to='productos/', blank=True, null=True, 
+                             verbose_name="Imagen del Producto")
 
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
+        ordering = ['categoria', 'nombre']
 
     def __str__(self):
         return self.nombre

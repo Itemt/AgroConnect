@@ -26,13 +26,46 @@ class Command(BaseCommand):
         fake = Faker('es_ES')
 
         # --- Crear Productos Base ---
-        product_names = ['Papa', 'Tomate', 'Café', 'Maíz', 'Aguacate', 'Lechuga', 'Zanahoria', 'Fresa']
-        products = [Product.objects.create(nombre=name) for name in product_names]
+        productos_por_categoria = {
+            'hortalizas': [
+                'Papa', 'Tomate', 'Lechuga', 'Zanahoria', 'Cebolla', 'Pimiento', 'Pepino', 'Brócoli',
+                'Coliflor', 'Repollo', 'Espinaca', 'Rábano', 'Apio', 'Berenjena', 'Calabacín', 'Calabaza',
+                'Remolacha', 'Nabo', 'Puerro', 'Ajo', 'Acelga', 'Cilantro', 'Perejil'
+            ],
+            'frutas': [
+                'Aguacate', 'Fresa', 'Manzana', 'Pera', 'Durazno', 'Ciruela', 'Uva', 'Naranja',
+                'Limón', 'Mandarina', 'Toronja', 'Mango', 'Papaya', 'Piña', 'Banano', 'Plátano',
+                'Sandía', 'Melón', 'Kiwi', 'Maracuyá', 'Guayaba', 'Mora', 'Arándano'
+            ],
+            'cereales_granos': [
+                'Maíz', 'Arroz', 'Trigo', 'Cebada', 'Avena', 'Quinoa', 'Amaranto', 'Sorgo'
+            ],
+            'leguminosas': [
+                'Frijol', 'Lenteja', 'Garbanzo', 'Arveja', 'Haba', 'Soya'
+            ],
+            'tuberculos': [
+                'Yuca', 'Camote', 'Ñame', 'Malanga'
+            ],
+            'hierbas_aromaticas': [
+                'Albahaca', 'Romero', 'Tomillo', 'Orégano', 'Menta', 'Hierbabuena'
+            ],
+            'otros': [
+                'Café', 'Cacao', 'Caña de Azúcar', 'Chía', 'Ajonjolí', 'Girasol'
+            ]
+        }
+        
+        products = []
+        product_names = []
+        for categoria, nombres in productos_por_categoria.items():
+            for nombre in nombres:
+                product = Product.objects.create(nombre=nombre, categoria=categoria)
+                products.append(product)
+                product_names.append(nombre)
         self.stdout.write(f'{len(products)} productos base creados.')
 
-        # --- Crear 10 Productores con Cultivos y Publicaciones ---
+        # --- Crear 20 Productores con Cultivos y Publicaciones ---
         producer_users = []
-        for i in range(10):
+        for i in range(20):
             first_name = fake.first_name()
             last_name = fake.last_name()
             username = f'prod_{first_name.lower()}{i}'
@@ -51,29 +84,67 @@ class Command(BaseCommand):
             )
             self.stdout.write(f'Productor creado: {username}')
 
-            # Crear 1 a 3 cultivos por productor
-            for _ in range(random.randint(1, 3)):
-                crop_status = random.choice(['listo para cosechar', 'cosechado'])
-                estimated_quantity = random.randint(50, 500)
+            # Crear 2 a 5 cultivos por productor
+            for _ in range(random.randint(2, 5)):
+                crop_status = random.choice(['listo_cosecha', 'cosechado', 'en_crecimiento'])
+                estimated_quantity = random.randint(20, 1000)
+                producto_nombre = random.choice(product_names)
+                
+                # Seleccionar unidad de medida apropiada según el producto
+                if producto_nombre in ['Tomate', 'Fresa', 'Uva', 'Mora', 'Arándano']:
+                    unidad = random.choice(['kg', 'cajas'])
+                elif producto_nombre in ['Papa', 'Cebolla', 'Zanahoria', 'Yuca']:
+                    unidad = random.choice(['kg', 'bultos', 'arrobas'])
+                elif producto_nombre in ['Maíz', 'Arroz', 'Trigo', 'Frijol']:
+                    unidad = random.choice(['kg', 'bultos', 'toneladas'])
+                elif producto_nombre in ['Lechuga', 'Repollo', 'Coliflor', 'Brócoli']:
+                    unidad = random.choice(['unidades', 'cajas'])
+                else:
+                    unidad = random.choice(['kg', 'cajas', 'unidades'])
                 
                 crop = Crop.objects.create(
-                    nombre_producto=random.choice(product_names),
+                    nombre_producto=producto_nombre,
                     productor=user,
                     cantidad_estimada=estimated_quantity,
-                    unidad_medida='kg',
-                    estado=crop_status.replace('listo para cosechar', 'listo_cosecha').replace(' ', '_'),
-                    fecha_disponibilidad=timezone.now().date() + timedelta(days=random.randint(-10, 10))
+                    unidad_medida=unidad,
+                    estado=crop_status,
+                    fecha_disponibilidad=timezone.now().date() + timedelta(days=random.randint(-15, 30)),
+                    notas=fake.text(max_nb_chars=100) if random.choice([True, False]) else None
                 )
 
-                # Crear una publicación para los cultivos listos
-                if crop_status in ['listo para cosechar', 'cosechado']:
+                # Crear una publicación para los cultivos listos (80% de probabilidad)
+                if crop_status in ['listo_cosecha', 'cosechado'] and random.random() < 0.8:
+                    # Precios más realistas según el producto
+                    if producto_nombre in ['Café', 'Cacao', 'Quinoa', 'Chía']:
+                        precio_base = random.uniform(8.0, 25.0)
+                    elif producto_nombre in ['Aguacate', 'Fresa', 'Mora', 'Arándano']:
+                        precio_base = random.uniform(3.0, 12.0)
+                    elif producto_nombre in ['Hierbas Aromáticas', 'Albahaca', 'Romero', 'Tomillo']:
+                        precio_base = random.uniform(15.0, 40.0)
+                    elif producto_nombre in ['Papa', 'Yuca', 'Cebolla', 'Zanahoria']:
+                        precio_base = random.uniform(0.8, 3.0)
+                    else:
+                        precio_base = random.uniform(1.5, 8.0)
+                    
+                    cantidad_disponible = max(1, estimated_quantity - random.randint(0, int(estimated_quantity * 0.3)))
+                    
+                    descripcion_opciones = [
+                        f"Producto fresco de excelente calidad, cultivado de manera orgánica.",
+                        f"Cosecha reciente, ideal para {random.choice(['restaurantes', 'supermercados', 'distribuidores'])}.",
+                        f"Producto seleccionado, sin químicos, directo del campo.",
+                        f"Calidad premium, perfecto para consumo inmediato.",
+                        f"Cultivo tradicional, con métodos sostenibles."
+                    ]
+                    
                     Publication.objects.create(
                         cultivo=crop,
-                        precio_por_unidad=round(random.uniform(0.5, 5.0), 2),
-                        cantidad_disponible=estimated_quantity - random.randint(0, 20),
-                        estado='disponible'
+                        precio_por_unidad=round(precio_base, 2),
+                        cantidad_disponible=cantidad_disponible,
+                        cantidad_minima=random.randint(1, 10),
+                        estado='disponible',
+                        descripcion=random.choice(descripcion_opciones)
                     )
-                    self.stdout.write(f'  -> Publicación creada para el cultivo de {crop.nombre_producto}')
+                    self.stdout.write(f'  -> Publicación creada para {cantidad_disponible} {unidad} de {crop.nombre_producto}')
 
         # --- Crear 10 Compradores ---
         for i in range(10):
