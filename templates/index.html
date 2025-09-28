@@ -3,83 +3,166 @@
 {% block title %}Bienvenido a AgroConnect{% endblock %}
 
 {% block content %}
-    <div class="hero-section">
-        <h1>Bienvenido a AgroConnect</h1>
-        <p class="hero-subtitle">Conectando productores y compradores directamente para un comercio más justo y sostenible.</p>
-        
-        {% if user.is_authenticated %}
-            <div class="user-welcome">
-                <h2>¡Hola, {{ user.first_name }}!</h2>
-                {% if user.role == 'Productor' %}
-                    <p>Como productor, puedes gestionar tus cultivos y vender directamente a compradores.</p>
-                    <div class="action-buttons">
-                        <a href="{% url 'producer_dashboard' %}" class="btn btn-primary">Ir a Mi Dashboard</a>
-                        <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
-                        <a href="{% url 'marketplace' %}" class="btn btn-outline">Explorar Marketplace</a>
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-primary-50 to-green-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                    Bienvenido a <span class="text-primary-600">AgroConnect</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    Conectando productores y compradores directamente para un comercio más justo y sostenible.
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div class="bg-white rounded-2xl shadow-lg p-8 max-w-4xl mx-auto">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">¡Hola, {{ user.first_name }}!</h2>
+                        {% if user.role == 'Productor' %}
+                            <p class="text-gray-600 mb-6">Como productor, puedes gestionar tus cultivos y vender directamente a compradores.</p>
+                            <div class="flex flex-wrap gap-4 justify-center">
+                                <a href="{% url 'producer_dashboard' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>Ir a Mi Dashboard
+                                </a>
+                                <a href="{% url 'crop_list' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                                    <i class="fas fa-seedling mr-2"></i>Ver Mis Cultivos
+                                </a>
+                                <a href="{% url 'marketplace' %}" class="border-2 border-primary-600 text-primary-600 px-6 py-3 rounded-lg hover:bg-primary-600 hover:text-white transition-colors font-medium">
+                                    <i class="fas fa-store mr-2"></i>Explorar Marketplace
+                                </a>
+                            </div>
+                        {% elif user.role == 'Comprador' %}
+                            <p class="text-gray-600 mb-6">Como comprador, puedes encontrar productos frescos directamente de los productores.</p>
+                            <div class="flex flex-wrap gap-4 justify-center">
+                                <a href="{% url 'buyer_dashboard' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>Ir a Mi Dashboard
+                                </a>
+                                <a href="{% url 'marketplace' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                                    <i class="fas fa-store mr-2"></i>Explorar Productos
+                                </a>
+                                <a href="{% url 'order_history' %}" class="border-2 border-primary-600 text-primary-600 px-6 py-3 rounded-lg hover:bg-primary-600 hover:text-white transition-colors font-medium">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Mis Pedidos
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
-                {% elif user.role == 'Comprador' %}
-                    <p>Como comprador, puedes encontrar productos frescos directamente de los productores.</p>
-                    <div class="action-buttons">
-                        <a href="{% url 'buyer_dashboard' %}" class="btn btn-primary">Ir a Mi Dashboard</a>
-                        <a href="{% url 'marketplace' %}" class="btn btn-secondary">Explorar Productos</a>
-                        <a href="{% url 'order_history' %}" class="btn btn-outline">Mis Pedidos</a>
+                {% else %}
+                    <div class="bg-white rounded-2xl shadow-lg p-8 max-w-6xl mx-auto">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-8">¿Eres productor o comprador?</h2>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="bg-gradient-to-br from-primary-50 to-green-100 p-8 rounded-xl border border-primary-200">
+                                <div class="text-center mb-6">
+                                    <div class="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-seedling text-white text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Soy Productor</h3>
+                                    <p class="text-gray-600">Vende tus productos directamente a compradores, gestiona tus cultivos y aumenta tus ingresos.</p>
+                                </div>
+                                <ul class="space-y-3 mb-6">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-primary-600 mr-3"></i>
+                                        Gestiona tu inventario de cultivos
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-primary-600 mr-3"></i>
+                                        Publica productos en el marketplace
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-primary-600 mr-3"></i>
+                                        Comunícate directamente con compradores
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-primary-600 mr-3"></i>
+                                        Controla tus ventas y pedidos
+                                    </li>
+                                </ul>
+                                <a href="{% url 'register' %}" class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors font-medium text-center block">
+                                    Registrarse como Productor
+                                </a>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 rounded-xl border border-blue-200">
+                                <div class="text-center mb-6">
+                                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Soy Comprador</h3>
+                                    <p class="text-gray-600">Encuentra productos frescos directamente de productores locales, sin intermediarios.</p>
+                                </div>
+                                <ul class="space-y-3 mb-6">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-blue-600 mr-3"></i>
+                                        Explora productos frescos y locales
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-blue-600 mr-3"></i>
+                                        Contacta directamente a productores
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-blue-600 mr-3"></i>
+                                        Realiza pedidos personalizados
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check-circle text-blue-600 mr-3"></i>
+                                        Rastrea tus compras
+                                    </li>
+                                </ul>
+                                <a href="{% url 'register' %}" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center block">
+                                    Registrarse como Comprador
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                            <p class="text-gray-600">¿Ya tienes cuenta? 
+                                <a href="{% url 'login' %}" class="text-primary-600 hover:text-primary-700 font-medium">Inicia sesión aquí</a>
+                            </p>
+                        </div>
                     </div>
                 {% endif %}
             </div>
-        {% else %}
-            <div class="guest-welcome">
-                <h2>¿Eres productor o comprador?</h2>
-                <div class="role-cards">
-                    <div class="role-card">
-                        <h3>Soy Productor</h3>
-                        <p>Vende tus productos directamente a compradores, gestiona tus cultivos y aumenta tus ingresos.</p>
-                        <ul>
-                            <li>Gestiona tu inventario de cultivos</li>
-                            <li>Publica productos en el marketplace</li>
-                            <li>Comunícate directamente con compradores</li>
-                            <li>Controla tus ventas y pedidos</li>
-                        </ul>
-                        <a href="{% url 'register' %}" class="btn btn-primary">Registrarse como Productor</a>
-                    </div>
-                    
-                    <div class="role-card">
-                        <h3>Soy Comprador</h3>
-                        <p>Encuentra productos frescos directamente de productores locales, sin intermediarios.</p>
-                        <ul>
-                            <li>Explora productos frescos y locales</li>
-                            <li>Contacta directamente a productores</li>
-                            <li>Realiza pedidos personalizados</li>
-                            <li>Rastrea tus compras</li>
-                        </ul>
-                        <a href="{% url 'register' %}" class="btn btn-primary">Registrarse como Comprador</a>
-                    </div>
-                </div>
-                
-                <div class="login-prompt">
-                    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     </div>
     
-    <div class="features-section">
-        <h2>¿Por qué AgroConnect?</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>🌱 Directo del Campo</h3>
-                <p>Productos frescos sin intermediarios, directo de los productores a tu mesa.</p>
+    <!-- Features Section -->
+    <div class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">¿Por qué AgroConnect?</h2>
+                <p class="text-xl text-gray-600">Descubre las ventajas de conectar directamente con el campo</p>
             </div>
-            <div class="feature-card">
-                <h3>💰 Precios Justos</h3>
-                <p>Mejores precios para productores y compradores al eliminar intermediarios.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🤝 Comunicación Directa</h3>
-                <p>Habla directamente con productores para personalizar tus pedidos.</p>
-            </div>
-            <div class="feature-card">
-                <h3>📊 Gestión Completa</h3>
-                <p>Herramientas para gestionar cultivos, ventas, pedidos y más.</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-seedling text-primary-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Directo del Campo</h3>
+                    <p class="text-gray-600">Productos frescos sin intermediarios, directo de los productores a tu mesa.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Precios Justos</h3>
+                    <p class="text-gray-600">Mejores precios para productores y compradores al eliminar intermediarios.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-handshake text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Comunicación Directa</h3>
+                    <p class="text-gray-600">Habla directamente con productores para personalizar tus pedidos.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Gestión Completa</h3>
+                    <p class="text-gray-600">Herramientas para gestionar cultivos, ventas, pedidos y más.</p>
+                </div>
             </div>
         </div>
     </div>

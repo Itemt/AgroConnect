@@ -3,61 +3,206 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-    <div class="profile-container">
-        <h1>Mi Perfil</h1>
-        
-        <div class="profile-card">
-            <h2>Información de la Cuenta</h2>
-            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
-            <p><strong>Nombre:</strong> {{ user.first_name }} {{ user.last_name }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Rol:</strong> {{ user.role }}</p>
-
-            {% if user.role == 'Productor' and user.producer_profile %}
-                <div class="profile-section">
-                    <h3>Perfil de Productor</h3>
-                    <p><strong>Ubicación:</strong> {{ user.producer_profile.location }}</p>
-                    <p><strong>Descripción de la Finca:</strong> {{ user.producer_profile.farm_description }}</p>
-                    <p><strong>Cultivos Principales:</strong> {{ user.producer_profile.main_crops }}</p>
+    <div class="bg-gray-50 min-h-screen py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Mi Perfil</h1>
+                        <p class="text-gray-600 mt-2">Gestiona tu información personal y profesional</p>
+                    </div>
+                    <a href="{% url 'profile_edit' %}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        <i class="fas fa-edit mr-2"></i>Editar Perfil
+                    </a>
                 </div>
+            </div>
 
-                <div class="profile-section">
-                    <h3>Mis Cultivos y Publicaciones</h3>
-                    {% if crops %}
-                        <div class="crop-list">
-                            {% for crop in crops %}
-                                <div class="crop-item">
-                                    <div class="crop-info">
-                                        <strong>{{ crop.nombre_producto }}</strong> ({{ crop.cantidad_estimada }} {{ crop.unidad_medida }})
-                                        <span class="status-badge status-{{ crop.estado|slugify }}">{{ crop.get_estado_display }}</span>
-                                    </div>
-                                    <div class="crop-actions">
-                                        <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
-                                        <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger">Eliminar</a>
-                                        {% if not crop.publicacion %}
-                                            <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
-                                        {% else %}
-                                            <span class="published-info">Ya Publicado</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Account Information -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-user-circle text-primary-600 mr-3"></i>
+                            Información de la Cuenta
+                        </h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+                                <p class="text-gray-900">{{ user.username }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                                <p class="text-gray-900">{{ user.first_name }} {{ user.last_name }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <p class="text-gray-900">{{ user.email }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+                                    {{ user.role }}
+                                </span>
+                            </div>
                         </div>
-                    {% else %}
-                        <p>Aún no has registrado ningún cultivo.</p>
+                    </div>
+
+                    <!-- Producer Profile -->
+                    {% if user.role == 'Productor' and user.producer_profile %}
+                        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-seedling text-primary-600 mr-3"></i>
+                                Perfil de Productor
+                            </h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                                    <p class="text-gray-900">{{ user.producer_profile.location }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción de la Finca</label>
+                                    <p class="text-gray-900">{{ user.producer_profile.farm_description }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Cultivos Principales</label>
+                                    <p class="text-gray-900">{{ user.producer_profile.main_crops }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Crops Section -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                                    <i class="fas fa-leaf text-primary-600 mr-3"></i>
+                                    Mis Cultivos y Publicaciones
+                                </h2>
+                                <a href="{% url 'crop_add' %}" 
+                                   class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                                    <i class="fas fa-plus mr-2"></i>Añadir Cultivo
+                                </a>
+                            </div>
+                            
+                            {% if crops %}
+                                <div class="space-y-4">
+                                    {% for crop in crops %}
+                                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex-1">
+                                                    <div class="flex items-center gap-3 mb-2">
+                                                        <h3 class="font-semibold text-gray-900">{{ crop.nombre_producto }}</h3>
+                                                        <span class="text-sm text-gray-600">({{ crop.cantidad_estimada }} {{ crop.unidad_medida }})</span>
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                            {% if crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
+                                                            {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
+                                                            {% elif crop.estado == 'cosechado' %}bg-blue-100 text-blue-800
+                                                            {% endif %}">
+                                                            {{ crop.get_estado_display }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <a href="{% url 'crop_edit' crop.pk %}" 
+                                                       class="text-gray-600 hover:text-primary-600 text-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'crop_delete' crop.pk %}" 
+                                                       class="text-red-600 hover:text-red-700 text-sm">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    {% if not crop.publicacion %}
+                                                        <a href="{% url 'publication_add' crop.pk %}" 
+                                                           class="text-blue-600 hover:text-blue-700 text-sm">
+                                                            <i class="fas fa-share"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-green-600 text-sm">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-8">
+                                    <i class="fas fa-seedling text-gray-400 text-4xl mb-4"></i>
+                                    <p class="text-gray-600">Aún no has registrado ningún cultivo.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    <!-- Buyer Profile -->
+                    {% elif user.role == 'Comprador' and user.buyer_profile %}
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-shopping-cart text-primary-600 mr-3"></i>
+                                Perfil de Comprador
+                            </h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Compañía</label>
+                                    <p class="text-gray-900">{{ user.buyer_profile.company_name }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Negocio</label>
+                                    <p class="text-gray-900">{{ user.buyer_profile.business_type }}</p>
+                                </div>
+                            </div>
+                        </div>
                     {% endif %}
-                    <a href="{% url 'crop_add' %}" class="btn-add-crop">Añadir Nuevo Cultivo</a>
                 </div>
 
-            {% elif user.role == 'Comprador' and user.buyer_profile %}
-                <div class="profile-section">
-                    <h3>Perfil de Comprador</h3>
-                    <p><strong>Nombre de la Compañía:</strong> {{ user.buyer_profile.company_name }}</p>
-                    <p><strong>Tipo de Negocio:</strong> {{ user.buyer_profile.business_type }}</p>
+                <!-- Quick Actions Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Acciones Rápidas</h3>
+                        <div class="space-y-3">
+                            {% if user.role == 'Productor' %}
+                                <a href="{% url 'producer_dashboard' %}" 
+                                   class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                                    <span>Mi Dashboard</span>
+                                </a>
+                                <a href="{% url 'crop_list' %}" 
+                                   class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-seedling text-primary-600 mr-3"></i>
+                                    <span>Mis Cultivos</span>
+                                </a>
+                                <a href="{% url 'producer_sales' %}" 
+                                   class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-chart-line text-primary-600 mr-3"></i>
+                                    <span>Mis Ventas</span>
+                                </a>
+                            {% elif user.role == 'Comprador' %}
+                                <a href="{% url 'buyer_dashboard' %}" 
+                                   class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                                    <span>Mi Dashboard</span>
+                                </a>
+                                <a href="{% url 'order_history' %}" 
+                                   class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-shopping-cart text-primary-600 mr-3"></i>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'marketplace' %}" 
+                               class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-store text-primary-600 mr-3"></i>
+                                <span>Marketplace</span>
+                            </a>
+                            <a href="{% url 'conversation_list' %}" 
+                               class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-comments text-primary-600 mr-3"></i>
+                                <span>Mis Mensajes</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
-
-            <a href="{% url 'profile_edit' %}" class="btn-edit">Editar Perfil</a>
+            </div>
         </div>
     </div>
 {% endblock %}

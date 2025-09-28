@@ -3,80 +3,165 @@
 {% block title %}Dashboard del Comprador{% endblock %}
 
 {% block content %}
-    <div class="dashboard-container">
-        <h1>Dashboard del Comprador</h1>
-        <p>Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
+    <div class="bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard del Comprador</h1>
+                <p class="text-gray-600 mt-2">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
+            </div>
 
-        <!-- Estadísticas generales -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>{{ total_orders }}</h3>
-                <p>Pedidos Totales</p>
-            </div>
-            <div class="stat-card">
-                <h3>{{ pending_orders }}</h3>
-                <p>Pedidos Pendientes</p>
-            </div>
-            <div class="stat-card">
-                <h3>{{ completed_orders }}</h3>
-                <p>Pedidos Completados</p>
-            </div>
-            <div class="stat-card">
-                <h3>${{ total_spent|floatformat:2 }}</h3>
-                <p>Total Gastado</p>
-            </div>
-        </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-primary-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shopping-cart text-primary-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ total_orders }}</h3>
+                            <p class="text-gray-600">Pedidos Totales</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Acciones rápidas -->
-        <div class="quick-actions">
-            <h2>Acciones Rápidas</h2>
-            <div class="action-buttons">
-                <a href="{% url 'marketplace' %}" class="btn btn-primary">Explorar Marketplace</a>
-                <a href="{% url 'order_history' %}" class="btn btn-secondary">Ver Mis Pedidos</a>
-                <a href="{% url 'conversation_list' %}" class="btn btn-info">Mis Conversaciones ({{ active_conversations }})</a>
-            </div>
-        </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ pending_orders }}</h3>
+                            <p class="text-gray-600">Pedidos Pendientes</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Pedidos recientes -->
-        <div class="recent-section">
-            <h2>Pedidos Recientes</h2>
-            {% if recent_orders %}
-                <div class="recent-list">
-                    {% for order in recent_orders %}
-                        <div class="recent-item">
-                            <div class="item-info">
-                                <h4>{{ order.publicacion.cultivo.nombre_producto }}</h4>
-                                <p>Productor: {{ order.publicacion.cultivo.productor.first_name }} {{ order.publicacion.cultivo.productor.last_name }}</p>
-                                <p>Cantidad: {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                                <p>Precio por unidad: ${{ order.publicacion.precio_por_unidad }}</p>
-                                <p>Total: ${{ order.precio_total }}</p>
-                                <p>Estado: <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span></p>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ completed_orders }}</h3>
+                            <p class="text-gray-600">Pedidos Completados</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-dollar-sign text-blue-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">${{ total_spent|floatformat:2 }}</h3>
+                            <p class="text-gray-600">Total Gastado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'marketplace' %}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        <i class="fas fa-store mr-2"></i>Explorar Marketplace
+                    </a>
+                    <a href="{% url 'order_history' %}" 
+                       class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                        <i class="fas fa-history mr-2"></i>Ver Mis Pedidos
+                    </a>
+                    <a href="{% url 'conversation_list' %}" 
+                       class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-comments mr-2"></i>Mis Conversaciones ({{ active_conversations }})
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Recent Orders -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-gray-900">Pedidos Recientes</h2>
+                            <a href="{% url 'order_history' %}" 
+                               class="text-primary-600 hover:text-primary-700 font-medium">
+                                Ver todos
+                            </a>
+                        </div>
+                        
+                        {% if recent_orders %}
+                            <div class="space-y-4">
+                                {% for order in recent_orders %}
+                                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <h4 class="font-semibold text-gray-900 mb-2">{{ order.publicacion.cultivo.nombre_producto }}</h4>
+                                                <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                                    <div>
+                                                        <p><strong>Productor:</strong> {{ order.publicacion.cultivo.productor.first_name }} {{ order.publicacion.cultivo.productor.last_name }}</p>
+                                                        <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p><strong>Precio por unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</p>
+                                                        <p><strong>Total:</strong> ${{ order.precio_total }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                        {% if order.estado == 'acordado' %}bg-blue-100 text-blue-800
+                                                        {% elif order.estado == 'en_transito' %}bg-yellow-100 text-yellow-800
+                                                        {% elif order.estado == 'entregado' %}bg-green-100 text-green-800
+                                                        {% endif %}">
+                                                        {{ order.get_estado_display }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right text-sm text-gray-500">
+                                                {{ order.created_at|date:"d M Y" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                            <div class="item-date">
-                                <small>{{ order.created_at|date:"d M Y" }}</small>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <i class="fas fa-shopping-cart text-gray-400 text-4xl mb-4"></i>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">No tienes pedidos aún</h3>
+                                <p class="text-gray-600 mb-4">Explora el marketplace para encontrar productos frescos de productores locales.</p>
+                                <a href="{% url 'marketplace' %}" 
+                                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                    Explorar Marketplace
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Active Conversations -->
+                <div class="lg:col-span-1">
+                    {% if active_conversations > 0 %}
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Conversaciones Activas</h2>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-comments text-blue-600 text-2xl"></i>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    Tienes {{ active_conversations }} conversación{{ active_conversations|pluralize:"es" }} activa{{ active_conversations|pluralize:"s" }} con productores.
+                                </p>
+                                <a href="{% url 'conversation_list' %}" 
+                                   class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                                    Ver Conversaciones
+                                </a>
                             </div>
                         </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
-                <div class="view-all">
-                    <a href="{% url 'order_history' %}" class="btn btn-outline">Ver Todos los Pedidos</a>
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <h3>No tienes pedidos aún</h3>
-                    <p>Explora el marketplace para encontrar productos frescos de productores locales.</p>
-                    <a href="{% url 'marketplace' %}" class="btn btn-primary">Explorar Marketplace</a>
-                </div>
-            {% endif %}
+            </div>
         </div>
-
-        <!-- Conversaciones activas -->
-        {% if active_conversations > 0 %}
-        <div class="recent-section">
-            <h2>Conversaciones Activas</h2>
-            <p>Tienes {{ active_conversations }} conversación{{ active_conversations|pluralize:"es" }} activa{{ active_conversations|pluralize:"s" }} con productores.</p>
-            <a href="{% url 'conversation_list' %}" class="btn btn-secondary">Ver Conversaciones</a>
-        </div>
-        {% endif %}
     </div>
 {% endblock %}

@@ -3,90 +3,178 @@
 {% block title %}Dashboard del Productor{% endblock %}
 
 {% block content %}
-    <div class="dashboard-container">
-        <h1>Dashboard del Productor</h1>
-        <p>Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tu actividad.</p>
+    <div class="bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard del Productor</h1>
+                <p class="text-gray-600 mt-2">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tu actividad.</p>
+            </div>
 
-        <!-- Estadísticas generales -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>{{ total_crops }}</h3>
-                <p>Cultivos Registrados</p>
-            </div>
-            <div class="stat-card">
-                <h3>{{ active_publications }}</h3>
-                <p>Publicaciones Activas</p>
-            </div>
-            <div class="stat-card">
-                <h3>{{ total_orders }}</h3>
-                <p>Pedidos Totales</p>
-            </div>
-            <div class="stat-card">
-                <h3>${{ total_revenue|floatformat:2 }}</h3>
-                <p>Ingresos Totales</p>
-            </div>
-        </div>
-
-        <!-- Acciones rápidas -->
-        <div class="quick-actions">
-            <h2>Acciones Rápidas</h2>
-            <div class="action-buttons">
-                <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Cultivo</a>
-                <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
-                <a href="{% url 'my_publications' %}" class="btn btn-secondary">Mis Publicaciones</a>
-                <a href="{% url 'producer_sales' %}" class="btn btn-info">Ver Ventas</a>
-            </div>
-        </div>
-
-        <!-- Cultivos recientes -->
-        <div class="recent-section">
-            <h2>Cultivos Recientes</h2>
-            {% if recent_crops %}
-                <div class="recent-list">
-                    {% for crop in recent_crops %}
-                        <div class="recent-item">
-                            <div class="item-info">
-                                <h4>{{ crop.nombre_producto }}</h4>
-                                <p>Cantidad estimada: {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
-                                <p>Estado: <span class="status-badge status-{{ crop.estado|slugify }}">{{ crop.get_estado_display }}</span></p>
-                            </div>
-                            <div class="item-actions">
-                                <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
-                                {% if crop.estado == 'listo_cosecha' or crop.estado == 'cosechado' %}
-                                    <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
-                                {% endif %}
-                            </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-primary-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-seedling text-primary-600 text-2xl"></i>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>No tienes cultivos registrados. <a href="{% url 'crop_add' %}">Agregar el primero</a></p>
-            {% endif %}
-        </div>
-
-        <!-- Pedidos recientes -->
-        <div class="recent-section">
-            <h2>Pedidos Recientes</h2>
-            {% if recent_orders %}
-                <div class="recent-list">
-                    {% for order in recent_orders %}
-                        <div class="recent-item">
-                            <div class="item-info">
-                                <h4>{{ order.publicacion.cultivo.nombre_producto }}</h4>
-                                <p>Comprador: {{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
-                                <p>Cantidad: {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                                <p>Total: ${{ order.precio_total }}</p>
-                                <p>Estado: <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span></p>
-                            </div>
-                            <div class="item-date">
-                                <small>{{ order.created_at|date:"d M Y" }}</small>
-                            </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ total_crops }}</h3>
+                            <p class="text-gray-600">Cultivos Registrados</p>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
-            {% else %}
-                <p>No tienes pedidos aún.</p>
-            {% endif %}
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-store text-blue-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ active_publications }}</h3>
+                            <p class="text-gray-600">Publicaciones Activas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shopping-cart text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">{{ total_orders }}</h3>
+                            <p class="text-gray-600">Pedidos Totales</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-dollar-sign text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-3xl font-bold text-gray-900">${{ total_revenue|floatformat:2 }}</h3>
+                            <p class="text-gray-600">Ingresos Totales</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'crop_add' %}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        <i class="fas fa-plus mr-2"></i>Agregar Cultivo
+                    </a>
+                    <a href="{% url 'crop_list' %}" 
+                       class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                        <i class="fas fa-seedling mr-2"></i>Ver Mis Cultivos
+                    </a>
+                    <a href="{% url 'my_publications' %}" 
+                       class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-store mr-2"></i>Mis Publicaciones
+                    </a>
+                    <a href="{% url 'producer_sales' %}" 
+                       class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        <i class="fas fa-chart-line mr-2"></i>Ver Ventas
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Recent Crops -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Cultivos Recientes</h2>
+                    {% if recent_crops %}
+                        <div class="space-y-4">
+                            {% for crop in recent_crops %}
+                                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900 mb-2">{{ crop.nombre_producto }}</h4>
+                                            <p class="text-sm text-gray-600 mb-2">
+                                                Cantidad estimada: {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}
+                                            </p>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                {% if crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
+                                                {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
+                                                {% elif crop.estado == 'cosechado' %}bg-blue-100 text-blue-800
+                                                {% endif %}">
+                                                {{ crop.get_estado_display }}
+                                            </span>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <a href="{% url 'crop_edit' crop.pk %}" 
+                                               class="text-gray-600 hover:text-primary-600 text-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if crop.estado == 'listo_cosecha' or crop.estado == 'cosechado' %}
+                                                <a href="{% url 'publication_add' crop.pk %}" 
+                                                   class="text-blue-600 hover:text-blue-700 text-sm">
+                                                    <i class="fas fa-share"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-seedling text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-600 mb-4">No tienes cultivos registrados.</p>
+                            <a href="{% url 'crop_add' %}" 
+                               class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                Agregar el primero
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Pedidos Recientes</h2>
+                    {% if recent_orders %}
+                        <div class="space-y-4">
+                            {% for order in recent_orders %}
+                                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900 mb-2">{{ order.publicacion.cultivo.nombre_producto }}</h4>
+                                            <div class="text-sm text-gray-600 space-y-1">
+                                                <p><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                                                <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                                <p><strong>Total:</strong> ${{ order.precio_total }}</p>
+                                            </div>
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                    {% if order.estado == 'acordado' %}bg-blue-100 text-blue-800
+                                                    {% elif order.estado == 'en_transito' %}bg-yellow-100 text-yellow-800
+                                                    {% elif order.estado == 'entregado' %}bg-green-100 text-green-800
+                                                    {% endif %}">
+                                                    {{ order.get_estado_display }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right text-sm text-gray-500">
+                                            {{ order.created_at|date:"d M Y" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-shopping-cart text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-600">No tienes pedidos aún.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

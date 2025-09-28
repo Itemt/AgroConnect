@@ -3,31 +3,115 @@
 {% block title %}Registro de Usuario{% endblock %}
 
 {% block content %}
-    <h2>Registro de Usuario</h2>
-    <form method="post" class="styled-form">
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-            <div class="form-errors">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
+                    <i class="fas fa-user-plus text-primary-600 text-xl"></i>
+                </div>
+                <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+                    Registro de Usuario
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Crea tu cuenta en AgroConnect
+                </p>
             </div>
-        {% endif %}
+            
+            <form class="mt-8 space-y-6" method="post">
+                {% csrf_token %}
 
-        {% for field in form %}
-            <div class="form-group">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.help_text %}
-                    <small class="help-text">{{ field.help_text }}</small>
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        {% for error in form.non_field_errors %}
+                            <p class="text-sm">{{ error }}</p>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-                {% for error in field.errors %}
-                    <div class="field-error">{{ error }}</div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-        
-        <button type="submit">Registrarse</button>
-    </form>
+
+                <div class="space-y-4">
+                    {% for field in form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ field.label }}
+                            </label>
+                            
+                            {% if field.field.widget.input_type == 'password' %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400"></i>
+                                    </div>
+                                    <input type="password" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}"
+                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           placeholder="Ingresa tu {{ field.label|lower }}">
+                                </div>
+                            {% elif field.field.widget.input_type == 'email' %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}"
+                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           placeholder="Ingresa tu {{ field.label|lower }}"
+                                           value="{{ field.value|default:'' }}">
+                                </div>
+                            {% elif field.name == 'role' %}
+                                <select name="{{ field.name }}" 
+                                        id="{{ field.id_for_label }}"
+                                        class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    {% for choice in field.field.choices %}
+                                        <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                    <input type="text" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}"
+                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           placeholder="Ingresa tu {{ field.label|lower }}"
+                                           value="{{ field.value|default:'' }}">
+                                </div>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-primary-500 group-hover:text-primary-400"></i>
+                        </span>
+                        Registrarse
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        ¿Ya tienes cuenta? 
+                        <a href="{% url 'login' %}" class="font-medium text-primary-600 hover:text-primary-500">
+                            Inicia sesión aquí
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
