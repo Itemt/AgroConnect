@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-)*@vn2ql9)5mll+b%hygq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,agroconnect.itemt.tech').split(',')
 
 
 # Application definition
@@ -155,3 +155,16 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+# CSRF Configuration for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://agroconnect.itemt.tech',
+    'http://agroconnect.itemt.tech',
+]
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = False  # Coolify handles SSL
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CSRF_COOKIE_SECURE = False  # Let Coolify handle SSL
+    SESSION_COOKIE_SECURE = False  # Let Coolify handle SSL
