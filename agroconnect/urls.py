@@ -66,6 +66,15 @@ urlpatterns = [
     # Order Management
     path('order/create/<int:publication_id>/', sales_views.create_order_view, name='create_order'),
     path('order/history/', sales_views.order_history_view, name='order_history'),
+    path('order/<int:order_id>/', sales_views.order_detail_view, name='order_detail'),
+    path('order/<int:order_id>/update/', sales_views.update_order_status_view, name='update_order_status'),
+    path('order/<int:order_id>/confirm-receipt/', sales_views.confirm_order_receipt_view, name='confirm_order_receipt'),
+    path('order/<int:order_id>/rate/', sales_views.rate_order_view, name='rate_order'),
+    path('order/<int:order_id>/cancel/', sales_views.cancel_order_view, name='cancel_order'),
+    
+    # User Profiles and Rankings
+    path('user/<int:user_id>/profile/', sales_views.user_profile_view, name='user_profile'),
+    path('rankings/', sales_views.rankings_view, name='rankings'),
 ]
 
 # Servir archivos estáticos en modo desarrollo

@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+
+{% block title %}Calificar Pedido #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="rating-container">
+    <div class="page-header">
+        <h1>⭐ Calificar tu Experiencia</h1>
+        <p>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</p>
+    </div>
+
+    <div class="rating-content">
+        <div class="order-info">
+            <h3>📦 Información del Pedido</h3>
+            <div class="order-details">
+                <div class="detail-item">
+                    <strong>Producto:</strong>
+                    <span>{{ order.publicacion.cultivo.nombre_producto }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Vendedor:</strong>
+                    <span>{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Cantidad:</strong>
+                    <span>{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Total:</strong>
+                    <span>${{ order.precio_total }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rating-form-container">
+            <h3>📝 Tu Calificación</h3>
+            <div class="rating-intro">
+                <p>Tu opinión es muy importante para la comunidad de AgroConnect. Ayuda a otros compradores y vendedores compartiendo tu experiencia.</p>
+            </div>
+
+            <form method="post" class="rating-form">
+                {% csrf_token %}
+                
+                <div class="rating-categories">
+                    <div class="rating-category">
+                        <label for="{{ form.calificacion_general.id_for_label }}">
+                            🌟 {{ form.calificacion_general.label }}
+                        </label>
+                        <div class="rating-input-group">
+                            {{ form.calificacion_general }}
+                            <div class="rating-description">
+                                <small>¿Cómo calificarías tu experiencia general?</small>
+                            </div>
+                        </div>
+                        {% if form.calificacion_general.errors %}
+                            <div class="error-message">{{ form.calificacion_general.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="rating-category">
+                        <label for="{{ form.calificacion_comunicacion.id_for_label }}">
+                            💬 {{ form.calificacion_comunicacion.label }}
+                        </label>
+                        <div class="rating-input-group">
+                            {{ form.calificacion_comunicacion }}
+                            <div class="rating-description">
+                                <small>¿Qué tal fue la comunicación con el vendedor?</small>
+                            </div>
+                        </div>
+                        {% if form.calificacion_comunicacion.errors %}
+                            <div class="error-message">{{ form.calificacion_comunicacion.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="rating-category">
+                        <label for="{{ form.calificacion_puntualidad.id_for_label }}">
+                            ⏰ {{ form.calificacion_puntualidad.label }}
+                        </label>
+                        <div class="rating-input-group">
+                            {{ form.calificacion_puntualidad }}
+                            <div class="rating-description">
+                                <small>¿El pedido llegó en el tiempo esperado?</small>
+                            </div>
+                        </div>
+                        {% if form.calificacion_puntualidad.errors %}
+                            <div class="error-message">{{ form.calificacion_puntualidad.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="rating-category">
+                        <label for="{{ form.calificacion_calidad.id_for_label }}">
+                            🥕 {{ form.calificacion_calidad.label }}
+                        </label>
+                        <div class="rating-input-group">
+                            {{ form.calificacion_calidad }}
+                            <div class="rating-description">
+                                <small>¿Cómo estuvo la calidad del producto?</small>
+                            </div>
+                        </div>
+                        {% if form.calificacion_calidad.errors %}
+                            <div class="error-message">{{ form.calificacion_calidad.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.comentario.id_for_label }}">
+                        💭 {{ form.comentario.label }}
+                    </label>
+                    {{ form.comentario }}
+                    <div class="form-help">
+                        <small>Comparte detalles sobre tu experiencia que puedan ser útiles para otros compradores.</small>
+                    </div>
+                    {% if form.comentario.errors %}
+                        <div class="error-message">{{ form.comentario.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <div class="recommendation-group">
+                        {{ form.recomendaria }}
+                        <label for="{{ form.recomendaria.id_for_label }}">
+                            👍 {{ form.recomendaria.label }}
+                        </label>
+                    </div>
+                    {% if form.recomendaria.errors %}
+                        <div class="error-message">{{ form.recomendaria.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        ⭐ Enviar Calificación
+                    </button>
+                    <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">
+                        ❌ Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="rating-info">
+            <h4>ℹ️ Información sobre las Calificaciones</h4>
+            <ul>
+                <li><strong>Confidencialidad:</strong> Tu calificación será visible públicamente</li>
+                <li><strong>Honestidad:</strong> Por favor, sé honesto y constructivo</li>
+                <li><strong>Impacto:</strong> Las calificaciones ayudan a mejorar la calidad del servicio</li>
+                <li><strong>Permanencia:</strong> Una vez enviada, no podrás modificar tu calificación</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.page-header h1 {
+    color: #004d00;
+    margin-bottom: 0.5rem;
+}
+
+.rating-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.order-info {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #004d00;
+}
+
+.order-info h3 {
+    margin-top: 0;
+    color: #004d00;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.rating-form-container {
+    background: #f0f8f0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #d4edda;
+}
+
+.rating-form-container h3 {
+    margin-top: 0;
+    color: #004d00;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.rating-intro {
+    background: white;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ddd;
+}
+
+.rating-form {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.rating-categories {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.rating-category {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.rating-category label {
+    display: block;
+    font-weight: bold;
+    color: #004d00;
+    margin-bottom: 0.5rem;
+}
+
+.rating-input-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: white;
+    font-size: 1rem;
+}
+
+.rating-description {
+    margin-top: 0.5rem;
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #004d00;
+    margin-bottom: 0.5rem;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-help {
+    margin-top: 0.5rem;
+    color: #666;
+}
+
+.recommendation-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #e8f5e8;
+    border-radius: 5px;
+    border: 2px solid #28a745;
+}
+
+.recommendation-group input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.recommendation-group label {
+    font-weight: bold;
+    color: #155724;
+    margin: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.form-actions .btn {
+    padding: 0.75rem 2rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.rating-info {
+    background: #fff3cd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+    border-left: 4px solid #f39c12;
+}
+
+.rating-info h4 {
+    margin-top: 0;
+    color: #856404;
+}
+
+.rating-info ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.rating-info li {
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .order-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .rating-categories {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
