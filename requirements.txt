@@ -31,3 +31,5 @@ tzdata==2025.2
 whitenoise==6.7.0
 zope.interface==8.0.1
 gunicorn==21.2.0
+dj-database-url==2.1.0
+psycopg2-binary==2.9.7
