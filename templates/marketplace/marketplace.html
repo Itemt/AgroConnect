@@ -27,9 +27,16 @@
                                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         </div>
                     </div>
+
+                    <div class="mb-4 text-right">
+                        <button type="button" id="toggle-filters-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                            <i class="fas fa-filter mr-2"></i>Mostrar Filtros
+                        </button>
+                    </div>
                     
-                    <!-- Filters Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div id="filters-container" class="hidden">
+                        <!-- Filters Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <!-- Category Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -108,7 +115,8 @@
                             </button>
                         </div>
                     </div>
-                </form>
+                </div>
+            </form>
             </div>
             
             <!-- Results Summary -->
@@ -272,7 +280,23 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-            </div>
-        </div>
-    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggle-filters-btn');
+        const filtersContainer = document.getElementById('filters-container');
+
+        toggleBtn.addEventListener('click', function () {
+            filtersContainer.classList.toggle('hidden');
+            const isHidden = filtersContainer.classList.contains('hidden');
+            if (isHidden) {
+                toggleBtn.innerHTML = '<i class="fas fa-filter mr-2"></i>Mostrar Filtros';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Ocultar Filtros';
+            }
+        });
+    });
+</script>
 {% endblock %}
