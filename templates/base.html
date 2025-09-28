@@ -1,43 +1,219 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AgroConnect{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="logo">
-            <a href="{% url 'index' %}">AgroConnect</a>
-        </div>
-        <div class="nav-links">
-            <a href="{% url 'marketplace' %}">Marketplace</a>
-            <a href="{% url 'rankings' %}">Rankings</a>
-            {% if user.is_authenticated %}
-                {% if user.role == 'Productor' %}
-                    <a href="{% url 'producer_dashboard' %}">Mi Dashboard</a>
-                    <a href="{% url 'crop_list' %}">Mis Cultivos</a>
-                    <a href="{% url 'producer_sales' %}">Mis Ventas</a>
-                {% elif user.role == 'Comprador' %}
-                    <a href="{% url 'buyer_dashboard' %}">Mi Dashboard</a>
-                    <a href="{% url 'order_history' %}">Mis Pedidos</a>
-                {% endif %}
-                <a href="{% url 'conversation_list' %}">Mis Mensajes</a>
-                <a href="{% url 'profile' %}">Mi Perfil</a>
-                <a href="{% url 'logout' %}">Cerrar Sesión</a>
-            {% else %}
-                <a href="{% url 'login' %}">Iniciar Sesión</a>
-                <a href="{% url 'register' %}">Registrarse</a>
-            {% endif %}
+<body class="h-full bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 px-4 py-3">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center mr-auto">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                        <i class="fas fa-seedling text-primary-600 text-2xl"></i>
+                        <span class="text-xl font-bold text-gray-900">AgroConnect</span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'marketplace' %}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Marketplace</a>
+                    <a href="{% url 'rankings' %}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Rankings</a>
+                </div>
+
+                <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse ml-8">
+                    {% if user.is_authenticated %}
+                    <button type="button" class="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                      <span class="sr-only">Open user menu</span>
+                      <i class="fas fa-user-circle text-gray-600 hover:text-primary-600 text-2xl"></i>
+                    </button>
+                    <!-- Dropdown menu -->
+                    <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+                      <div class="px-4 py-3">
+                        <span class="block text-sm text-gray-900 dark:text-white">{{ user.username }}</span>
+                        <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">{{ user.email }}</span>
+                      </div>
+                      <ul class="py-2" aria-labelledby="user-menu-button">
+                        {% if user.role == 'Productor' %}
+                        <li>
+                            <a href="{% url 'producer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mi Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'crop_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Cultivos</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'producer_sales' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Ventas</a>
+                        </li>
+                        {% elif user.role == 'Comprador' %}
+                        <li>
+                            <a href="{% url 'buyer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'order_history' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Pedidos</a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'conversation_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mensajes</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Perfil</a>
+                        </li>
+                        <li>
+                          <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Cerrar Sesión</a>
+                        </li>
+                      </ul>
+                    </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Iniciar Sesión</a>
+                        <a href="{% url 'register' %}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">Registrarse</a>
+                    {% endif %}
+                    <button data-collapse-toggle="navbar-user" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
+                      <span class="sr-only">Open main menu</span>
+                      <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                      </svg>
+                  </button>
+                </div>
+            </div>
         </div>
     </nav>
-    <div class="container">
-        {% block content %}
-        {% endblock %}
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="drawer-navigation" class="fixed top-0 left-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-white" tabindex="-1" aria-labelledby="drawer-navigation-label">
+        <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase">Menú</h5>
+        <button type="button" data-drawer-hide="drawer-navigation" aria-controls="drawer-navigation" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="py-4 overflow-y-auto">
+            <ul class="space-y-2">
+                <li>
+                    <a href="{% url 'marketplace' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-store w-5 h-5 text-gray-500"></i>
+                        <span class="ml-3">Marketplace</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'rankings' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-trophy w-5 h-5 text-gray-500"></i>
+                        <span class="ml-3">Rankings</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    {% if user.role == 'Productor' %}
+                        <li>
+                            <a href="{% url 'producer_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-tachometer-alt w-5 h-5 text-gray-500"></i>
+                                <span class="ml-3">Mi Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'crop_list' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-seedling w-5 h-5 text-gray-500"></i>
+                                <span class="ml-3">Cultivos</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'producer_sales' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-chart-line w-5 h-5 text-gray-500"></i>
+                                <span class="ml-3">Ventas</span>
+                            </a>
+                        </li>
+                    {% elif user.role == 'Comprador' %}
+                        <li>
+                            <a href="{% url 'buyer_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-tachometer-alt w-5 h-5 text-gray-500"></i>
+                                <span class="ml-3">Mi Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'order_history' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-shopping-cart w-5 h-5 text-gray-500"></i>
+                                <span class="ml-3">Pedidos</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'conversation_list' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-comments w-5 h-5 text-gray-500"></i>
+                            <span class="ml-3">Mensajes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'profile' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-user w-5 h-5 text-gray-500"></i>
+                            <span class="ml-3">Mi Perfil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'logout' %}" class="flex items-center p-2 text-red-600 rounded-lg hover:bg-red-50">
+                            <i class="fas fa-sign-out-alt w-5 h-5"></i>
+                            <span class="ml-3">Cerrar Sesión</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{% url 'login' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-sign-in-alt w-5 h-5 text-gray-500"></i>
+                            <span class="ml-3">Iniciar Sesión</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'register' %}" class="flex items-center p-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                            <i class="fas fa-user-plus w-5 h-5"></i>
+                            <span class="ml-3">Registrarse</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4">
+            <div class="text-center text-gray-600">
+                <p>&copy; 2024 AgroConnect. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    
     {% block extra_js %}
     {% endblock %}
 </body>
