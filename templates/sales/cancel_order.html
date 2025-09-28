@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Pedido #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="cancel-order-container">
+    <div class="page-header">
+        <h1>❌ Cancelar Pedido</h1>
+        <p>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</p>
+    </div>
+
+    <div class="cancel-content">
+        <div class="order-summary">
+            <h3>📦 Resumen del Pedido</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>Producto:</strong>
+                    <span>{{ order.publicacion.cultivo.nombre_producto }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Cantidad:</strong>
+                    <span>{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>{% if user_role == 'vendedor' %}Comprador{% else %}Vendedor{% endif %}:</strong>
+                    <span>
+                        {% if user_role == 'vendedor' %}
+                            {{ order.comprador.first_name }} {{ order.comprador.last_name }}
+                        {% else %}
+                            {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total:</strong>
+                    <span>${{ order.precio_total }}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Estado Actual:</strong>
+                    <span class="status-badge status-{{ order.estado|slugify }}">{{ order.get_estado_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cancellation-warning">
+            <h3>⚠️ Confirmación de Cancelación</h3>
+            <div class="warning-content">
+                <p><strong>¿Estás seguro de que quieres cancelar este pedido?</strong></p>
+                
+                <div class="consequences">
+                    <h4>Consecuencias de la cancelación:</h4>
+                    <ul>
+                        <li>✅ <strong>Cantidad restaurada:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }} volverán a estar disponibles en el marketplace</li>
+                        <li>💰 <strong>Pago:</strong> No se procesará ningún pago (o se reembolsará si ya se procesó)</li>
+                        <li>📊 <strong>Estadísticas:</strong> Este pedido no contará para las estadísticas de ningún usuario</li>
+                        <li>🚫 <strong>Irreversible:</strong> Una vez cancelado, no se puede reactivar el pedido</li>
+                        <li>📧 <strong>Notificación:</strong> La otra parte será notificada de la cancelación</li>
+                    </ul>
+                </div>
+
+                {% if user_role == 'comprador' %}
+                    <div class="buyer-specific">
+                        <h4>Como comprador:</h4>
+                        <ul>
+                            <li>Podrás realizar un nuevo pedido más tarde si el producto sigue disponible</li>
+                            <li>Se recomienda contactar al vendedor antes de cancelar para resolver cualquier problema</li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="seller-specific">
+                        <h4>Como vendedor:</h4>
+                        <ul>
+                            <li>El producto volverá a estar disponible para otros compradores</li>
+                            <li>Se recomienda contactar al comprador para explicar el motivo de la cancelación</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="cancellation-form">
+            <form method="post" class="cancel-form">
+                {% csrf_token %}
+                
+                <div class="confirmation-checkbox">
+                    <input type="checkbox" id="confirm-cancellation" required>
+                    <label for="confirm-cancellation">
+                        Confirmo que entiendo las consecuencias y quiero cancelar este pedido
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger" id="cancel-button" disabled>
+                        ❌ Confirmar Cancelación
+                    </button>
+                    <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">
+                        🔙 Volver al Pedido
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="alternative-actions">
+            <h4>💡 ¿Consideraste estas alternativas?</h4>
+            <div class="alternatives">
+                <div class="alternative">
+                    <h5>💬 Contactar a la otra parte</h5>
+                    <p>Muchos problemas se pueden resolver con una conversación.</p>
+                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="btn btn-outline">
+                        Enviar Mensaje
+                    </a>
+                </div>
+                
+                {% if user_role == 'vendedor' and order.estado == 'pendiente' %}
+                    <div class="alternative">
+                        <h5>✅ Confirmar el pedido</h5>
+                        <p>Si puedes cumplir con el pedido, confírmalo en lugar de cancelarlo.</p>
+                        <a href="{% url 'update_order_status' order.id %}" class="btn btn-success">
+                            Confirmar Pedido
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cancel-order-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.page-header h1 {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+}
+
+.cancel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.order-summary {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #004d00;
+}
+
+.order-summary h3 {
+    margin-top: 0;
+    color: #004d00;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.cancellation-warning {
+    background: #fff3cd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+    border-left: 4px solid #f39c12;
+}
+
+.cancellation-warning h3 {
+    margin-top: 0;
+    color: #856404;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.warning-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.consequences, .buyer-specific, .seller-specific {
+    margin: 1rem 0;
+}
+
+.consequences h4, .buyer-specific h4, .seller-specific h4 {
+    color: #856404;
+    margin-bottom: 0.5rem;
+}
+
+.consequences ul, .buyer-specific ul, .seller-specific ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.consequences li, .buyer-specific li, .seller-specific li {
+    margin-bottom: 0.5rem;
+}
+
+.cancellation-form {
+    background: #f8d7da;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    border-left: 4px solid #dc3545;
+}
+
+.cancel-form {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.confirmation-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 2px solid #dc3545;
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-checkbox input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.confirmation-checkbox label {
+    font-weight: bold;
+    color: #721c24;
+    margin: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.form-actions .btn {
+    padding: 0.75rem 2rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.alternative-actions {
+    background: #d1ecf1;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #bee5eb;
+    border-left: 4px solid #17a2b8;
+}
+
+.alternative-actions h4 {
+    margin-top: 0;
+    color: #0c5460;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+.alternatives {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.alternative {
+    background: white;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.alternative h5 {
+    margin-top: 0;
+    color: #0c5460;
+}
+
+.alternative p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .alternatives {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('confirm-cancellation');
+    const button = document.getElementById('cancel-button');
+    
+    checkbox.addEventListener('change', function() {
+        button.disabled = !this.checked;
+    });
+});
+</script>
+{% endblock %}

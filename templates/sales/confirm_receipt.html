@@ -1,0 +1,693 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Recepción del Pedido{% endblock %}
+
+{% block content %}
+<div class="confirm-receipt-container">
+    <div class="page-header">
+        <h1>✅ Confirmar Recepción del Pedido</h1>
+        <p>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</p>
+    </div>
+
+    <!-- Información del pedido -->
+    <div class="order-info-card">
+        <h2>📦 Información del Pedido</h2>
+        <div class="order-details">
+            <div class="detail-row">
+                <div class="detail-item">
+                    <strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}
+                </div>
+                <div class="detail-item">
+                    <strong>Vendedor:</strong> {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}
+                </div>
+                <div class="detail-item">
+                    <strong>Total Pagado:</strong> ${{ order.precio_total }}
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <strong>Estado Actual:</strong> 
+                    <span class="status-badge status-{{ order.estado|slugify }}">
+                        {{ order.get_estado_display }}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <strong>Fecha del Pedido:</strong> {{ order.created_at|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+            {% if order.fecha_envio %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <strong>Fecha de Envío:</strong> {{ order.fecha_envio|date:"d/m/Y H:i" }}
+                </div>
+                {% if order.fecha_entrega_estimada %}
+                <div class="detail-item">
+                    <strong>Entrega Estimada:</strong> {{ order.fecha_entrega_estimada|date:"d/m/Y" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if order.notas_vendedor %}
+            <div class="detail-row">
+                <div class="detail-item full-width">
+                    <strong>Notas del Vendedor:</strong>
+                    <p class="vendor-notes">{{ order.notas_vendedor }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Timeline del pedido -->
+    <div class="order-timeline">
+        <h3>📅 Historial del Pedido</h3>
+        <div class="timeline">
+            <div class="timeline-item completed">
+                <div class="timeline-marker">📝</div>
+                <div class="timeline-content">
+                    <h4>Pedido Creado</h4>
+                    <p>{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            {% if order.fecha_confirmacion %}
+            <div class="timeline-item completed">
+                <div class="timeline-marker">✅</div>
+                <div class="timeline-content">
+                    <h4>Pedido Confirmado</h4>
+                    <p>{{ order.fecha_confirmacion|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if order.fecha_envio %}
+            <div class="timeline-item completed">
+                <div class="timeline-marker">📦</div>
+                <div class="timeline-content">
+                    <h4>Pedido Enviado</h4>
+                    <p>{{ order.fecha_envio|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="timeline-item current">
+                <div class="timeline-marker">🏠</div>
+                <div class="timeline-content">
+                    <h4>Confirmar Recepción</h4>
+                    <p>¿Has recibido tu pedido?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de confirmación -->
+    <div class="confirm-form-card">
+        <h2>🏠 Confirmar Recepción</h2>
+        
+        <div class="confirmation-message">
+            <div class="message-icon">⚠️</div>
+            <div class="message-content">
+                <h3>¿Has recibido tu pedido?</h3>
+                <p>Al confirmar la recepción:</p>
+                <ul>
+                    <li>✅ El pedido se marcará como <strong>completado</strong></li>
+                    <li>💰 Se confirmará el pago al vendedor</li>
+                    <li>⭐ Podrás calificar al vendedor</li>
+                    <li>🔒 No podrás cancelar el pedido</li>
+                </ul>
+                <p><strong>Solo confirma si has recibido el pedido en buenas condiciones.</strong></p>
+            </div>
+        </div>
+
+        <form method="post" class="confirm-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.notas_recepcion.id_for_label }}">Comentarios sobre la Recepción:</label>
+                {{ form.notas_recepcion }}
+                <small class="help-text">Opcional: Comparte tu experiencia con este pedido</small>
+                {% if form.notas_recepcion.errors %}
+                    <div class="error-messages">
+                        {% for error in form.notas_recepcion.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="satisfaction-check">
+                <div class="check-item main-confirmation">
+                    {{ form.confirmar_recepcion }}
+                    <label for="{{ form.confirmar_recepcion.id_for_label }}">
+                        <span class="checkmark">✓</span>
+                        {{ form.confirmar_recepcion.label }}
+                    </label>
+                    {% if form.confirmar_recepcion.errors %}
+                        <div class="error-messages">
+                            {% for error in form.confirmar_recepcion.errors %}
+                                <p class="error">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success" id="confirm-btn" disabled>
+                    ✅ Confirmar Recepción
+                </button>
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">
+                    ❌ Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-card">
+        <h3>ℹ️ ¿Qué pasa después?</h3>
+        <div class="info-content">
+            <div class="info-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Pedido Completado</h4>
+                    <p>El pedido se marcará como completado y el vendedor recibirá una notificación.</p>
+                </div>
+            </div>
+            <div class="info-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Calificar Vendedor</h4>
+                    <p>Podrás calificar tu experiencia con el vendedor para ayudar a otros compradores.</p>
+                </div>
+            </div>
+            <div class="info-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Historial Actualizado</h4>
+                    <p>El pedido aparecerá en tu historial como completado exitosamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Problemas con el pedido -->
+    <div class="problem-card">
+        <h3>❗ ¿Hay algún problema con tu pedido?</h3>
+        <p>Si no has recibido el pedido, está dañado o no cumple con lo acordado:</p>
+        <div class="problem-actions">
+            <a href="{% url 'start_conversation' order.publicacion.id %}" class="btn btn-warning">
+                💬 Contactar al Vendedor
+            </a>
+            <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger">
+                ❌ Reportar Problema
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.confirm-receipt-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.page-header h1 {
+    color: #004d00;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.order-info-card, .confirm-form-card, .info-card, .problem-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.order-info-card {
+    border-left: 4px solid #004d00;
+}
+
+.confirm-form-card {
+    border-left: 4px solid #28a745;
+}
+
+.info-card {
+    border-left: 4px solid #007bff;
+}
+
+.problem-card {
+    border-left: 4px solid #dc3545;
+}
+
+.order-info-card h2, .confirm-form-card h2, .info-card h3, .problem-card h3 {
+    margin-top: 0;
+    color: #004d00;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detail-item {
+    font-size: 0.95rem;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-item strong {
+    color: #004d00;
+}
+
+.vendor-notes {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border-left: 3px solid #004d00;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-entregado { background: #d1ecf1; color: #0c5460; }
+
+/* Timeline */
+.order-timeline {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    border-left: 4px solid #007bff;
+}
+
+.order-timeline h3 {
+    margin-top: 0;
+    color: #004d00;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-left: 2rem;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #28a745;
+    color: white;
+}
+
+.timeline-item.current .timeline-marker {
+    background: #ffc107;
+    color: #212529;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    background: #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    z-index: 1;
+}
+
+.timeline-content h4 {
+    margin: 0 0 0.25rem 0;
+    color: #004d00;
+    font-size: 1rem;
+}
+
+.timeline-content p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Confirmation message */
+.confirmation-message {
+    display: flex;
+    gap: 1rem;
+    background: #fff3cd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+    margin-bottom: 2rem;
+}
+
+.message-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.message-content h3 {
+    margin: 0 0 1rem 0;
+    color: #856404;
+}
+
+.message-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.message-content li {
+    margin-bottom: 0.5rem;
+    color: #856404;
+}
+
+/* Form styles */
+.confirm-form {
+    max-width: 100%;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #004d00;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #004d00;
+    box-shadow: 0 0 0 2px rgba(0, 77, 0, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.error-messages {
+    margin-top: 0.5rem;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}
+
+/* Satisfaction checks */
+.satisfaction-check {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s;
+}
+
+.check-item:hover {
+    border-color: #28a745;
+    background: #f8fff8;
+}
+
+.check-item input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    transform: scale(1.2);
+}
+
+.check-item label {
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+}
+
+.checkmark {
+    color: #28a745;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.check-item input[type="checkbox"]:checked + label .checkmark {
+    opacity: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+    transform: translateY(-1px);
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+/* Info steps */
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.step-number {
+    width: 2rem;
+    height: 2rem;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #004d00;
+}
+
+.step-content p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Problem actions */
+.problem-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .confirm-receipt-container {
+        padding: 1rem;
+    }
+    
+    .detail-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .confirmation-message {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .form-actions, .problem-actions {
+        flex-direction: column;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-item {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.7rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.querySelector('#id_confirmar_recepcion');
+    const confirmBtn = document.getElementById('confirm-btn');
+    
+    function updateConfirmButton() {
+        confirmBtn.disabled = !confirmCheckbox.checked;
+    }
+    
+    if (confirmCheckbox) {
+        confirmCheckbox.addEventListener('change', updateConfirmButton);
+        // Initial check
+        updateConfirmButton();
+    }
+});
+</script>
+{% endblock %}

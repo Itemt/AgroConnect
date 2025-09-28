@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Sum
-from .models import Conversation, Message, Order
+from django.db.models import Q, Sum, Avg, Count
+from django.utils import timezone
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from .models import Conversation, Message, Order, Rating, UserProfile
 from marketplace.models import Publication
-from .forms import MessageForm, OrderForm
+from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderConfirmReceiptForm, OrderSearchForm
 
 # Create your views here.
 
@@ -25,7 +28,7 @@ def create_order_view(request, publication_id):
             
             # Calcular precio final
             order.precio_total = order.cantidad_acordada * publication.precio_por_unidad
-            order.estado = 'confirmado' # Estado inicial
+            order.estado = 'pendiente'  # Estado inicial
             
             # Validar que la cantidad no exceda la disponible
             if order.cantidad_acordada > publication.cantidad_disponible:
@@ -36,7 +39,8 @@ def create_order_view(request, publication_id):
                 publication.save()
                 
                 order.save()
-                return redirect('order_history') # Redirigir al historial de pedidos
+                messages.success(request, 'Pedido creado exitosamente. El vendedor será notificado.')
+                return redirect('order_detail', order_id=order.id)
     else:
         form = OrderForm()
 
@@ -49,14 +53,217 @@ def create_order_view(request, publication_id):
 
 @login_required
 def order_history_view(request):
+    """Vista mejorada del historial de pedidos con filtros"""
+    form = OrderSearchForm(request.GET)
+    
     if request.user.role == 'Comprador':
-        orders = Order.objects.filter(comprador=request.user).order_by('-created_at')
+        orders = Order.objects.filter(comprador=request.user)
     elif request.user.role == 'Productor':
-        orders = Order.objects.filter(publicacion__cultivo__productor=request.user).order_by('-created_at')
+        orders = Order.objects.filter(publicacion__cultivo__productor=request.user)
     else:
-        orders = []
+        orders = Order.objects.none()
 
-    return render(request, 'sales/order_history.html', {'orders': orders})
+    # Aplicar filtros
+    if form.is_valid():
+        search = form.cleaned_data.get('search')
+        estado = form.cleaned_data.get('estado')
+        fecha_desde = form.cleaned_data.get('fecha_desde')
+        fecha_hasta = form.cleaned_data.get('fecha_hasta')
+        
+        if search:
+            orders = orders.filter(
+                Q(publicacion__cultivo__nombre_producto__icontains=search) |
+                Q(comprador__first_name__icontains=search) |
+                Q(comprador__last_name__icontains=search) |
+                Q(publicacion__cultivo__productor__first_name__icontains=search) |
+                Q(publicacion__cultivo__productor__last_name__icontains=search)
+            )
+        
+        if estado:
+            orders = orders.filter(estado=estado)
+        
+        if fecha_desde:
+            orders = orders.filter(created_at__date__gte=fecha_desde)
+        
+        if fecha_hasta:
+            orders = orders.filter(created_at__date__lte=fecha_hasta)
+
+    orders = orders.select_related(
+        'publicacion__cultivo', 'publicacion__cultivo__productor', 'comprador'
+    ).order_by('-created_at')
+
+    # Agregar acciones disponibles para cada pedido
+    orders_with_actions = []
+    for order in orders:
+        order.available_actions = order.get_available_actions_for_user(request.user)
+        orders_with_actions.append(order)
+
+    # Paginación
+    paginator = Paginator(orders_with_actions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'orders': page_obj,
+        'form': form,
+        'user_role': request.user.role
+    }
+    return render(request, 'sales/order_history.html', context)
+
+
+@login_required
+def order_detail_view(request, order_id):
+    """Vista detallada de un pedido"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario tenga acceso a este pedido
+    if not (request.user == order.comprador or request.user == order.vendedor):
+        messages.error(request, 'No tienes acceso a este pedido.')
+        return redirect('order_history')
+    
+    # Verificar si el pedido puede ser calificado
+    can_rate = order.can_be_rated() and request.user == order.comprador
+    existing_rating = None
+    
+    if hasattr(order, 'calificacion'):
+        existing_rating = order.calificacion
+    
+    # Agregar acciones disponibles
+    order.available_actions = order.get_available_actions_for_user(request.user)
+    
+    context = {
+        'order': order,
+        'can_rate': can_rate,
+        'existing_rating': existing_rating,
+        'user_role': request.user.role
+    }
+    return render(request, 'sales/order_detail.html', context)
+
+
+@login_required
+def update_order_status_view(request, order_id):
+    """Vista para que el vendedor actualice el estado del pedido"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Solo el vendedor puede actualizar el estado
+    if request.user != order.vendedor:
+        messages.error(request, 'No tienes permisos para actualizar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        form = OrderUpdateForm(request.POST, instance=order, user=request.user)
+        if form.is_valid():
+            updated_order = form.save(commit=False)
+            
+            # Actualizar fechas según el estado
+            if updated_order.estado == 'confirmado' and not updated_order.fecha_confirmacion:
+                updated_order.fecha_confirmacion = timezone.now()
+            elif updated_order.estado == 'enviado' and not updated_order.fecha_envio:
+                updated_order.fecha_envio = timezone.now()
+            
+            updated_order.save()
+            messages.success(request, 'Estado del pedido actualizado exitosamente.')
+            return redirect('order_detail', order_id=order.id)
+    else:
+        form = OrderUpdateForm(instance=order, user=request.user)
+    
+    context = {
+        'form': form,
+        'order': order
+    }
+    return render(request, 'sales/order_update.html', context)
+
+
+@login_required
+def confirm_order_receipt_view(request, order_id):
+    """Vista para que el comprador confirme la recepción del pedido"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Solo el comprador puede confirmar la recepción
+    if request.user != order.comprador:
+        messages.error(request, 'No tienes permisos para confirmar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Verificar que el pedido puede ser confirmado
+    if not order.can_be_received_by_buyer():
+        messages.error(request, 'Este pedido no puede ser confirmado en su estado actual.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        form = OrderConfirmReceiptForm(request.POST)
+        if form.is_valid():
+            order.estado = 'completado'
+            order.fecha_recepcion = timezone.now()
+            
+            # Agregar notas de recepción si las hay
+            notas_recepcion = form.cleaned_data.get('notas_recepcion')
+            if notas_recepcion:
+                if order.notas_comprador:
+                    order.notas_comprador += f"\n\nNotas de recepción: {notas_recepcion}"
+                else:
+                    order.notas_comprador = f"Notas de recepción: {notas_recepcion}"
+            
+            order.save()
+            
+            # Actualizar estadísticas del vendedor
+            from sales.models import UserProfile
+            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
+            profile.actualizar_estadisticas_vendedor()
+            
+            messages.success(request, 'Pedido confirmado como completado. Ahora puedes calificar al vendedor.')
+            return redirect('rate_order', order_id=order.id)
+    else:
+        form = OrderConfirmReceiptForm()
+    
+    context = {
+        'form': form,
+        'order': order
+    }
+    return render(request, 'sales/confirm_receipt.html', context)
+
+
+@login_required
+def rate_order_view(request, order_id):
+    """Vista para calificar un pedido"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario puede calificar este pedido
+    if not order.can_be_rated() or request.user != order.comprador:
+        messages.error(request, 'No puedes calificar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.pedido = order
+            rating.calificador = request.user
+            rating.calificado = order.vendedor
+            rating.tipo = 'comprador_a_vendedor'
+            rating.save()
+            
+            # Marcar el pedido como completado
+            order.estado = 'completado'
+            order.save()
+            
+            # Actualizar estadísticas del vendedor
+            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
+            profile.actualizar_estadisticas_vendedor()
+            
+            # Actualizar estadísticas del comprador
+            buyer_profile, created = UserProfile.objects.get_or_create(user=request.user)
+            buyer_profile.actualizar_estadisticas_comprador()
+            
+            messages.success(request, 'Calificación enviada exitosamente. ¡Gracias por tu feedback!')
+            return redirect('order_detail', order_id=order.id)
+    else:
+        form = RatingForm()
+    
+    context = {
+        'form': form,
+        'order': order
+    }
+    return render(request, 'sales/rate_order.html', context)
 
 
 @login_required
@@ -108,9 +315,6 @@ def conversation_detail(request, conversation_id):
     else:
         form = MessageForm()
 
-    # Marcar mensajes como leídos (funcionalidad futura)
-    # conversation.messages.filter(recipient=request.user, is_read=False).update(is_read=True)
-
     context = {
         'conversation': conversation,
         'form': form
@@ -119,17 +323,24 @@ def conversation_detail(request, conversation_id):
 
 @login_required
 def buyer_dashboard(request):
-    """Dashboard principal para compradores"""
+    """Dashboard mejorado para compradores"""
     if request.user.role != 'Comprador':
         messages.error(request, 'Acceso denegado. Solo para compradores.')
         return redirect('index')
     
+    # Obtener o crear perfil de estadísticas
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    if not created:
+        profile.actualizar_estadisticas_comprador()
+    
     # Estadísticas del comprador
     total_orders = request.user.pedidos_como_comprador.count()
-    pending_orders = request.user.pedidos_como_comprador.filter(estado='confirmado').count()
-    completed_orders = request.user.pedidos_como_comprador.filter(estado='entregado').count()
+    pending_orders = request.user.pedidos_como_comprador.filter(estado__in=['pendiente', 'confirmado', 'en_preparacion']).count()
+    completed_orders = request.user.pedidos_como_comprador.filter(estado='completado').count()
+    orders_to_receive = request.user.pedidos_como_comprador.filter(estado__in=['enviado', 'en_transito', 'entregado']).count()
+    
     total_spent = request.user.pedidos_como_comprador.filter(
-        estado='entregado'
+        estado='completado'
     ).aggregate(total=Sum('precio_total'))['total'] or 0
     
     # Pedidos recientes
@@ -140,12 +351,129 @@ def buyer_dashboard(request):
     # Conversaciones activas
     active_conversations = request.user.conversations.count()
     
+    # Calificaciones pendientes
+    orders_to_rate = request.user.pedidos_como_comprador.filter(
+        estado='recibido'
+    ).exclude(calificacion__isnull=False).count()
+    
     context = {
         'total_orders': total_orders,
         'pending_orders': pending_orders,
         'completed_orders': completed_orders,
+        'orders_to_receive': orders_to_receive,
+        'orders_to_rate': orders_to_rate,
         'total_spent': total_spent,
         'recent_orders': recent_orders,
         'active_conversations': active_conversations,
+        'profile': profile,
     }
     return render(request, 'sales/buyer_dashboard.html', context)
+
+
+@login_required
+def user_profile_view(request, user_id):
+    """Vista del perfil público de un usuario con sus calificaciones"""
+    from accounts.models import User
+    
+    user = get_object_or_404(User, pk=user_id)
+    profile, created = UserProfile.objects.get_or_create(user=user)
+    
+    # Actualizar estadísticas
+    if user.role == 'Productor':
+        profile.actualizar_estadisticas_vendedor()
+    profile.actualizar_estadisticas_comprador()
+    
+    # Obtener calificaciones recientes
+    recent_ratings_received = Rating.objects.filter(
+        calificado=user
+    ).select_related('calificador', 'pedido').order_by('-created_at')[:10]
+    
+    # Estadísticas de calificaciones
+    ratings_stats = Rating.objects.filter(calificado=user).aggregate(
+        total_ratings=Count('id'),
+        avg_general=Avg('calificacion_general'),
+        avg_comunicacion=Avg('calificacion_comunicacion'),
+        avg_puntualidad=Avg('calificacion_puntualidad'),
+        avg_calidad=Avg('calificacion_calidad')
+    )
+    
+    context = {
+        'profile_user': user,
+        'profile': profile,
+        'recent_ratings': recent_ratings_received,
+        'ratings_stats': ratings_stats,
+        'is_own_profile': request.user == user
+    }
+    return render(request, 'sales/user_profile.html', context)
+
+
+@login_required
+def cancel_order_view(request, order_id):
+    """Vista para cancelar un pedido"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario tenga permisos para cancelar
+    if not (request.user == order.comprador or request.user == order.vendedor):
+        messages.error(request, 'No tienes permisos para cancelar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Verificar que el pedido se pueda cancelar
+    if order.estado in ['completado', 'cancelado', 'recibido']:
+        messages.error(request, 'Este pedido no se puede cancelar en su estado actual.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        # Restaurar la cantidad disponible en la publicación
+        publication = order.publicacion
+        publication.cantidad_disponible += order.cantidad_acordada
+        publication.save()
+        
+        # Marcar el pedido como cancelado
+        order.estado = 'cancelado'
+        order.save()
+        
+        # Determinar quién canceló
+        canceller_role = "vendedor" if request.user == order.vendedor else "comprador"
+        messages.success(request, f'Pedido cancelado exitosamente por el {canceller_role}. La cantidad ha sido restaurada.')
+        
+        return redirect('order_detail', order_id=order.id)
+    
+    context = {
+        'order': order,
+        'user_role': 'vendedor' if request.user == order.vendedor else 'comprador'
+    }
+    return render(request, 'sales/cancel_order.html', context)
+
+
+@login_required
+def rankings_view(request):
+    """Vista de rankings de usuarios"""
+    # Top vendedores
+    top_sellers = UserProfile.objects.filter(
+        user__role='Productor',
+        total_ventas__gt=0
+    ).select_related('user').order_by(
+        '-calificacion_promedio_como_vendedor',
+        '-total_ventas'
+    )[:10]
+    
+    # Top compradores
+    top_buyers = UserProfile.objects.filter(
+        user__role='Comprador',
+        total_compras__gt=0
+    ).select_related('user').order_by(
+        '-calificacion_promedio_como_comprador',
+        '-total_compras'
+    )[:10]
+    
+    # Vendedores más activos
+    most_active_sellers = UserProfile.objects.filter(
+        user__role='Productor'
+    ).select_related('user').order_by('-total_ventas')[:10]
+    
+    context = {
+        'top_sellers': top_sellers,
+        'top_buyers': top_buyers,
+        'most_active_sellers': most_active_sellers,
+    }
+    return render(request, 'sales/rankings.html', context)
