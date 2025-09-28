@@ -75,7 +75,12 @@
             if (field.tagName.toLowerCase() === 'textarea') {
                 classList += ' h-32';
             }
-            field.className = classList;
+            if (field.type === 'checkbox') {
+                classList = 'h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500';
+                field.className = classList;
+            } else {
+                field.classList.add(...classList.split(' '));
+            }
         });
     });
 </script>

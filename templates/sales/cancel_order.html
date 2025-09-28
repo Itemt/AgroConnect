@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 
 {% block title %}Cancelar Pedido #{{ order.id }}{% endblock %}
 
-{% block content %}
+{% block user_content %}
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-red-600"><i class="fas fa-times-circle mr-3"></i>Cancelar Pedido</h1>
@@ -58,4 +58,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% endblock %}
 {% endblock %}
