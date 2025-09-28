@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from .models import Publication
-from inventory.models import Crop
+from inventory.models import Crop, Product
 from .forms import PublicationForm
 
 # Create your views here.
@@ -13,20 +13,84 @@ def marketplace_view(request):
     publications = Publication.objects.filter(
         estado='disponible', 
         cantidad_disponible__gt=0
-    ).select_related('cultivo__productor').order_by('-created_at')
+    ).select_related('cultivo__productor', 'cultivo__productor__producer_profile').order_by('-created_at')
+    
+    # Obtener todas las categorías disponibles
+    categorias = Product.CATEGORIA_CHOICES
     
     # Filtros de búsqueda
     search_query = request.GET.get('search', '')
+    categoria_filter = request.GET.get('categoria', '')
+    precio_min = request.GET.get('precio_min', '')
+    precio_max = request.GET.get('precio_max', '')
+    ubicacion_filter = request.GET.get('ubicacion', '')
+    orden = request.GET.get('orden', '-created_at')
+    
+    # Aplicar filtros
     if search_query:
         publications = publications.filter(
             Q(cultivo__nombre_producto__icontains=search_query) |
             Q(cultivo__productor__first_name__icontains=search_query) |
-            Q(cultivo__productor__last_name__icontains=search_query)
+            Q(cultivo__productor__last_name__icontains=search_query) |
+            Q(descripcion__icontains=search_query)
         )
+    
+    # Filtrar por categoría (necesitamos obtener la categoría del producto)
+    if categoria_filter:
+        # Obtener productos de la categoría seleccionada
+        productos_categoria = Product.objects.filter(categoria=categoria_filter).values_list('nombre', flat=True)
+        publications = publications.filter(cultivo__nombre_producto__in=productos_categoria)
+    
+    # Filtrar por rango de precios
+    if precio_min:
+        try:
+            publications = publications.filter(precio_por_unidad__gte=float(precio_min))
+        except ValueError:
+            pass
+    
+    if precio_max:
+        try:
+            publications = publications.filter(precio_por_unidad__lte=float(precio_max))
+        except ValueError:
+            pass
+    
+    # Filtrar por ubicación
+    if ubicacion_filter:
+        publications = publications.filter(
+            cultivo__productor__producer_profile__location__icontains=ubicacion_filter
+        )
+    
+    # Ordenar resultados
+    valid_orders = ['-created_at', 'precio_por_unidad', '-precio_por_unidad', 'cultivo__nombre_producto']
+    if orden in valid_orders:
+        publications = publications.order_by(orden)
+    
+    # Obtener ubicaciones únicas para el filtro
+    ubicaciones = publications.values_list(
+        'cultivo__productor__producer_profile__location', flat=True
+    ).distinct().exclude(cultivo__productor__producer_profile__location__isnull=True)
+    
+    # Agregar la categoría a cada publicación
+    for publication in publications:
+        try:
+            producto = Product.objects.get(nombre=publication.cultivo.nombre_producto)
+            publication.categoria_producto = producto.categoria
+            publication.categoria_display = producto.get_categoria_display()
+        except Product.DoesNotExist:
+            publication.categoria_producto = 'otros'
+            publication.categoria_display = 'Otros'
     
     context = {
         'publications': publications,
         'search_query': search_query,
+        'categorias': categorias,
+        'categoria_filter': categoria_filter,
+        'precio_min': precio_min,
+        'precio_max': precio_max,
+        'ubicacion_filter': ubicacion_filter,
+        'ubicaciones': ubicaciones,
+        'orden': orden,
+        'total_productos': publications.count(),
     }
     return render(request, 'marketplace/marketplace.html', context)
 
