@@ -85,6 +85,53 @@
                 field.className = classList;
             });
         });
+        
+        // Location selector functionality
+        const departamentoSelect = document.getElementById('id_departamento');
+        const ciudadSelect = document.getElementById('id_ciudad');
+        const departamentoBuyerSelect = document.getElementById('id_departamento_buyer');
+        const ciudadBuyerSelect = document.getElementById('id_ciudad_buyer');
+        
+        function updateCities(deptSelect, citySelect) {
+            if (!deptSelect || !citySelect) return;
+            
+            const selectedDepartment = deptSelect.value;
+            if (selectedDepartment) {
+                fetch(`{% url 'ajax_cities' %}?department=${encodeURIComponent(selectedDepartment)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        citySelect.innerHTML = '<option value="">Selecciona una ciudad</option>';
+                        if (data.success && data.cities) {
+                            data.cities.forEach(city => {
+                                const option = document.createElement('option');
+                                option.value = city.value;
+                                option.textContent = city.text;
+                                citySelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading cities:', error);
+                        citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    });
+            } else {
+                citySelect.innerHTML = '<option value="">Selecciona primero un departamento</option>';
+            }
+        }
+        
+        // Producer location
+        if (departamentoSelect && ciudadSelect) {
+            departamentoSelect.addEventListener('change', function() {
+                updateCities(departamentoSelect, ciudadSelect);
+            });
+        }
+        
+        // Buyer location
+        if (departamentoBuyerSelect && ciudadBuyerSelect) {
+            departamentoBuyerSelect.addEventListener('change', function() {
+                updateCities(departamentoBuyerSelect, ciudadBuyerSelect);
+            });
+        }
     });
 </script>
 {% endblock %}
