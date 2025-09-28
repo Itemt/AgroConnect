@@ -195,12 +195,12 @@
                                     <span class="text-sm font-medium">{{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</span>
                                 </div>
                                 
-                                {% if pub.cultivo.productor.producer_profile.location %}
-                                    <div class="flex items-center text-gray-600">
-                                        <i class="fas fa-map-marker-alt text-red-500 mr-3 w-4"></i>
-                                        <span class="text-sm truncate">{{ pub.cultivo.productor.producer_profile.location|truncatechars:30 }}</span>
-                                    </div>
-                                {% endif %}
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-map-marker-alt text-red-500 mr-3 w-4"></i>
+                                    <span class="text-sm font-medium text-blue-600">
+                                        {{ pub.ciudad_display }}
+                                    </span>
+                                </div>
                                 
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-boxes text-blue-500 mr-3 w-4"></i>

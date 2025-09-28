@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core import views as core_views
 from accounts import views as accounts_views
+from accounts import ajax_views as accounts_ajax
 from marketplace import views as marketplace_views
 from sales import views as sales_views
 from inventory import views as inventory_views
@@ -34,6 +35,9 @@ urlpatterns = [
     path('accounts/logout/', accounts_views.custom_logout, name='logout'),
     path('accounts/profile/', accounts_views.profile_view, name='profile'),
     path('accounts/profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
+    
+    # AJAX endpoints
+    path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_cities'),
 
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),

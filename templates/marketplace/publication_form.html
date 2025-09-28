@@ -11,6 +11,46 @@
             <p class="mt-2 text-sm text-gray-600">Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre_producto }}.</p>
             <p class="mt-1 text-sm text-gray-600">Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
             {% endif %}
+            
+            <!-- Product Information Card -->
+            <div class="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                    <i class="fas fa-info-circle text-primary-600 mr-2"></i>Información del Producto
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-seedling text-green-600 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Producto</p>
+                            <p class="text-sm text-gray-600">{{ crop.nombre_producto }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <i class="fas fa-tags text-blue-600 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Categoría</p>
+                            <p class="text-sm text-gray-600">{{ crop.categoria_display|default:"Sin categoría" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <i class="fas fa-weight text-orange-600 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Cantidad Total del Cultivo</p>
+                            <p class="text-sm text-gray-600">{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar text-purple-600 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Fecha de Disponibilidad</p>
+                            <p class="text-sm text-gray-600">{{ crop.fecha_disponibilidad|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="border-t border-gray-200 px-6 py-8">

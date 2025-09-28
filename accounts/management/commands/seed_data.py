@@ -7,6 +7,7 @@ from datetime import timedelta
 from accounts.models import User, ProducerProfile, BuyerProfile
 from inventory.models import Product, Crop
 from marketplace.models import Publication
+from core.colombia_locations import COLOMBIA_LOCATIONS
 
 class Command(BaseCommand):
     help = 'Genera datos ficticios para la base de datos'
@@ -77,8 +78,16 @@ class Command(BaseCommand):
             )
             producer_users.append(user)
             
+            # Seleccionar departamento y ciudad aleatorios de Colombia
+            departamento = random.choice(list(COLOMBIA_LOCATIONS.keys()))
+            ciudad = random.choice(COLOMBIA_LOCATIONS[departamento])
+            direccion_especifica = fake.street_name() if random.choice([True, False]) else ""
+            
             ProducerProfile.objects.create(
-                user=user, location=fake.address(),
+                user=user, 
+                departamento=departamento,
+                ciudad=ciudad,
+                direccion=direccion_especifica,
                 farm_description=fake.text(max_nb_chars=150),
                 main_crops=random.choice(product_names)
             )
@@ -102,8 +111,24 @@ class Command(BaseCommand):
                 else:
                     unidad = random.choice(['kg', 'cajas', 'unidades'])
                 
+                # Asignar categoría basada en el producto
+                categoria_producto = 'otros'
+                if producto_nombre in ['Papa', 'Tomate', 'Lechuga', 'Zanahoria', 'Cebolla', 'Pimiento', 'Pepino', 'Brócoli', 'Coliflor', 'Repollo', 'Espinaca', 'Rábano', 'Apio', 'Berenjena', 'Calabacín', 'Calabaza', 'Remolacha', 'Nabo', 'Puerro', 'Ajo', 'Acelga', 'Cilantro', 'Perejil']:
+                    categoria_producto = 'hortalizas'
+                elif producto_nombre in ['Aguacate', 'Fresa', 'Manzana', 'Pera', 'Durazno', 'Ciruela', 'Uva', 'Naranja', 'Limón', 'Mandarina', 'Toronja', 'Mango', 'Papaya', 'Piña', 'Banano', 'Plátano', 'Sandía', 'Melón', 'Kiwi', 'Maracuyá', 'Guayaba', 'Mora', 'Arándano']:
+                    categoria_producto = 'frutas'
+                elif producto_nombre in ['Maíz', 'Arroz', 'Trigo', 'Cebada', 'Avena', 'Quinoa', 'Amaranto', 'Sorgo']:
+                    categoria_producto = 'cereales_granos'
+                elif producto_nombre in ['Frijol', 'Lenteja', 'Garbanzo', 'Arveja', 'Haba', 'Soya']:
+                    categoria_producto = 'leguminosas'
+                elif producto_nombre in ['Yuca', 'Camote', 'Ñame', 'Malanga']:
+                    categoria_producto = 'tuberculos'
+                elif producto_nombre in ['Albahaca', 'Romero', 'Tomillo', 'Orégano', 'Menta', 'Hierbabuena']:
+                    categoria_producto = 'hierbas_aromaticas'
+                
                 crop = Crop.objects.create(
                     nombre_producto=producto_nombre,
+                    categoria=categoria_producto,
                     productor=user,
                     cantidad_estimada=estimated_quantity,
                     unidad_medida=unidad,
@@ -158,9 +183,16 @@ class Command(BaseCommand):
                 first_name=first_name, last_name=last_name, role='Comprador'
             )
             
+            # Seleccionar departamento y ciudad aleatorios de Colombia para compradores
+            departamento = random.choice(list(COLOMBIA_LOCATIONS.keys()))
+            ciudad = random.choice(COLOMBIA_LOCATIONS[departamento])
+            
             BuyerProfile.objects.create(
-                user=user, company_name=fake.company(),
-                business_type=random.choice(['Restaurante', 'Supermercado', 'Distribuidor', 'Tienda Local'])
+                user=user, 
+                company_name=fake.company(),
+                business_type=random.choice(['Restaurante', 'Supermercado', 'Distribuidor', 'Tienda Local', 'Mercado', 'Exportador']),
+                departamento=departamento,
+                ciudad=ciudad
             )
             self.stdout.write(f'Comprador creado: {username}')
 
