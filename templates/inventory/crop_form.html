@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 
 {% block title %}{% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}{% endblock %}
 
-{% block content %}
+{% block user_content %}
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="bg-white rounded-lg shadow-lg">
         <div class="px-6 py-8">
@@ -54,8 +54,10 @@
             }
             if (field.type === 'checkbox') {
                 classList = 'h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500';
+                field.className = classList;
+            } else {
+                field.classList.add(...classList.split(' '));
             }
-            field.className = classList;
         });
     });
 </script>

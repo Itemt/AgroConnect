@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 
 {% block title %}Confirmar Eliminación{% endblock %}
 
-{% block content %}
+{% block user_content %}
     <div class="form-container">
         <h1>¿Estás seguro?</h1>
         <p>Estás a punto de eliminar permanentemente el cultivo de <strong>{{ crop.nombre_producto }}</strong> ({{ crop.cantidad_estimada }} {{ crop.unidad_medida }}).</p>
@@ -14,4 +14,5 @@
             <a href="{% url 'profile' %}" class="btn-secondary">Cancelar</a>
         </form>
     </div>
+{% endblock %}
 {% endblock %}
