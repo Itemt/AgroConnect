@@ -24,6 +24,10 @@ RUN python manage.py collectstatic --noinput
 # Ejecutar migraciones
 RUN python manage.py migrate
 
+# Copiar script de migración
+COPY migrate_to_postgres.py .
+COPY data_backup.json .
+
 # Exponer el puerto
 EXPOSE 8000
 
