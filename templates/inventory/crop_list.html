@@ -3,52 +3,106 @@
 {% block title %}Mis Cultivos{% endblock %}
 
 {% block content %}
-    <div class="page-header">
-        <h1>Mis Cultivos</h1>
-        <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Nuevo Cultivo</a>
-    </div>
-
-    {% if crops %}
-        <div class="crop-list">
-            {% for crop in crops %}
-                <div class="crop-item">
-                    <div class="crop-info">
-                        <h3>{{ crop.nombre_producto }}</h3>
-                        <p><strong>Cantidad estimada:</strong> {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
-                        <p><strong>Fecha estimada de disponibilidad:</strong> {{ crop.fecha_disponibilidad|date:"d M Y" }}</p>
-                        <p><strong>Estado:</strong> <span class="status-badge status-{{ crop.estado|slugify }}">{{ crop.get_estado_display }}</span></p>
-                        
-                        {% if crop.publicacion %}
-                            <p><strong>Publicado en marketplace:</strong> 
-                                <a href="{% url 'publication_detail' crop.publicacion.pk %}">Ver publicación</a>
-                                {% if crop.publicacion.estado == 'disponible' %}
-                                    <span class="status-badge" style="background-color: #28a745;">Disponible</span>
-                                {% else %}
-                                    <span class="status-badge" style="background-color: #6c757d;">{{ crop.publicacion.get_estado_display }}</span>
-                                {% endif %}
-                            </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="crop-actions">
-                        <a href="{% url 'crop_edit' crop.pk %}" class="btn-action">Editar</a>
-                        
-                        {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
-                            <a href="{% url 'publication_add' crop.pk %}" class="btn-action btn-publish">Publicar</a>
-                        {% elif crop.publicacion %}
-                            <a href="{% url 'publication_edit' crop.publicacion.pk %}" class="btn-action">Editar Publicación</a>
-                        {% endif %}
-                        
-                        <a href="{% url 'crop_delete' crop.pk %}" class="btn-action btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">Eliminar</a>
-                    </div>
+    <div class="bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Mis Cultivos</h1>
+                    <p class="text-gray-600 mt-2">Gestiona tus cultivos y publicaciones</p>
                 </div>
-            {% endfor %}
+                <a href="{% url 'crop_add' %}" 
+                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                    <i class="fas fa-plus mr-2"></i>Agregar Nuevo Cultivo
+                </a>
+            </div>
+
+            {% if crops %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for crop in crops %}
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <h3 class="text-xl font-bold text-gray-900">{{ crop.nombre_producto }}</h3>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
+                                        {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
+                                        {% elif crop.estado == 'cosechado' %}bg-blue-100 text-blue-800
+                                        {% endif %}">
+                                        {{ crop.get_estado_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-3 mb-6">
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-box text-gray-400 mr-2"></i>
+                                        <span class="text-sm">{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                                        <span class="text-sm">{{ crop.fecha_disponibilidad|date:"d M Y" }}</span>
+                                    </div>
+                                    
+                                    {% if crop.publicacion %}
+                                        <div class="flex items-center text-gray-600">
+                                            <i class="fas fa-store text-gray-400 mr-2"></i>
+                                            <span class="text-sm">
+                                                <a href="{% url 'publication_detail' crop.publicacion.pk %}" 
+                                                   class="text-primary-600 hover:text-primary-700">Ver publicación</a>
+                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                    {% if crop.publicacion.estado == 'disponible' %}bg-green-100 text-green-800
+                                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                    {% if crop.publicacion.estado == 'disponible' %}Disponible{% else %}{{ crop.publicacion.get_estado_display }}{% endif %}
+                                                </span>
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex gap-2">
+                                    <a href="{% url 'crop_edit' crop.pk %}" 
+                                       class="flex-1 bg-gray-600 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                                        <i class="fas fa-edit mr-2"></i>Editar
+                                    </a>
+                                    
+                                    {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
+                                        <a href="{% url 'publication_add' crop.pk %}" 
+                                           class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-share mr-2"></i>Publicar
+                                        </a>
+                                    {% elif crop.publicacion %}
+                                        <a href="{% url 'publication_edit' crop.publicacion.pk %}" 
+                                           class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-edit mr-2"></i>Editar Pub.
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'crop_delete' crop.pk %}" 
+                                       class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                                       onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-seedling text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">No tienes cultivos registrados</h3>
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                        Comienza agregando tu primer cultivo para poder venderlo en el marketplace.
+                    </p>
+                    <a href="{% url 'crop_add' %}" 
+                       class="bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-colors font-medium text-lg">
+                        <i class="fas fa-plus mr-2"></i>Agregar Primer Cultivo
+                    </a>
+                </div>
+            {% endif %}
         </div>
-    {% else %}
-        <div class="empty-state">
-            <h3>No tienes cultivos registrados</h3>
-            <p>Comienza agregando tu primer cultivo para poder venderlo en el marketplace.</p>
-            <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Primer Cultivo</a>
-        </div>
-    {% endif %}
+    </div>
 {% endblock %}

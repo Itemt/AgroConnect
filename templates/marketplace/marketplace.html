@@ -3,61 +3,119 @@
 {% block title %}Marketplace{% endblock %}
 
 {% block content %}
-    <div class="marketplace-header">
-        <h1>Marketplace de Productos Frescos</h1>
-        <p>Descubre los productos ofrecidos directamente por los agricultores.</p>
-        
-        <!-- Barra de búsqueda -->
-        <div class="search-bar">
-            <form method="get" class="search-form">
-                <input type="text" name="search" placeholder="Buscar productos, productores..." 
-                       value="{{ search_query }}" class="search-input">
-                <button type="submit" class="search-btn">Buscar</button>
-            </form>
-        </div>
-        
-        {% if search_query %}
-            <p class="search-results">Resultados para: "<strong>{{ search_query }}</strong>" ({{ publications.count }} encontrados)</p>
-        {% endif %}
-    </div>
-
-    <div class="marketplace-grid">
-        {% for pub in publications %}
-            <div class="product-card">
-                <div class="product-header">
-                    <h3>{{ pub.cultivo.nombre_producto }}</h3>
-                    <span class="product-category">Producto</span>
-                </div>
-                
-                <div class="product-info">
-                    <p><strong>Productor:</strong> {{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</p>
-                    {% if pub.cultivo.productor.producer_profile.location %}
-                        <p><strong>Ubicación:</strong> {{ pub.cultivo.productor.producer_profile.location }}</p>
-                    {% endif %}
-                    <p><strong>Disponible:</strong> {{ pub.cantidad_disponible }} {{ pub.cultivo.unidad_medida }}</p>
-                    <p class="price"><strong>Precio:</strong> ${{ pub.precio_por_unidad }} por {{ pub.cultivo.unidad_medida }}</p>
-                </div>
-                
-                <div class="product-actions">
-                    <a href="{% url 'publication_detail' pub.id %}" class="btn-details">Ver Detalles</a>
-                    {% if user.is_authenticated and user.role == 'Comprador' %}
-                        <a href="{% url 'start_conversation' pub.id %}" class="btn btn-secondary">Contactar</a>
-                    {% endif %}
-                </div>
+    <div class="bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Marketplace de Productos Frescos</h1>
+                <p class="text-xl text-gray-600">Descubre los productos ofrecidos directamente por los agricultores</p>
             </div>
-        {% empty %}
+            
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto mb-8">
+                <form method="get" class="flex gap-2">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" 
+                               name="search" 
+                               placeholder="Buscar productos, productores..." 
+                               value="{{ search_query }}" 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <button type="submit" 
+                            class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </form>
+            </div>
+            
             {% if search_query %}
-                <div class="empty-state">
-                    <h3>No se encontraron productos</h3>
-                    <p>No hay productos que coincidan con tu búsqueda "{{ search_query }}".</p>
-                    <a href="{% url 'marketplace' %}" class="btn btn-primary">Ver Todos los Productos</a>
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <h3>No hay productos disponibles</h3>
-                    <p>No hay productos disponibles en este momento. ¡Vuelve pronto!</p>
+                <div class="text-center mb-6">
+                    <p class="text-gray-600">
+                        Resultados para: "<span class="font-semibold text-gray-900">{{ search_query }}</span>" 
+                        ({{ publications.count }} encontrado{{ publications.count|pluralize }})
+                    </p>
                 </div>
             {% endif %}
-        {% endfor %}
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for pub in publications %}
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">{{ pub.cultivo.nombre_producto }}</h3>
+                                <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Producto
+                                </span>
+                            </div>
+                            
+                            <div class="space-y-3 mb-6">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">{{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</span>
+                                </div>
+                                
+                                {% if pub.cultivo.productor.producer_profile.location %}
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                        <span class="text-sm">{{ pub.cultivo.productor.producer_profile.location }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-box text-gray-400 mr-2"></i>
+                                    <span class="text-sm">{{ pub.cantidad_disponible }} {{ pub.cultivo.unidad_medida }} disponibles</span>
+                                </div>
+                                
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-dollar-sign text-gray-400 mr-2"></i>
+                                    <span class="text-sm font-semibold text-gray-900">${{ pub.precio_por_unidad }} por {{ pub.cultivo.unidad_medida }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <a href="{% url 'publication_detail' pub.id %}" 
+                                   class="flex-1 bg-primary-600 text-white text-center py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                    <i class="fas fa-eye mr-2"></i>Ver Detalles
+                                </a>
+                                {% if user.is_authenticated and user.role == 'Comprador' %}
+                                    <a href="{% url 'start_conversation' pub.id %}" 
+                                       class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <i class="fas fa-comment mr-2"></i>Contactar
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-span-full">
+                        {% if search_query %}
+                            <div class="text-center py-12">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-search text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">No se encontraron productos</h3>
+                                <p class="text-gray-600 mb-6">No hay productos que coincidan con tu búsqueda "{{ search_query }}".</p>
+                                <a href="{% url 'marketplace' %}" 
+                                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                    Ver Todos los Productos
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-seedling text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay productos disponibles</h3>
+                                <p class="text-gray-600">No hay productos disponibles en este momento. ¡Vuelve pronto!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}
