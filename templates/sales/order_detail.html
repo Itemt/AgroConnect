@@ -3,341 +3,128 @@
 {% block title %}Pedido #{{ order.id }}{% endblock %}
 
 {% block content %}
-<div class="order-detail-container">
-    <div class="order-header">
-        <h1>Pedido #{{ order.id }}</h1>
-        <div class="order-status">
-            <span class="status-badge status-{{ order.estado|slugify }}">
-                {{ order.get_estado_display }}
-            </span>
-        </div>
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900">Pedido #{{ order.id }}</h1>
+        <span class="px-4 py-2 text-lg font-semibold rounded-full {{ order.get_estado_display|lower|slugify }}">
+            {{ order.get_estado_display }}
+        </span>
     </div>
 
-    <div class="order-content">
-        <div class="order-main-info">
-            <!-- Información del Producto -->
-            <div class="info-section">
-                <h3>📦 Información del Producto</h3>
-                <div class="product-info">
-                    <h4>{{ order.publicacion.cultivo.nombre_producto }}</h4>
-                    <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                    <p><strong>Precio por unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</p>
-                    <p><strong>Total:</strong> ${{ order.precio_total }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Product Info -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Producto</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</div>
+                    <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
+                    <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
+                    <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>
                 </div>
             </div>
 
-            <!-- Información de las Partes -->
-            <div class="info-section">
-                <h3>👥 Participantes</h3>
-                <div class="participants-info">
-                    <div class="participant">
-                        <h4>🌱 Vendedor</h4>
+            <!-- Participants -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users mr-3"></i>Participantes</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold"><i class="fas fa-seedling mr-2"></i>Vendedor</h3>
                         <p>{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
-                        {% if order.vendedor.producer_profile %}
-                            <p><small>{{ order.vendedor.producer_profile.location }}</small></p>
-                        {% endif %}
+                        <p class="text-sm text-gray-600">{{ order.vendedor.producer_profile.location }}</p>
                     </div>
-                    <div class="participant">
-                        <h4>🛒 Comprador</h4>
+                    <div>
+                        <h3 class="font-semibold"><i class="fas fa-shopping-cart mr-2"></i>Comprador</h3>
                         <p>{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Información de Entrega -->
-            <div class="info-section">
-                <h3>🚚 Información de Entrega</h3>
-                <div class="delivery-info">
-                    <p><strong>Dirección:</strong></p>
-                    <p>{{ order.direccion_entrega }}</p>
-                    
-                    {% if order.fecha_entrega_estimada %}
-                        <p><strong>Fecha estimada de entrega:</strong> {{ order.fecha_entrega_estimada|date:"d/m/Y H:i" }}</p>
-                    {% endif %}
+            <!-- Timeline -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-calendar-alt mr-3"></i>Cronología</h2>
+                <div class="relative">
+                    <div class="border-l-2 border-gray-200 absolute h-full top-0 left-4"></div>
+                    <div class="space-y-8">
+                        <div class="flex items-center">
+                            <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
+                            <div class="ml-4"><strong>Pedido Creado:</strong> {{ order.created_at|date:"d M Y, H:i" }}</div>
+                        </div>
+                        {% if order.fecha_confirmacion %}
+                        <div class="flex items-center">
+                            <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
+                            <div class="ml-4"><strong>Confirmado:</strong> {{ order.fecha_confirmacion|date:"d M Y, H:i" }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.fecha_envio %}
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-truck text-white"></i></div>
+                            <div class="ml-4"><strong>Enviado:</strong> {{ order.fecha_envio|date:"d M Y, H:i" }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.fecha_recepcion %}
+                        <div class="flex items-center">
+                            <div class="bg-purple-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-home text-white"></i></div>
+                            <div class="ml-4"><strong>Recibido:</strong> {{ order.fecha_recepcion|date:"d M Y, H:i" }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-
-            <!-- Cronología del Pedido -->
-            <div class="info-section">
-                <h3>📅 Cronología</h3>
-                <div class="order-timeline">
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">✅</div>
-                        <div class="timeline-content">
-                            <h4>Pedido Creado</h4>
-                            <p>{{ order.created_at|date:"d/m/Y H:i" }}</p>
-                        </div>
-                    </div>
-                    
-                    {% if order.fecha_confirmacion %}
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">✅</div>
-                        <div class="timeline-content">
-                            <h4>Confirmado por Vendedor</h4>
-                            <p>{{ order.fecha_confirmacion|date:"d/m/Y H:i" }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if order.fecha_envio %}
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">📦</div>
-                        <div class="timeline-content">
-                            <h4>Enviado</h4>
-                            <p>{{ order.fecha_envio|date:"d/m/Y H:i" }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if order.fecha_recepcion %}
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">🏠</div>
-                        <div class="timeline-content">
-                            <h4>Recibido por Comprador</h4>
-                            <p>{{ order.fecha_recepcion|date:"d/m/Y H:i" }}</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Notas -->
-            {% if order.notas_comprador or order.notas_vendedor %}
-            <div class="info-section">
-                <h3>📝 Notas</h3>
-                {% if order.notas_comprador %}
-                    <div class="note">
-                        <h4>Notas del Comprador:</h4>
-                        <p>{{ order.notas_comprador|linebreaks }}</p>
-                    </div>
-                {% endif %}
-                {% if order.notas_vendedor %}
-                    <div class="note">
-                        <h4>Notas del Vendedor:</h4>
-                        <p>{{ order.notas_vendedor|linebreaks }}</p>
-                    </div>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            <!-- Calificación -->
-            {% if existing_rating %}
-            <div class="info-section">
-                <h3>⭐ Calificación</h3>
-                <div class="rating-display">
-                    <div class="rating-scores">
-                        <p><strong>General:</strong> {{ existing_rating.calificacion_general }}/5 ⭐</p>
-                        <p><strong>Comunicación:</strong> {{ existing_rating.calificacion_comunicacion }}/5 ⭐</p>
-                        <p><strong>Puntualidad:</strong> {{ existing_rating.calificacion_puntualidad }}/5 ⭐</p>
-                        <p><strong>Calidad:</strong> {{ existing_rating.calificacion_calidad }}/5 ⭐</p>
-                    </div>
-                    {% if existing_rating.comentario %}
-                        <div class="rating-comment">
-                            <h4>Comentario:</h4>
-                            <p>{{ existing_rating.comentario }}</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
         </div>
 
-        <!-- Panel de Acciones -->
-        <div class="order-actions-panel">
-            <h3>🔧 Acciones Disponibles</h3>
-            
-            {% for action_key, action_label, action_class in order.available_actions %}
-                {% if action_key == 'confirm_receipt' %}
-                    <a href="{% url 'confirm_order_receipt' order.id %}" class="btn btn-{{ action_class }}">
-                        ✅ {{ action_label }}
+        <!-- Sidebar -->
+        <div class="space-y-8">
+            <!-- Actions -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-wrench mr-3"></i>Acciones</h2>
+                <div class="space-y-3">
+                    {% for action_key, action_label, action_class in order.available_actions %}
+                        {% if action_key == 'confirm_receipt' %}
+                            <a href="{% url 'confirm_order_receipt' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'rate' %}
+                            <a href="{% url 'rate_order' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600">
+                                <i class="fas fa-star mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'update_status' %}
+                            <a href="{% url 'update_order_status' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'cancel' %}
+                            <a href="{% url 'cancel_order' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                                <i class="fas fa-times-circle mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'contact' %}
+                            <a href="{% url 'start_conversation' order.publicacion.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
+                                <i class="fas fa-comments mr-2"></i>{{ action_label }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'order_history' %}" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-clipboard-list mr-2"></i>Volver al Historial
                     </a>
-                {% elif action_key == 'rate' %}
-                    <a href="{% url 'rate_order' order.id %}" class="btn btn-{{ action_class }}">
-                        ⭐ {{ action_label }}
-                    </a>
-                {% elif action_key == 'update_status' %}
-                    <a href="{% url 'update_order_status' order.id %}" class="btn btn-{{ action_class }}">
-                        📝 {{ action_label }}
-                    </a>
-                {% elif action_key == 'cancel' %}
-                    <a href="{% url 'cancel_order' order.id %}" class="btn btn-{{ action_class }}">
-                        ❌ {{ action_label }}
-                    </a>
-                {% elif action_key == 'contact' %}
-                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="btn btn-{{ action_class }}">
-                        💬 {{ action_label }}
-                    </a>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            {% if existing_rating %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-star mr-3"></i>Calificación</h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between"><span>General:</span> <span class="font-bold">{{ existing_rating.calificacion_general }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                    <div class="flex justify-between"><span>Comunicación:</span> <span class="font-bold">{{ existing_rating.calificacion_comunicacion }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                    <div class="flex justify-between"><span>Puntualidad:</span> <span class="font-bold">{{ existing_rating.calificacion_puntualidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                    <div class="flex justify-between"><span>Calidad:</span> <span class="font-bold">{{ existing_rating.calificacion_calidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                </div>
+                {% if existing_rating.comentario %}
+                    <p class="mt-4 text-gray-600 italic">"{{ existing_rating.comentario }}"</p>
                 {% endif %}
-            {% endfor %}
-            
-            <a href="{% url 'order_history' %}" class="btn btn-secondary">
-                📋 Volver al Historial
-            </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-<style>
-.order-detail-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.order-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-}
-
-.info-section {
-    background: #f9f9f9;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid #004d00;
-}
-
-.info-section h3 {
-    margin-top: 0;
-    color: #004d00;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 0.5rem;
-}
-
-.participants-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.participant {
-    background: white;
-    padding: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.participant h4 {
-    margin-top: 0;
-    color: #004d00;
-}
-
-.order-timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.timeline-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem;
-    border-radius: 5px;
-}
-
-.timeline-item.completed {
-    background: #e8f5e8;
-}
-
-.timeline-icon {
-    font-size: 1.5rem;
-    width: 40px;
-    text-align: center;
-}
-
-.timeline-content h4 {
-    margin: 0;
-    color: #004d00;
-}
-
-.timeline-content p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.order-actions-panel {
-    background: #f0f8f0;
-    padding: 1.5rem;
-    border-radius: 8px;
-    height: fit-content;
-    position: sticky;
-    top: 2rem;
-}
-
-.order-actions-panel h3 {
-    margin-top: 0;
-    color: #004d00;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 0.5rem;
-}
-
-.order-actions-panel .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    text-align: center;
-    padding: 0.75rem;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
-.note {
-    background: white;
-    padding: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    margin-bottom: 1rem;
-}
-
-.note h4 {
-    margin-top: 0;
-    color: #004d00;
-}
-
-.rating-display {
-    background: white;
-    padding: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.rating-scores {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.rating-comment {
-    border-top: 1px solid #eee;
-    padding-top: 1rem;
-}
-
-@media (max-width: 768px) {
-    .order-content {
-        grid-template-columns: 1fr;
-    }
-    
-    .participants-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .rating-scores {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 {% endblock %}

@@ -3,459 +3,107 @@
 {% block title %}Historial de Pedidos{% endblock %}
 
 {% block content %}
-<div class="order-history-container">
-    <div class="page-header">
-        <h1>📋 Historial de Pedidos</h1>
-        <p>Aquí puedes ver todos tus pedidos realizados y recibidos.</p>
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-clipboard-list mr-3 text-primary-600"></i>Historial de Pedidos</h1>
+        <p class="mt-2 text-lg text-gray-600">Aquí puedes ver todos tus pedidos realizados y recibidos.</p>
     </div>
 
-    <!-- Filtros de búsqueda -->
-    <div class="search-filters">
-        <form method="get" class="filter-form">
-            <div class="filter-grid">
-                <div class="filter-item">
-                    {{ form.search }}
+        <form method="get" class="mb-6 bg-gray-50 p-4 rounded-lg">
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex-grow">
+                    <label for="search" class="block text-sm font-medium text-gray-700">Buscar</label>
+                    <div class="flex">
+                        <input type="text" name="search" id="search" class="w-full px-4 py-2 border border-gray-300 rounded-l-lg" placeholder="Producto..." value="{{ request.GET.search }}">
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 hover:bg-primary-700 -ml-px">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a href="{% url 'order_history' %}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-r-lg hover:bg-gray-400 -ml-px">
+                            <i class="fas fa-sync-alt"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="filter-item">
+                <div class="flex-grow">
+                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
                     {{ form.estado }}
                 </div>
-                <div class="filter-item">
-                    {{ form.fecha_desde }}
+                <div class="flex-grow">
+                    <label for="fecha_desde" class="block text-sm font-medium text-gray-700">Desde</label>
+                    <input type="date" name="fecha_desde" id="fecha_desde" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="{{ request.GET.fecha_desde }}">
                 </div>
-                <div class="filter-item">
-                    {{ form.fecha_hasta }}
-                </div>
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn-primary">🔍 Buscar</button>
-                    <a href="{% url 'order_history' %}" class="btn btn-secondary">🔄 Limpiar</a>
+                <div class="flex-grow">
+                    <label for="fecha_hasta" class="block text-sm font-medium text-gray-700">Hasta</label>
+                    <input type="date" name="fecha_hasta" id="fecha_hasta" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="{{ request.GET.fecha_hasta }}">
                 </div>
             </div>
         </form>
-    </div>
 
-    <!-- Lista de pedidos -->
-    <div class="orders-list">
+    <!-- Orders List -->
+    <div class="space-y-6">
         {% for order in orders %}
-            <div class="order-card">
-                <div class="order-header">
-                    <div class="order-title">
-                        <h3>Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h3>
-                        <span class="status-badge status-{{ order.estado|slugify }}">
-                            {{ order.get_estado_display }}
-                        </span>
+            <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h3>
+                        <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
                     </div>
-                    <div class="order-date">
-                        {{ order.created_at|date:"d/m/Y H:i" }}
-                    </div>
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full {{ order.get_estado_display|lower|slugify }}">
+                        {{ order.get_estado_display }}
+                    </span>
                 </div>
-
-                <div class="order-content">
-                    <div class="order-details">
-                        <div class="detail-row">
-                            <div class="detail-item">
-                                <strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}
-                            </div>
-                            <div class="detail-item">
-                                {% if user_role == 'Comprador' %}
-                                    <strong>Vendedor:</strong> {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}
-                                {% else %}
-                                    <strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}
-                                {% endif %}
-                            </div>
-                            <div class="detail-item">
-                                <strong>Precio por unidad:</strong> ${{ order.publicacion.precio_por_unidad }}
-                            </div>
-                            <div class="detail-item total">
-                                <strong>Total:</strong> ${{ order.precio_total }}
-                            </div>
-                        </div>
-
-                        {% if order.direccion_entrega %}
-                            <div class="delivery-info">
-                                <strong>Dirección de entrega:</strong>
-                                <span>{{ order.direccion_entrega|truncatechars:50 }}</span>
-                            </div>
+                <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
+                    <div>
+                        {% if user_role == 'Comprador' %}
+                            <strong>Vendedor:</strong> {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}
+                        {% else %}
+                            <strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}
                         {% endif %}
-
-                        <!-- Fechas importantes -->
-                        <div class="order-timeline-mini">
-                            {% if order.fecha_confirmacion %}
-                                <span class="timeline-item">✅ Confirmado: {{ order.fecha_confirmacion|date:"d/m H:i" }}</span>
-                            {% endif %}
-                            {% if order.fecha_envio %}
-                                <span class="timeline-item">📦 Enviado: {{ order.fecha_envio|date:"d/m H:i" }}</span>
-                            {% endif %}
-                            {% if order.fecha_recepcion %}
-                                <span class="timeline-item">🏠 Recibido: {{ order.fecha_recepcion|date:"d/m H:i" }}</span>
-                            {% endif %}
-                        </div>
                     </div>
-
-                    <div class="order-actions">
-                        <a href="{% url 'order_detail' order.id %}" class="btn btn-primary">
-                            👁️ Ver Detalles
-                        </a>
-
-                        <!-- Acciones rápidas basadas en el estado -->
-                        {% for action_key, action_label, action_class in order.available_actions %}
-                            {% if action_key == 'confirm_receipt' %}
-                                <a href="{% url 'confirm_order_receipt' order.id %}" class="btn btn-{{ action_class }} btn-sm">
-                                    ✅ Recibido
-                                </a>
-                            {% elif action_key == 'rate' %}
-                                <a href="{% url 'rate_order' order.id %}" class="btn btn-{{ action_class }} btn-sm">
-                                    ⭐ Calificar
-                                </a>
-                            {% elif action_key == 'update_status' %}
-                                <a href="{% url 'update_order_status' order.id %}" class="btn btn-{{ action_class }} btn-sm">
-                                    📝 Actualizar
-                                </a>
-                            {% elif action_key == 'cancel' %}
-                                <a href="{% url 'cancel_order' order.id %}" class="btn btn-{{ action_class }} btn-sm">
-                                    ❌ Cancelar
-                                </a>
-                            {% elif action_key != 'contact' %}
-                                <!-- Otras acciones que no sean contactar -->
-                            {% endif %}
-                        {% endfor %}
-
-                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="btn btn-outline btn-sm">
-                            💬 Contactar
-                        </a>
-                    </div>
+                    <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
+                    <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>
                 </div>
-
-                <!-- Calificación si existe -->
-                {% if order.calificacion %}
-                    <div class="order-rating">
-                        <div class="rating-info">
-                            <span class="rating-stars">
-                                ⭐ {{ order.calificacion.calificacion_general }}/5
-                            </span>
-                            {% if order.calificacion.comentario %}
-                                <span class="rating-comment">
-                                    "{{ order.calificacion.comentario|truncatechars:100 }}"
-                                </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
+                <div class="mt-4 flex space-x-4">
+                    <a href="{% url 'order_detail' order.id %}" class="text-primary-600 hover:underline"><i class="fas fa-eye mr-1"></i>Ver Detalles</a>
+                    {% for action_key, action_label, action_class in order.available_actions %}
+                        {% if action_key == 'confirm_receipt' %}
+                            <a href="{% url 'confirm_order_receipt' order.id %}" class="text-green-600 hover:underline"><i class="fas fa-check-circle mr-1"></i>Recibido</a>
+                        {% elif action_key == 'rate' %}
+                            <a href="{% url 'rate_order' order.id %}" class="text-yellow-500 hover:underline"><i class="fas fa-star mr-1"></i>Calificar</a>
+                        {% elif action_key == 'update_status' %}
+                            <a href="{% url 'update_order_status' order.id %}" class="text-blue-600 hover:underline"><i class="fas fa-pencil-alt mr-1"></i>Actualizar</a>
+                        {% elif action_key == 'cancel' %}
+                            <a href="{% url 'cancel_order' order.id %}" class="text-red-600 hover:underline"><i class="fas fa-times-circle mr-1"></i>Cancelar</a>
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="text-gray-600 hover:underline"><i class="fas fa-comments mr-1"></i>Contactar</a>
+                </div>
             </div>
         {% empty %}
-            <div class="empty-state">
-                <div class="empty-icon">📦</div>
-                <h3>No hay pedidos</h3>
-                <p>{% if user_role == 'Comprador' %}Aún no has realizado ningún pedido.{% else %}Aún no has recibido ningún pedido.{% endif %}</p>
-                <a href="{% url 'marketplace' %}" class="btn btn-primary">
-                    🛒 Ir al Marketplace
-                </a>
+            <div class="text-center py-16">
+                <i class="fas fa-box-open text-6xl text-gray-300"></i>
+                <h3 class="mt-4 text-xl font-semibold text-gray-800">No hay pedidos</h3>
+                <p class="mt-2 text-sm text-gray-600">Aún no has realizado ningún pedido.</p>
+                <a href="{% url 'marketplace' %}" class="mt-6 bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700"><i class="fas fa-shopping-cart mr-2"></i>Ir al Marketplace</a>
             </div>
         {% endfor %}
     </div>
 
-    <!-- Paginación -->
+    <!-- Pagination -->
     {% if orders.has_other_pages %}
-        <div class="pagination">
-            <div class="pagination-info">
-                Mostrando {{ orders.start_index }}-{{ orders.end_index }} de {{ orders.paginator.count }} pedidos
-            </div>
-            <div class="pagination-links">
+        <div class="mt-12 flex justify-center">
+            <div class="flex items-center space-x-2">
                 {% if orders.has_previous %}
-                    <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}" class="page-link">« Primera</a>
-                    <a href="?page={{ orders.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}" class="page-link">‹ Anterior</a>
+                    <a href="?page=1{{ request.GET.urlencode }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">« Primera</a>
+                    <a href="?page={{ orders.previous_page_number }}{{ request.GET.urlencode }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">‹ Anterior</a>
                 {% endif %}
-                
-                <span class="current-page">
-                    Página {{ orders.number }} de {{ orders.paginator.num_pages }}
-                </span>
-                
+                <span class="px-4 py-2 bg-primary-600 text-white rounded-lg">Página {{ orders.number }} de {{ orders.paginator.num_pages }}</span>
                 {% if orders.has_next %}
-                    <a href="?page={{ orders.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}" class="page-link">Siguiente ›</a>
-                    <a href="?page={{ orders.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}" class="page-link">Última »</a>
+                    <a href="?page={{ orders.next_page_number }}{{ request.GET.urlencode }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Siguiente ›</a>
+                    <a href="?page={{ orders.paginator.num_pages }}{{ request.GET.urlencode }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Última »</a>
                 {% endif %}
             </div>
         </div>
     {% endif %}
 </div>
-
-<style>
-.order-history-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.page-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.page-header h1 {
-    color: #004d00;
-    margin-bottom: 0.5rem;
-}
-
-.search-filters {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    border: 1px solid #dee2e6;
-}
-
-.filter-form {
-    margin: 0;
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr auto;
-    gap: 1rem;
-    align-items: end;
-}
-
-.filter-item input, .filter-item select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.filter-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.filter-actions .btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    white-space: nowrap;
-}
-
-.orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.order-card {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.order-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.order-header {
-    background: #f8f9fa;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.order-title {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.order-title h3 {
-    margin: 0;
-    color: #004d00;
-    font-size: 1.1rem;
-}
-
-.order-date {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.order-content {
-    padding: 1.5rem;
-}
-
-.order-details {
-    margin-bottom: 1rem;
-}
-
-.detail-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.detail-item {
-    font-size: 0.9rem;
-}
-
-.detail-item.total {
-    font-size: 1rem;
-    color: #004d00;
-}
-
-.delivery-info {
-    background: #f8f9fa;
-    padding: 0.75rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.order-timeline-mini {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.timeline-item {
-    background: #e8f5e8;
-    padding: 0.25rem 0.5rem;
-    border-radius: 3px;
-    font-size: 0.8rem;
-    color: #155724;
-}
-
-.order-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.order-actions .btn {
-    font-size: 0.9rem;
-}
-
-.btn.btn-sm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-}
-
-.order-rating {
-    background: #fff3cd;
-    padding: 0.75rem 1.5rem;
-    border-top: 1px solid #ffeaa7;
-}
-
-.rating-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.rating-stars {
-    font-weight: bold;
-    color: #856404;
-}
-
-.rating-comment {
-    font-style: italic;
-    color: #856404;
-    font-size: 0.9rem;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
-
-.empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-    color: #004d00;
-    margin-bottom: 0.5rem;
-}
-
-.pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 2rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.pagination-info {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.pagination-links {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.page-link {
-    padding: 0.5rem 0.75rem;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #004d00;
-    font-size: 0.9rem;
-}
-
-.page-link:hover {
-    background: #e8f5e8;
-}
-
-.current-page {
-    padding: 0.5rem 0.75rem;
-    background: #004d00;
-    color: white;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-@media (max-width: 768px) {
-    .filter-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .filter-actions {
-        justify-content: center;
-    }
-    
-    .order-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .detail-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-    }
-    
-    .order-actions {
-        justify-content: center;
-    }
-    
-    .pagination {
-        flex-direction: column;
-        gap: 1rem;
-    }
-}
-</style>
 {% endblock %}

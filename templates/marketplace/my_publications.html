@@ -3,61 +3,69 @@
 {% block title %}Mis Publicaciones{% endblock %}
 
 {% block content %}
-    <div class="page-header">
-        <h1>Mis Publicaciones</h1>
-        <a href="{% url 'crop_list' %}" class="btn btn-primary">Ver Cultivos para Publicar</a>
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Mis Publicaciones</h1>
+        <a href="{% url 'crop_add' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+            <i class="fas fa-plus mr-2"></i>Crear Publicación
+        </a>
     </div>
 
     {% if publications %}
-        <div class="publications-list">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for publication in publications %}
-                <div class="publication-item">
-                    <div class="publication-info">
-                        <h3>{{ publication.cultivo.nombre_producto }}</h3>
-                        <p><strong>Precio por {{ publication.cultivo.unidad_medida }}:</strong> ${{ publication.precio_por_unidad }}</p>
-                        <p><strong>Cantidad disponible:</strong> {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
-                        <p><strong>Estado del cultivo:</strong> <span class="status-badge status-{{ publication.cultivo.estado|slugify }}">{{ publication.cultivo.get_estado_display }}</span></p>
-                        <p><strong>Estado de la publicación:</strong> 
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ publication.cultivo.nombre_producto }}</h3>
                             {% if publication.estado == 'disponible' %}
-                                <span class="status-badge" style="background-color: #28a745;">Disponible</span>
+                                <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Disponible</span>
                             {% else %}
-                                <span class="status-badge" style="background-color: #6c757d;">{{ publication.get_estado_display }}</span>
+                                <span class="px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">{{ publication.get_estado_display }}</span>
                             {% endif %}
-                        </p>
-                        <p><strong>Creada:</strong> {{ publication.created_at|date:"d M Y" }}</p>
-                        
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4">Creada: {{ publication.created_at|date:"d M Y" }}</p>
+
+                        <div class="space-y-3 text-sm">
+                            <p><strong>Precio:</strong> ${{ publication.precio_por_unidad }} / {{ publication.cultivo.unidad_medida }}</p>
+                            <p><strong>Cantidad:</strong> {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
+                            <p><strong>Estado del cultivo:</strong> <span class="font-medium text-primary-700">{{ publication.cultivo.get_estado_display }}</span></p>
+                        </div>
+
                         {% if publication.descripcion %}
-                            <p><strong>Descripción:</strong> {{ publication.descripcion }}</p>
+                            <p class="mt-4 text-sm text-gray-600">{{ publication.descripcion|truncatewords:20 }}</p>
                         {% endif %}
                     </div>
                     
-                    <div class="publication-actions">
-                        <a href="{% url 'publication_detail' publication.id %}" class="btn btn-info">Ver Detalle</a>
-                        <a href="{% url 'publication_edit' publication.pk %}" class="btn btn-secondary">Editar</a>
-                        
-                        {% if publication.estado == 'disponible' %}
-                            <a href="{% url 'publication_delete' publication.pk %}" class="btn btn-danger" 
-                               onclick="return confirm('¿Estás seguro de que quieres cambiar el estado de esta publicación?')">
-                                Cambiar Estado
-                            </a>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="publication-stats">
-                        <p><strong>Pedidos recibidos:</strong> {{ publication.pedidos.count }}</p>
-                        <p><strong>Conversaciones:</strong> {{ publication.conversations.count }}</p>
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4">
+                                <a href="{% url 'publication_detail' publication.id %}" class="text-sm font-medium text-primary-600 hover:text-primary-800">Ver Detalle</a>
+                                <a href="{% url 'publication_edit' publication.pk %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Editar</a>
+                            </div>
+                            
+                            <form action="{% url 'publication_delete' publication.pk %}" method="post" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800" onclick="return confirm('¿Estás seguro de que quieres eliminar esta publicación?')">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state">
-            <h3>No tienes publicaciones aún</h3>
-            <p>Para crear publicaciones, primero necesitas tener cultivos listos para cosechar.</p>
-            <div class="empty-actions">
-                <a href="{% url 'crop_add' %}" class="btn btn-primary">Agregar Cultivo</a>
-                <a href="{% url 'crop_list' %}" class="btn btn-secondary">Ver Mis Cultivos</a>
+        <div class="text-center py-16 border-4 border-dashed border-gray-200 rounded-lg">
+            <i class="fas fa-folder-open text-6xl text-gray-300"></i>
+            <h3 class="mt-4 text-xl font-semibold text-gray-800">No tienes publicaciones aún</h3>
+            <p class="mt-2 text-sm text-gray-600">Para crear publicaciones, primero necesitas tener cultivos listos para cosechar.</p>
+            <div class="mt-6">
+                <a href="{% url 'crop_add' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+                    <i class="fas fa-plus mr-2"></i>Agregar Cultivo
+                </a>
             </div>
         </div>
     {% endif %}
+</div>
 {% endblock %}

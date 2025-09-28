@@ -3,460 +3,89 @@
 {% block title %}Rankings de Usuarios{% endblock %}
 
 {% block content %}
-<div class="rankings-container">
-    <div class="page-header">
-        <h1>🏆 Rankings de AgroConnect</h1>
-        <p>Descubre a los mejores vendedores y compradores de nuestra comunidad</p>
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-trophy mr-3 text-primary-600"></i>Rankings de AgroConnect</h1>
+        <p class="mt-2 text-lg text-gray-600">Descubre a los mejores vendedores y compradores de nuestra comunidad.</p>
     </div>
 
-    <div class="rankings-grid">
-        <!-- Top Vendedores por Calificación -->
-        <div class="ranking-section">
-            <div class="section-header">
-                <h2>⭐ Mejores Vendedores</h2>
-                <p>Vendedores con las mejores calificaciones</p>
-            </div>
-            
-            <div class="ranking-list">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+        <!-- Top Sellers -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-star mr-3"></i>Mejores Vendedores</h2>
+            <div class="space-y-4">
                 {% for profile in top_sellers %}
-                    <div class="ranking-item">
-                        <div class="rank-position">
-                            {% if forloop.counter == 1 %}🥇
-                            {% elif forloop.counter == 2 %}🥈
-                            {% elif forloop.counter == 3 %}🥉
+                    <div class="flex items-center bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold w-12 text-center">
+                            {% if forloop.counter == 1 %}<i class="fas fa-trophy text-yellow-400"></i>
+                            {% elif forloop.counter == 2 %}<i class="fas fa-trophy text-gray-400"></i>
+                            {% elif forloop.counter == 3 %}<i class="fas fa-trophy text-yellow-600"></i>
                             {% else %}{{ forloop.counter }}{% endif %}
                         </div>
-                        
-                        <div class="user-info">
-                            <h4>{{ profile.user.first_name }} {{ profile.user.last_name }}</h4>
-                            {% if profile.user.producer_profile %}
-                                <p class="location">📍 {{ profile.user.producer_profile.location }}</p>
-                            {% endif %}
+                        <div class="flex-grow ml-4">
+                            <h4 class="font-semibold">{{ profile.user.first_name }} {{ profile.user.last_name }}</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-1"></i>{{ profile.user.producer_profile.location }}</p>
                         </div>
-                        
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-value">{{ profile.calificacion_promedio_como_vendedor|floatformat:1 }}</span>
-                                <span class="stat-label">⭐ Calificación</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">{{ profile.total_ventas }}</span>
-                                <span class="stat-label">🛒 Ventas</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">${{ profile.ingresos_totales|floatformat:0 }}</span>
-                                <span class="stat-label">💰 Ingresos</span>
-                            </div>
-                        </div>
-                        
-                        <div class="actions">
-                            <a href="{% url 'user_profile' profile.user.id %}" class="btn btn-sm">Ver Perfil</a>
+                        <div class="text-right">
+                            <div class="font-bold">{{ profile.calificacion_promedio_como_vendedor|floatformat:1 }} <i class="fas fa-star text-yellow-400"></i></div>
+                            <div class="text-sm text-gray-600">{{ profile.total_ventas }} ventas</div>
                         </div>
                     </div>
                 {% empty %}
-                    <div class="empty-state">
-                        <p>🌱 Aún no hay vendedores calificados. ¡Sé el primero!</p>
-                    </div>
+                    <p class="text-gray-500"><i class="fas fa-seedling mr-2"></i>Aún no hay vendedores calificados.</p>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Top Compradores por Calificación -->
-        <div class="ranking-section">
-            <div class="section-header">
-                <h2>🛒 Mejores Compradores</h2>
-                <p>Compradores más confiables y bien calificados</p>
-            </div>
-            
-            <div class="ranking-list">
+        <!-- Top Buyers -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4"><i class="fas fa-shopping-cart mr-3"></i>Mejores Compradores</h2>
+            <div class="space-y-4">
                 {% for profile in top_buyers %}
-                    <div class="ranking-item">
-                        <div class="rank-position">
-                            {% if forloop.counter == 1 %}🥇
-                            {% elif forloop.counter == 2 %}🥈
-                            {% elif forloop.counter == 3 %}🥉
+                    <div class="flex items-center bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold w-12 text-center">
+                            {% if forloop.counter == 1 %}<i class="fas fa-trophy text-yellow-400"></i>
+                            {% elif forloop.counter == 2 %}<i class="fas fa-trophy text-gray-400"></i>
+                            {% elif forloop.counter == 3 %}<i class="fas fa-trophy text-yellow-600"></i>
                             {% else %}{{ forloop.counter }}{% endif %}
                         </div>
-                        
-                        <div class="user-info">
-                            <h4>{{ profile.user.first_name }} {{ profile.user.last_name }}</h4>
-                            {% if profile.user.buyer_profile %}
-                                <p class="company">🏢 {{ profile.user.buyer_profile.company_name }}</p>
-                            {% endif %}
+                        <div class="flex-grow ml-4">
+                            <h4 class="font-semibold">{{ profile.user.first_name }} {{ profile.user.last_name }}</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-building mr-1"></i>{{ profile.user.buyer_profile.company_name }}</p>
                         </div>
-                        
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-value">{{ profile.calificacion_promedio_como_comprador|floatformat:1 }}</span>
-                                <span class="stat-label">⭐ Calificación</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">{{ profile.total_compras }}</span>
-                                <span class="stat-label">🛍️ Compras</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-value">${{ profile.gastos_totales|floatformat:0 }}</span>
-                                <span class="stat-label">💳 Gastado</span>
-                            </div>
-                        </div>
-                        
-                        <div class="actions">
-                            <a href="{% url 'user_profile' profile.user.id %}" class="btn btn-sm">Ver Perfil</a>
+                        <div class="text-right">
+                            <div class="font-bold">{{ profile.calificacion_promedio_como_comprador|floatformat:1 }} <i class="fas fa-star text-yellow-400"></i></div>
+                            <div class="text-sm text-gray-600">{{ profile.total_compras }} compras</div>
                         </div>
                     </div>
                 {% empty %}
-                    <div class="empty-state">
-                        <p>🛒 Aún no hay compradores calificados. ¡Sé el primero!</p>
-                    </div>
+                    <p class="text-gray-500"><i class="fas fa-shopping-bag mr-2"></i>Aún no hay compradores calificados.</p>
                 {% endfor %}
-            </div>
-        </div>
-
-        <!-- Vendedores Más Activos -->
-        <div class="ranking-section full-width">
-            <div class="section-header">
-                <h2>🔥 Vendedores Más Activos</h2>
-                <p>Productores con mayor volumen de ventas</p>
-            </div>
-            
-            <div class="ranking-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Posición</th>
-                            <th>Vendedor</th>
-                            <th>Ubicación</th>
-                            <th>Ventas Totales</th>
-                            <th>Ingresos</th>
-                            <th>Calificación</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for profile in most_active_sellers %}
-                            <tr>
-                                <td class="rank-cell">
-                                    {% if forloop.counter == 1 %}🥇
-                                    {% elif forloop.counter == 2 %}🥈
-                                    {% elif forloop.counter == 3 %}🥉
-                                    {% else %}{{ forloop.counter }}{% endif %}
-                                </td>
-                                <td>
-                                    <strong>{{ profile.user.first_name }} {{ profile.user.last_name }}</strong>
-                                </td>
-                                <td>
-                                    {% if profile.user.producer_profile %}
-                                        {{ profile.user.producer_profile.location }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td class="number-cell">{{ profile.total_ventas }}</td>
-                                <td class="number-cell">${{ profile.ingresos_totales|floatformat:0 }}</td>
-                                <td class="rating-cell">
-                                    {% if profile.calificacion_promedio_como_vendedor > 0 %}
-                                        ⭐ {{ profile.calificacion_promedio_como_vendedor|floatformat:1 }}
-                                    {% else %}
-                                        Sin calificar
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'user_profile' profile.user.id %}" class="btn btn-sm">Ver Perfil</a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="7" class="empty-cell">
-                                    🌱 Aún no hay vendedores activos. ¡Comienza a vender!
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 
-    <div class="ranking-info">
-        <h3>ℹ️ Sobre los Rankings</h3>
-        <div class="info-grid">
-            <div class="info-item">
-                <h4>🏆 Criterios de Clasificación</h4>
-                <ul>
-                    <li>Calificación promedio de usuarios</li>
-                    <li>Número total de transacciones</li>
+    <!-- Info -->
+    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-6 rounded-lg shadow-lg">
+        <h3 class="font-bold"><i class="fas fa-info-circle mr-3"></i>Sobre los Rankings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <div>
+                <h4 class="font-bold"><i class="fas fa-bullseye mr-2"></i>Criterios</h4>
+                <ul class="list-disc list-inside text-sm">
+                    <li>Calificación promedio</li>
+                    <li>Número de transacciones</li>
                     <li>Volumen de ventas/compras</li>
-                    <li>Consistencia en el servicio</li>
                 </ul>
             </div>
-            <div class="info-item">
-                <h4>📊 Actualización</h4>
-                <ul>
-                    <li>Los rankings se actualizan en tiempo real</li>
-                    <li>Solo se incluyen usuarios con transacciones completadas</li>
-                    <li>Las calificaciones son de otros usuarios verificados</li>
-                </ul>
+            <div>
+                <h4 class="font-bold"><i class="fas fa-chart-pie mr-2"></i>Actualización</h4>
+                <p class="text-sm">Los rankings se actualizan en tiempo real.</p>
             </div>
-            <div class="info-item">
-                <h4>🎯 Beneficios</h4>
-                <ul>
-                    <li>Mayor visibilidad en el marketplace</li>
-                    <li>Confianza de otros usuarios</li>
-                    <li>Acceso a funciones premium (próximamente)</li>
-                </ul>
+            <div>
+                <h4 class="font-bold"><i class="fas fa-trophy mr-2"></i>Beneficios</h4>
+                <p class="text-sm">Mayor visibilidad y confianza en la comunidad.</p>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.rankings-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.page-header h1 {
-    color: #004d00;
-    margin-bottom: 0.5rem;
-}
-
-.rankings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.ranking-section {
-    background: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #ddd;
-}
-
-.ranking-section.full-width {
-    grid-column: 1 / -1;
-}
-
-.section-header {
-    background: #004d00;
-    color: white;
-    padding: 1.5rem;
-    text-align: center;
-}
-
-.section-header h2 {
-    margin: 0 0 0.5rem 0;
-}
-
-.section-header p {
-    margin: 0;
-    opacity: 0.9;
-}
-
-.ranking-list {
-    padding: 1rem;
-}
-
-.ranking-item {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-    background: white;
-    border-radius: 5px;
-    margin-bottom: 0.5rem;
-    border: 1px solid #ddd;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.ranking-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.rank-position {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    min-width: 40px;
-}
-
-.user-info h4 {
-    margin: 0 0 0.25rem 0;
-    color: #004d00;
-}
-
-.user-info p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.stats {
-    display: flex;
-    gap: 1rem;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-value {
-    display: block;
-    font-weight: bold;
-    color: #004d00;
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.8rem;
-    color: #666;
-}
-
-.ranking-table {
-    overflow-x: auto;
-}
-
-.ranking-table table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
-
-.ranking-table th {
-    background: #f8f9fa;
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: bold;
-    color: #004d00;
-}
-
-.ranking-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.rank-cell {
-    text-align: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.number-cell {
-    text-align: right;
-    font-weight: bold;
-}
-
-.rating-cell {
-    text-align: center;
-}
-
-.empty-cell {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 2rem;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-    font-style: italic;
-}
-
-.btn {
-    background: #004d00;
-    color: white;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    border-radius: 3px;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-}
-
-.btn:hover {
-    background: #006600;
-}
-
-.btn.btn-sm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-}
-
-.ranking-info {
-    background: #f0f8f0;
-    padding: 2rem;
-    border-radius: 8px;
-    border: 1px solid #d4edda;
-}
-
-.ranking-info h3 {
-    margin-top: 0;
-    color: #004d00;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 1rem;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.info-item {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.info-item h4 {
-    margin-top: 0;
-    color: #004d00;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-}
-
-.info-item ul {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
-}
-
-.info-item li {
-    margin-bottom: 0.5rem;
-}
-
-@media (max-width: 768px) {
-    .rankings-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .ranking-item {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .stats {
-        justify-content: center;
-    }
-    
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 {% endblock %}
