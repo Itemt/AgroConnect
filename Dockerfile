@@ -21,15 +21,14 @@ RUN mkdir -p staticfiles
 # Recopilar archivos estáticos
 RUN python manage.py collectstatic --noinput
 
-# Ejecutar migraciones
-RUN python manage.py migrate
-
-# Copiar script de migración
-COPY migrate_to_postgres.py .
-COPY data_backup.json .
+# Nota: Las migraciones se ejecutarán en runtime para PostgreSQL
 
 # Exponer el puerto
 EXPOSE 8000
 
-# Comando para ejecutar la aplicación con Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "agroconnect.wsgi:application"]
+# Copiar y configurar script de inicio
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Comando para ejecutar la aplicación con inicialización de PostgreSQL
+CMD ["./start.sh"]

@@ -83,18 +83,14 @@ WSGI_APPLICATION = 'agroconnect.wsgi.application'
 
 import dj_database_url
 
-# Database configuration - PostgreSQL for production, SQLite for development
+# Database configuration - PostgreSQL only
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default='postgresql://user:password@localhost:5432/dbname',
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
-
-# PostgreSQL configuration for production
-if not DEBUG:
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 
 
 # Password validation
