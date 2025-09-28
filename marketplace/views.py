@@ -70,8 +70,11 @@ def marketplace_view(request):
         'cultivo__productor__producer_profile__location', flat=True
     ).distinct().exclude(cultivo__productor__producer_profile__location__isnull=True)
     
-    # Agregar la categoría a cada publicación
-    for publication in publications:
+    # Convertir a lista para poder agregar atributos dinámicos
+    publications_list = list(publications)
+    
+    # Agregar la categoría y procesar ubicación para cada publicación
+    for publication in publications_list:
         try:
             producto = Product.objects.get(nombre=publication.cultivo.nombre_producto)
             publication.categoria_producto = producto.categoria
@@ -79,9 +82,22 @@ def marketplace_view(request):
         except Product.DoesNotExist:
             publication.categoria_producto = 'otros'
             publication.categoria_display = 'Otros'
+        
+        # Procesar ubicación para mostrar solo ciudad/región
+        if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
+            location = publication.cultivo.productor.producer_profile.location
+            # Extraer ciudad (asumiendo formato "Calle, Ciudad, País" o similar)
+            location_parts = [part.strip() for part in location.split(',')]
+            if len(location_parts) > 1:
+                # Tomar la segunda parte (ciudad) y la primera (calle/sector)
+                publication.ciudad_display = f"{location_parts[1][:20]}, {location_parts[0][:15]}"
+            else:
+                publication.ciudad_display = location[:25]
+        else:
+            publication.ciudad_display = "Ubicación no especificada"
     
     context = {
-        'publications': publications,
+        'publications': publications_list,
         'search_query': search_query,
         'categorias': categorias,
         'categoria_filter': categoria_filter,
@@ -90,16 +106,37 @@ def marketplace_view(request):
         'ubicacion_filter': ubicacion_filter,
         'ubicaciones': ubicaciones,
         'orden': orden,
-        'total_productos': publications.count(),
+        'total_productos': len(publications_list),
     }
     return render(request, 'marketplace/marketplace.html', context)
 
 def publication_detail_view(request, publication_id):
     """Detalle de una publicación"""
     publication = get_object_or_404(
-        Publication.objects.select_related('cultivo__productor'), 
+        Publication.objects.select_related('cultivo__productor__producer_profile'), 
         pk=publication_id
     )
+    
+    # Obtener la categoría del producto
+    try:
+        producto = Product.objects.get(nombre=publication.cultivo.nombre_producto)
+        publication.categoria_display = producto.get_categoria_display()
+        publication.categoria_producto = producto.categoria
+    except Product.DoesNotExist:
+        publication.categoria_display = 'Sin categoría'
+        publication.categoria_producto = 'otros'
+    
+    # Procesar ubicación para mostrar solo ciudad/región
+    if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
+        location = publication.cultivo.productor.producer_profile.location
+        location_parts = [part.strip() for part in location.split(',')]
+        if len(location_parts) > 1:
+            publication.ciudad_display = f"{location_parts[1][:25]}, {location_parts[0][:20]}"
+        else:
+            publication.ciudad_display = location[:30]
+    else:
+        publication.ciudad_display = "Ubicación no especificada"
+    
     context = {
         'publication': publication
     }
@@ -113,6 +150,13 @@ def publication_create_view(request, crop_id):
         return redirect('marketplace')
     
     crop = get_object_or_404(Crop, pk=crop_id, productor=request.user)
+    
+    # Obtener la categoría del producto
+    try:
+        producto = Product.objects.get(nombre=crop.nombre_producto)
+        crop.categoria_display = producto.get_categoria_display()
+    except Product.DoesNotExist:
+        crop.categoria_display = 'Sin categoría'
     
     # Verificar si ya existe una publicación disponible para este cultivo
     existing_publication = Publication.objects.filter(cultivo=crop, estado='disponible').first()
