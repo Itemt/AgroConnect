@@ -916,7 +916,7 @@ h1, h2, h3 {
 
 /* Active link in sidebar */
 .sidebar-nav a.active {
-    background-color: #003300; /* A darker green for the active link */
+    background-color: #15803d; /* A darker green for the active link */
     font-weight: bold;
 }
 
