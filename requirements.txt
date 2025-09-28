@@ -30,3 +30,4 @@ typing_extensions==4.15.0
 tzdata==2025.2
 whitenoise==6.7.0
 zope.interface==8.0.1
+gunicorn==21.2.0

@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copiar requirements y instalar dependencias de Python
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 # Copiar el código de la aplicación
 COPY . .
@@ -21,8 +21,11 @@ RUN mkdir -p staticfiles
 # Recopilar archivos estáticos
 RUN python manage.py collectstatic --noinput
 
+# Ejecutar migraciones
+RUN python manage.py migrate
+
 # Exponer el puerto
 EXPOSE 8000
 
-# Comando para ejecutar la aplicación
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Comando para ejecutar la aplicación con Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "agroconnect.wsgi:application"]
