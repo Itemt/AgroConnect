@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-)*@vn2ql9)5mll+b%hygq^=vx9i6n%y6lhazer^hq5&yjk4vwr')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Temporal para debugging
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,agroconnect.itemt.tech').split(',')
 
