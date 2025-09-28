@@ -4,24 +4,66 @@
 {% block title %}Mis Conversaciones{% endblock %}
 
 {% block content %}
-    <h1>Mis Conversaciones</h1>
-    <p>Aquí puedes ver todas tus conversaciones con productores y compradores.</p>
+    <div class="bg-gray-50 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Mis Conversaciones</h1>
+                <p class="text-gray-600 mt-2">Aquí puedes ver todas tus conversaciones con productores y compradores.</p>
+            </div>
 
-    <div class="conversation-list">
-        {% for conv in conversations %}
-            <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item">
-                <div class="conversation-info">
-                    <h4>Conversación sobre: {{ conv.publication.cultivo.nombre_producto }}</h4>
-                    <p>
-                        {% with other_user=conv.participants.all|get_other_user:user %}
-                            Hablando con: <strong>{{ other_user.first_name }} {{ other_user.last_name }}</strong> ({{ other_user.role }})
-                        {% endwith %}
-                    </p>
-                    <small>Última actualización: {{ conv.updated_at|date:"d M Y, P" }}</small>
+            {% if conversations %}
+                <div class="space-y-4">
+                    {% for conv in conversations %}
+                        <a href="{% url 'conversation_detail' conv.id %}" 
+                           class="block bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                                            <i class="fas fa-comments text-primary-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-900">
+                                                Conversación sobre: {{ conv.publication.cultivo.nombre_producto }}
+                                            </h4>
+                                            <p class="text-gray-600">
+                                                {% with other_user=conv.participants.all|get_other_user:user %}
+                                                    Hablando con: <strong>{{ other_user.first_name }} {{ other_user.last_name }}</strong> 
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 ml-2">
+                                                        {{ other_user.role }}
+                                                    </span>
+                                                {% endwith %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Última actualización: {{ conv.updated_at|date:"d M Y, P" }}
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
                 </div>
-            </a>
-        {% empty %}
-            <p>No tienes conversaciones activas.</p>
-        {% endfor %}
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-comments text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">No tienes conversaciones activas</h3>
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                        Comienza una conversación explorando productos en el marketplace y contactando a los productores.
+                    </p>
+                    <a href="{% url 'marketplace' %}" 
+                       class="bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-colors font-medium text-lg">
+                        <i class="fas fa-store mr-2"></i>Explorar Marketplace
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
