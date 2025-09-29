@@ -25,6 +25,17 @@ class ProducerProfile(BaseModel):
     farm_description = models.TextField(verbose_name="Descripción de la Finca")
     main_crops = models.CharField(max_length=255, verbose_name="Cultivos Principales")
 
+    # Estadísticas de ventas (movidas desde sales.UserProfile)
+    total_ventas = models.IntegerField(default=0, verbose_name="Total de Ventas")
+    ingresos_totales = models.DecimalField(max_digits=12, decimal_places=2, default=0, 
+                                         verbose_name="Ingresos Totales")
+    calificacion_promedio = models.DecimalField(
+        max_digits=3, decimal_places=2, default=0, 
+        verbose_name="Calificación Promedio como Vendedor"
+    )
+    total_calificaciones = models.IntegerField(default=0, verbose_name="Total de Calificaciones Recibidas")
+    fecha_primera_venta = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de Primera Venta")
+
     def save(self, *args, **kwargs):
         # Actualizar location automáticamente para compatibilidad
         if self.departamento and self.ciudad:
@@ -64,6 +75,12 @@ class BuyerProfile(BaseModel):
     # Ubicación
     departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True)
     ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True)
+
+    # Estadísticas de compras (movidas desde sales.UserProfile)
+    total_compras = models.IntegerField(default=0, verbose_name="Total de Compras")
+    gastos_totales = models.DecimalField(max_digits=12, decimal_places=2, default=0, 
+                                       verbose_name="Gastos Totales")
+    fecha_primera_compra = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de Primera Compra")
 
     @property
     def ciudad_departamento(self):
