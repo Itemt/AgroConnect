@@ -15,16 +15,16 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Crop)
 class CropAdmin(admin.ModelAdmin):
-    list_display = ('nombre_producto', 'productor', 'estado', 'cantidad_estimada', 'unidad_medida', 'fecha_disponibilidad')
-    list_filter = ('estado', 'unidad_medida', 'fecha_disponibilidad')
-    search_fields = ('nombre_producto', 'productor__first_name', 'productor__last_name')
+    list_display = ('get_product_name', 'productor', 'estado', 'cantidad_estimada', 'unidad_medida', 'fecha_disponibilidad')
+    list_filter = ('estado', 'unidad_medida', 'fecha_disponibilidad', 'producto__categoria')
+    search_fields = ('producto__nombre', 'productor__first_name', 'productor__last_name')
     raw_id_fields = ('productor',)
     date_hierarchy = 'fecha_disponibilidad'
     list_editable = ('estado',)
     
     fieldsets = (
         ('Información del Producto', {
-            'fields': ('nombre_producto', 'productor')
+            'fields': ('producto', 'productor')
         }),
         ('Detalles de Producción', {
             'fields': ('cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad')
@@ -36,7 +36,12 @@ class CropAdmin(admin.ModelAdmin):
     )
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('productor')
+        return super().get_queryset(request).select_related('productor', 'producto')
+
+    def get_product_name(self, obj):
+        return obj.producto.nombre
+    get_product_name.short_description = 'Producto'
+    get_product_name.admin_order_field = 'producto__nombre'
 
 # Acciones personalizadas
 @admin.action(description='Marcar cultivos como listos para cosecha')

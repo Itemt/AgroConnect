@@ -16,13 +16,13 @@ class MessageInline(admin.TabularInline):
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
     list_display = ('id', 'publication_info', 'participants_list', 'created_at')
-    list_filter = ('created_at', 'publication__cultivo__nombre_producto')
-    search_fields = ('publicacion__cultivo__nombre_producto', 'participants__first_name', 'participants__last_name')
+    list_filter = ('created_at', 'publication__cultivo__producto__nombre')
+    search_fields = ('publication__cultivo__producto__nombre', 'participants__first_name', 'participants__last_name')
     readonly_fields = ('created_at', 'updated_at')
     inlines = [MessageInline]
     
     def publication_info(self, obj):
-        return f"{obj.publication.cultivo.nombre_producto} - {obj.publication.cultivo.productor.first_name}"
+        return f"{obj.publication.cultivo.producto.nombre} - {obj.publication.cultivo.productor.first_name}"
     publication_info.short_description = 'Publicación'
     
     def participants_list(self, obj):
@@ -31,7 +31,7 @@ class ConversationAdmin(admin.ModelAdmin):
     participants_list.short_description = 'Participantes'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publicacion__cultivo__productor').prefetch_related('participants', 'messages')
+        return super().get_queryset(request).select_related('publication__cultivo__productor', 'publication__cultivo__producto').prefetch_related('participants', 'messages')
 
 # Message Admin
 @admin.register(Message)
@@ -56,8 +56,8 @@ class MessageAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'publicacion_info', 'comprador_info', 'cantidad_acordada', 'precio_total', 'estado', 'estado_badge', 'created_at')
-    list_filter = ('estado', 'created_at', 'publicacion__cultivo__nombre_producto')
-    search_fields = ('publicacion__cultivo__nombre_producto', 'comprador__first_name', 'comprador__last_name')
+    list_filter = ('estado', 'created_at', 'publicacion__cultivo__producto__nombre')
+    search_fields = ('publicacion__cultivo__producto__nombre', 'comprador__first_name', 'comprador__last_name')
     readonly_fields = ('created_at', 'updated_at', 'fecha_confirmacion', 'fecha_envio', 'fecha_recepcion')
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
@@ -83,7 +83,7 @@ class OrderAdmin(admin.ModelAdmin):
     )
     
     def publicacion_info(self, obj):
-        return f"{obj.publicacion.cultivo.nombre_producto} - {obj.publicacion.cultivo.productor.first_name}"
+        return f"{obj.publicacion.cultivo.producto.nombre} - {obj.publicacion.cultivo.productor.first_name}"
     publicacion_info.short_description = 'Publicación'
     
     def comprador_info(self, obj):
@@ -110,7 +110,7 @@ class OrderAdmin(admin.ModelAdmin):
     estado_badge.short_description = 'Estado Visual'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'comprador')
+        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'publicacion__cultivo__producto', 'comprador')
 
 # Rating Admin
 @admin.register(Rating)
@@ -137,7 +137,7 @@ class RatingAdmin(admin.ModelAdmin):
     )
     
     def pedido_info(self, obj):
-        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.nombre_producto}"
+        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.producto.nombre}"
     pedido_info.short_description = 'Pedido'
     
     def promedio_display(self, obj):
@@ -145,7 +145,7 @@ class RatingAdmin(admin.ModelAdmin):
     promedio_display.short_description = 'Promedio'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('pedido__publicacion__cultivo', 'calificador', 'calificado')
+        return super().get_queryset(request).select_related('pedido__publicacion__cultivo__producto', 'calificador', 'calificado')
 
 # Acciones personalizadas para Order
 @admin.action(description='Confirmar pedidos seleccionados')
