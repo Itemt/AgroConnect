@@ -124,11 +124,10 @@ def producer_sales_view(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    # Obtener o crear perfil de estadísticas
-    from sales.models import UserProfile
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    if not created:
-        profile.actualizar_estadisticas_vendedor()
+    # Obtener o crear perfil de productor
+    from accounts.models import ProducerProfile
+    profile, created = ProducerProfile.objects.get_or_create(user=request.user)
+    # TODO: Re-implementar la lógica para actualizar las estadísticas en el modelo ProducerProfile
     
     # Filtros de búsqueda
     from sales.forms import OrderSearchForm
@@ -148,7 +147,7 @@ def producer_sales_view(request):
         
         if search:
             orders = orders.filter(
-                Q(publicacion__cultivo__nombre_producto__icontains=search) |
+                Q(publicacion__cultivo__producto__nombre__icontains=search) |
                 Q(comprador__first_name__icontains=search) |
                 Q(comprador__last_name__icontains=search)
             )
@@ -182,7 +181,7 @@ def producer_sales_view(request):
     
     # Estadísticas por producto
     product_stats = orders.filter(estado='completado').values(
-        'publicacion__cultivo__nombre_producto'
+        'publicacion__cultivo__producto__nombre'
     ).annotate(
         total_vendido=Sum('cantidad_acordada'),
         total_ingresos=Sum('precio_total'),
