@@ -57,7 +57,7 @@ class Order(BaseModel):
                                      verbose_name="Notas del Comprador")
     notas_vendedor = models.TextField(blank=True, null=True, 
                                     verbose_name="Notas del Vendedor")
-    direccion_entrega = models.TextField(verbose_name="Dirección de Entrega")
+    direccion_entrega = models.TextField(verbose_name="Dirección de Entrega", blank=True)
     
     # Fechas de seguimiento
     fecha_confirmacion = models.DateTimeField(null=True, blank=True, 
