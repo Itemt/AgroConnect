@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm
+from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm, AdminUserEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import ProducerProfile, BuyerProfile
+from .models import ProducerProfile, BuyerProfile, User
 from inventory.models import Crop
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from marketplace.models import Publication
+from marketplace.forms import PublicationForm
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from sales.models import Order
 
 # Create your views here.
 
@@ -91,3 +96,107 @@ def is_staff(user):
 @user_passes_test(is_staff)
 def admin_dashboard(request):
     return render(request, 'accounts/admin_dashboard.html')
+
+@user_passes_test(is_staff)
+def admin_publication_list(request):
+    publications = Publication.objects.all().select_related(
+        'cultivo__productor', 
+        'cultivo__producto'
+    ).order_by('-created_at')
+    return render(request, 'accounts/admin_publication_list.html', {'publications': publications})
+
+@user_passes_test(is_staff)
+def admin_publication_edit(request, pk):
+    publication = get_object_or_404(Publication, pk=pk)
+    if request.method == 'POST':
+        form = PublicationForm(request.POST, instance=publication)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Publicación actualizada exitosamente.')
+            return redirect('admin_publication_list')
+    else:
+        form = PublicationForm(instance=publication)
+    
+    context = {
+        'form': form,
+        'publication': publication,
+        'title': 'Editar Publicación (Admin)'
+    }
+    return render(request, 'marketplace/publication_form.html', context)
+
+@user_passes_test(is_staff)
+def admin_publication_delete(request, pk):
+    publication = get_object_or_404(Publication, pk=pk)
+    if request.method == 'POST':
+        publication.delete() 
+        messages.success(request, 'Publicación eliminada exitosamente.')
+        return redirect('admin_publication_list')
+    
+    context = {
+        'publication': publication
+    }
+    return render(request, 'marketplace/publication_confirm_delete.html', context)
+
+@user_passes_test(is_staff)
+def admin_user_list(request):
+    users = User.objects.all().order_by('username')
+    return render(request, 'accounts/admin_user_list.html', {'users': users})
+
+@user_passes_test(is_staff)
+def admin_user_edit(request, pk):
+    user_to_edit = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = AdminUserEditForm(request.POST, instance=user_to_edit)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Usuario {user_to_edit.username} actualizado exitosamente.')
+            return redirect('admin_user_list')
+    else:
+        form = AdminUserEditForm(instance=user_to_edit)
+    
+    context = {
+        'form': form,
+        'user_to_edit': user_to_edit,
+        'title': 'Editar Usuario'
+    }
+    return render(request, 'accounts/admin_user_form.html', context)
+
+@user_passes_test(is_staff)
+def admin_user_delete(request, pk):
+    user_to_delete = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        # No permitir que un admin se borre a sí mismo
+        if request.user.pk == user_to_delete.pk:
+            messages.error(request, 'No puedes eliminar tu propia cuenta de administrador.')
+            return redirect('admin_user_list')
+        
+        user_to_delete.delete()
+        messages.success(request, f'Usuario {user_to_delete.username} eliminado exitosamente.')
+        return redirect('admin_user_list')
+    
+    context = {
+        'user_to_delete': user_to_delete
+    }
+    return render(request, 'accounts/admin_user_confirm_delete.html', context)
+
+@user_passes_test(is_staff)
+def admin_order_list(request):
+    orders = Order.objects.all().select_related(
+        'publicacion__cultivo__producto',
+        'comprador',
+        'publicacion__cultivo__productor'
+    ).order_by('-created_at')
+    return render(request, 'accounts/admin_order_list.html', {'orders': orders})
+
+@user_passes_test(is_staff)
+def admin_order_detail(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Para un admin, no verificamos si es comprador o vendedor.
+    # Podemos añadir acciones específicas de admin si es necesario en el futuro.
+    
+    context = {
+        'order': order,
+        'user_role': 'admin' # Pasamos un rol especial para la plantilla
+    }
+    return render(request, 'sales/order_detail.html', context)
