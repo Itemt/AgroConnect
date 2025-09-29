@@ -14,7 +14,10 @@ def marketplace_view(request):
     publications = Publication.objects.filter(
         estado='disponible', 
         cantidad_disponible__gt=0
-    ).select_related('cultivo__productor', 'cultivo__productor__producer_profile').order_by('-created_at')
+    ).select_related(
+        'cultivo__productor__producer_profile', 
+        'cultivo__producto'
+    ).order_by('-created_at')
     
     # Obtener todas las categorías disponibles
     categorias = Product.CATEGORIA_CHOICES
@@ -30,17 +33,15 @@ def marketplace_view(request):
     # Aplicar filtros
     if search_query:
         publications = publications.filter(
-            Q(cultivo__nombre_producto__icontains=search_query) |
+            Q(cultivo__producto__nombre__icontains=search_query) |
             Q(cultivo__productor__first_name__icontains=search_query) |
             Q(cultivo__productor__last_name__icontains=search_query) |
             Q(descripcion__icontains=search_query)
         )
     
-    # Filtrar por categoría (necesitamos obtener la categoría del producto)
+    # Filtrar por categoría
     if categoria_filter:
-        # Obtener productos de la categoría seleccionada
-        productos_categoria = Product.objects.filter(categoria=categoria_filter).values_list('nombre', flat=True)
-        publications = publications.filter(cultivo__nombre_producto__in=productos_categoria)
+        publications = publications.filter(cultivo__producto__categoria=categoria_filter)
     
     # Filtrar por rango de precios
     if precio_min:
@@ -62,7 +63,7 @@ def marketplace_view(request):
         )
     
     # Ordenar resultados
-    valid_orders = ['-created_at', 'precio_por_unidad', '-precio_por_unidad', 'cultivo__nombre_producto']
+    valid_orders = ['-created_at', 'precio_por_unidad', '-precio_por_unidad', 'cultivo__producto__nombre']
     if orden in valid_orders:
         publications = publications.order_by(orden)
     
@@ -74,16 +75,8 @@ def marketplace_view(request):
     # Convertir a lista para poder agregar atributos dinámicos
     publications_list = list(publications)
     
-    # Agregar la categoría y procesar ubicación para cada publicación
+    # Procesar ubicación para cada publicación (la categoría ya viene en la consulta)
     for publication in publications_list:
-        try:
-            producto = Product.objects.get(nombre=publication.cultivo.nombre_producto)
-            publication.categoria_producto = producto.categoria
-            publication.categoria_display = producto.get_categoria_display()
-        except Product.DoesNotExist:
-            publication.categoria_producto = 'otros'
-            publication.categoria_display = 'Otros'
-        
         # Procesar ubicación para mostrar solo ciudad/región
         try:
             if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
@@ -117,29 +110,26 @@ def marketplace_view(request):
 def publication_detail_view(request, publication_id):
     """Detalle de una publicación"""
     publication = get_object_or_404(
-        Publication.objects.select_related('cultivo__productor__producer_profile'), 
+        Publication.objects.select_related(
+            'cultivo__productor__producer_profile', 
+            'cultivo__producto'
+        ), 
         pk=publication_id
     )
     
-    # Obtener la categoría del producto
-    try:
-        producto = Product.objects.get(nombre=publication.cultivo.nombre_producto)
-        publication.categoria_display = producto.get_categoria_display()
-        publication.categoria_producto = producto.categoria
-    except Product.DoesNotExist:
-        publication.categoria_display = 'Sin categoría'
-        publication.categoria_producto = 'otros'
-    
     # Procesar ubicación para mostrar solo ciudad/región
-    if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
-        location = publication.cultivo.productor.producer_profile.location
-        location_parts = [part.strip() for part in location.split(',')]
-        if len(location_parts) > 1:
-            publication.ciudad_display = f"{location_parts[1][:25]}, {location_parts[0][:20]}"
+    try:
+        if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
+            location = publication.cultivo.productor.producer_profile.location
+            location_parts = [part.strip() for part in location.split(',')]
+            if len(location_parts) > 1:
+                publication.ciudad_display = f"{location_parts[1][:25]}, {location_parts[0][:20]}"
+            else:
+                publication.ciudad_display = location[:30]
         else:
-            publication.ciudad_display = location[:30]
-    else:
-        publication.ciudad_display = "Ubicación no especificada"
+            publication.ciudad_display = "Ubicación no especificada"
+    except User.producer_profile.RelatedObjectDoesNotExist:
+        publication.ciudad_display = "Productor sin perfil"
     
     context = {
         'publication': publication
@@ -153,14 +143,7 @@ def publication_create_view(request, crop_id):
         messages.error(request, 'Solo los productores pueden crear publicaciones.')
         return redirect('marketplace')
     
-    crop = get_object_or_404(Crop, pk=crop_id, productor=request.user)
-    
-    # Obtener la categoría del producto
-    try:
-        producto = Product.objects.get(nombre=crop.nombre_producto)
-        crop.categoria_display = producto.get_categoria_display()
-    except Product.DoesNotExist:
-        crop.categoria_display = 'Sin categoría'
+    crop = get_object_or_404(Crop.objects.select_related('producto'), pk=crop_id, productor=request.user)
     
     # Verificar si ya existe una publicación disponible para este cultivo
     existing_publication = Publication.objects.filter(cultivo=crop, estado='disponible').first()
