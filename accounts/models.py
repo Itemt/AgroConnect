@@ -22,8 +22,8 @@ class ProducerProfile(BaseModel):
     # Campos existentes (mantener compatibilidad)
     location = models.CharField(max_length=255, blank=True, 
                               help_text="Campo legacy - se actualizará automáticamente")
-    farm_description = models.TextField(verbose_name="Descripción de la Finca")
-    main_crops = models.CharField(max_length=255, verbose_name="Cultivos Principales")
+    farm_description = models.TextField(verbose_name="Descripción de la Finca", blank=True)
+    main_crops = models.CharField(max_length=255, verbose_name="Cultivos Principales", blank=True)
 
     # Estadísticas de ventas (movidas desde sales.UserProfile)
     total_ventas = models.IntegerField(default=0, verbose_name="Total de Ventas")
@@ -69,8 +69,8 @@ class ProducerProfile(BaseModel):
 
 class BuyerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_profile')
-    company_name = models.CharField(max_length=255, verbose_name="Nombre de la Empresa")
-    business_type = models.CharField(max_length=255, verbose_name="Tipo de Negocio")
+    company_name = models.CharField(max_length=255, verbose_name="Nombre de la Empresa", blank=True)
+    business_type = models.CharField(max_length=255, verbose_name="Tipo de Negocio", blank=True)
     
     # Ubicación
     departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True)
