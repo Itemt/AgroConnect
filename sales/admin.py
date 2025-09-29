@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Conversation, Message, Order, Rating, UserProfile
+from .models import Conversation, Message, Order, Rating
 
 # Inlines
 class MessageInline(admin.TabularInline):
@@ -146,46 +146,6 @@ class RatingAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('pedido__publicacion__cultivo', 'calificador', 'calificado')
-
-# UserProfile Admin
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'user_role', 'total_ventas', 'total_compras', 'calificacion_vendedor_display', 'calificacion_comprador_display')
-    list_filter = ('user__role', 'calificacion_promedio_como_vendedor', 'calificacion_promedio_como_comprador')
-    search_fields = ('user__first_name', 'user__last_name', 'user__email')
-    readonly_fields = ('created_at', 'updated_at')
-    
-    fieldsets = (
-        ('Usuario', {
-            'fields': ('user',)
-        }),
-        ('Estadísticas de Ventas', {
-            'fields': ('total_ventas', 'ingresos_totales', 'calificacion_promedio_como_vendedor', 'total_calificaciones_como_vendedor', 'fecha_primera_venta')
-        }),
-        ('Estadísticas de Compras', {
-            'fields': ('total_compras', 'gastos_totales', 'calificacion_promedio_como_comprador', 'total_calificaciones_como_comprador', 'fecha_primera_compra')
-        }),
-        ('Fechas', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    def user_role(self, obj):
-        return obj.user.role
-    user_role.short_description = 'Rol'
-    
-    def calificacion_vendedor_display(self, obj):
-        if obj.calificacion_promedio_como_vendedor > 0:
-            return f"⭐ {obj.calificacion_promedio_como_vendedor:.1f} ({obj.total_calificaciones_como_vendedor})"
-        return "Sin calificar"
-    calificacion_vendedor_display.short_description = 'Calificación Vendedor'
-    
-    def calificacion_comprador_display(self, obj):
-        if obj.calificacion_promedio_como_comprador > 0:
-            return f"⭐ {obj.calificacion_promedio_como_comprador:.1f} ({obj.total_calificaciones_como_comprador})"
-        return "Sin calificar"
-    calificacion_comprador_display.short_description = 'Calificación Comprador'
 
 # Acciones personalizadas para Order
 @admin.action(description='Confirmar pedidos seleccionados')
