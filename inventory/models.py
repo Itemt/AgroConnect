@@ -48,11 +48,11 @@ class Crop(BaseModel):
     
     # Información del producto
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, 
-                                 related_name='cultivos', verbose_name="Tipo de Producto")
+                                 related_name='cultivos', verbose_name="Tipo de Producto", null=True)
     
     # Información del productor
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                related_name='cultivos', verbose_name="Productor")
+                                related_name='cultivos', verbose_name="Productor", null=True)
     
     # Información de cantidad y medida
     cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, default=0,

@@ -7,16 +7,16 @@ from marketplace.models import Publication
 # Create your models here.
 
 class Conversation(BaseModel):
-    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='conversations')
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='conversations', null=True)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='conversations')
 
     def __str__(self):
-        return f"Conversation about {self.publication.pk}"
+        return f"Conversation about {self.publication.pk if self.publication else 'N/A'}"
 
 class Message(BaseModel):
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
-    content = models.TextField()
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages', null=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages', null=True)
+    content = models.TextField(default='')
 
     class Meta:
         ordering = ['created_at']
@@ -40,14 +40,14 @@ class Order(BaseModel):
     
     # Relaciones
     publicacion = models.ForeignKey(Publication, on_delete=models.CASCADE, 
-                                  related_name='pedidos', verbose_name="Publicación")
+                                  related_name='pedidos', verbose_name="Publicación", null=True)
     comprador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                related_name='pedidos_como_comprador', verbose_name="Comprador")
+                                related_name='pedidos_como_comprador', verbose_name="Comprador", null=True)
     
     # Información del pedido
-    cantidad_acordada = models.DecimalField(max_digits=10, decimal_places=2, 
+    cantidad_acordada = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                           verbose_name="Cantidad Acordada")
-    precio_total = models.DecimalField(max_digits=10, decimal_places=2, 
+    precio_total = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                      verbose_name="Precio Total")
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
                             default='pendiente', verbose_name="Estado del Pedido")
@@ -144,30 +144,30 @@ class Rating(BaseModel):
     )
     
     pedido = models.OneToOneField(Order, on_delete=models.CASCADE, 
-                                related_name='calificacion', verbose_name="Pedido")
+                                related_name='calificacion', verbose_name="Pedido", null=True)
     calificador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                  related_name='calificaciones_dadas', verbose_name="Calificador")
+                                  related_name='calificaciones_dadas', verbose_name="Calificador", null=True)
     calificado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                 related_name='calificaciones_recibidas', verbose_name="Calificado")
+                                 related_name='calificaciones_recibidas', verbose_name="Calificado", null=True)
     
-    tipo = models.CharField(max_length=25, choices=TIPO_CALIFICACION_CHOICES, 
+    tipo = models.CharField(max_length=25, choices=TIPO_CALIFICACION_CHOICES, default='comprador_a_vendedor',
                           verbose_name="Tipo de Calificación")
     
     # Calificaciones (1-5 estrellas)
     calificacion_general = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Calificación General"
     )
     calificacion_comunicacion = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Comunicación"
     )
     calificacion_puntualidad = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Puntualidad"
     )
     calificacion_calidad = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Calidad del Producto/Servicio"
     )
     
