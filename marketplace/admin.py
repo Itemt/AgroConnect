@@ -10,6 +10,7 @@ class PublicationAdmin(admin.ModelAdmin):
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
+    raw_id_fields = ('cultivo',)
     
     fieldsets = (
         ('Información del Cultivo', {

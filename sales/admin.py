@@ -61,6 +61,7 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'fecha_confirmacion', 'fecha_envio', 'fecha_recepcion')
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
+    raw_id_fields = ('publicacion', 'comprador')
     
     fieldsets = (
         ('Información del Pedido', {
