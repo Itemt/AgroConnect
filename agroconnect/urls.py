@@ -36,7 +36,15 @@ urlpatterns = [
     path('accounts/profile/', accounts_views.profile_view, name='profile'),
     path('accounts/profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
     path('accounts/admin_dashboard/', accounts_views.admin_dashboard, name='admin_dashboard'),
-    
+    path('accounts/admin/publications/', accounts_views.admin_publication_list, name='admin_publication_list'),
+    path('accounts/admin/publications/<int:pk>/edit/', accounts_views.admin_publication_edit, name='admin_publication_edit'),
+    path('accounts/admin/publications/<int:pk>/delete/', accounts_views.admin_publication_delete, name='admin_publication_delete'),
+    path('accounts/admin/users/', accounts_views.admin_user_list, name='admin_user_list'),
+    path('accounts/admin/users/<int:pk>/edit/', accounts_views.admin_user_edit, name='admin_user_edit'),
+    path('accounts/admin/users/<int:pk>/delete/', accounts_views.admin_user_delete, name='admin_user_delete'),
+    path('accounts/admin/orders/', accounts_views.admin_order_list, name='admin_order_list'),
+    path('accounts/admin/orders/<int:order_id>/', accounts_views.admin_order_detail, name='admin_order_detail'),
+
     # AJAX endpoints
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_cities'),
 
