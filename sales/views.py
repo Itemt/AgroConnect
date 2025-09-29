@@ -5,9 +5,10 @@ from django.db.models import Q, Sum, Avg, Count
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Conversation, Message, Order, Rating, UserProfile
+from .models import Conversation, Message, Order, Rating
 from marketplace.models import Publication
 from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderConfirmReceiptForm, OrderSearchForm
+from accounts.models import ProducerProfile, BuyerProfile
 
 # Create your views here.
 
@@ -206,9 +207,8 @@ def confirm_order_receipt_view(request, order_id):
             order.save()
             
             # Actualizar estadísticas del vendedor
-            from sales.models import UserProfile
-            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
-            profile.actualizar_estadisticas_vendedor()
+            profile, created = ProducerProfile.objects.get_or_create(user=order.vendedor)
+            # Aquí necesitarías una función en ProducerProfile para actualizar stats
             
             messages.success(request, 'Pedido confirmado como completado. Ahora puedes calificar al vendedor.')
             return redirect('rate_order', order_id=order.id)
@@ -247,12 +247,12 @@ def rate_order_view(request, order_id):
             order.save()
             
             # Actualizar estadísticas del vendedor
-            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
-            profile.actualizar_estadisticas_vendedor()
+            producer_profile, created = ProducerProfile.objects.get_or_create(user=order.vendedor)
+            # Lógica para actualizar stats del productor
             
             # Actualizar estadísticas del comprador
-            buyer_profile, created = UserProfile.objects.get_or_create(user=request.user)
-            buyer_profile.actualizar_estadisticas_comprador()
+            buyer_profile, created = BuyerProfile.objects.get_or_create(user=request.user)
+            # Lógica para actualizar stats del comprador
             
             messages.success(request, 'Calificación enviada exitosamente. ¡Gracias por tu feedback!')
             return redirect('order_detail', order_id=order.id)
@@ -328,10 +328,8 @@ def buyer_dashboard(request):
         messages.error(request, 'Acceso denegado. Solo para compradores.')
         return redirect('index')
     
-    # Obtener o crear perfil de estadísticas
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    if not created:
-        profile.actualizar_estadisticas_comprador()
+    # Obtener o crear perfil de comprador
+    profile, created = BuyerProfile.objects.get_or_create(user=request.user)
     
     # Estadísticas del comprador
     total_orders = request.user.pedidos_como_comprador.count()
@@ -376,13 +374,14 @@ def user_profile_view(request, user_id):
     from accounts.models import User
     
     user = get_object_or_404(User, pk=user_id)
-    profile, created = UserProfile.objects.get_or_create(user=user)
     
-    # Actualizar estadísticas
     if user.role == 'Productor':
-        profile.actualizar_estadisticas_vendedor()
-    profile.actualizar_estadisticas_comprador()
-    
+        profile, created = ProducerProfile.objects.get_or_create(user=user)
+    elif user.role == 'Comprador':
+        profile, created = BuyerProfile.objects.get_or_create(user=user)
+    else:
+        profile = None
+
     # Obtener calificaciones recientes
     recent_ratings_received = Rating.objects.filter(
         calificado=user
@@ -449,25 +448,25 @@ def cancel_order_view(request, order_id):
 def rankings_view(request):
     """Vista de rankings de usuarios"""
     # Top vendedores
-    top_sellers = UserProfile.objects.filter(
+    top_sellers = ProducerProfile.objects.filter(
         user__role='Productor',
         total_ventas__gt=0
     ).select_related('user').order_by(
-        '-calificacion_promedio_como_vendedor',
+        '-calificacion_promedio',
         '-total_ventas'
     )[:10]
     
     # Top compradores
-    top_buyers = UserProfile.objects.filter(
+    top_buyers = BuyerProfile.objects.filter(
         user__role='Comprador',
         total_compras__gt=0
     ).select_related('user').order_by(
-        '-calificacion_promedio_como_comprador',
+        '-gastos_totales', # Ordenar por gastos puede ser más relevante
         '-total_compras'
     )[:10]
     
     # Vendedores más activos
-    most_active_sellers = UserProfile.objects.filter(
+    most_active_sellers = ProducerProfile.objects.filter(
         user__role='Productor'
     ).select_related('user').order_by('-total_ventas')[:10]
     
