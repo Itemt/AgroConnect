@@ -14,19 +14,19 @@
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500">Users</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="#" class="text-primary-600 hover:text-primary-800">Manage Users</a>
+                        <a href="{% url 'admin_user_list' %}" class="text-primary-600 hover:text-primary-800">Manage Users</a>
                     </dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500">Publications</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="#" class="text-primary-600 hover:text-primary-800">Manage Publications</a>
+                        <a href="{% url 'admin_publication_list' %}" class="text-primary-600 hover:text-primary-800">Manage Publications</a>
                     </dd>
                 </div>
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500">Orders</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="#" class="text-primary-600 hover:text-primary-800">View All Orders</a>
+                        <a href="{% url 'admin_order_list' %}" class="text-primary-600 hover:text-primary-800">View All Orders</a>
                     </dd>
                 </div>
             </dl>

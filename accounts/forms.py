@@ -71,6 +71,15 @@ class UserEditForm(forms.ModelForm):
         }
 
 
+class AdminUserEditForm(UserEditForm):
+    role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True)
+    is_active = forms.BooleanField(required=False, label="Activo")
+    is_staff = forms.BooleanField(required=False, label="Staff (Admin)")
+
+    class Meta(UserEditForm.Meta):
+        fields = ('first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff')
+
+
 class ProducerProfileForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
