@@ -13,8 +13,8 @@ class Publication(BaseModel):
     )
     
     # Relación con el cultivo
-    cultivo = models.OneToOneField(Crop, on_delete=models.CASCADE, 
-                                 verbose_name="Cultivo", related_name='publicacion')
+    cultivo = models.ForeignKey(Crop, on_delete=models.CASCADE, 
+                                 verbose_name="Cultivo", related_name='publicaciones')
     
     # Información de precio y cantidad
     precio_por_unidad = models.DecimalField(max_digits=10, decimal_places=2, 
