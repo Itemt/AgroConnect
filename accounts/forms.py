@@ -77,7 +77,6 @@ class ProducerProfileForm(forms.ModelForm):
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'id_departamento',
-            'onchange': 'updateCities()'
         }),
         label="Departamento",
         required=True
@@ -140,7 +139,6 @@ class BuyerProfileForm(forms.ModelForm):
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'id_departamento_buyer',
-            'onchange': 'updateCitiesBuyer()'
         }),
         label="Departamento",
         required=True
