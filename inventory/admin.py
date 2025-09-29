@@ -3,13 +3,14 @@ from .models import Product, Crop
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'created_at')
-    search_fields = ('nombre', 'descripcion')
+    list_display = ('nombre', 'categoria', 'imagen', 'created_at')
+    list_filter = ('categoria',)
+    search_fields = ('nombre', 'categoria', 'descripcion')
     ordering = ('nombre',)
     
     fieldsets = (
         ('Información del Producto', {
-            'fields': ('nombre', 'descripcion')
+            'fields': ('nombre', 'categoria', 'descripcion', 'imagen')
         }),
     )
 
