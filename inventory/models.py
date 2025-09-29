@@ -55,15 +55,15 @@ class Crop(BaseModel):
                                 related_name='cultivos', verbose_name="Productor")
     
     # Información de cantidad y medida
-    cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, 
+    cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                           verbose_name="Cantidad Estimada")
-    unidad_medida = models.CharField(max_length=20, choices=UNIDAD_CHOICES, 
+    unidad_medida = models.CharField(max_length=20, choices=UNIDAD_CHOICES, default='kg',
                                    verbose_name="Unidad de Medida")
     
     # Estado y fechas
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='sembrado',
                             verbose_name="Estado del Cultivo")
-    fecha_disponibilidad = models.DateField(verbose_name="Fecha Estimada de Disponibilidad")
+    fecha_disponibilidad = models.DateField(verbose_name="Fecha Estimada de Disponibilidad", null=True, blank=True)
     
     # Información adicional
     notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
