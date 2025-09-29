@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile
 from inventory.models import Crop
+from django.urls import reverse_lazy
 
 # Create your views here.
 
@@ -21,6 +22,19 @@ def register(request):
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            if user.is_staff:
+                return reverse_lazy('admin_dashboard')
+            
+            if user.role == 'Productor':
+                return reverse_lazy('producer_dashboard')
+            elif user.role == 'Comprador':
+                return reverse_lazy('buyer_dashboard')
+        
+        return reverse_lazy('index')
 
 def custom_logout(request):
     logout(request)
@@ -70,3 +84,10 @@ def profile_edit_view(request):
         'profile_form': profile_form
     }
     return render(request, 'accounts/profile_edit.html', context)
+
+def is_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_staff)
+def admin_dashboard(request):
+    return render(request, 'accounts/admin_dashboard.html')
