@@ -64,6 +64,12 @@
                             <span class="block text-sm text-gray-500 truncate">{{ user.email }}</span>
                         </div>
                         <ul class="py-2" aria-labelledby="user-menu-button">
+                            <!-- For debugging: user.is_authenticated: {{ user.is_authenticated }}, user.is_staff: {{ user.is_staff }}, user.role: {{ user.role }} -->
+                            {% if user.is_staff %}
+                            <li>
+                                <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                            </li>
+                            {% endif %}
 
                             <li>
                                 <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
