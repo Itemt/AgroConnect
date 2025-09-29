@@ -48,14 +48,3 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('confirm-cancellation');
-    const button = document.getElementById('cancel-button');
-    
-    checkbox.addEventListener('change', function() {
-        button.disabled = !this.checked;
-    });
-});
-</script>
-{% endblock %}

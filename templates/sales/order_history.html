@@ -47,9 +47,17 @@
                         <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h3>
                         <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
                     </div>
-                    <span class="px-3 py-1 text-sm font-semibold rounded-full {{ order.get_estado_display|lower|slugify }}">
+                    {% with status=order.get_estado_display|lower|slugify %}
+                    <div class="px-3 py-1 text-sm font-semibold rounded-full 
+                        {% if status == 'acordado' %}bg-blue-100 text-blue-800
+                        {% elif status == 'en-transito' %}bg-yellow-100 text-yellow-800
+                        {% elif status == 'entregado' %}bg-green-100 text-green-800
+                        {% elif status == 'cancelado' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}
+                    ">
                         {{ order.get_estado_display }}
-                    </span>
+                    </div>
+                    {% endwith %}
                 </div>
                 <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
@@ -80,7 +88,7 @@
                 </div>
             </div>
         {% empty %}
-            <div class="text-center py-16">
+            <div class="text-center py-16 flex flex-col items-center">
                 <i class="fas fa-box-open text-6xl text-gray-300"></i>
                 <h3 class="mt-4 text-xl font-semibold text-gray-800">No hay pedidos</h3>
                 <p class="mt-2 text-sm text-gray-600">Aún no has realizado ningún pedido.</p>

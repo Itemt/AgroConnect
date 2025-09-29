@@ -42,18 +42,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageList = document.getElementById('message-list');
-        messageList.scrollTop = messageList.scrollHeight;
-
-        const contentField = document.querySelector('[name="content"]');
-        if (contentField) {
-            contentField.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition-colors';
-            contentField.placeholder = 'Escribe tu mensaje aquí...';
-        }
-    });
-</script>
-{% endblock %}

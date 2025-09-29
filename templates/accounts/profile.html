@@ -1,64 +1,62 @@
 {% extends 'accounts/user_base.html' %}
 {% load static %}
 
-
-
 {% block user_content %}
-<div class="profile-card-container">
+<div class="max-w-4xl mx-auto">
     <!-- Profile Card -->
-    <div class="profile-card bg-white rounded-lg shadow-lg p-6">
+    <div class="bg-white rounded-lg shadow-lg p-8">
         <!-- Profile Header -->
-        <div class="profile-header flex flex-col sm:flex-row items-center border-b border-gray-200 pb-6 mb-6">
-            <div class="profile-icon-wrapper mb-4 sm:mb-0 sm:mr-6">
-                <i class="fas fa-user-circle text-gray-400"></i>
+        <div class="flex flex-col items-center sm:flex-row sm:items-start border-b border-gray-200 pb-8 mb-8">
+            <div class="mb-4 sm:mb-0 sm:mr-8">
+                <i class="fas fa-user-circle text-gray-300 text-8xl"></i>
             </div>
             <div class="text-center sm:text-left flex-grow">
-                <h1 class="text-2xl font-bold text-gray-800">{{ user.get_full_name|default:user.username }}</h1>
-                <p class="text-lg text-gray-500">{{ user.role }}</p>
+                <h1 class="text-4xl font-bold text-gray-800">{{ user.get_full_name|default:user.username }}</h1>
+                <p class="text-xl text-gray-500">{{ user.role }}</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <a href="{% url 'profile_edit' %}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
+                <a href="{% url 'profile_edit' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
                     <i class="fas fa-edit mr-2"></i>Editar Perfil
                 </a>
             </div>
         </div>
 
         <!-- Profile Details -->
-        <div class="profile-details">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Información de la Cuenta</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <div class="detail-item">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Información de la Cuenta</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <div class="flex flex-col">
                     <span class="font-medium text-gray-600 text-md">Usuario:</span>
                     <span class="text-gray-800 text-lg">{{ user.username }}</span>
                 </div>
-                <div class="detail-item">
+                <div class="flex flex-col">
                     <span class="font-medium text-gray-600 text-md">Email:</span>
                     <span class="text-gray-800 text-lg">{{ user.email }}</span>
                 </div>
 
                 {% if user.role == 'Productor' and user.producer_profile %}
-                    <div class="detail-item">
+                    <div class="flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Ubicación:</span>
                         <span class="text-gray-800 text-lg">{{ user.producer_profile.ubicacion_completa|default:"No especificada" }}</span>
                     </div>
-                    <div class="detail-item">
+                    <div class="flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Cultivos Principales:</span>
                         <span class="text-gray-800 text-lg">{{ user.producer_profile.main_crops|default:"No especificados" }}</span>
                     </div>
-                    <div class="detail-item md:col-span-2">
+                    <div class="md:col-span-2 flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Descripción de la Finca:</span>
                         <p class="text-gray-800 mt-1 text-lg">{{ user.producer_profile.farm_description|default:"No especificada" }}</p>
                     </div>
                 {% elif user.role == 'Comprador' and user.buyer_profile %}
-                    <div class="detail-item">
+                    <div class="flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Empresa:</span>
                         <span class="text-gray-800 text-lg">{{ user.buyer_profile.company_name|default:"No especificado" }}</span>
                     </div>
-                    <div class="detail-item">
+                    <div class="flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Tipo de Negocio:</span>
                         <span class="text-gray-800 text-lg">{{ user.buyer_profile.business_type|default:"No especificado" }}</span>
                     </div>
-                    <div class="detail-item">
+                    <div class="flex flex-col">
                         <span class="font-medium text-gray-600 text-md">Ubicación:</span>
                         <span class="text-gray-800 text-lg">{{ user.buyer_profile.ciudad_departamento|default:"No especificada" }}</span>
                     </div>
