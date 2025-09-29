@@ -17,7 +17,7 @@ class CropForm(forms.ModelForm):
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'id_departamento_crop',
-            'onchange': 'updateCitiesCrop()'
+            'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
         label="Departamento",
         required=False,
