@@ -47,20 +47,12 @@ class Crop(BaseModel):
     )
     
     # Información del producto
-    nombre_producto = models.CharField(max_length=100, verbose_name="Nombre del Producto", 
-                                     help_text="Ej: Tomate, Lechuga, Zanahoria, etc.")
-    categoria = models.CharField(max_length=30, choices=Product.CATEGORIA_CHOICES, 
-                               default='otros', verbose_name="Categoría")
+    producto = models.ForeignKey(Product, on_delete=models.CASCADE, 
+                                 related_name='cultivos', verbose_name="Tipo de Producto")
     
     # Información del productor
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
                                 related_name='cultivos', verbose_name="Productor")
-    
-    # Ubicación específica del cultivo (opcional)
-    departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True, 
-                                  help_text="Departamento donde se encuentra este cultivo")
-    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True,
-                            help_text="Ciudad donde se encuentra este cultivo")
     
     # Información de cantidad y medida
     cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, 
@@ -83,4 +75,4 @@ class Crop(BaseModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.nombre_producto} - {self.productor.first_name}'
+        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.producto.nombre} - {self.productor.first_name}'
