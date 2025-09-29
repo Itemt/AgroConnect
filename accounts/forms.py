@@ -76,7 +76,7 @@ class ProducerProfileForm(forms.ModelForm):
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
             'class': 'form-control',
-            'id': 'id_departamento',
+            'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
         label="Departamento",
         required=True
@@ -139,6 +139,7 @@ class BuyerProfileForm(forms.ModelForm):
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'id_departamento_buyer',
+            'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
         label="Departamento",
         required=True

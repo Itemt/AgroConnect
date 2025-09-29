@@ -84,24 +84,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        const fields = form.querySelectorAll('.field-wrapper > div > *');
-        fields.forEach(field => {
-            let classList = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm';
-            if (field.tagName.toLowerCase() === 'textarea') {
-                classList += ' h-32';
-            }
-            if (field.type === 'checkbox') {
-                classList = 'h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500';
-                field.className = classList;
-            } else {
-                field.classList.add(...classList.split(' '));
-            }
-        });
-    });
-</script>
-{% endblock %}

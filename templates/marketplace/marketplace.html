@@ -26,7 +26,7 @@
                                    value="{{ search_query }}" 
                                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         </div>
-                        <button type="button" id="toggle-filters-btn" class="bg-primary-600 text-white p-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        <button type="button" id="toggle-filters-btn" class="bg-primary-600 text-white p-3 rounded-lg hover:bg-primary-700 transition-colors font-medium h-full">
                             <i class="fas fa-filter"></i>
                         </button>
                     </div>
@@ -116,48 +116,45 @@
             </form>
             </div>
             
+
+
             <!-- Results Summary -->
+            {% if search_query or categoria_filter or precio_min or precio_max or ubicacion_filter %}
             <div class="max-w-7xl mx-auto mb-6">
                 <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
                     <div class="flex flex-col sm:flex-row justify-between items-center">
                         <div class="text-primary-800 font-medium">
-                            {% if search_query or categoria_filter or precio_min or precio_max or ubicacion_filter %}
-                                <i class="fas fa-filter mr-2"></i>
-                                Mostrando {{ total_productos }} producto{{ total_productos|pluralize }} filtrado{{ total_productos|pluralize }}
-                                {% if search_query %}
-                                    para "<span class="font-semibold">{{ search_query }}</span>"
-                                {% endif %}
-                            {% else %}
-                                <i class="fas fa-store mr-2"></i>
-                                Mostrando {{ total_productos }} producto{{ total_productos|pluralize }} disponible{{ total_productos|pluralize }}
+                            <i class="fas fa-filter mr-2"></i>
+                            Mostrando {{ total_productos }} producto{{ total_productos|pluralize }} filtrado{{ total_productos|pluralize }}
+                            {% if search_query %}
+                                para "<span class="font-semibold">{{ search_query }}</span>"
                             {% endif %}
                         </div>
                         
-                        {% if search_query or categoria_filter or precio_min or precio_max or ubicacion_filter %}
-                            <div class="text-sm text-primary-600 mt-2 sm:mt-0">
-                                <span class="flex flex-wrap gap-2">
-                                    {% if categoria_filter %}
-                                        <span class="bg-primary-100 px-2 py-1 rounded">
-                                            {% for value, label in categorias %}
-                                                {% if value == categoria_filter %}{{ label }}{% endif %}
-                                            {% endfor %}
-                                        </span>
-                                    {% endif %}
-                                    {% if precio_min %}
-                                        <span class="bg-primary-100 px-2 py-1 rounded">Min: ${{ precio_min }}</span>
-                                    {% endif %}
-                                    {% if precio_max %}
-                                        <span class="bg-primary-100 px-2 py-1 rounded">Max: ${{ precio_max }}</span>
-                                    {% endif %}
-                                    {% if ubicacion_filter %}
-                                        <span class="bg-primary-100 px-2 py-1 rounded">{{ ubicacion_filter }}</span>
-                                    {% endif %}
-                                </span>
-                            </div>
-                        {% endif %}
+                        <div class="text-sm text-primary-600 mt-2 sm:mt-0">
+                            <span class="flex flex-wrap gap-2">
+                                {% if categoria_filter %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">
+                                        {% for value, label in categorias %}
+                                            {% if value == categoria_filter %}{{ label }}{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                {% endif %}
+                                {% if precio_min %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">Min: ${{ precio_min }}</span>
+                                {% endif %}
+                                {% if precio_max %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">Max: ${{ precio_max }}</span>
+                                {% endif %}
+                                {% if ubicacion_filter %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">{{ ubicacion_filter }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Products Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -277,23 +274,4 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleBtn = document.getElementById('toggle-filters-btn');
-        const filtersContainer = document.getElementById('filters-container');
-
-        toggleBtn.addEventListener('click', function () {
-            filtersContainer.classList.toggle('hidden');
-            const isHidden = filtersContainer.classList.contains('hidden');
-            if (isHidden) {
-                toggleBtn.innerHTML = '<i class="fas fa-filter"></i>';
-            } else {
-                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-            }
-        });
-    });
-</script>
 {% endblock %}
