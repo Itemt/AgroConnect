@@ -120,11 +120,18 @@ class ProducerProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Si hay una instancia, configurar las ciudades para el departamento seleccionado
-        if self.instance.pk and self.instance.departamento:
+        # Dynamically set city choices based on department
+        if 'departamento' in self.data:
+            try:
+                departamento = self.data.get('departamento')
+                cities = COLOMBIA_LOCATIONS.get(departamento, [])
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+            except (ValueError, TypeError):
+                pass  # Handle cases where department is not valid
+        elif self.instance.pk and self.instance.departamento:
+            # For existing instances, populate cities based on the saved department
             cities = COLOMBIA_LOCATIONS.get(self.instance.departamento, [])
-            city_choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
-            self.fields['ciudad'].choices = city_choices
+            self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
 
 
 class BuyerProfileForm(forms.ModelForm):
@@ -148,6 +155,21 @@ class BuyerProfileForm(forms.ModelForm):
         label="Ciudad/Municipio",
         required=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Dynamically set city choices based on department
+        if 'departamento' in self.data:
+            try:
+                departamento = self.data.get('departamento')
+                cities = COLOMBIA_LOCATIONS.get(departamento, [])
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.departamento:
+            cities = COLOMBIA_LOCATIONS.get(self.instance.departamento, [])
+            self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
 
     class Meta:
         model = BuyerProfile
