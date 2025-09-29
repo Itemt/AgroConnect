@@ -5,6 +5,7 @@ from django.db.models import Q
 from .models import Publication
 from inventory.models import Crop, Product
 from .forms import PublicationForm
+from accounts.models import User
 
 # Create your views here.
 
@@ -84,17 +85,20 @@ def marketplace_view(request):
             publication.categoria_display = 'Otros'
         
         # Procesar ubicación para mostrar solo ciudad/región
-        if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
-            location = publication.cultivo.productor.producer_profile.location
-            # Extraer ciudad (asumiendo formato "Calle, Ciudad, País" o similar)
-            location_parts = [part.strip() for part in location.split(',')]
-            if len(location_parts) > 1:
-                # Tomar la segunda parte (ciudad) y la primera (calle/sector)
-                publication.ciudad_display = f"{location_parts[1][:20]}, {location_parts[0][:15]}"
+        try:
+            if publication.cultivo.productor.producer_profile and publication.cultivo.productor.producer_profile.location:
+                location = publication.cultivo.productor.producer_profile.location
+                # Extraer ciudad (asumiendo formato "Calle, Ciudad, País" o similar)
+                location_parts = [part.strip() for part in location.split(',')]
+                if len(location_parts) > 1:
+                    # Tomar la segunda parte (ciudad) y la primera (calle/sector)
+                    publication.ciudad_display = f"{location_parts[1][:20]}, {location_parts[0][:15]}"
+                else:
+                    publication.ciudad_display = location[:25]
             else:
-                publication.ciudad_display = location[:25]
-        else:
-            publication.ciudad_display = "Ubicación no especificada"
+                publication.ciudad_display = "Ubicación no especificada"
+        except User.producer_profile.RelatedObjectDoesNotExist:
+            publication.ciudad_display = "Productor sin perfil"
     
     context = {
         'publications': publications_list,
