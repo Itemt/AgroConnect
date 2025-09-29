@@ -16,22 +16,22 @@ class BuyerProfileInline(admin.StackedInline):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'role', 'is_active', 'date_joined')
-    list_filter = ('role', 'is_active', 'is_staff', 'date_joined')
-    search_fields = ('email', 'first_name', 'last_name')
-    ordering = ('-date_joined',)
+    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff', 'is_active')
+    list_filter = ('role', 'is_staff', 'is_active', 'groups')
+    search_fields = ('username', 'first_name', 'last_name', 'email')
+    ordering = ('username',)
     
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Información Personal', {'fields': ('first_name', 'last_name', 'role')}),
-        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'role')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'role', 'password1', 'password2'),
+            'fields': ('username', 'first_name', 'last_name', 'email', 'role', 'password', 'password2'),
         }),
     )
     
@@ -45,7 +45,9 @@ class UserAdmin(BaseUserAdmin):
         elif obj.role == 'Comprador':
             inlines.append(BuyerProfileInline(self.model, self.admin_site))
         
-        return inlines
+        # Llama al método de la superclase para incluir cualquier inline predeterminado
+        base_inlines = super().get_inline_instances(request, obj)
+        return inlines + base_inlines
 
 @admin.register(ProducerProfile)
 class ProducerProfileAdmin(admin.ModelAdmin):
