@@ -58,6 +58,16 @@
                 
                 <!-- User Menu and Hamburger -->
                 <div class="flex items-center space-x-3 md:ml-6">
+                    <!-- Cart Icon -->
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'cart:cart_detail' %}" class="relative text-gray-600 hover:text-primary-600">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        {% if cart.items.all|length > 0 %}
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ cart.items.all|length }}</span>
+                        {% endif %}
+                    </a>
+                    {% endif %}
+
                     <!-- User Menu Button -->
                     <button type="button" class="flex text-sm rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                         <span class="sr-only">Open user menu</span>
