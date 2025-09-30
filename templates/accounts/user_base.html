@@ -46,9 +46,8 @@
                 <i class="fas fa-comments w-5 mr-3"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'crop_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'crop_list' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-seedling w-5 mr-3"></i>
-                <span class="sidebar-text">Cultivos</span>
+            <a href="{% url 'producer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-primary-700 font-bold{% endif %}">
+                <i class="fas fa-leaf mr-2"></i> Mis Cultivos
             </a>
             <a href="{% url 'producer_sales' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_sales' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-chart-line w-5 mr-3"></i>
