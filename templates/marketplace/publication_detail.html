@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ publication.cultivo.nombre_producto }}{% endblock %}
+{% block title %}{{ publication.cultivo.nombre }}{% endblock %}
 
 {% block content %}
     <div class="bg-gray-50 min-h-screen">
@@ -9,7 +9,7 @@
                 <!-- Image Section -->
                 <div class="bg-gray-200 rounded-lg shadow-lg overflow-hidden">
                     {% if publication.imagen %}
-                        <img src="{{ publication.imagen.url }}" alt="{{ publication.cultivo.nombre_producto }}" class="w-full h-full object-cover">
+                        <img src="{{ publication.imagen.url }}" alt="{{ publication.cultivo.nombre }}" class="w-full h-full object-cover">
                     {% else %}
                         <div class="h-96 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600">
                             <i class="fas fa-seedling text-white text-6xl opacity-80"></i>
@@ -24,7 +24,7 @@
                         <div class="flex items-start justify-between mb-6">
                             <div>
                                 <div class="flex items-center mb-2">
-                                    <h1 class="text-3xl font-bold text-gray-900 mr-4">{{ publication.cultivo.nombre_producto }}</h1>
+                                    <h1 class="text-3xl font-bold text-gray-900 mr-4">{{ publication.cultivo.nombre }}</h1>
                                     <span class="bg-primary-100 text-primary-800 text-sm font-medium px-3 py-1 rounded-full">
                                         {{ publication.categoria_display }}
                                     </span>

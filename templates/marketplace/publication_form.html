@@ -8,7 +8,7 @@
         <div class="px-6 py-8">
             <h1 class="text-3xl font-bold text-gray-900">{% if form.instance.pk %}Editar Publicación{% else %}Publicar en el Marketplace{% endif %}</h1>
             {% if not form.instance.pk %}
-            <p class="mt-2 text-sm text-gray-600">Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre_producto }}.</p>
+            <p class="mt-2 text-sm text-gray-600">Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre }}.</p>
             <p class="mt-1 text-sm text-gray-600">Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
             {% endif %}
             
@@ -22,7 +22,7 @@
                         <i class="fas fa-seedling text-green-600 mr-3"></i>
                         <div>
                             <p class="text-sm font-medium text-gray-900">Producto</p>
-                            <p class="text-sm text-gray-600">{{ crop.nombre_producto }}</p>
+                            <p class="text-sm text-gray-600">{{ crop.nombre }}</p>
                         </div>
                     </div>
                     
