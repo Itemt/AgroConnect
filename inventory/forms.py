@@ -11,7 +11,7 @@ class CropForm(forms.ModelForm):
 
     class Meta:
         model = Crop
-        fields = ['producto', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas']
+        fields = ['producto', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas', 'imagen']
         widgets = {
             'cantidad_estimada': forms.NumberInput(attrs={
                 'step': '0.01', 
@@ -30,4 +30,5 @@ class CropForm(forms.ModelForm):
                 'placeholder': 'Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.',
                 'class': 'form-control'
             }),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }

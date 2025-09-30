@@ -11,10 +11,27 @@ class CustomUserCreationForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, required=True, label="Apellidos")
     email = forms.EmailField(required=True, label="Correo Electrónico")
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True, label="Tipo de Usuario")
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-cities-url': '/ajax/cities/'
+        }),
+        label="Departamento",
+        required=True
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+        }),
+        label="Ciudad/Municipio",
+        required=True
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'role', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'role', 'departamento', 'ciudad', 'password1', 'password2')
         labels = {
             'username': 'Nombre de Usuario',
             'password1': 'Contraseña',
@@ -58,16 +75,18 @@ class CustomUserCreationForm(UserCreationForm):
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name', 'email', 'profile_image')
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'profile_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
-            'email': 'Correo Electrónico'
+            'email': 'Correo Electrónico',
+            'profile_image': 'Imagen de Perfil',
         }
 
 
@@ -77,7 +96,7 @@ class AdminUserEditForm(UserEditForm):
     is_staff = forms.BooleanField(required=False, label="Staff (Admin)")
 
     class Meta(UserEditForm.Meta):
-        fields = ('first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff')
+        fields = ('first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff', 'profile_image')
 
 
 class ProducerProfileForm(forms.ModelForm):

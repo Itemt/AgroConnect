@@ -152,7 +152,7 @@ def publication_create_view(request, crop_id):
         return redirect('publication_edit', pk=existing_publication.pk)
 
     if request.method == 'POST':
-        form = PublicationForm(request.POST)
+        form = PublicationForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             publication = form.save(commit=False)
             publication.cultivo = crop
@@ -160,9 +160,10 @@ def publication_create_view(request, crop_id):
             messages.success(request, 'Publicación creada exitosamente.')
             return redirect('producer_dashboard')
     else:
-        # Pre-llenar el formulario con datos del cultivo
-        form = PublicationForm(initial={
+        form = PublicationForm(user=request.user, initial={
             'cantidad_disponible': crop.cantidad_estimada,
+            'categoria': crop.producto.categoria,
+            'ciudad': request.user.producer_profile.ciudad if hasattr(request.user, 'producer_profile') else ''
         })
 
     context = {
@@ -178,13 +179,13 @@ def publication_edit_view(request, pk):
     publication = get_object_or_404(Publication, pk=pk, cultivo__productor=request.user)
     
     if request.method == 'POST':
-        form = PublicationForm(request.POST, instance=publication)
+        form = PublicationForm(request.POST, request.FILES, instance=publication, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Publicación actualizada exitosamente.')
             return redirect('producer_dashboard')
     else:
-        form = PublicationForm(instance=publication)
+        form = PublicationForm(instance=publication, user=request.user)
     
     context = {
         'form': form,

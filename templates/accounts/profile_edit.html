@@ -18,19 +18,42 @@
                     <!-- User Information -->
                     <div class="space-y-6">
                         <h2 class="text-xl font-semibold text-gray-800">Información de la Cuenta</h2>
-                        {% for field in user_form %}
-                        <div class="field-wrapper">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                            <div class="mt-1">
-                                {{ field }}
-                            </div>
-                            {% if field.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                        
+                        <!-- Profile Image Preview -->
+                        <div class="flex items-center space-x-4">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="Imagen de Perfil" class="w-24 h-24 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-4xl text-gray-500"></i>
+                                </div>
                             {% endif %}
-                            {% for error in field.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
+                            <div class="field-wrapper">
+                                <label for="{{ user_form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ user_form.profile_image.label }}</label>
+                                <div class="mt-1">
+                                    {{ user_form.profile_image }}
+                                </div>
+                                {% for error in user_form.profile_image.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
                         </div>
+
+                        {% for field in user_form %}
+                            {% if field.name != 'profile_image' %}
+                                <div class="field-wrapper">
+                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                                    <div class="mt-1">
+                                        {{ field }}
+                                    </div>
+                                    {% if field.help_text %}
+                                    <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
 

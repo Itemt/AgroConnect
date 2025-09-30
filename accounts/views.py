@@ -18,7 +18,26 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.role = form.cleaned_data['role']
+            user.save()
+
+            departamento = form.cleaned_data['departamento']
+            ciudad = form.cleaned_data['ciudad']
+
+            if user.role == 'Productor':
+                ProducerProfile.objects.create(
+                    user=user,
+                    departamento=departamento,
+                    ciudad=ciudad
+                )
+            elif user.role == 'Comprador':
+                BuyerProfile.objects.create(
+                    user=user,
+                    departamento=departamento,
+                    ciudad=ciudad
+                )
+
             login(request, user)
             return redirect('index')
     else:
@@ -72,7 +91,7 @@ def profile_edit_view(request):
         profile = None
 
     if request.method == 'POST':
-        user_form = UserEditForm(request.POST, instance=request.user)
+        user_form = UserEditForm(request.POST, request.FILES, instance=request.user)
         profile_form = ProfileForm(request.POST, instance=profile) if profile else None
         
         if user_form.is_valid() and (not profile_form or profile_form.is_valid()):

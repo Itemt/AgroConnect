@@ -1,10 +1,27 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<style>
+    .sidebar-nav a i {
+        transition: margin 0.3s;
+    }
+    #sidebar.w-20 .sidebar-nav a {
+        justify-content: center;
+    }
+    #sidebar.w-20 .sidebar-nav a i {
+        margin-right: 0;
+    }
+    #sidebar.w-20 .sidebar-nav a span {
+        display: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="flex h-screen">
+<div class="flex h-screen bg-gray-100">
     <!-- Sidebar -->
-    <div class="w-64 bg-primary-800 text-white p-6">
+    <div id="sidebar" class="w-64 bg-primary-800 text-white p-6 transition-all duration-300">
         <div class="flex items-center mb-8">
             <div class="w-12 h-12 rounded-full bg-primary-700 flex items-center justify-center mr-4">
                 <i class="fas fa-user text-2xl"></i>
@@ -19,51 +36,54 @@
             {% if user.role == 'Productor' %}
             <a href="{% url 'producer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-tachometer-alt w-5 mr-3"></i>
-                <span>Dashboard</span>
+                <span class="sidebar-text">Dashboard</span>
             </a>
             <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-user w-5 mr-3"></i>
-                <span>Perfil</span>
+                <span class="sidebar-text">Perfil</span>
             </a>
             <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-comments w-5 mr-3"></i>
-                <span>Mensajes</span>
+                <span class="sidebar-text">Mensajes</span>
             </a>
             <a href="{% url 'crop_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'crop_list' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-seedling w-5 mr-3"></i>
-                <span>Cultivos</span>
+                <span class="sidebar-text">Cultivos</span>
             </a>
             <a href="{% url 'producer_sales' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_sales' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-chart-line w-5 mr-3"></i>
-                <span>Ventas</span>
+                <span class="sidebar-text">Ventas</span>
             </a>
             {% elif user.role == 'Comprador' %}
             <a href="{% url 'buyer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-tachometer-alt w-5 mr-3"></i>
-                <span>Dashboard</span>
+                <span class="sidebar-text">Dashboard</span>
             </a>
             <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-user w-5 mr-3"></i>
-                <span>Perfil</span>
+                <span class="sidebar-text">Perfil</span>
             </a>
             <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-comments w-5 mr-3"></i>
-                <span>Mensajes</span>
+                <span class="sidebar-text">Mensajes</span>
             </a>
             <a href="{% url 'order_history' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'order_history' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-shopping-cart w-5 mr-3"></i>
-                <span>Pedidos</span>
+                <span class="sidebar-text">Pedidos</span>
             </a>
             {% endif %}
             <a href="{% url 'logout' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors mt-8">
                 <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                <span>Cerrar Sesión</span>
+                <span class="sidebar-text">Cerrar Sesión</span>
             </a>
         </nav>
     </div>
 
     <!-- Main content -->
-    <div class="flex-1 p-10 overflow-y-auto">
+    <div id="main-content" class="flex-1 p-10 overflow-y-auto transition-all duration-300 ml-64">
+        <button id="sidebar-toggle" class="mb-4 text-gray-700 hover:text-primary-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
         {% block user_content %}{% endblock %}
     </div>
 </div>
