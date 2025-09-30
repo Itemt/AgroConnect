@@ -88,6 +88,9 @@ urlpatterns = [
     # User Profiles and Rankings
     path('user/<int:user_id>/profile/', sales_views.user_profile_view, name='user_profile'),
     path('rankings/', sales_views.rankings_view, name='rankings'),
+
+    # Cart
+    path('cart/', include('cart.urls', namespace='cart')),
 ]
 
 if settings.DEBUG:
