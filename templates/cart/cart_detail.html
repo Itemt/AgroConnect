@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load cart_tags %}
+
+{% block title %}Mi Carrito de Compras{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Mi Carrito de Compras</h1>
+
+    {% if not cart.items.all %}
+        <div class="alert alert-info" role="alert">
+            Tu carrito está vacío. <a href="{% url 'marketplace' %}" class="alert-link">¡Empieza a comprar!</a>
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Producto</th>
+                        <th scope="col" class="text-center">Precio Unitario</th>
+                        <th scope="col" class="text-center">Cantidad</th>
+                        <th scope="col" class="text-end">Subtotal</th>
+                        <th scope="col" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if item.publication.imagen %}
+                                    <img src="{{ item.publication.imagen.url }}" alt="{{ item.publication.cultivo.nombre_producto }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0">{{ item.publication.cultivo.nombre_producto }}</h6>
+                                    <small class="text-muted">Vendido por: {{ item.publication.cultivo.productor.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">${{ item.publication.precio_por_unidad|floatformat:2 }}</td>
+                        <td class="text-center">
+                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="d-inline-flex align-items-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.publication.cantidad_disponible }}" class="form-control form-control-sm" style="width: 70px;">
+                                <button type="submit" class="btn btn-outline-primary btn-sm ms-2">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td class="text-end fw-bold">${{ item.get_item_price|floatformat:2 }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'cart:remove_from_cart' item.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-md-5 col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Resumen del Pedido</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Subtotal
+                                <span>${{ cart.get_total_price|floatformat:2 }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                                Total
+                                <span>${{ cart.get_total_price|floatformat:2 }}</span>
+                            </li>
+                        </ul>
+                        <div class="d-grid mt-4">
+                            {% with whatsapp_base_url="https://wa.me/573203465135" %}
+                                {% capture_as_var message %}
+¡Hola! Estoy interesado en comprar los siguientes productos de AgroConnect:
+{% for item in cart.items.all %}
+- {{ item.quantity }} x {{ item.publication.cultivo.nombre_producto }} (${{ item.get_item_price|floatformat:2 }})
+{% endfor %}
+*Total: ${{ cart.get_total_price|floatformat:2 }}*
+                                {% endcapture_as_var %}
+                                <a href="{{ whatsapp_base_url }}?text={{ message|urlencode }}" class="btn btn-success btn-lg" target="_blank">
+                                    Proceder al Pago por WhatsApp
+                                </a>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
