@@ -58,7 +58,7 @@
                                            placeholder="Ingresa tu {{ field.label|lower }}"
                                            value="{{ field.value|default:'' }}">
                                 </div>
-                            {% elif field.name == 'role' %}
+                            {% elif field.name == 'role' or field.name == 'departamento' or field.name == 'ciudad' %}
                                 <select name="{{ field.name }}" 
                                         id="{{ field.id_for_label }}"
                                         class="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">

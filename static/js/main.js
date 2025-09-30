@@ -109,4 +109,31 @@ document.addEventListener('DOMContentLoaded', function() {
             field.className = classList;
         });
     });
+
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+    if (sidebar && mainContent && sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-20');
+            mainContent.classList.toggle('ml-64');
+            mainContent.classList.toggle('ml-20');
+            sidebarTexts.forEach(text => {
+                text.classList.toggle('hidden');
+            });
+        });
+    }
+
+    // Registration form city loader
+    const regDepartamentoSelect = document.querySelector('form[method="post"] #id_departamento');
+    const regCiudadSelect = document.querySelector('form[method="post"] #id_ciudad');
+    if (regDepartamentoSelect && regCiudadSelect) {
+        regDepartamentoSelect.addEventListener('change', function() {
+            updateCities(regDepartamentoSelect, regCiudadSelect);
+        });
+    }
 });

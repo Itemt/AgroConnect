@@ -161,10 +161,14 @@
                 {% for pub in publications %}
                     <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden group">
                         <!-- Product Image Placeholder -->
-                        <div class="h-48 bg-gradient-to-br from-green-400 to-green-600 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                                <i class="fas fa-seedling text-white text-4xl opacity-80"></i>
-                            </div>
+                        <div class="h-48 bg-gray-200 relative overflow-hidden">
+                            {% if pub.imagen %}
+                                <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre_producto }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                    <i class="fas fa-seedling text-white text-4xl opacity-80"></i>
+                                </div>
+                            {% endif %}
                             <!-- Category Badge -->
                             <div class="absolute top-3 left-3">
                                 {% if pub.categoria_display %}
@@ -181,29 +185,20 @@
                             </div>
                         </div>
                         
-                        <div class="p-6">
+                        <div class="p-6 flex flex-col h-full">
                             <div class="mb-4">
                                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
                                     {{ pub.cultivo.nombre_producto }}
                                 </h3>
-                                {% if pub.descripcion %}
-                                    <p class="text-gray-600 text-sm line-clamp-2">{{ pub.descripcion }}</p>
-                                {% endif %}
                             </div>
                             
                             <div class="space-y-3 mb-6">
                                 <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-user-tie text-primary-500 mr-3 w-4"></i>
-                                    <span class="text-sm font-medium">{{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</span>
-                                </div>
-                                
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-map-marker-alt text-red-500 mr-3 w-4"></i>
-                                    <span class="text-sm font-medium text-blue-600">
-                                        {{ pub.ciudad_display }}
+                                    <i class="fas fa-dollar-sign text-primary-500 mr-3 w-4"></i>
+                                    <span class="text-sm">
+                                        <span class="font-semibold text-green-600">${{ pub.precio_por_unidad }}</span> / {{ pub.cultivo.unidad_medida }}
                                     </span>
                                 </div>
-                                
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-boxes text-blue-500 mr-3 w-4"></i>
                                     <span class="text-sm">
@@ -211,41 +206,13 @@
                                         {{ pub.cultivo.unidad_medida }} disponibles
                                     </span>
                                 </div>
-                                
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-shopping-cart text-orange-500 mr-3 w-4"></i>
-                                    <span class="text-sm">
-                                        Mín: <span class="font-semibold">{{ pub.cantidad_minima }}</span> {{ pub.cultivo.unidad_medida }}
-                                    </span>
-                                </div>
-                                
-                                {% if pub.cultivo.fecha_disponibilidad %}
-                                    <div class="flex items-center text-gray-600">
-                                        <i class="fas fa-calendar-alt text-purple-500 mr-3 w-4"></i>
-                                        <span class="text-sm">Disponible: {{ pub.cultivo.fecha_disponibilidad|date:"d/m/Y" }}</span>
-                                    </div>
-                                {% endif %}
                             </div>
                             
-                            <!-- Price per unit highlight -->
-                            <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Precio por {{ pub.cultivo.unidad_medida }}:</span>
-                                    <span class="text-lg font-bold text-primary-600">${{ pub.precio_por_unidad }}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2">
+                            <div class="mt-auto">
                                 <a href="{% url 'publication_detail' pub.id %}" 
-                                   class="flex-1 bg-primary-600 text-white text-center py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium group-hover:shadow-md">
+                                   class="block bg-primary-600 text-white text-center py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium group-hover:shadow-md">
                                     <i class="fas fa-eye mr-2"></i>Ver Detalles
                                 </a>
-                                {% if user.is_authenticated and user.role == 'Comprador' %}
-                                    <a href="{% url 'start_conversation' pub.id %}" 
-                                       class="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                                        <i class="fas fa-comments"></i>
-                                    </a>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
