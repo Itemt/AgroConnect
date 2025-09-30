@@ -1,7 +1,20 @@
 from django import forms
 from .models import Publication
+from core.colombia_locations import get_departments, get_all_cities
 
 class PublicationForm(forms.ModelForm):
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona una ciudad')] + get_all_cities(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    
     class Meta:
         model = Publication
         fields = [
@@ -13,8 +26,6 @@ class PublicationForm(forms.ModelForm):
             'precio_por_unidad': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 2.50'}),
             'cantidad_disponible': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 100'}),
             'cantidad_minima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10'}),
-            'departamento': forms.Select(attrs={'class': 'form-control'}),
-            'ciudad': forms.Select(attrs={'class': 'form-control'}),
             'categoria': forms.Select(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
