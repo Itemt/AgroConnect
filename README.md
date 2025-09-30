@@ -451,7 +451,7 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 
 ## 📧 Contacto
 
-Proyecto desarrollado por Cristian - [GitHub](https://github.com/Itemt/AgroConnect)
+Proyecto desarrollado por Cristian Ramos y Jhonnier Arguello - [GitHub](https://github.com/Itemt/AgroConnect)
 
 ---
 
