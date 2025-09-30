@@ -20,7 +20,7 @@
                         <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                             <div class="p-6">
                                 <div class="flex items-start justify-between mb-4">
-                                    <h3 class="text-xl font-bold text-gray-900">{{ crop.nombre_producto }}</h3>
+                                    <h3 class="text-xl font-bold text-gray-900">{{ crop.nombre }}</h3>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         {% if crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
                                         {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
@@ -64,7 +64,7 @@
                                     </a>
                                     
                                     {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
-                                        <a href="{% url 'publication_add' crop.pk %}" 
+                                        <a href="{% url 'publication_create' crop.pk %}" 
                                            class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-share mr-2"></i>Publicar
                                         </a>
