@@ -5,58 +5,72 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!deptSelect || !citySelect) return;
 
         const selectedDepartment = deptSelect.value;
+        // Get the URL from the data attribute of the department select element
         const url = deptSelect.dataset.citiesUrl;
 
         if (selectedDepartment && url) {
             fetch(`${url}?department=${encodeURIComponent(selectedDepartment)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     citySelect.innerHTML = '<option value="">Selecciona una ciudad</option>';
                     if (data.success && data.cities) {
                         data.cities.forEach(city => {
                             const option = document.createElement('option');
-                            option.value = city.value;
-                            option.textContent = city.text;
+                            option.value = city; // The view returns a list of strings
+                            option.textContent = city;
                             citySelect.appendChild(option);
                         });
                     }
+                    citySelect.disabled = false;
                 })
                 .catch(error => {
                     console.error('Error loading cities:', error);
                     citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    citySelect.disabled = true;
                 });
         } else {
             citySelect.innerHTML = '<option value="">Selecciona primero un departamento</option>';
+            citySelect.disabled = true;
         }
     }
 
-    // Profile Edit
-    const departamentoSelect = document.getElementById('id_departamento');
-    const ciudadSelect = document.getElementById('id_ciudad');
-    if (departamentoSelect && ciudadSelect) {
-        departamentoSelect.addEventListener('change', function() {
-            updateCities(departamentoSelect, ciudadSelect);
-        });
+    // Generic handler for all dependent dropdowns
+    function setupDependentDropdown(departmentId, cityId) {
+        const deptSelect = document.getElementById(departmentId);
+        const citySelect = document.getElementById(cityId);
+
+        if (deptSelect && citySelect) {
+            // Disable city select initially if no department is selected
+            if (!deptSelect.value) {
+                citySelect.disabled = true;
+            }
+
+            deptSelect.addEventListener('change', function() {
+                updateCities(deptSelect, citySelect);
+            });
+
+            // If a department is already selected on page load (e.g., form validation error), trigger the update
+            if (deptSelect.value) {
+                updateCities(deptSelect, citySelect);
+            }
+        }
     }
 
-    const departamentoBuyerSelect = document.getElementById('id_departamento_buyer');
-    const ciudadBuyerSelect = document.getElementById('id_ciudad_buyer');
-    if (departamentoBuyerSelect && ciudadBuyerSelect) {
-        departamentoBuyerSelect.addEventListener('change', function() {
-            updateCities(departamentoBuyerSelect, ciudadBuyerSelect);
-        });
-    }
+    // Setup for Registration Form
+    setupDependentDropdown('id_departamento', 'id_ciudad');
 
-    // Crop Form
-    const departamentoCropSelect = document.getElementById('id_departamento_crop');
-    const ciudadCropSelect = document.getElementById('id_ciudad_crop');
-    if (departamentoCropSelect && ciudadCropSelect) {
-        departamentoCropSelect.addEventListener('change', function() {
-            updateCities(departamentoCropSelect, ciudadCropSelect);
-        });
-    }
+    // Setup for Producer Profile Form
+    setupDependentDropdown('id_departamento_producer', 'id_ciudad_producer');
 
-    // Marketplace
+    // Setup for Buyer Profile Form
+    setupDependentDropdown('id_departamento_buyer', 'id_ciudad_buyer');
+
+    // Marketplace Filters Toggle
     const toggleBtn = document.getElementById('toggle-filters-btn');
     const filtersContainer = document.getElementById('filters-container');
 
@@ -128,12 +142,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Registration form city loader
-    const regDepartamentoSelect = document.querySelector('form[method="post"] #id_departamento');
-    const regCiudadSelect = document.querySelector('form[method="post"] #id_ciudad');
-    if (regDepartamentoSelect && regCiudadSelect) {
-        regDepartamentoSelect.addEventListener('change', function() {
-            updateCities(regDepartamentoSelect, regCiudadSelect);
-        });
-    }
+    // The old registration logic is now handled by the generic setupDependentDropdown
 });
