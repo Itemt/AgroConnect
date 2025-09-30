@@ -6,10 +6,6 @@ echo "🚀 Iniciando AgroConnect con PostgreSQL..."
 echo "⏳ Esperando a que PostgreSQL esté listo..."
 sleep 5
 
-# Crear migraciones frescas
-echo "📝 Creando migraciones..."
-python manage.py makemigrations
-
 # Aplicar migraciones
 echo "🗄️ Aplicando migraciones..."
 python manage.py migrate
