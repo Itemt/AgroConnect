@@ -97,7 +97,7 @@
                                 <option value="-created_at" {% if orden == "-created_at" %}selected{% endif %}>Más Reciente</option>
                                 <option value="precio_por_unidad" {% if orden == "precio_por_unidad" %}selected{% endif %}>Precio: Menor a Mayor</option>
                                 <option value="-precio_por_unidad" {% if orden == "-precio_por_unidad" %}selected{% endif %}>Precio: Mayor a Menor</option>
-                                <option value="cultivo__nombre_producto" {% if orden == "cultivo__nombre_producto" %}selected{% endif %}>Nombre A-Z</option>
+                                <option value="cultivo__nombre" {% if orden == "cultivo__nombre" %}selected{% endif %}>Nombre A-Z</option>
                             </select>
                         </div>
                         
@@ -163,7 +163,7 @@
                         <!-- Product Image Placeholder -->
                         <div class="h-48 bg-gray-200 relative overflow-hidden">
                             {% if pub.imagen %}
-                                <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre_producto }}" class="w-full h-full object-cover">
+                                <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover">
                             {% else %}
                                 <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                                     <i class="fas fa-seedling text-white text-4xl opacity-80"></i>
@@ -188,7 +188,7 @@
                         <div class="p-6 flex flex-col h-full">
                             <div class="mb-4">
                                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
-                                    {{ pub.cultivo.nombre_producto }}
+                                    {{ pub.cultivo.nombre }}
                                 </h3>
                             </div>
                             
