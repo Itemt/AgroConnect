@@ -1,25 +1,20 @@
 from django import forms
 from .models import Publication
-from core.colombia_locations import get_departments, get_all_cities
+from core.colombia_locations import get_all_cities
 
 class PublicationForm(forms.ModelForm):
-    departamento = forms.ChoiceField(
-        choices=[('', 'Selecciona un departamento')] + get_departments(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
-    )
-    
     ciudad = forms.ChoiceField(
-        choices=[('', 'Selecciona una ciudad')] + get_all_cities(),
+        choices=[('', 'Selecciona ubicación')] + get_all_cities(),
         widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False
+        required=False,
+        label="Ubicación (Ciudad, Departamento)"
     )
     
     class Meta:
         model = Publication
         fields = [
             'cultivo', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
-            'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen'
+            'ciudad', 'categoria', 'descripcion', 'imagen'
         ]
         widgets = {
             'cultivo': forms.Select(attrs={'class': 'form-control'}),
