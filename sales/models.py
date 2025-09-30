@@ -75,7 +75,7 @@ class Order(BaseModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'Pedido #{self.id} - {self.publicacion.cultivo.nombre_producto}'
+        return f'Pedido #{self.id} - {self.publicacion.cultivo.nombre}'
 
     @property
     def vendedor(self):

@@ -147,7 +147,7 @@ def producer_sales_view(request):
         
         if search:
             orders = orders.filter(
-                Q(publicacion__cultivo__producto__nombre__icontains=search) |
+                Q(publicacion__cultivo__nombre__icontains=search) |
                 Q(comprador__first_name__icontains=search) |
                 Q(comprador__last_name__icontains=search)
             )
@@ -181,7 +181,7 @@ def producer_sales_view(request):
     
     # Estadísticas por producto
     product_stats = orders.filter(estado='completado').values(
-        'publicacion__cultivo__producto__nombre'
+        'publicacion__cultivo__nombre'
     ).annotate(
         total_vendido=Sum('cantidad_acordada'),
         total_ingresos=Sum('precio_total'),
