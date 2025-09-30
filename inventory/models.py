@@ -48,7 +48,7 @@ class Crop(BaseModel):
     
     # Información del producto
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, 
-                                 related_name='cultivos', verbose_name="Tipo de Producto", null=True)
+                                 related_name='cultivos', verbose_name="Tipo de Producto")
     
     # Información del productor
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
