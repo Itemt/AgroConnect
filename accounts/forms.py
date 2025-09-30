@@ -10,7 +10,14 @@ class CustomUserCreationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label="Nombres")
     last_name = forms.CharField(max_length=30, required=True, label="Apellidos")
     email = forms.EmailField(required=True, label="Correo Electrónico")
-    role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True, label="Tipo de Usuario")
+    role = forms.ChoiceField(
+        choices=User.ROLE_CHOICES,
+        required=True,
+        label="Tipo de Usuario",
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
+        })
+    )
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
@@ -109,7 +116,7 @@ class ProducerProfileForm(forms.ModelForm):
         label="Departamento",
         required=True
     )
-    
+
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
@@ -146,7 +153,7 @@ class ProducerProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # Dynamically set city choices based on department
         if 'departamento' in self.data:
             try:
@@ -172,7 +179,7 @@ class BuyerProfileForm(forms.ModelForm):
         label="Departamento",
         required=True
     )
-    
+
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
@@ -185,7 +192,7 @@ class BuyerProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # Dynamically set city choices based on department
         if 'departamento' in self.data:
             try:
