@@ -14,7 +14,7 @@ class CustomUserCreationForm(UserCreationForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento",
@@ -23,7 +23,7 @@ class CustomUserCreationForm(UserCreationForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
         }),
         label="Ciudad/Municipio",
         required=True
@@ -103,7 +103,7 @@ class ProducerProfileForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
         label="Departamento",
@@ -113,7 +113,7 @@ class ProducerProfileForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'id': 'id_ciudad'
         }),
         label="Ciudad/Municipio",
@@ -165,7 +165,7 @@ class BuyerProfileForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'id': 'id_departamento_buyer',
             'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
@@ -176,7 +176,7 @@ class BuyerProfileForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'id': 'id_ciudad_buyer'
         }),
         label="Ciudad/Municipio",
