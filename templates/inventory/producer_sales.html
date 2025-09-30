@@ -49,7 +49,7 @@
             {% for order in orders_need_attention %}
                 <div class="bg-white p-4 rounded-lg shadow-md flex justify-between items-center">
                     <div>
-                        <h4 class="font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h4>
+                        <h4 class="font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
                         <p class="text-sm text-gray-600"><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | <strong>Estado:</strong> {{ order.get_estado_display }}</p>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -76,7 +76,7 @@
                 {% for product in product_stats %}
                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
                         <div>
-                            <h4 class="font-semibold">{{ product.publicacion__cultivo__nombre_producto }}</h4>
+                            <h4 class="font-semibold">{{ product.publicacion__cultivo__nombre }}</h4>
                             <p class="text-sm text-gray-600">{{ product.num_pedidos }} pedidos • {{ product.total_vendido|floatformat:1 }} unidades</p>
                         </div>
                         <div class="text-lg font-bold text-green-600">${{ product.total_ingresos|floatformat:0 }}</div>
@@ -141,7 +141,7 @@
                 <div class="border border-gray-200 rounded-lg p-4">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h3>
+                            <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h3>
                             <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
                         </div>
                         <span class="px-3 py-1 text-sm font-semibold rounded-full {{ order.get_estado_display|lower|slugify }}">

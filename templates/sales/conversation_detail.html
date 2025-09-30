@@ -1,7 +1,7 @@
 {% extends 'accounts/user_base.html' %}
 {% load custom_filters %}
 
-{% block title %}Conversación sobre {{ conversation.publication.cultivo.nombre_producto }}{% endblock %}
+{% block title %}Conversación sobre {{ conversation.publication.cultivo.nombre }}{% endblock %}
 
 {% block user_content %}
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -9,7 +9,7 @@
         <div class="px-6 py-6 border-b border-gray-200">
             {% with other_user=conversation.participants.all|get_other_user:user %}
             <h1 class="text-2xl font-bold text-gray-900">Conversación con {{ other_user.first_name }} {{ other_user.last_name }}</h1>
-            <p class="text-sm text-gray-600 mt-1">Sobre el producto: <a href="{% url 'publication_detail' conversation.publication.id %}" class="font-semibold text-primary-600 hover:underline">{{ conversation.publication.cultivo.nombre_producto }}</a></p>
+            <p class="text-sm text-gray-600 mt-1">Sobre el producto: <a href="{% url 'publication_detail' conversation.publication.id %}" class="font-semibold text-primary-600 hover:underline">{{ conversation.publication.cultivo.nombre }}</a></p>
             {% endwith %}
         </div>
 

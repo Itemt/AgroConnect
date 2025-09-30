@@ -44,7 +44,7 @@
             <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</h3>
+                        <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h3>
                         <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
                     </div>
                     {% with status=order.get_estado_display|lower|slugify %}
