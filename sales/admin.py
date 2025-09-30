@@ -5,9 +5,8 @@ from .models import Conversation, Message, Order, Rating
 # Inlines
 class MessageInline(admin.TabularInline):
     model = Message
-    extra = 0
-    readonly_fields = ('sender', 'created_at')
-    fields = ('sender', 'content', 'created_at')
+    extra = 1
+    readonly_fields = ('sender', 'content', 'created_at')
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('sender')
@@ -15,9 +14,9 @@ class MessageInline(admin.TabularInline):
 # Conversation Admin
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'publication_info', 'participants_list', 'created_at')
-    list_filter = ('created_at', 'publication__cultivo__producto__nombre')
-    search_fields = ('publication__cultivo__producto__nombre', 'participants__first_name', 'participants__last_name')
+    list_display = ('id', 'publication', 'created_at')
+    list_filter = ('publication',)
+    search_fields = ('publication__cultivo__nombre',)
     readonly_fields = ('created_at', 'updated_at')
     inlines = [MessageInline]
     
@@ -36,9 +35,9 @@ class ConversationAdmin(admin.ModelAdmin):
 # Message Admin
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'conversation_info', 'sender', 'content_preview', 'created_at')
-    list_filter = ('created_at', 'sender__role')
-    search_fields = ('content', 'sender__first_name', 'sender__last_name')
+    list_display = ('conversation', 'sender', 'content', 'created_at')
+    list_filter = ('conversation', 'sender')
+    search_fields = ('content',)
     readonly_fields = ('created_at',)
     
     def conversation_info(self, obj):
@@ -55,10 +54,10 @@ class MessageAdmin(admin.ModelAdmin):
 # Order Admin
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'publicacion_info', 'comprador_info', 'cantidad_acordada', 'precio_total', 'estado', 'estado_badge', 'created_at')
-    list_filter = ('estado', 'created_at', 'publicacion__cultivo__producto__nombre')
-    search_fields = ('publicacion__cultivo__producto__nombre', 'comprador__first_name', 'comprador__last_name')
-    readonly_fields = ('created_at', 'updated_at', 'fecha_confirmacion', 'fecha_envio', 'fecha_recepcion')
+    list_display = ('id', 'publicacion', 'comprador', 'estado', 'cantidad_acordada', 'precio_total', 'created_at')
+    list_filter = ('estado', 'comprador')
+    search_fields = ('publicacion__cultivo__nombre', 'comprador__username')
+    readonly_fields = ('precio_total',)
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
     raw_id_fields = ('publicacion', 'comprador')
@@ -116,9 +115,9 @@ class OrderAdmin(admin.ModelAdmin):
 # Rating Admin
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'pedido_info', 'calificador', 'calificado', 'calificacion_general', 'promedio_display', 'recomendaria', 'created_at')
-    list_filter = ('calificacion_general', 'recomendaria', 'tipo', 'created_at')
-    search_fields = ('calificador__first_name', 'calificado__first_name', 'comentario')
+    list_display = ('pedido', 'calificador', 'calificado', 'calificacion_general', 'created_at')
+    list_filter = ('calificacion_general', 'calificador', 'calificado')
+    search_fields = ('comentario', 'calificador__username', 'calificado__username')
     readonly_fields = ('created_at', 'updated_at', 'promedio_calificacion')
     
     fieldsets = (

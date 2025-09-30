@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from core.models import BaseModel
 
-class Product(BaseModel):
+class Crop(BaseModel):
     CATEGORIA_CHOICES = (
         ('hortalizas', 'Hortalizas'),
         ('frutas', 'Frutas'),
@@ -12,23 +12,6 @@ class Product(BaseModel):
         ('hierbas_aromaticas', 'Hierbas Aromáticas'),
         ('otros', 'Otros'),
     )
-    
-    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Producto")
-    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, 
-                               default='otros', verbose_name="Categoría")
-    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
-    imagen = models.ImageField(upload_to='productos/', blank=True, null=True, 
-                             verbose_name="Imagen del Producto")
-
-    class Meta:
-        verbose_name = "Producto"
-        verbose_name_plural = "Productos"
-        ordering = ['categoria', 'nombre']
-
-    def __str__(self):
-        return self.nombre
-
-class Crop(BaseModel):
     ESTADO_CHOICES = (
         ('sembrado', 'Sembrado'),
         ('en_crecimiento', 'En Crecimiento'),
@@ -47,8 +30,8 @@ class Crop(BaseModel):
     )
     
     # Información del producto
-    producto = models.ForeignKey(Product, on_delete=models.CASCADE, 
-                                 related_name='cultivos', verbose_name="Tipo de Producto")
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Cultivo")
+    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default='otros', verbose_name="Categoría")
     
     # Información del productor
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
@@ -63,7 +46,6 @@ class Crop(BaseModel):
     # Estado y fechas
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='sembrado',
                             verbose_name="Estado del Cultivo")
-    # Campo que puede ser útil para publicaciones
     fecha_disponibilidad = models.DateField(null=True, blank=True, verbose_name="Disponible Desde")
 
     imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
@@ -78,8 +60,4 @@ class Crop(BaseModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.producto.nombre} - {self.productor.first_name}'
-
-    @property
-    def nombre_producto(self):
-        return self.producto.nombre
+        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.nombre} - {self.productor.first_name}'

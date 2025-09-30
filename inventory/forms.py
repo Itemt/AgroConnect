@@ -1,18 +1,16 @@
 from django import forms
-from .models import Crop, Product
+from .models import Crop
 
 class CropForm(forms.ModelForm):
-    producto = forms.ModelChoiceField(
-        queryset=Product.objects.all().order_by('nombre'),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label="Tipo de Producto",
-        empty_label="Selecciona un producto"
-    )
-
     class Meta:
         model = Crop
-        fields = ['producto', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas', 'imagen']
+        fields = ['nombre', 'categoria', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas', 'imagen']
         widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Tomate Chonto'
+            }),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
             'cantidad_estimada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
