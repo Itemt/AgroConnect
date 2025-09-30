@@ -14,20 +14,34 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="space-y-6">
-                    <!-- Producto -->
-                    <div class="field-wrapper">
-                        <label for="{{ form.producto.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.producto.label }}
-                        </label>
-                        <div class="mt-1">
-                            {{ form.producto }}
+                    <!-- Nombre y Categoria -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="field-wrapper">
+                            <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.nombre.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ form.nombre }}
+                            </div>
+                            {% if form.nombre.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ form.nombre.help_text }}</p>
+                            {% endif %}
+                            {% for error in form.nombre.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
                         </div>
-                        {% if form.producto.help_text %}
-                        <p class="mt-2 text-sm text-gray-500">{{ form.producto.help_text }}</p>
-                        {% endif %}
-                        {% for error in form.producto.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                        {% endfor %}
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-tags text-blue-600 mr-2"></i>{{ form.categoria.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ form.categoria }}
+                            </div>
+                            {% for error in form.categoria.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
                     </div>
 
                     <!-- Quantity and Unit -->

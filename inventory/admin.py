@@ -1,27 +1,12 @@
 from django.contrib import admin
-from .models import Product, Crop
-
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'categoria', 'imagen', 'created_at')
-    list_filter = ('categoria',)
-    search_fields = ('nombre', 'categoria', 'descripcion')
-    ordering = ('nombre',)
-    
-    fieldsets = (
-        ('Información del Producto', {
-            'fields': ('nombre', 'categoria', 'descripcion', 'imagen')
-        }),
-    )
+from .models import Crop
 
 @admin.register(Crop)
 class CropAdmin(admin.ModelAdmin):
-    list_display = ('get_product_name', 'productor', 'estado', 'cantidad_estimada', 'unidad_medida', 'fecha_disponibilidad')
-    list_filter = ('estado', 'unidad_medida', 'fecha_disponibilidad', 'producto__categoria')
-    search_fields = ('producto__nombre', 'productor__first_name', 'productor__last_name')
-    raw_id_fields = ('productor',)
-    date_hierarchy = 'fecha_disponibilidad'
-    list_editable = ('estado',)
+    list_display = ('nombre', 'categoria', 'productor', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad')
+    list_filter = ('categoria', 'estado', 'productor')
+    search_fields = ('nombre', 'productor__username')
+    ordering = ('-created_at',)
     
     fieldsets = (
         ('Información del Producto', {
