@@ -32,7 +32,7 @@ class Crop(BaseModel):
     ESTADO_CHOICES = (
         ('sembrado', 'Sembrado'),
         ('en_crecimiento', 'En Crecimiento'),
-        ('listo_cosecha', 'Listo para Cosecha'),
+        ('listo_para_cosechar', 'Listo para Cosecha'),
         ('cosechado', 'Cosechado'),
     )
     
@@ -79,3 +79,7 @@ class Crop(BaseModel):
 
     def __str__(self):
         return f'{self.cantidad_estimada} {self.unidad_medida} de {self.producto.nombre} - {self.productor.first_name}'
+
+    @property
+    def nombre_producto(self):
+        return self.producto.nombre

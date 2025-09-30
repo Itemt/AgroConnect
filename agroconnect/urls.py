@@ -68,6 +68,12 @@ urlpatterns = [
     path('dashboard/producer/sales/', inventory_views.producer_sales_view, name='producer_sales'),
     path('dashboard/buyer/', sales_views.buyer_dashboard, name='buyer_dashboard'),
 
+    # Inventory for Producers
+    path('inventory/crops/', inventory_views.crop_list_view, name='crop_list'),
+    path('inventory/crop/add/', inventory_views.crop_create_view, name='crop_add'),
+    path('inventory/crop/<int:pk>/edit/', inventory_views.crop_update_view, name='crop_edit'),
+    path('inventory/crop/<int:pk>/delete/', inventory_views.crop_delete_view, name='crop_delete'),
+
     # Admin Dashboard
     path('admin_dashboard/', accounts_views.admin_dashboard, name='admin_dashboard'),
     path('admin_dashboard/publications/', accounts_views.admin_publication_list, name='admin_publication_list'),
