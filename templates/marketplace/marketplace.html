@@ -159,7 +159,7 @@
             <!-- Products Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {% for pub in publications %}
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <a href="{% url 'publication_detail' pub.id %}" class="block bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden group">
                         <!-- Product Image Placeholder -->
                         <div class="h-48 bg-gray-200 relative overflow-hidden">
                             {% if pub.imagen %}
@@ -208,14 +208,13 @@
                                 </div>
                             </div>
                             
-                            <div class="mt-auto">
-                                <a href="{% url 'publication_detail' pub.id %}" 
-                                   class="block bg-primary-600 text-white text-center py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium group-hover:shadow-md">
+                            <div class="mt-auto pt-6">
+                                <div class="bg-primary-600 text-white text-center py-3 px-4 rounded-b-lg group-hover:bg-primary-700 transition-colors font-medium">
                                     <i class="fas fa-eye mr-2"></i>Ver Detalles
-                                </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 {% empty %}
                     <div class="col-span-full">
                         {% if search_query %}
