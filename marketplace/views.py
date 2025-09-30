@@ -85,13 +85,13 @@ def marketplace_view(request):
                 location_parts = [part.strip() for part in location.split(',')]
                 if len(location_parts) > 1:
                     # Tomar la segunda parte (ciudad) y la primera (calle/sector)
-                    publication.ciudad_display = f"{location_parts[1][:20]}, {location_parts[0][:15]}"
+                    publication.display_location = f"{location_parts[1][:20]}, {location_parts[0][:15]}"
                 else:
-                    publication.ciudad_display = location[:25]
+                    publication.display_location = location[:25]
             else:
-                publication.ciudad_display = "Ubicación no especificada"
+                publication.display_location = "Ubicación no especificada"
         except User.producer_profile.RelatedObjectDoesNotExist:
-            publication.ciudad_display = "Productor sin perfil"
+            publication.display_location = "Productor sin perfil"
     
     context = {
         'publications': publications_list,
@@ -123,13 +123,13 @@ def publication_detail_view(request, publication_id):
             location = publication.cultivo.productor.producer_profile.location
             location_parts = [part.strip() for part in location.split(',')]
             if len(location_parts) > 1:
-                publication.ciudad_display = f"{location_parts[1][:25]}, {location_parts[0][:20]}"
+                publication.display_location = f"{location_parts[1][:25]}, {location_parts[0][:20]}"
             else:
-                publication.ciudad_display = location[:30]
+                publication.display_location = location[:30]
         else:
-            publication.ciudad_display = "Ubicación no especificada"
+            publication.display_location = "Ubicación no especificada"
     except User.producer_profile.RelatedObjectDoesNotExist:
-        publication.ciudad_display = "Productor sin perfil"
+        publication.display_location = "Productor sin perfil"
     
     context = {
         'publication': publication
