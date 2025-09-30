@@ -63,6 +63,16 @@ class CustomUserCreationForm(UserCreationForm):
             }
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'departamento' in self.data:
+            try:
+                departamento = self.data.get('departamento')
+                cities = COLOMBIA_LOCATIONS.get(departamento, [])
+                self.fields['ciudad'].choices = [(city, city) for city in sorted(cities)]
+            except (ValueError, TypeError):
+                pass
+
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
         if password1:
