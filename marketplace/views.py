@@ -1,11 +1,11 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
 from .models import Publication
-from inventory.models import Crop, Product
 from .forms import PublicationForm
-from accounts.models import User
+from inventory.models import Crop
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -20,7 +20,7 @@ def marketplace_view(request):
     ).order_by('-created_at')
     
     # Obtener todas las categorías disponibles
-    categorias = Product.CATEGORIA_CHOICES
+    categorias = Crop.CATEGORIA_CHOICES # Changed from Product.CATEGORIA_CHOICES
     
     # Filtros de búsqueda
     search_query = request.GET.get('search', '')

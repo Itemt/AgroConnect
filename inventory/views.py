@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count, Q
-from .models import Crop, Product
+from .models import Crop
 from .forms import CropForm
 from marketplace.models import Publication
 from sales.models import Order
