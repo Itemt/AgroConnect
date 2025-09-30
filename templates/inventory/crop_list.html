@@ -48,9 +48,9 @@
                                                 <a href="{% url 'publication_detail' crop.publicacion.pk %}" 
                                                    class="text-primary-600 hover:text-primary-700">Ver publicación</a>
                                                 <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                                    {% if crop.publicacion.estado == 'disponible' %}bg-green-100 text-green-800
+                                                    {% if crop.publicacion.estado == 'Activa' %}bg-green-100 text-green-800
                                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                                    {% if crop.publicacion.estado == 'disponible' %}Disponible{% else %}{{ crop.publicacion.get_estado_display }}{% endif %}
+                                                    {% if crop.publicacion.estado == 'Activa' %}Activa{% else %}{{ crop.publicacion.get_estado_display }}{% endif %}
                                                 </span>
                                             </span>
                                         </div>

@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 def marketplace_view(request):
     """Vista principal del marketplace"""
     publications = Publication.objects.filter(
-        estado='disponible', 
+        estado='Activa', 
         cantidad_disponible__gt=0
     ).select_related(
         'cultivo__productor__producer_profile'
@@ -143,10 +143,10 @@ def publication_create_view(request, crop_id):
     
     crop = get_object_or_404(Crop, pk=crop_id, productor=request.user)
     
-    # Verificar si ya existe una publicación disponible para este cultivo
-    existing_publication = Publication.objects.filter(cultivo=crop, estado='disponible').first()
+    # Verificar si ya existe una publicación activa para este cultivo
+    existing_publication = Publication.objects.filter(cultivo=crop, estado='Activa').first()
     if existing_publication:
-        messages.info(request, 'Este cultivo ya tiene una publicación disponible.')
+        messages.info(request, 'Este cultivo ya tiene una publicación activa.')
         return redirect('publication_edit', pk=existing_publication.pk)
 
     if request.method == 'POST':
