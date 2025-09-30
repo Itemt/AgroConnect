@@ -1,20 +1,25 @@
 from django import forms
 from .models import Publication
-from core.colombia_locations import get_departments, get_all_cities
+from core.colombia_locations import get_departments, COLOMBIA_LOCATIONS
 
 class PublicationForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False,
-        label="Departamento de Origen"
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-cities-url': '/ajax/cities/'
+        }),
+        label="Departamento de Origen",
+        required=False
     )
     
     ciudad = forms.ChoiceField(
-        choices=[('', 'Selecciona una ciudad')] + get_all_cities(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=False,
-        label="Ciudad/Municipio de Origen"
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
+        label="Ciudad/Municipio de Origen",
+        required=False
     )
     
     class Meta:
@@ -38,3 +43,16 @@ class PublicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields['cultivo'].queryset = user.cultivos.all()
+        
+        # Cargar ciudades dinámicamente según el departamento seleccionado
+        if 'departamento' in self.data:
+            try:
+                departamento = self.data.get('departamento')
+                cities = COLOMBIA_LOCATIONS.get(departamento, [])
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.departamento:
+            # Para instancias existentes, poblar ciudades basadas en el departamento guardado
+            cities = COLOMBIA_LOCATIONS.get(self.instance.departamento, [])
+            self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
