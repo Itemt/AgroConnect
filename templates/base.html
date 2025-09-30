@@ -43,10 +43,11 @@
                 <span class="text-xl font-bold text-gray-900">AgroConnect</span>
             </a>
             
-            <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse ml-8">
-                <button type="button" class="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-                    <span class="sr-only">Open user menu</span>
-                        {% if user.is_authenticated and user.profile_image %}
+            <div class="flex items-center">
+                <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse ml-8">
+                    <button type="button" class="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                        <span class="sr-only">Open user menu</span>
+                            {% if user.is_authenticated and user.profile_image %}
                             <img class="w-8 h-8 rounded-full" src="{{ user.profile_image.url }}" alt="user photo">
                         {% else %}
                             <i class="fas fa-user-circle text-gray-600 hover:text-primary-600 text-2xl"></i>
