@@ -48,4 +48,4 @@ class Publication(BaseModel):
         return f"{self.ciudad}, {self.departamento}"
 
     def __str__(self):
-        return f'{self.cultivo.nombre_producto} por {self.cultivo.productor.username}'
+        return f'{self.cultivo.nombre} por {self.cultivo.productor.username}'
