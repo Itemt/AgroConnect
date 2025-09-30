@@ -6,7 +6,11 @@ echo "🚀 Iniciando AgroConnect..."
 echo "⏳ Esperando inicialización de servicios..."
 sleep 10
 
-# Aplicar migraciones
+# RESETEAR LA BASE DE DATOS COMPLETAMENTE
+echo "🗑️  Reseteando base de datos..."
+python manage.py reset_database
+
+# Aplicar migraciones desde cero
 echo "🗄️ Aplicando migraciones..."
 python manage.py migrate --noinput
 
