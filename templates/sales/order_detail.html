@@ -26,7 +26,7 @@
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Producto</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</div>
+                    <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</div>
                     <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
                     <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
                     <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>

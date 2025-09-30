@@ -6,13 +6,13 @@
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-star mr-3 text-primary-600"></i>Calificar tu Experiencia</h1>
-        <p class="mt-2 text-lg text-gray-600">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre_producto }}</p>
+        <p class="mt-2 text-lg text-gray-600">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</p>
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Pedido</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</div>
+            <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</div>
             <div><strong>Vendedor:</strong> {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</div>
             <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
             <div><strong>Total:</strong> ${{ order.precio_total }}</div>

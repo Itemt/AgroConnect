@@ -29,10 +29,10 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 {% if item.publication.imagen %}
-                                    <img src="{{ item.publication.imagen.url }}" alt="{{ item.publication.cultivo.nombre_producto }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <img src="{{ item.publication.imagen.url }}" alt="{{ item.publication.cultivo.nombre }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
                                 {% endif %}
                                 <div>
-                                    <h6 class="mb-0">{{ item.publication.cultivo.nombre_producto }}</h6>
+                                    <h6 class="mb-0">{{ item.publication.cultivo.nombre }}</h6>
                                     <small class="text-muted">Vendido por: {{ item.publication.cultivo.productor.username }}</small>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@
                                 {% capture_as_var message %}
 ¡Hola! Estoy interesado en comprar los siguientes productos de AgroConnect:
 {% for item in cart.items.all %}
-- {{ item.quantity }} x {{ item.publication.cultivo.nombre_producto }} (${{ item.get_item_price|floatformat:2 }})
+- {{ item.quantity }} x {{ item.publication.cultivo.nombre }} (${{ item.get_item_price|floatformat:2 }})
 {% endfor %}
 *Total: ${{ cart.get_total_price|floatformat:2 }}*
                                 {% endcapture_as_var %}
