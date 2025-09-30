@@ -14,67 +14,20 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="space-y-6">
-                    <!-- Product Name and Category -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.nombre_producto.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.nombre_producto.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.nombre_producto }}
-                            </div>
-                            {% if form.nombre_producto.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.nombre_producto.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.nombre_producto.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
+                    <!-- Producto -->
+                    <div class="field-wrapper">
+                        <label for="{{ form.producto.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.producto.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.producto }}
                         </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-tags text-blue-600 mr-2"></i>{{ form.categoria.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.categoria }}
-                            </div>
-                            {% for error in form.categoria.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Location (Optional) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>{{ form.departamento.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.departamento }}
-                            </div>
-                            {% if form.departamento.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.departamento.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.departamento.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-city text-blue-600 mr-2"></i>{{ form.ciudad.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.ciudad }}
-                            </div>
-                            {% if form.ciudad.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.ciudad.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.ciudad.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
+                        {% if form.producto.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.producto.help_text }}</p>
+                        {% endif %}
+                        {% for error in form.producto.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <!-- Quantity and Unit -->
@@ -143,6 +96,22 @@
                         <p class="mt-2 text-sm text-gray-500">{{ form.notas.help_text }}</p>
                         {% endif %}
                         {% for error in form.notas.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Imagen -->
+                    <div class="field-wrapper">
+                        <label for="{{ form.imagen.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-image text-gray-600 mr-2"></i>{{ form.imagen.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.imagen }}
+                        </div>
+                        {% if form.imagen.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.imagen.help_text }}</p>
+                        {% endif %}
+                        {% for error in form.imagen.errors %}
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                         {% endfor %}
                     </div>
