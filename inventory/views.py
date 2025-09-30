@@ -18,7 +18,7 @@ def producer_dashboard(request):
     
     # Estadísticas del productor
     total_crops = request.user.cultivos.count()
-    active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='disponible').count()
+    active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='Activa').count()
     total_orders = Order.objects.filter(publicacion__cultivo__productor=request.user).count()
     total_revenue = Order.objects.filter(
         publicacion__cultivo__productor=request.user,
