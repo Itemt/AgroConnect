@@ -27,17 +27,18 @@ from inventory import views as inventory_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
     
     # Core
     path('', core_views.index, name='index'),
 
     # Accounts
-    path('register/', accounts_views.register, name='register'),
-    path('login/', accounts_views.CustomLoginView.as_view(), name='login'),
-    path('logout/', accounts_views.custom_logout, name='logout'),
-    path('profile/', accounts_views.profile_view, name='profile'),
-    path('profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
+    path('accounts/register/', accounts_views.register, name='register'),
+    path('accounts/login/', accounts_views.CustomLoginView.as_view(), name='login'),
+    path('accounts/logout/', accounts_views.custom_logout, name='logout'),
+    path('accounts/profile/', accounts_views.profile_view, name='profile'),
+    path('accounts/profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
+    # Incluir otras URLs de auth si las necesitas (ej. password reset)
+    path('accounts/', include('django.contrib.auth.urls')),
 
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
