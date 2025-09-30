@@ -144,10 +144,12 @@
                                     </form>
                                     {% endif %}
                                     
+                                    {% if user.is_authenticated and user.role == 'Comprador' and user != publication.cultivo.productor %}
                                     <a href="{% url 'start_conversation' publication.id %}" 
                                        class="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium text-center block">
                                         <i class="fas fa-comment mr-2"></i>Contactar al Productor
                                     </a>
+                                    {% endif %}
                                     
                                     <a href="{% url 'marketplace' %}" 
                                        class="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center block">
