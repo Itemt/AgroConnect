@@ -15,8 +15,7 @@ def marketplace_view(request):
         estado='disponible', 
         cantidad_disponible__gt=0
     ).select_related(
-        'cultivo__productor__producer_profile', 
-        'cultivo__producto'
+        'cultivo__productor__producer_profile'
     ).order_by('-created_at')
     
     # Obtener todas las categorías disponibles
@@ -33,7 +32,7 @@ def marketplace_view(request):
     # Aplicar filtros
     if search_query:
         publications = publications.filter(
-            Q(cultivo__producto__nombre__icontains=search_query) |
+            Q(cultivo__nombre__icontains=search_query) |
             Q(cultivo__productor__first_name__icontains=search_query) |
             Q(cultivo__productor__last_name__icontains=search_query) |
             Q(descripcion__icontains=search_query)
@@ -41,7 +40,7 @@ def marketplace_view(request):
     
     # Filtrar por categoría
     if categoria_filter:
-        publications = publications.filter(cultivo__producto__categoria=categoria_filter)
+        publications = publications.filter(cultivo__categoria=categoria_filter)
     
     # Filtrar por rango de precios
     if precio_min:
@@ -63,7 +62,7 @@ def marketplace_view(request):
         )
     
     # Ordenar resultados
-    valid_orders = ['-created_at', 'precio_por_unidad', '-precio_por_unidad', 'cultivo__producto__nombre']
+    valid_orders = ['-created_at', 'precio_por_unidad', '-precio_por_unidad', 'cultivo__nombre']
     if orden in valid_orders:
         publications = publications.order_by(orden)
     
@@ -111,8 +110,7 @@ def publication_detail_view(request, publication_id):
     """Detalle de una publicación"""
     publication = get_object_or_404(
         Publication.objects.select_related(
-            'cultivo__productor__producer_profile', 
-            'cultivo__producto'
+            'cultivo__productor__producer_profile'
         ), 
         pk=publication_id
     )
@@ -143,7 +141,7 @@ def publication_create_view(request, crop_id):
         messages.error(request, 'Solo los productores pueden crear publicaciones.')
         return redirect('marketplace')
     
-    crop = get_object_or_404(Crop.objects.select_related('producto'), pk=crop_id, productor=request.user)
+    crop = get_object_or_404(Crop, pk=crop_id, productor=request.user)
     
     # Verificar si ya existe una publicación disponible para este cultivo
     existing_publication = Publication.objects.filter(cultivo=crop, estado='disponible').first()
@@ -162,7 +160,7 @@ def publication_create_view(request, crop_id):
     else:
         form = PublicationForm(user=request.user, initial={
             'cantidad_disponible': crop.cantidad_estimada,
-            'categoria': crop.producto.categoria,
+            'categoria': crop.categoria,
             'ciudad': request.user.producer_profile.ciudad if hasattr(request.user, 'producer_profile') else ''
         })
 
