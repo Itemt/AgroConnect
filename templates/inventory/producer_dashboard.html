@@ -112,8 +112,8 @@
                                                class="text-gray-600 hover:text-primary-600 text-sm">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            {% if crop.estado == 'listo_cosecha' or crop.estado == 'cosechado' %}
-                                                <a href="{% url 'publication_add' crop.pk %}" 
+                                            {% if crop.estado == 'listo_para_cosechar' or crop.estado == 'cosechado' %}
+                                                <a href="{% url 'publication_create' crop.pk %}" 
                                                    class="text-blue-600 hover:text-blue-700 text-sm">
                                                     <i class="fas fa-share"></i>
                                                 </a>
