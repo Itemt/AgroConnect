@@ -9,8 +9,7 @@ def get_cities_by_department(request):
     department = request.GET.get('department', '')
     
     if department in COLOMBIA_LOCATIONS:
-        cities = COLOMBIA_LOCATIONS[department]
-        city_choices = [{'value': city, 'text': city} for city in sorted(cities)]
-        return JsonResponse({'success': True, 'cities': city_choices})
+        cities = sorted(COLOMBIA_LOCATIONS[department])
+        return JsonResponse({'success': True, 'cities': cities})
     
     return JsonResponse({'success': False, 'cities': []})
