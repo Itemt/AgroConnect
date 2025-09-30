@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Registro de Usuario{% endblock %}
 
@@ -114,4 +115,8 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
