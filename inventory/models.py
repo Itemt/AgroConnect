@@ -63,8 +63,11 @@ class Crop(BaseModel):
     # Estado y fechas
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='sembrado',
                             verbose_name="Estado del Cultivo")
-    fecha_disponibilidad = models.DateField(verbose_name="Fecha Estimada de Disponibilidad", null=True, blank=True)
-    
+    # Campo que puede ser útil para publicaciones
+    fecha_disponibilidad = models.DateField(null=True, blank=True, verbose_name="Disponible Desde")
+
+    imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
+
     # Información adicional
     notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
                            help_text="Información adicional sobre el cultivo")

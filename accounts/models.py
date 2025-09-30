@@ -9,6 +9,7 @@ class User(AbstractUser):
         ('Comprador', 'Comprador'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
 
 class ProducerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='producer_profile')
