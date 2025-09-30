@@ -2,9 +2,15 @@
 
 echo "🚀 Iniciando AgroConnect con PostgreSQL..."
 
-# Esperar un poco para que PostgreSQL esté listo
+# Esperar a que PostgreSQL esté listo
 echo "⏳ Esperando a que PostgreSQL esté listo..."
-sleep 5
+# Asumiendo que las variables de entorno para la BD están disponibles
+# DB_HOST, DB_PORT, DB_USER, PGPASSWORD
+until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER; do
+  echo "PostgreSQL no está listo todavía. Esperando..."
+  sleep 2
+done
+echo "✅ PostgreSQL está listo."
 
 # Aplicar migraciones
 echo "🗄️ Aplicando migraciones..."
