@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - Pagar Pedido #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Título -->
+            <div class="text-center mb-4">
+                <h2>💳 Checkout - Pagar Pedido</h2>
+                <p class="text-muted">Completa tu pago de forma segura con ePayco</p>
+            </div>
+
+            <!-- Detalles del pedido -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📦 Detalles del Pedido #{{ order.id }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</p>
+                            <p><strong>Precio unitario:</strong> ${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Vendedor:</strong> {{ order.vendedor.get_full_name }}</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-warning">{{ order.get_estado_display }}</span></p>
+                            <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-end">
+                        <h4><strong>Total a Pagar:</strong> <span class="text-success">${{ order.precio_total|floatformat:0 }} COP</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de pago -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">💰 Información de Pago</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Referencia:</strong> <code>{{ payment.epayco_ref }}</code></p>
+                    <p class="text-muted">
+                        <small>
+                            <i class="bi bi-shield-check"></i> Tus datos están protegidos con ePayco, 
+                            una plataforma de pagos segura y certificada.
+                        </small>
+                    </p>
+                    
+                    {% if checkout_data.test_mode %}
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Modo de Prueba:</strong> Este es un pago de prueba. No se realizará un cargo real.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botón de pago con ePayco -->
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Selecciona tu método de pago</h5>
+                    
+                    <form id="paymentForm">
+                        <script
+                            src="https://checkout.epayco.co/checkout.js"
+                            class="epayco-button"
+                            data-epayco-key="{{ checkout_data.public_key }}"
+                            data-epayco-amount="{{ checkout_data.payment_data.amount }}"
+                            data-epayco-name="{{ checkout_data.payment_data.name }}"
+                            data-epayco-description="{{ checkout_data.payment_data.description }}"
+                            data-epayco-currency="{{ checkout_data.payment_data.currency }}"
+                            data-epayco-country="{{ checkout_data.payment_data.country }}"
+                            data-epayco-test="{{ checkout_data.test_mode|lower }}"
+                            data-epayco-external="false"
+                            data-epayco-response="{{ checkout_data.payment_data.response }}"
+                            data-epayco-confirmation="{{ checkout_data.payment_data.confirmation }}"
+                            data-epayco-name-billing="{{ checkout_data.payment_data.name_billing }}"
+                            data-epayco-invoice="{{ checkout_data.payment_data.invoice }}"
+                            data-epayco-extra1="{{ checkout_data.payment_data.extra1 }}"
+                            data-epayco-extra2="{{ checkout_data.payment_data.extra2 }}"
+                            data-epayco-extra3="{{ checkout_data.payment_data.extra3 }}"
+                            data-epayco-button="Pagar con ePayco"
+                        >
+                        </script>
+                    </form>
+
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            <small>Métodos de pago disponibles:</small>
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <i class="bi bi-credit-card" style="font-size: 2rem;" title="Tarjeta de Crédito"></i>
+                            <i class="bi bi-bank" style="font-size: 2rem;" title="PSE"></i>
+                            <i class="bi bi-cash" style="font-size: 2rem;" title="Efectivo"></i>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver al Pedido
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de seguridad -->
+            <div class="alert alert-info mt-4">
+                <h6><i class="bi bi-info-circle"></i> Información Importante:</h6>
+                <ul class="mb-0">
+                    <li>El pago se procesa de forma segura a través de ePayco</li>
+                    <li>Recibirás una confirmación por correo electrónico</li>
+                    <li>El vendedor será notificado automáticamente</li>
+                    <li>Puedes seguir el estado de tu pedido en tu historial</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
