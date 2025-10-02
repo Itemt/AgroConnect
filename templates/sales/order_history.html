@@ -1,4 +1,5 @@
 {% extends 'accounts/user_base.html' %}
+{% load cart_tags %}
 
 {% block title %}Historial de Pedidos{% endblock %}
 
@@ -84,7 +85,12 @@
                             <a href="{% url 'cancel_order' order.id %}" class="text-red-600 hover:underline"><i class="fas fa-times-circle mr-1"></i>Cancelar</a>
                         {% endif %}
                     {% endfor %}
-                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="text-gray-600 hover:underline"><i class="fas fa-comments mr-1"></i>Contactar</a>
+                                        {% with whatsapp_base_url="https://wa.me/573203465135" %}
+                        {% capture_as_var message %}
+¡Hola! Te contacto en referencia al pedido #{{ order.id }} de {{ order.publicacion.cultivo.nombre }} para el vendedor {{ order.vendedor.username }}.
+                        {% endcapture_as_var %}
+                        <a href="{{ whatsapp_base_url }}?text={{ message|urlencode }}" class="text-gray-600 hover:underline" target="_blank"><i class="fab fa-whatsapp mr-1"></i>Contactar por WhatsApp</a>
+                    {% endwith %}
                 </div>
             </div>
         {% empty %}

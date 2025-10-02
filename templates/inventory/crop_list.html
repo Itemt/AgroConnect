@@ -11,14 +11,17 @@
                     <h1 class="text-3xl font-bold text-gray-900">Mis Cultivos</h1>
                     <p class="text-gray-600 mt-2">Gestiona tus cultivos y publicaciones</p>
                 </div>
-
+                <a href="{% url 'crop_add' %}" 
+                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium text-lg">
+                    <i class="fas fa-plus mr-2"></i>Agregar Cultivo
+                </a>
             </div>
 
             {% if crops %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {% for crop in crops %}
-                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                            <div class="p-6">
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col">
+                            <div class="p-6 flex-grow">
                                 <div class="flex items-start justify-between mb-4">
                                     <h3 class="text-xl font-bold text-gray-900">{{ crop.nombre }}</h3>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -56,32 +59,34 @@
                                         </div>
                                     {% endif %}
                                 </div>
+                            </div>
                                 
-                                <div class="flex gap-2">
+                            <div class="p-6 bg-gray-50 border-t border-gray-200">
+                                <div class="flex flex-wrap gap-2">
                                     <a href="{% url 'crop_edit' crop.pk %}" 
-                                       class="flex-1 bg-gray-600 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                                        <i class="fas fa-edit mr-2"></i>Editar
+                                       class="flex-1 text-center bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     
                                     {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
                                         <a href="{% url 'publication_create' crop.pk %}" 
-                                           class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                           class="flex-1 text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                                             <i class="fas fa-share mr-2"></i>Publicar
                                         </a>
                                     {% elif crop.publicacion %}
                                         <a href="{% url 'publication_edit' crop.publicacion.pk %}" 
-                                           class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-edit mr-2"></i>Editar Pub.
+                                           class="flex-1 text-center bg-blue-200 text-blue-800 py-2 px-4 rounded-lg hover:bg-blue-300 transition-colors text-sm font-medium">
+                                            <i class="fas fa-edit"></i> Editar Pub.
                                         </a>
                                         <a href="{% url 'publication_delete' crop.publicacion.pk %}" 
-                                           class="bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors"
+                                           class="text-center bg-orange-200 text-orange-800 py-2 px-2 rounded-lg hover:bg-orange-300 transition-colors text-sm font-medium"
                                            onclick="return confirm('¿Estás seguro de que quieres eliminar esta publicación? El cultivo se mantendrá.')">
-                                            <i class="fas fa-trash mr-2"></i>Eliminar Pub.
+                                            <i class="fas fa-trash"></i>
                                         </a>
                                     {% endif %}
                                     
                                     <a href="{% url 'crop_delete' crop.pk %}" 
-                                       class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                                       class="text-center bg-red-200 text-red-800 py-2 px-2 rounded-lg hover:bg-red-300 transition-colors text-sm font-medium"
                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
