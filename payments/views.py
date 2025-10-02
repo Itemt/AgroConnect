@@ -39,6 +39,17 @@ def checkout_view(request, order_id):
         messages.error(request, 'Esta orden ya no puede ser pagada.')
         return redirect('order_detail', order_id=order.id)
     
+    # Verificar monto mínimo de ePayco (mínimo $5,000 COP)
+    MINIMUM_AMOUNT = 5000
+    if order.precio_total < MINIMUM_AMOUNT:
+        messages.error(
+            request, 
+            f'⚠️ Monto mínimo: El pago debe ser de al menos ${MINIMUM_AMOUNT:,} COP. '
+            f'Tu pedido es de ${order.precio_total:,.0f} COP. '
+            'Por favor, aumenta la cantidad o contacta al vendedor.'
+        )
+        return redirect('order_detail', order_id=order.id)
+    
     # Verificar si ya existe un pago pendiente
     existing_payment = Payment.objects.filter(order=order).first()
     if existing_payment and existing_payment.is_approved:
