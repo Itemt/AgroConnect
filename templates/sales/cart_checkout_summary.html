@@ -4,105 +4,103 @@
 {% block title %}Resumen de Pedidos - Proceder al Pago{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <!-- Título -->
-            <div class="text-center mb-4">
-                <h2>✅ Pedidos Creados Exitosamente</h2>
-                <p class="text-muted">Ahora puedes proceder con el pago de tus pedidos</p>
-            </div>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Título -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Pedidos Creados Exitosamente</h2>
+            <p class="text-gray-500">Ahora puedes proceder con el pago de tus pedidos</p>
+        </div>
 
-            <!-- Lista de pedidos creados -->
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">📋 Resumen de tus Pedidos</h5>
-                </div>
-                <div class="card-body">
-                    {% for order in orders %}
-                    <div class="border rounded p-3 mb-3 {% if not forloop.last %}border-bottom{% endif %}">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h6 class="mb-1">Pedido #{{ order.id }}</h6>
-                                <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
-                                <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                                <p class="mb-0 text-muted"><small>Vendedor: {{ order.vendedor.get_full_name }}</small></p>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <p class="mb-0 text-muted">Total</p>
-                                <h4 class="mb-0 text-success">${{ order.precio_total|floatformat:0 }}</h4>
-                            </div>
-                            <div class="col-md-3 text-end">
-                                <a href="{% url 'payments:checkout' order.id %}" class="btn btn-primary btn-sm mb-1">
-                                    <i class="bi bi-credit-card"></i> Pagar Ahora
-                                </a>
-                                <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-eye"></i> Ver Detalles
-                                </a>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Lista de Pedidos -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-green-600 text-white p-4 rounded-t-lg">
+                        <h5 class="font-bold text-lg">Resumen de tus Pedidos</h5>
+                    </div>
+                    <div class="p-6">
+                        {% for order in orders %}
+                        <div class="border rounded-lg p-4 mb-4 {% if not forloop.last %}border-b-0{% endif %}">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                <div class="md:col-span-2">
+                                    <h6 class="font-bold text-lg mb-2">Pedido #{{ order.id }}</h6>
+                                    <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
+                                    <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                    <p class="text-sm text-gray-500">Vendedor: {{ order.vendedor.get_full_name }}</p>
+                                </div>
+                                <div class="text-center md:text-right">
+                                    <p class="text-gray-500 mb-1">Total</p>
+                                    <h4 class="font-bold text-xl text-green-600 mb-3">${{ order.precio_total|floatformat:0 }}</h4>
+                                    <div class="flex flex-col space-y-2">
+                                        <a href="{% url 'payments:checkout' order.id %}" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                                            <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
+                                        </a>
+                                        <a href="{% url 'order_detail' order.id %}" class="w-full text-center bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-300">
+                                            <i class="fas fa-eye mr-2"></i>Ver Detalles
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
 
-                    <!-- Total general -->
-                    <div class="mt-4 pt-3 border-top">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h5>Total de todos los pedidos:</h5>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <h3 class="text-success mb-0">${{ total|floatformat:0 }} COP</h3>
+                        <!-- Total general -->
+                        <div class="mt-6 pt-4 border-t">
+                            <div class="flex justify-between items-center">
+                                <h5 class="text-xl font-bold">Total de todos los pedidos:</h5>
+                                <h3 class="text-2xl font-bold text-green-600">${{ total|floatformat:0 }} COP</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Información importante -->
-            <div class="alert alert-info">
-                <h6><i class="bi bi-info-circle"></i> Información Importante:</h6>
-                <ul class="mb-0">
-                    <li>Puedes pagar cada pedido de forma individual haciendo clic en "Pagar Ahora"</li>
-                    <li>Los pedidos quedarán en estado "Pendiente" hasta que completes el pago</li>
-                    <li>Una vez pagado, el vendedor será notificado automáticamente</li>
-                    <li>Puedes ver el estado de tus pedidos en el <a href="{% url 'order_history' %}">Historial de Pedidos</a></li>
-                </ul>
-            </div>
-
-            <!-- Opciones de pago -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0">💳 Métodos de Pago Disponibles</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <i class="bi bi-credit-card text-primary" style="font-size: 3rem;"></i>
-                            <p class="mt-2 mb-0"><strong>Tarjeta de Crédito/Débito</strong></p>
-                            <small class="text-muted">Visa, Mastercard, AmEx</small>
-                        </div>
-                        <div class="col-md-4">
-                            <i class="bi bi-bank text-primary" style="font-size: 3rem;"></i>
-                            <p class="mt-2 mb-0"><strong>PSE</strong></p>
-                            <small class="text-muted">Transferencia Bancaria</small>
-                        </div>
-                        <div class="col-md-4">
-                            <i class="bi bi-cash text-primary" style="font-size: 3rem;"></i>
-                            <p class="mt-2 mb-0"><strong>Efectivo</strong></p>
-                            <small class="text-muted">Baloto, Efecty, Gana</small>
+            <!-- Columna Derecha: Información y Acciones -->
+            <div class="lg:col-span-1">
+                <!-- Métodos de Pago Disponibles -->
+                <div class="bg-white rounded-lg shadow-md mb-6">
+                    <div class="bg-gray-800 text-white p-4 rounded-t-lg">
+                        <h6 class="font-bold text-lg">Métodos de Pago Disponibles</h6>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <i class="fab fa-cc-visa text-3xl text-blue-600"></i>
+                                <p class="mt-2 text-sm font-bold">Tarjeta</p>
+                            </div>
+                            <div>
+                                <i class="fas fa-university text-3xl text-blue-600"></i>
+                                <p class="mt-2 text-sm font-bold">PSE</p>
+                            </div>
+                            <div>
+                                <i class="fas fa-money-bill-wave text-3xl text-blue-600"></i>
+                                <p class="mt-2 text-sm font-bold">Efectivo</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Acciones -->
-            <div class="text-center">
-                <a href="{% url 'order_history' %}" class="btn btn-secondary btn-lg me-2">
-                    <i class="bi bi-clock-history"></i> Ver Historial de Pedidos
-                </a>
-                <a href="{% url 'marketplace' %}" class="btn btn-outline-primary btn-lg">
-                    <i class="bi bi-shop"></i> Seguir Comprando
-                </a>
+                <!-- Información importante -->
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
+                    <h6 class="font-bold"><i class="fas fa-info-circle mr-1"></i> Información Importante:</h6>
+                    <ul class="list-disc list-inside text-sm mt-2">
+                        <li>Paga cada pedido de forma individual.</li>
+                        <li>Los pedidos quedarán "Pendientes" hasta el pago.</li>
+                        <li>El vendedor será notificado al pagar.</li>
+                        <li>Consulta tu <a href="{% url 'order_history' %}" class="font-bold hover:underline">Historial de Pedidos</a>.</li>
+                    </ul>
+                </div>
+
+                <!-- Acciones -->
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <a href="{% url 'order_history' %}" class="w-full block bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition duration-300 mb-3">
+                        <i class="fas fa-history mr-2"></i>Ver Historial de Pedidos
+                    </a>
+                    <a href="{% url 'marketplace' %}" class="w-full block bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition duration-300">
+                        <i class="fas fa-store mr-2"></i>Seguir Comprando
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -110,9 +108,8 @@
 
 <!-- Script para resaltar el primer pedido -->
 <script>
-    // Opcional: Resaltar el primer botón de pago
     document.addEventListener('DOMContentLoaded', function() {
-        const firstPayButton = document.querySelector('.btn-primary');
+        const firstPayButton = document.querySelector('.hover\:bg-blue-700');
         if (firstPayButton) {
             firstPayButton.classList.add('pulse');
         }
@@ -129,7 +126,7 @@
         }
     }
     .pulse {
-        animation: pulse 2s infinite;
+        animation: pulse 1.5s infinite;
     }
 </style>
 {% endblock %}
