@@ -75,7 +75,7 @@
                             data-epayco-description="{{ checkout_data.payment_data.description }}"
                             data-epayco-currency="{{ checkout_data.payment_data.currency }}"
                             data-epayco-country="{{ checkout_data.payment_data.country }}"
-                            data-epayco-test="{{ checkout_data.test_mode|lower }}"
+                            data-epayco-test="{{ checkout_data.test_mode|yesno:'true,false' }}"
                             data-epayco-external="false"
                             data-epayco-response="{{ checkout_data.payment_data.response }}"
                             data-epayco-confirmation="{{ checkout_data.payment_data.confirmation }}"
@@ -84,6 +84,9 @@
                             data-epayco-extra1="{{ checkout_data.payment_data.extra1 }}"
                             data-epayco-extra2="{{ checkout_data.payment_data.extra2 }}"
                             data-epayco-extra3="{{ checkout_data.payment_data.extra3 }}"
+                            data-epayco-type-doc-billing="{{ checkout_data.payment_data.type_doc_billing }}"
+                            data-epayco-mobilephone-billing="{{ checkout_data.payment_data.mobilephone_billing }}"
+                            data-epayco-number-doc-billing="{{ checkout_data.payment_data.number_doc_billing }}"
                             data-epayco-button="Pagar con ePayco"
                         >
                         </script>

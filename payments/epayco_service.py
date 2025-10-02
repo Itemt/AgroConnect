@@ -51,12 +51,18 @@ class EpaycoService:
         Returns:
             dict: Datos formateados para ePayco
         """
+        # Obtener información del usuario de forma segura
+        full_name = user.get_full_name() or user.username or "Usuario"
+        email = user.email or ""
+        phone = getattr(user, 'telefono', '') or ""
+        document = getattr(user, 'cedula', '') or ""
+        
         return {
             "name": f"Pedido #{order.id} - {order.publicacion.cultivo.nombre}",
             "description": f"Compra de {order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida} de {order.publicacion.cultivo.nombre}",
             "invoice": reference,
             "currency": "COP",
-            "amount": str(order.precio_total),
+            "amount": str(int(order.precio_total)),  # Asegurar que sea entero
             "tax_base": "0",
             "tax": "0",
             "country": "CO",
@@ -65,18 +71,18 @@ class EpaycoService:
             # Información del comprador
             "external": "false",
             "extra1": f"order_{order.id}",
-            "extra2": user.email,
-            "extra3": user.get_full_name() or user.username,
+            "extra2": email,
+            "extra3": full_name,
             
             # URLs de respuesta
             "response": settings.EPAYCO_RESPONSE_URL,
             "confirmation": settings.EPAYCO_CONFIRMATION_URL,
             
-            # Información del cliente
-            "name_billing": user.get_full_name() or user.username,
+            # Información del cliente (requerida por ePayco)
+            "name_billing": full_name,
             "type_doc_billing": "CC",
-            "mobilephone_billing": getattr(user, 'telefono', ''),
-            "number_doc_billing": getattr(user, 'cedula', ''),
+            "mobilephone_billing": phone,
+            "number_doc_billing": document,
         }
     
     def create_checkout_session(self, order, user):
