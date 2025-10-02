@@ -29,7 +29,7 @@
                     <td>
                         <a href="{% url 'order_detail' payment.order.id %}">#{{ payment.order.id }}</a>
                     </td>
-                    <td>{{ payment.order.publicacion.cultivo.nombre_producto }}</td>
+                    <td>{{ payment.order.publicacion.cultivo.nombre }}</td>
                     <td>${{ payment.amount|floatformat:0 }}</td>
                     <td>{{ payment.get_payment_method_display }}</td>
                     <td>
