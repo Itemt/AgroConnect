@@ -103,10 +103,24 @@
                     <div class="mt-6">
                         <form action="{% url 'create_order_from_cart' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="block w-full text-center bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition duration-300">
-                                Realizar Pedido
+                            <button type="submit" class="block w-full text-center bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition duration-300 shadow-lg">
+                                <i class="fas fa-shopping-cart mr-2"></i>Crear Pedidos y Proceder al Pago
                             </button>
                         </form>
+                        <p class="text-center text-xs text-gray-500 mt-2">
+                            Se crearán los pedidos y podrás pagar con ePayco
+                        </p>
+                    </div>
+                    
+                    <!-- Información de seguridad -->
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-start">
+                            <i class="fas fa-shield-alt text-blue-500 mt-1 mr-2"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-blue-900">Pago Seguro con ePayco</p>
+                                <p class="text-xs text-blue-700">Acepta tarjetas, PSE y efectivo</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

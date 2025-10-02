@@ -489,13 +489,15 @@ def create_order_from_cart(request):
         messages.error(request, "Tu carrito está vacío.")
         return redirect('cart:cart_detail')
 
+    created_orders = []
+    
     for item in cart_items:
         publication = item.publication
         if item.quantity > publication.cantidad_disponible:
             messages.error(request, f"La cantidad para {publication.cultivo.nombre} excede el stock disponible.")
             return redirect('cart:cart_detail')
 
-        Order.objects.create(
+        order = Order.objects.create(
             publicacion=publication,
             comprador=request.user,
             cantidad_acordada=item.quantity,
@@ -504,7 +506,41 @@ def create_order_from_cart(request):
         )
         publication.cantidad_disponible -= item.quantity
         publication.save()
+        created_orders.append(order)
 
     cart_items.delete()
-    messages.success(request, "Tu pedido ha sido realizado con éxito. Puedes ver los detalles en tu historial de pedidos.")
-    return redirect('order_history')
+    
+    # Guardar los IDs de los pedidos en la sesión para mostrarlos
+    request.session['pending_payment_orders'] = [order.id for order in created_orders]
+    
+    messages.success(request, f"Se han creado {len(created_orders)} pedido(s) exitosamente. Ahora puedes proceder con el pago.")
+    return redirect('cart_checkout_summary')
+
+
+@login_required
+def cart_checkout_summary(request):
+    """Vista de resumen después de crear pedidos desde el carrito"""
+    order_ids = request.session.get('pending_payment_orders', [])
+    
+    if not order_ids:
+        messages.info(request, 'No hay pedidos pendientes de pago.')
+        return redirect('order_history')
+    
+    orders = Order.objects.filter(
+        id__in=order_ids,
+        comprador=request.user,
+        estado='pendiente'
+    ).select_related('publicacion__cultivo__productor')
+    
+    # Calcular total
+    total = sum(order.precio_total for order in orders)
+    
+    # Limpiar sesión después de obtener los pedidos
+    if 'pending_payment_orders' in request.session:
+        del request.session['pending_payment_orders']
+    
+    context = {
+        'orders': orders,
+        'total': total,
+    }
+    return render(request, 'sales/cart_checkout_summary.html', context)

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resumen de Pedidos - Proceder al Pago{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Título -->
+            <div class="text-center mb-4">
+                <h2>✅ Pedidos Creados Exitosamente</h2>
+                <p class="text-muted">Ahora puedes proceder con el pago de tus pedidos</p>
+            </div>
+
+            <!-- Lista de pedidos creados -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📋 Resumen de tus Pedidos</h5>
+                </div>
+                <div class="card-body">
+                    {% for order in orders %}
+                    <div class="border rounded p-3 mb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-1">Pedido #{{ order.id }}</h6>
+                                <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</p>
+                                <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</p>
+                                <p class="mb-0 text-muted"><small>Vendedor: {{ order.vendedor.get_full_name }}</small></p>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <p class="mb-0 text-muted">Total</p>
+                                <h4 class="mb-0 text-success">${{ order.precio_total|floatformat:0 }}</h4>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <a href="{% url 'payments:checkout' order.id %}" class="btn btn-primary btn-sm mb-1">
+                                    <i class="bi bi-credit-card"></i> Pagar Ahora
+                                </a>
+                                <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-eye"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Total general -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5>Total de todos los pedidos:</h5>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <h3 class="text-success mb-0">${{ total|floatformat:0 }} COP</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información importante -->
+            <div class="alert alert-info">
+                <h6><i class="bi bi-info-circle"></i> Información Importante:</h6>
+                <ul class="mb-0">
+                    <li>Puedes pagar cada pedido de forma individual haciendo clic en "Pagar Ahora"</li>
+                    <li>Los pedidos quedarán en estado "Pendiente" hasta que completes el pago</li>
+                    <li>Una vez pagado, el vendedor será notificado automáticamente</li>
+                    <li>Puedes ver el estado de tus pedidos en el <a href="{% url 'order_history' %}">Historial de Pedidos</a></li>
+                </ul>
+            </div>
+
+            <!-- Opciones de pago -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">💳 Métodos de Pago Disponibles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <i class="bi bi-credit-card text-primary" style="font-size: 3rem;"></i>
+                            <p class="mt-2 mb-0"><strong>Tarjeta de Crédito/Débito</strong></p>
+                            <small class="text-muted">Visa, Mastercard, AmEx</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-bank text-primary" style="font-size: 3rem;"></i>
+                            <p class="mt-2 mb-0"><strong>PSE</strong></p>
+                            <small class="text-muted">Transferencia Bancaria</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-cash text-primary" style="font-size: 3rem;"></i>
+                            <p class="mt-2 mb-0"><strong>Efectivo</strong></p>
+                            <small class="text-muted">Baloto, Efecty, Gana</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="text-center">
+                <a href="{% url 'order_history' %}" class="btn btn-secondary btn-lg me-2">
+                    <i class="bi bi-clock-history"></i> Ver Historial de Pedidos
+                </a>
+                <a href="{% url 'marketplace' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-shop"></i> Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para resaltar el primer pedido -->
+<script>
+    // Opcional: Resaltar el primer botón de pago
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstPayButton = document.querySelector('.btn-primary');
+        if (firstPayButton) {
+            firstPayButton.classList.add('pulse');
+        }
+    });
+</script>
+
+<style>
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}
+

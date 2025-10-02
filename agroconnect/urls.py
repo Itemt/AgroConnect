@@ -55,6 +55,7 @@ urlpatterns = [
     path('order/new/<int:publication_id>/', sales_views.create_order_view, name='create_order'),
     path('order/history/', sales_views.order_history_view, name='order_history'),
     path('order/crear_desde_carrito/', sales_views.create_order_from_cart, name='create_order_from_cart'),
+    path('order/cart-checkout-summary/', sales_views.cart_checkout_summary, name='cart_checkout_summary'),
     path('order/<int:order_id>/', sales_views.order_detail_view, name='order_detail'),
     path('order/<int:order_id>/update/', sales_views.update_order_status_view, name='update_order_status'),
     path('order/<int:order_id>/confirm_receipt/', sales_views.confirm_order_receipt_view, name='confirm_order_receipt'),
