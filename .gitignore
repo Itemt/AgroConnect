@@ -89,6 +89,8 @@ celerybeat-schedule
 
 # Environments
 .env
+.env.local.backup
+.env.prod
 .venv
 env/
 venv/
