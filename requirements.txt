@@ -35,5 +35,5 @@ typing_extensions==4.15.0
 tzdata==2025.2
 whitenoise==6.11.0
 zope.interface==8.0.1
-epaycosdk==1.0.0
+epaycosdk==3.3.2
 requests==2.32.3
