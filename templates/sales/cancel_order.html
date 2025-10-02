@@ -48,3 +48,9 @@
     </div>
 </div>
 
+<script>
+document.getElementById('confirm-cancellation').addEventListener('change', function() {
+    document.getElementById('cancel-button').disabled = !this.checked;
+});
+</script>
+{% endblock %}
