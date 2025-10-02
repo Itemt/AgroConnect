@@ -16,6 +16,17 @@ def checkout_view(request, order_id):
     """
     Vista para mostrar el checkout y procesar el pago
     """
+    from django.conf import settings
+    
+    # Verificar que las credenciales de ePayco estén configuradas
+    if not settings.EPAYCO_PUBLIC_KEY or not settings.EPAYCO_PRIVATE_KEY:
+        messages.error(
+            request, 
+            '⚠️ Error de Configuración: Las credenciales de ePayco no están configuradas. '
+            'Por favor contacta al administrador del sistema.'
+        )
+        return redirect('order_detail', order_id=order_id)
+    
     order = get_object_or_404(Order, pk=order_id)
     
     # Verificar que el usuario sea el comprador de la orden
@@ -39,6 +50,15 @@ def checkout_view(request, order_id):
     
     # Crear sesión de checkout
     checkout_data = epayco_service.create_checkout_session(order, request.user)
+    
+    # Debug temporal - imprimir datos que se envían a ePayco
+    print("=== DEBUG EPAYCO ===")
+    print(f"Public Key: {settings.EPAYCO_PUBLIC_KEY}")
+    print(f"Test Mode: {settings.EPAYCO_TEST_MODE}")
+    print(f"Response URL: {settings.EPAYCO_RESPONSE_URL}")
+    print(f"Confirmation URL: {settings.EPAYCO_CONFIRMATION_URL}")
+    print(f"Payment Data: {checkout_data['payment_data']}")
+    print("===================")
     
     # Crear o actualizar el registro de pago
     if existing_payment:
