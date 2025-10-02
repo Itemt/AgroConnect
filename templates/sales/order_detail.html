@@ -3,11 +3,15 @@
 {% block title %}Pedido #{{ order.id }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900">Pedido #{{ order.id }}</h1>
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Pedido #{{ order.id }}</h1>
+            <p class="text-sm text-gray-500">Realizado el: {{ order.created_at|date:"d M Y, H:i" }}</p>
+        </div>
         {% with status=order.get_estado_display|lower|slugify %}
-        <div class="px-4 py-2 text-lg font-semibold rounded-full 
+        <div class="px-3 py-1 text-sm font-semibold rounded-full 
             {% if status == 'acordado' %}bg-blue-100 text-blue-800
             {% elif status == 'en-transito' %}bg-yellow-100 text-yellow-800
             {% elif status == 'entregado' %}bg-green-100 text-green-800
@@ -19,62 +23,92 @@
         {% endwith %}
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <!-- Main Content -->
-        <div class="lg:col-span-2 space-y-8">
-            <!-- Product Info -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Producto</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</div>
-                    <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
-                    <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
-                    <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>
-                </div>
-            </div>
+    <!-- Actions -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <h2 class="text-lg font-bold mb-3">Acciones del Pedido</h2>
+        <div class="flex flex-wrap items-center gap-2">
+            {% for action_key, action_label, action_class in order.available_actions %}
+                {% if action_key == 'confirm_receipt' %}
+                    <a href="{% url 'confirm_order_receipt' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                        <i class="fas fa-check-circle mr-1"></i>{{ action_label }}
+                    </a>
+                {% elif action_key == 'rate' %}
+                    <a href="{% url 'rate_order' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600">
+                        <i class="fas fa-star mr-1"></i>{{ action_label }}
+                    </a>
+                {% elif action_key == 'update_status' %}
+                    <a href="{% url 'update_order_status' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-pencil-alt mr-1"></i>{{ action_label }}
+                    </a>
+                {% elif action_key == 'cancel' %}
+                    <a href="{% url 'cancel_order' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-times-circle mr-1"></i>{{ action_label }}
+                    </a>
+                {% elif action_key == 'contact' %}
+                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
+                        <i class="fas fa-comments mr-1"></i>{{ action_label }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            <a href="{% url 'order_history' %}" class="px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300">
+                <i class="fas fa-clipboard-list mr-1"></i>Volver al Historial
+            </a>
+        </div>
+    </div>
 
-            <!-- Participants -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users mr-3"></i>Participantes</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Order Details -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div>
+                <h3 class="text-xl font-bold mb-4">Detalles del Producto</h3>
+                <div class="space-y-2">
+                    <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
+                    <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                    <p><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</p>
+                    <p class="text-lg font-bold"><strong>Total:</strong> ${{ order.precio_total }}</p>
+                </div>
+
+                <h3 class="text-xl font-bold mt-6 mb-4">Participantes</h3>
+                <div class="space-y-3">
                     <div>
-                        <h3 class="font-semibold"><i class="fas fa-seedling mr-2"></i>Vendedor</h3>
+                        <p class="font-semibold"><i class="fas fa-seedling mr-2"></i>Vendedor</p>
                         <p>{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
                         <p class="text-sm text-gray-600">{{ order.vendedor.producer_profile.location }}</p>
                     </div>
                     <div>
-                        <h3 class="font-semibold"><i class="fas fa-shopping-cart mr-2"></i>Comprador</h3>
+                        <p class="font-semibold"><i class="fas fa-shopping-cart mr-2"></i>Comprador</p>
                         <p>{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Timeline -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-calendar-alt mr-3"></i>Cronología</h2>
+            <!-- Right Column -->
+            <div>
+                <h3 class="text-xl font-bold mb-4">Cronología del Pedido</h3>
                 <div class="relative">
                     <div class="border-l-2 border-gray-200 absolute h-full top-0 left-4"></div>
-                    <div class="space-y-8">
+                    <div class="space-y-6">
                         <div class="flex items-center">
                             <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
-                            <div class="ml-4"><strong>Pedido Creado:</strong> {{ order.created_at|date:"d M Y, H:i" }}</div>
+                            <div class="ml-4"><strong>Pedido Creado:</strong><br>{{ order.created_at|date:"d M Y, H:i" }}</div>
                         </div>
                         {% if order.fecha_confirmacion %}
                         <div class="flex items-center">
                             <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
-                            <div class="ml-4"><strong>Confirmado:</strong> {{ order.fecha_confirmacion|date:"d M Y, H:i" }}</div>
+                            <div class="ml-4"><strong>Confirmado:</strong><br>{{ order.fecha_confirmacion|date:"d M Y, H:i" }}</div>
                         </div>
                         {% endif %}
                         {% if order.fecha_envio %}
                         <div class="flex items-center">
                             <div class="bg-blue-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-truck text-white"></i></div>
-                            <div class="ml-4"><strong>Enviado:</strong> {{ order.fecha_envio|date:"d M Y, H:i" }}</div>
+                            <div class="ml-4"><strong>Enviado:</strong><br>{{ order.fecha_envio|date:"d M Y, H:i" }}</div>
                         </div>
                         {% endif %}
                         {% if order.fecha_recepcion %}
                         <div class="flex items-center">
                             <div class="bg-purple-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-home text-white"></i></div>
-                            <div class="ml-4"><strong>Recibido:</strong> {{ order.fecha_recepcion|date:"d M Y, H:i" }}</div>
+                            <div class="ml-4"><strong>Recibido:</strong><br>{{ order.fecha_recepcion|date:"d M Y, H:i" }}</div>
                         </div>
                         {% endif %}
                     </div>
@@ -82,57 +116,40 @@
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-8">
-            <!-- Actions -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-wrench mr-3"></i>Acciones</h2>
-                <div class="space-y-3">
-                    {% for action_key, action_label, action_class in order.available_actions %}
-                        {% if action_key == 'confirm_receipt' %}
-                            <a href="{% url 'confirm_order_receipt' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                                <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
-                            </a>
-                        {% elif action_key == 'rate' %}
-                            <a href="{% url 'rate_order' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600">
-                                <i class="fas fa-star mr-2"></i>{{ action_label }}
-                            </a>
-                        {% elif action_key == 'update_status' %}
-                            <a href="{% url 'update_order_status' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                <i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}
-                            </a>
-                        {% elif action_key == 'cancel' %}
-                            <a href="{% url 'cancel_order' order.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
-                                <i class="fas fa-times-circle mr-2"></i>{{ action_label }}
-                            </a>
-                        {% elif action_key == 'contact' %}
-                            <a href="{% url 'start_conversation' order.publicacion.id %}" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
-                                <i class="fas fa-comments mr-2"></i>{{ action_label }}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                    <a href="{% url 'order_history' %}" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        <i class="fas fa-clipboard-list mr-2"></i>Volver al Historial
-                    </a>
-                </div>
+        <!-- Notes -->
+        {% if order.notas_comprador or order.notas_vendedor %}
+        <div class="mt-8 pt-6 border-t">
+            <h3 class="text-xl font-bold mb-4">Notas</h3>
+            {% if order.notas_comprador %}
+            <div class="mb-4">
+                <p class="font-semibold">Notas del Comprador:</p>
+                <p class="text-gray-600 italic">"{{ order.notas_comprador }}"</p>
             </div>
-
-            <!-- Rating -->
-            {% if existing_rating %}
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4"><i class="fas fa-star mr-3"></i>Calificación</h2>
-                <div class="space-y-2">
-                    <div class="flex justify-between"><span>General:</span> <span class="font-bold">{{ existing_rating.calificacion_general }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                    <div class="flex justify-between"><span>Comunicación:</span> <span class="font-bold">{{ existing_rating.calificacion_comunicacion }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                    <div class="flex justify-between"><span>Puntualidad:</span> <span class="font-bold">{{ existing_rating.calificacion_puntualidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                    <div class="flex justify-between"><span>Calidad:</span> <span class="font-bold">{{ existing_rating.calificacion_calidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                </div>
-                {% if existing_rating.comentario %}
-                    <p class="mt-4 text-gray-600 italic">"{{ existing_rating.comentario }}"</p>
-                {% endif %}
+            {% endif %}
+            {% if order.notas_vendedor %}
+            <div>
+                <p class="font-semibold">Notas del Vendedor:</p>
+                <p class="text-gray-600 italic">"{{ order.notas_vendedor }}"</p>
             </div>
             {% endif %}
         </div>
+        {% endif %}
+
+        <!-- Rating -->
+        {% if existing_rating %}
+        <div class="mt-8 pt-6 border-t">
+            <h3 class="text-xl font-bold mb-4">Calificación del Pedido</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex justify-between"><span>General:</span> <span class="font-bold">{{ existing_rating.calificacion_general }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                <div class="flex justify-between"><span>Comunicación:</span> <span class="font-bold">{{ existing_rating.calificacion_comunicacion }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                <div class="flex justify-between"><span>Puntualidad:</span> <span class="font-bold">{{ existing_rating.calificacion_puntualidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+                <div class="flex justify-between"><span>Calidad:</span> <span class="font-bold">{{ existing_rating.calificacion_calidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+            </div>
+            {% if existing_rating.comentario %}
+                <p class="mt-4 text-gray-600 italic">"{{ existing_rating.comentario }}"</p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
