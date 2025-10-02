@@ -1,5 +1,36 @@
-
 document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    // Function to apply sidebar state
+    function applySidebarState(collapsed) {
+        if (collapsed) {
+            sidebar.classList.add('w-20');
+            sidebar.classList.remove('w-64');
+            mainContent.classList.add('ml-20');
+            mainContent.classList.remove('ml-64');
+        } else {
+            sidebar.classList.add('w-64');
+            sidebar.classList.remove('w-20');
+            mainContent.classList.add('ml-64');
+            mainContent.classList.remove('ml-20');
+        }
+    }
+
+    if (sidebar && mainContent && sidebarToggle) {
+        // Check for saved state in local storage
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        applySidebarState(isCollapsed);
+
+        sidebarToggle.addEventListener('click', () => {
+            const collapsed = sidebar.classList.contains('w-20');
+            applySidebarState(!collapsed);
+            localStorage.setItem('sidebarCollapsed', !collapsed);
+        });
+    }
+
     // Function to update cities based on selected department
     function updateCities(deptSelect, citySelect) {
         if (!deptSelect || !citySelect) return;
@@ -123,24 +154,4 @@ document.addEventListener('DOMContentLoaded', function() {
             field.className = classList;
         });
     });
-
-    // Sidebar Toggle
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebarTexts = document.querySelectorAll('.sidebar-text');
-
-    if (sidebar && mainContent && sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('w-64');
-            sidebar.classList.toggle('w-20');
-            mainContent.classList.toggle('ml-64');
-            mainContent.classList.toggle('ml-20');
-            sidebarTexts.forEach(text => {
-                text.classList.toggle('hidden');
-            });
-        });
-    }
-
-    // The old registration logic is now handled by the generic setupDependentDropdown
 });

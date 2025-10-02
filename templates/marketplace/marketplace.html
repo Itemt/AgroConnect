@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Marketplace{% endblock %}
 
@@ -159,39 +160,39 @@
             <!-- Products Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {% for pub in publications %}
-                    <a href="{% url 'publication_detail' pub.id %}" class="block bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                        <!-- Product Image Placeholder -->
-                        <div class="h-48 bg-gray-200 relative overflow-hidden">
-                            {% if pub.imagen %}
-                                <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                                    <i class="fas fa-seedling text-white text-4xl opacity-80"></i>
-                                </div>
-                            {% endif %}
-                            <!-- Category Badge -->
-                            <div class="absolute top-3 left-3">
-                                {% if pub.categoria_display %}
-                                    <span class="bg-white bg-opacity-90 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
-                                        {{ pub.categoria_display }}
-                                    </span>
+                    <div class="flex flex-col bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                        <a href="{% url 'publication_detail' pub.id %}" class="block">
+                            <!-- Product Image Placeholder -->
+                            <div class="h-48 bg-gray-200 relative overflow-hidden">
+                                {% if pub.imagen %}
+                                    <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                        <i class="fas fa-seedling text-white text-4xl opacity-80"></i>
+                                    </div>
                                 {% endif %}
+                                <!-- Category Badge -->
+                                <div class="absolute top-3 left-3">
+                                    {% if pub.categoria_display %}
+                                        <span class="bg-white bg-opacity-90 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
+                                            {{ pub.categoria_display }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <!-- Price Badge -->
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-primary-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+                                        ${{ pub.precio_por_unidad }}
+                                    </span>
+                                </div>
                             </div>
-                            <!-- Price Badge -->
-                            <div class="absolute top-3 right-3">
-                                <span class="bg-primary-600 text-white text-sm font-bold px-3 py-1 rounded-full">
-                                    ${{ pub.precio_por_unidad }}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6 flex flex-col h-full">
-                            <div class="mb-4">
+                        </a>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <a href="{% url 'publication_detail' pub.id %}" class="block mb-4">
                                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
                                     {{ pub.cultivo.nombre }}
                                 </h3>
-                            </div>
-                            
+                            </a>
                             <div class="space-y-3 mb-6">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-dollar-sign text-primary-500 mr-3 w-4"></i>
@@ -208,13 +209,17 @@
                                 </div>
                             </div>
                             
-                            <div class="mt-auto pt-6">
-                                <div class="bg-primary-600 text-white text-center py-3 px-4 rounded-b-lg group-hover:bg-primary-700 transition-colors font-medium">
-                                    <i class="fas fa-eye mr-2"></i>Ver Detalles
-                                </div>
+                            <div class="mt-auto">
+                                <form action="{% url 'cart:add_to_cart' pub.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center justify-center">
+                                        <i class="fas fa-cart-plus mr-2"></i>Añadir al carrito
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 {% empty %}
                     <div class="col-span-full">
                         {% if search_query %}
@@ -240,4 +245,11 @@
                         {% endif %}
                     </div>
                 {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/marketplace.js' %}"></script>
 {% endblock %}
