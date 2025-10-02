@@ -9,6 +9,8 @@ from .models import Conversation, Message, Order, Rating
 from marketplace.models import Publication
 from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderConfirmReceiptForm, OrderSearchForm
 from accounts.models import ProducerProfile, BuyerProfile
+from django.views.decorators.http import require_POST
+from cart.models import Cart
 
 # Create your views here.
 
@@ -476,3 +478,33 @@ def rankings_view(request):
         'most_active_sellers': most_active_sellers,
     }
     return render(request, 'sales/rankings.html', context)
+
+@login_required
+@require_POST
+def create_order_from_cart(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart_items = cart.items.all()
+
+    if not cart_items:
+        messages.error(request, "Tu carrito está vacío.")
+        return redirect('cart:cart_detail')
+
+    for item in cart_items:
+        publication = item.publication
+        if item.quantity > publication.cantidad_disponible:
+            messages.error(request, f"La cantidad para {publication.cultivo.nombre} excede el stock disponible.")
+            return redirect('cart:cart_detail')
+
+        Order.objects.create(
+            publicacion=publication,
+            comprador=request.user,
+            cantidad_acordada=item.quantity,
+            precio_total=item.get_item_price,
+            estado='pendiente'
+        )
+        publication.cantidad_disponible -= item.quantity
+        publication.save()
+
+    cart_items.delete()
+    messages.success(request, "Tu pedido ha sido realizado con éxito. Puedes ver los detalles en tu historial de pedidos.")
+    return redirect('order_history')
