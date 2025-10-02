@@ -27,6 +27,23 @@
     <div class="bg-white rounded-lg shadow-md p-4 mb-6">
         <h2 class="text-lg font-bold mb-3">Acciones del Pedido</h2>
         <div class="flex flex-wrap items-center gap-2">
+            {% if user_role == 'Comprador' and order.estado == 'pendiente' %}
+                {% if order.payment %}
+                    {% if order.payment.is_approved %}
+                        <span class="px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600">
+                            <i class="fas fa-check-circle mr-1"></i>Pagado
+                        </span>
+                    {% else %}
+                        <a href="{% url 'payments:checkout' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
+                            <i class="fas fa-credit-card mr-1"></i>Pagar Ahora
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'payments:checkout' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
+                        <i class="fas fa-credit-card mr-1"></i>Pagar Ahora
+                    </a>
+                {% endif %}
+            {% endif %}
             {% for action_key, action_label, action_class in order.available_actions %}
                 {% if action_key == 'confirm_receipt' %}
                     <a href="{% url 'confirm_order_receipt' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
