@@ -29,7 +29,7 @@ EXPOSE 8000
 
 # Copiar y configurar script de inicio
 COPY start.sh .
-RUN chmod +x start.sh
+RUN sed -i 's/\r$//' start.sh && chmod +x start.sh
 
 # Comando para ejecutar la aplicación con inicialización de PostgreSQL
 CMD ["./start.sh"]
