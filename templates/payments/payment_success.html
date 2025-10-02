@@ -34,8 +34,8 @@
                     <div class="card mt-4">
                         <div class="card-body">
                             <h6>Detalles del Pedido #{{ order.id }}</h6>
-                            <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</p>
-                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</p>
+                            <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
                             <p><strong>Total Pagado:</strong> ${{ payment.amount|floatformat:0 }} COP</p>
                             <p><strong>Fecha:</strong> {{ payment.paid_at|date:"d/m/Y H:i" }}</p>
                         </div>

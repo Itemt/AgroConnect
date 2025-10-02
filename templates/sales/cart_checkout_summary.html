@@ -24,8 +24,8 @@
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <h6 class="mb-1">Pedido #{{ order.id }}</h6>
-                                <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</p>
-                                <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</p>
+                                <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
+                                <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
                                 <p class="mb-0 text-muted"><small>Vendedor: {{ order.vendedor.get_full_name }}</small></p>
                             </div>
                             <div class="col-md-3 text-center">

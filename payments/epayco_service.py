@@ -53,7 +53,7 @@ class EpaycoService:
         """
         return {
             "name": f"Pedido #{order.id} - {order.publicacion.cultivo.nombre}",
-            "description": f"Compra de {order.cantidad_acordada} {order.publicacion.unidad_medida} de {order.publicacion.cultivo.nombre}",
+            "description": f"Compra de {order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida} de {order.publicacion.cultivo.nombre}",
             "invoice": reference,
             "currency": "COP",
             "amount": str(order.precio_total),

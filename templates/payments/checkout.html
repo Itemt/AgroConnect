@@ -21,8 +21,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre_producto }}</p>
-                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</p>
+                            <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
+                            <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
                             <p><strong>Precio unitario:</strong> ${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
                         </div>
                         <div class="col-md-6">
