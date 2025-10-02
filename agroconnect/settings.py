@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'marketplace',
     'sales',
     'cart',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -177,6 +178,13 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     CSRF_COOKIE_SECURE = False  # Let Coolify handle SSL
     SESSION_COOKIE_SECURE = False  # Let Coolify handle SSL
+
+# ePayco Configuration
+EPAYCO_PUBLIC_KEY = config('EPAYCO_PUBLIC_KEY', default='')
+EPAYCO_PRIVATE_KEY = config('EPAYCO_PRIVATE_KEY', default='')
+EPAYCO_TEST_MODE = config('EPAYCO_TEST_MODE', default=True, cast=bool)
+EPAYCO_RESPONSE_URL = config('EPAYCO_RESPONSE_URL', default='https://agroconnect.itemt.tech/payments/success/')
+EPAYCO_CONFIRMATION_URL = config('EPAYCO_CONFIRMATION_URL', default='https://agroconnect.itemt.tech/payments/confirmation/')
 
 # Logging configuration
 LOGGING = {

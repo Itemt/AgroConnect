@@ -92,6 +92,9 @@ urlpatterns = [
 
     # Cart
     path('cart/', include('cart.urls', namespace='cart')),
+    
+    # Payments
+    path('payments/', include('payments.urls', namespace='payments')),
 ]
 
 if settings.DEBUG:
