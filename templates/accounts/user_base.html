@@ -3,33 +3,34 @@
 
 {% block extra_head %}
 <style>
-    .sidebar-nav a i {
-        transition: margin 0.3s;
+    #sidebar.w-20 .sidebar-text {
+        display: none;
     }
     #sidebar.w-20 .sidebar-nav a {
         justify-content: center;
     }
-    #sidebar.w-20 .sidebar-nav a i {
-        margin-right: 0;
+    #sidebar.w-20 .sidebar-nav a.bg-primary-700 {
+        background-color: transparent;
+        border-right: 4px solid #22c55e;
     }
-    #sidebar.w-20 .sidebar-nav a span {
-        display: none;
+    #sidebar-toggle {
+        transition: all 0.3s ease-in-out;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-gray-100">
+<div class="relative flex min-h-screen bg-gray-100">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 bg-primary-800 text-white p-6 transition-all duration-300">
-        <div class="flex items-center mb-8">
-            <div class="w-12 h-12 rounded-full bg-primary-700 flex items-center justify-center mr-4">
-                <i class="fas fa-user text-2xl"></i>
-            </div>
-            <div>
-                <p class="font-bold text-lg">{{ user.username }}</p>
-                <p class="text-sm text-primary-300">{{ user.email }}</p>
-            </div>
+    <div id="sidebar" class="w-64 bg-primary-800 text-white p-6 transition-all duration-300 ease-in-out fixed h-full z-40">
+        <div class="flex justify-between items-center mb-8">
+            <a href="{% url 'index' %}" class="flex items-center sidebar-text">
+                <i class="fas fa-seedling text-white text-2xl"></i>
+                <span class="text-xl font-bold text-white ml-2">AgroConnect</span>
+            </a>
+            <button id="sidebar-toggle" class="text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
         </div>
 
         <nav class="text-primary-100 sidebar-nav">
@@ -46,8 +47,9 @@
                 <i class="fas fa-comments w-5 mr-3"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'producer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-leaf mr-2"></i> Mis Cultivos
+            <a href="{% url 'crop_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'crop_list' %}bg-primary-700 font-bold{% endif %}">
+                <i class="fas fa-leaf w-5 mr-3"></i>
+                <span class="sidebar-text">Mis Cultivos</span>
             </a>
             <a href="{% url 'producer_sales' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_sales' %}bg-primary-700 font-bold{% endif %}">
                 <i class="fas fa-chart-line w-5 mr-3"></i>
@@ -79,11 +81,10 @@
     </div>
 
     <!-- Main content -->
-    <div id="main-content" class="flex-1 p-10 overflow-y-auto transition-all duration-300 ml-64">
-        <button id="sidebar-toggle" class="mb-4 text-gray-700 hover:text-primary-600">
-            <i class="fas fa-bars text-2xl"></i>
-        </button>
-        {% block user_content %}{% endblock %}
+    <div id="main-content" class="flex-1 overflow-y-auto transition-all duration-300 ease-in-out ml-64">
+        <div class="p-10">
+            {% block user_content %}{% endblock %}
+        </div>
     </div>
 </div>
 {% endblock %}
