@@ -228,3 +228,39 @@ def admin_order_detail(request, order_id):
         'user_role': 'admin' # Pasamos un rol especial para la plantilla
     }
     return render(request, 'sales/order_detail.html', context)
+
+@user_passes_test(is_staff)
+def admin_order_edit(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    
+    if request.method == 'POST':
+        estado = request.POST.get('estado')
+        if estado:
+            order.estado = estado
+            order.save()
+            messages.success(request, f'Estado de la orden #{order.id} actualizado exitosamente.')
+            return redirect('admin_order_list')
+    
+    # Obtener las opciones de estado
+    estado_choices = Order.ESTADO_CHOICES
+    
+    context = {
+        'order': order,
+        'estado_choices': estado_choices,
+    }
+    return render(request, 'accounts/admin_order_edit.html', context)
+
+@user_passes_test(is_staff)
+def admin_order_delete(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    
+    if request.method == 'POST':
+        order_number = order.id
+        order.delete()
+        messages.success(request, f'Orden #{order_number} eliminada exitosamente.')
+        return redirect('admin_order_list')
+    
+    context = {
+        'order': order,
+    }
+    return render(request, 'accounts/admin_order_confirm_delete.html', context)

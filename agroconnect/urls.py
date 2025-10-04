@@ -86,6 +86,8 @@ urlpatterns = [
     path('admin_dashboard/user/<int:pk>/delete/', accounts_views.admin_user_delete, name='admin_user_delete'),
     path('admin_dashboard/orders/', accounts_views.admin_order_list, name='admin_order_list'),
     path('admin_dashboard/order/<int:order_id>/', accounts_views.admin_order_detail, name='admin_order_detail'),
+    path('admin_dashboard/order/<int:order_id>/edit/', accounts_views.admin_order_edit, name='admin_order_edit'),
+    path('admin_dashboard/order/<int:order_id>/delete/', accounts_views.admin_order_delete, name='admin_order_delete'),
 
     # User Profiles and Rankings
     path('user/<int:user_id>/profile/', sales_views.user_profile_view, name='user_profile'),

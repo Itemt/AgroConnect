@@ -28,23 +28,25 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for order in orders %}
-                    <tr>
+                    <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.publicacion.cultivo.producto.nombre }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.publicacion.cultivo.nombre }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.comprador.username }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.vendedor.username }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.publicacion.cultivo.productor.username }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ order.precio_total|floatformat:2 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {% if order.estado == 'completado' %}bg-green-100 text-green-800
+                                {% if order.estado == 'entregado' %}bg-green-100 text-green-800
                                 {% elif order.estado == 'cancelado' %}bg-red-100 text-red-800
                                 {% else %}bg-yellow-100 text-yellow-800{% endif %}">
                                 {{ order.get_estado_display }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"Y-m-d" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{% url 'admin_order_detail' order_id=order.id %}" class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            <a href="{% url 'admin_order_detail' order_id=order.id %}" class="text-indigo-600 hover:text-indigo-900">Ver</a>
+                            <a href="{% url 'admin_order_edit' order_id=order.id %}" class="text-blue-600 hover:text-blue-900">Editar</a>
+                            <a href="{% url 'admin_order_delete' order_id=order.id %}" class="text-red-600 hover:text-red-900">Eliminar</a>
                         </td>
                     </tr>
                     {% empty %}
