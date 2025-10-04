@@ -8,12 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
                     colors: {
                         primary: {
                             50: '#f0fdf4',
@@ -26,7 +30,46 @@
                             700: '#15803d',
                             800: '#166534',
                             900: '#14532d',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        accent: {
+                            50: '#fef3c7',
+                            100: '#fde68a',
+                            200: '#fcd34d',
+                            300: '#fbbf24',
+                            400: '#f59e0b',
+                            500: '#d97706',
+                            600: '#b45309',
+                            700: '#92400e',
+                            800: '#78350f',
+                            900: '#451a03',
                         }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'strong': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.1)',
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
                     }
                 }
             }
@@ -36,107 +79,137 @@
 </head>
 <body class="h-full bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
+    <nav class="navbar backdrop-blur sticky top-0 z-50 px-4 py-4">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
-            <a href="{% url 'index' %}" class="flex items-center space-x-2">
-                <i class="fas fa-seedling text-primary-600 text-2xl"></i>
-                <span class="text-xl font-bold text-gray-900">AgroConnect</span>
+            <a href="{% url 'index' %}" class="navbar-brand flex items-center space-x-3 group">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <i class="fas fa-seedling text-white text-xl"></i>
+                </div>
+                <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">AgroConnect</span>
             </a>
 
             <div class="flex items-center">
                 <!-- Navigation Links (Desktop) -->
                 <div class="items-center justify-between hidden w-full md:flex md:w-auto" id="navbar-user-desktop">
-                    <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white">
+                    <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-xl bg-white/50 backdrop-blur md:flex-row md:space-x-2 md:mt-0 md:border-0 md:bg-transparent">
                         <li>
-                            <a href="{% url 'marketplace' %}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:p-0 md:hover:text-primary-700">Marketplace</a>
+                            <a href="{% url 'marketplace' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 md:hover:bg-primary-50 md:p-3 transition-all duration-300">
+                                <i class="fas fa-store mr-2"></i>Marketplace
+                            </a>
                         </li>
                         <li>
-                            <a href="{% url 'rankings' %}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:p-0 md:hover:text-primary-700">Rankings</a>
+                            <a href="{% url 'rankings' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 md:hover:bg-primary-50 md:p-3 transition-all duration-300">
+                                <i class="fas fa-trophy mr-2"></i>Rankings
+                            </a>
                         </li>
                     </ul>
                 </div>
                 
                 <!-- User Menu and Hamburger -->
-                <div class="flex items-center space-x-3 md:ml-6">
+                <div class="flex items-center space-x-4 md:ml-6">
                     <!-- Cart Icon -->
                     {% if user.is_authenticated %}
-                    <a href="{% url 'cart:cart_detail' %}" class="relative text-gray-600 hover:text-primary-600">
-                        <i class="fas fa-shopping-cart text-xl"></i>
+                    <a href="{% url 'cart:cart_detail' %}" class="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 group">
+                        <i class="fas fa-shopping-cart text-xl group-hover:scale-110 transition-transform duration-300"></i>
                         {% if cart.items.all|length > 0 %}
-                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ cart.items.all|length }}</span>
+                        <span class="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg animate-pulse">{{ cart.items.all|length }}</span>
                         {% endif %}
                     </a>
                     {% endif %}
 
                     <!-- User Menu Button -->
-                    <button type="button" class="flex text-sm rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                    <button type="button" class="flex text-sm rounded-xl focus:ring-4 focus:ring-primary-200 hover:bg-primary-50 p-2 transition-all duration-300 group" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                         <span class="sr-only">Open user menu</span>
                         {% if user.is_authenticated and user.profile_image %}
-                            <img class="w-8 h-8 rounded-full" src="{{ user.profile_image.url }}" alt="user photo">
+                            <img class="w-10 h-10 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300" src="{{ user.profile_image.url }}" alt="user photo">
                         {% else %}
-                            <i class="fas fa-user-circle text-gray-600 hover:text-primary-600 text-2xl"></i>
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
+                                <i class="fas fa-user text-white text-lg"></i>
+                            </div>
                         {% endif %}
                     </button>
                     <!-- User Dropdown -->
-                    <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow" id="user-dropdown">
+                    <div class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200" id="user-dropdown">
                         {% if user.is_authenticated %}
-                        <div class="px-4 py-3">
-                            <span class="block text-sm text-gray-900">{{ user.username }}</span>
-                            <span class="block text-sm text-gray-500 truncate">{{ user.email }}</span>
+                        <div class="px-6 py-4 bg-gradient-to-r from-primary-50 to-accent-50 rounded-t-2xl">
+                            <span class="block text-sm font-semibold text-gray-900">{{ user.username }}</span>
+                            <span class="block text-sm text-gray-600 truncate">{{ user.email }}</span>
                         </div>
                         <ul class="py-2" aria-labelledby="user-menu-button">
                             {% if user.is_staff %}
                             <li>
-                                <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                                <a href="{% url 'admin_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-cog mr-3"></i>Admin Dashboard
+                                </a>
                             </li>
                             {% endif %}
                             <li>
-                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
+                                <a href="{% url 'profile' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-user mr-3"></i>Perfil
+                                </a>
                             </li>
                             <li>
-                                <a href="{% url 'conversation_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mensajes</a>
+                                <a href="{% url 'conversation_list' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-comments mr-3"></i>Mensajes
+                                </a>
                             </li>
                             {% if user.role == 'Productor' %}
                             <li>
-                                <a href="{% url 'producer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                <a href="{% url 'producer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                                </a>
                             </li>
                             {% elif user.role == 'Comprador' %}
                             <li>
-                                <a href="{% url 'buyer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                <a href="{% url 'buyer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                                </a>
                             </li>
                             {% endif %}
                             {% if user.role == 'Productor' %}
                             <li>
-                                <a href="{% url 'producer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cultivos</a>
+                                <a href="{% url 'producer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-seedling mr-3"></i>Cultivos
+                                </a>
                             </li>
                             <li>
-                                <a href="{% url 'producer_sales' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ventas</a>
+                                <a href="{% url 'producer_sales' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-chart-line mr-3"></i>Ventas
+                                </a>
                             </li>
                             {% elif user.role == 'Comprador' %}
                             <li>
-                                <a href="{% url 'order_history' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pedidos</a>
+                                <a href="{% url 'order_history' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-shopping-cart mr-3"></i>Pedidos
+                                </a>
                             </li>
                             {% endif %}
-                            <li>
-                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar Sesión</a>
+                            <li class="border-t border-gray-200 mt-2 pt-2">
+                                <a href="{% url 'logout' %}" class="block px-6 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Cerrar Sesión
+                                </a>
                             </li>
                         </ul>
                         {% else %}
                         <ul class="py-2" aria-labelledby="user-menu-button">
                             <li>
-                                <a href="{% url 'login' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Iniciar Sesión</a>
+                                <a href="{% url 'login' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-sign-in-alt mr-3"></i>Iniciar Sesión
+                                </a>
                             </li>
                             <li>
-                                <a href="{% url 'register' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registrarse</a>
+                                <a href="{% url 'register' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
+                                    <i class="fas fa-user-plus mr-3"></i>Registrarse
+                                </a>
                             </li>
                         </ul>
                         {% endif %}
                     </div>
                     
                     <!-- Hamburger Menu Button -->
-                    <button data-collapse-toggle="navbar-mobile" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-mobile" aria-expanded="false">
+                    <button data-collapse-toggle="navbar-mobile" type="button" class="inline-flex items-center p-3 w-12 h-12 justify-center text-sm text-gray-600 rounded-xl md:hidden hover:bg-primary-50 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all duration-300" aria-controls="navbar-mobile" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
                         </svg>
                     </button>
@@ -145,12 +218,16 @@
             
             <!-- Mobile Menu Links -->
             <div class="items-center justify-between hidden w-full md:hidden" id="navbar-mobile">
-                <ul class="flex flex-col font-medium p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50">
+                <ul class="flex flex-col font-medium p-4 mt-4 border border-gray-200 rounded-2xl bg-white/95 backdrop-blur shadow-lg">
                     <li>
-                        <a href="{% url 'marketplace' %}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100">Marketplace</a>
+                        <a href="{% url 'marketplace' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
+                            <i class="fas fa-store mr-3"></i>Marketplace
+                        </a>
                     </li>
                     <li>
-                        <a href="{% url 'rankings' %}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100">Rankings</a>
+                        <a href="{% url 'rankings' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
+                            <i class="fas fa-trophy mr-3"></i>Rankings
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -164,44 +241,74 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-primary-800 text-white mt-12">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white mt-16 relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"footer-pattern\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><circle cx=\"20\" cy=\"20\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.3\"/><circle cx=\"0\" cy=\"0\" r=\"0.5\" fill=\"%23ffffff\" opacity=\"0.2\"/><circle cx=\"40\" cy=\"40\" r=\"0.5\" fill=\"%23ffffff\" opacity=\"0.2\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23footer-pattern)\"/></svg>');"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <!-- About Section -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">AgroConnect</h3>
-                    <p class="text-primary-200">Conectando el campo con la ciudad. Una plataforma para facilitar el comercio justo y directo entre productores y compradores.</p>
-                    <p class="text-primary-200 mt-2">
-                        <i class="fas fa-map-marker-alt mr-2"></i>Barrancabermeja, Santander
-                    </p>
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-seedling text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">AgroConnect</h3>
+                    </div>
+                    <p class="text-primary-100 leading-relaxed">Conectando el campo con la ciudad. Una plataforma para facilitar el comercio justo y directo entre productores y compradores.</p>
+                    <div class="flex items-center text-primary-200">
+                        <i class="fas fa-map-marker-alt mr-3 text-primary-400"></i>
+                        <span>Barrancabermeja, Santander</span>
+                    </div>
                 </div>
 
                 <!-- Contact Section -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
-                    <p class="text-primary-200">
-                        <i class="fas fa-phone mr-2"></i>+57 300 123 4567
-                    </p>
-                    <p class="text-primary-200 mt-2">
-                        <i class="fas fa-envelope mr-2"></i>contacto@agroconnect.com
-                    </p>
-                    <div class="mt-4 flex space-x-4">
-                        <a href="#" class="text-primary-200 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-primary-200 hover:text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-primary-200 hover:text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-primary-200 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-white">Contacto</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center text-primary-100 hover:text-white transition-colors duration-300">
+                            <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-phone text-sm"></i>
+                            </div>
+                            <span>+57 300 123 4567</span>
+                        </div>
+                        <div class="flex items-center text-primary-100 hover:text-white transition-colors duration-300">
+                            <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </div>
+                            <span>contacto@agroconnect.com</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Credits Section -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Desarrollado por</h3>
-                    <p class="text-primary-200">Cristian Ramos y Jhonnier Arguello</p>
-                    <p class="text-primary-200 mt-2">Estudiantes de la <a href="https://udi.edu.co/" target="_blank" class="underline hover:text-white">Universidad de Investigación y Desarrollo - UDI</a></p>
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-white">Desarrollado por</h3>
+                    <div class="space-y-4">
+                        <p class="text-primary-100">Cristian Ramos y Jhonnier Arguello</p>
+                        <p class="text-primary-100">Estudiantes de la <a href="https://udi.edu.co/" target="_blank" class="text-primary-300 hover:text-white underline transition-colors duration-300">Universidad de Investigación y Desarrollo - UDI</a></p>
+                    </div>
                 </div>
             </div>
-            <div class="mt-8 pt-8 border-t border-primary-700 text-center text-primary-300">
-                <p>&copy; 2025 AgroConnect. Todos los derechos reservados.</p>
+            
+            <div class="mt-12 pt-8 border-t border-primary-700/50 text-center">
+                <p class="text-primary-300">&copy; 2025 AgroConnect. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
@@ -209,6 +316,7 @@
     <!-- Flowbite JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/enhanced-ui.js' %}"></script>
     {% block extra_js %}
     {% endblock %}
 </body>
