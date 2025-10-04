@@ -6,7 +6,14 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Manage Users</h1>
-        <a href="{% url 'admin_dashboard' %}" class="text-primary-600 hover:text-primary-800">&larr; Back to Dashboard</a>
+        <div class="flex gap-3">
+            <a href="{% url 'admin_dashboard' %}" class="btn-outline">
+                <i class="fas fa-arrow-left mr-2"></i>Dashboard
+            </a>
+            <a href="{% url 'admin_user_create' %}" class="btn-primary">
+                <i class="fas fa-user-plus mr-2"></i>Crear Usuario
+            </a>
+        </div>
     </div>
 
     {% if messages %}
