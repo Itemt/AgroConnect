@@ -83,7 +83,7 @@
 </head>
 <body class="h-full bg-gray-50">
     <!-- Navigation -->
-    {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}
+    {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
     <nav class="navbar backdrop-blur fixed top-0 left-0 right-0 z-30 px-4 py-4 shadow-lg">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
             <a href="{% url 'index' %}" class="navbar-brand flex items-center space-x-3 group">
@@ -241,13 +241,13 @@
     {% endif %}
 
     <!-- Main Content -->
-    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}pt-20{% endif %}">
+    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}pt-20{% endif %}">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
-    {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}
+    {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
     <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white mt-16 relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
