@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 # Copiar el código de la aplicación
 COPY . .
 
-# Crear directorio para archivos estáticos
-RUN mkdir -p staticfiles
+# Crear directorios para archivos estáticos y media
+RUN mkdir -p staticfiles media
 
 # Recopilar archivos estáticos
 RUN python manage.py collectstatic --noinput
