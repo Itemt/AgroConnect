@@ -211,7 +211,6 @@ def admin_user_delete(request, pk):
 @user_passes_test(is_staff)
 def admin_order_list(request):
     orders = Order.objects.all().select_related(
-        'publicacion__cultivo__producto',
         'comprador',
         'publicacion__cultivo__productor'
     ).order_by('-created_at')
