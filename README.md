@@ -78,6 +78,28 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Estado actual y timeline de progreso
   - Botones de acción según el estado y rol
 
+### 💳 Sistema de Pagos con ePayco
+- **Integración completa con ePayco:**
+  - Pasarela de pagos oficial para Colombia
+  - Procesamiento seguro de transacciones
+  - Webhooks para confirmación automática de pagos
+- **Métodos de pago soportados:**
+  - 💳 Tarjetas de Crédito y Débito (Visa, MasterCard, AmEx)
+  - 🏦 PSE (Transferencia bancaria en línea)
+  - 💵 Efectivo (Baloto, Efecty, Gana, etc.)
+- **Funcionalidades:**
+  - Checkout seguro con formulario de ePayco
+  - Referencias únicas por transacción
+  - Historial completo de pagos
+  - Estados de pago en tiempo real
+  - Validación de montos mínimos
+  - Modo de prueba para desarrollo
+- **Seguridad:**
+  - No se almacenan datos sensibles de tarjetas
+  - Todas las transacciones usan HTTPS
+  - Verificación de firmas en webhooks
+  - Cumplimiento con estándares PCI DSS
+
 ### ⭐ Sistema de Calificaciones y Rankings
 - **Calificaciones multidimensionales:**
   - Calificación general (1-5 estrellas)
@@ -167,6 +189,7 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 - **Django 4.2** - Framework web principal
 - **Django Channels** - WebSockets para chat en tiempo real
 - **Pillow** - Procesamiento de imágenes
+- **ePayco SDK** - Integración con pasarela de pagos
 
 ### Frontend
 - **HTML5 / CSS3** con semántica moderna
@@ -177,7 +200,6 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 - **Google Fonts (Inter)** - Tipografía moderna y legible
 
 ### Base de Datos
-- **SQLite** - Desarrollo local
 - **PostgreSQL** - Producción
 
 ### Deployment & Storage
@@ -195,6 +217,7 @@ channels==4.1.0
 pillow==11.0.0
 psycopg2-binary==2.9.10
 faker==33.1.0
+epaycosdk==3.3.2
 django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
 whitenoise==6.8.2
@@ -243,6 +266,13 @@ POSTGRES_PASSWORD=tu_contraseña
 CLOUDINARY_CLOUD_NAME=tu_cloud_name
 CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
+
+# ePayco (requerido para funcionalidad de pagos)
+EPAYCO_PUBLIC_KEY=tu_public_key
+EPAYCO_PRIVATE_KEY=tu_private_key
+EPAYCO_TEST_MODE=True
+EPAYCO_RESPONSE_URL=http://127.0.0.1:8000/payments/success/
+EPAYCO_CONFIRMATION_URL=http://127.0.0.1:8000/payments/confirmation/
 ```
 
 #### 5. Aplicar Migraciones
@@ -304,6 +334,15 @@ La aplicación estará disponible en `http://127.0.0.1:8000/`
    CLOUDINARY_CLOUD_NAME=tu_cloud_name
    CLOUDINARY_API_KEY=tu_api_key
    CLOUDINARY_API_SECRET=tu_api_secret
+   ```
+
+   **ePayco (para pagos):**
+   ```
+   EPAYCO_PUBLIC_KEY=tu_public_key
+   EPAYCO_PRIVATE_KEY=tu_private_key
+   EPAYCO_TEST_MODE=False
+   EPAYCO_RESPONSE_URL=https://tu-dominio.com/payments/success/
+   EPAYCO_CONFIRMATION_URL=https://tu-dominio.com/payments/confirmation/
    ```
 
    **Configuración Django:**
@@ -394,6 +433,55 @@ python manage.py collectstatic --noinput
 2. Verifica que el `Dockerfile` sea correcto
 3. Asegúrate que `requirements.txt` tenga todas las dependencias
 
+**Configurar webhook de ePayco (IMPORTANTE):**
+1. Ve al [dashboard de ePayco](https://dashboard.epayco.co/)
+2. Ve a "Configuración" → "URLs de Confirmación"
+3. Agrega tu URL de confirmación: `https://tu-dominio.com/payments/confirmation/`
+4. Esta URL debe ser accesible públicamente para que ePayco envíe las confirmaciones de pago
+5. Para probar localmente, puedes usar [ngrok](https://ngrok.com/) o [localtunnel](https://localtunnel.github.io/www/)
+
+## 💳 Configuración Detallada de ePayco
+
+### Obtener Credenciales
+
+1. **Registrarse en ePayco:**
+   - Ve a [ePayco](https://www.epayco.co/) y crea una cuenta
+   - Completa el proceso de verificación de tu negocio
+
+2. **Obtener llaves de API:**
+   - Accede al [dashboard de ePayco](https://dashboard.epayco.co/)
+   - Ve a "Integraciones" en el menú lateral
+   - Encontrarás tus llaves:
+     - **Public Key (P_CUST_ID_XXXXXXXX)**: Llave pública para el frontend
+     - **Private Key**: Llave privada para el backend (¡NO la compartas!)
+
+3. **Configurar URLs de confirmación:**
+   - En el dashboard, ve a "Configuración" → "URLs de Confirmación"
+   - **URL de Respuesta:** `https://tu-dominio.com/payments/success/`
+   - **URL de Confirmación (Webhook):** `https://tu-dominio.com/payments/confirmation/`
+
+### Modo de Prueba
+
+Para desarrollo, ePayco ofrece un modo de prueba:
+- Usa tus credenciales normales
+- Activa `EPAYCO_TEST_MODE=True`
+- Usa tarjetas de prueba:
+  - **Visa:** 4575623182290326
+  - **MasterCard:** 5254133511684471
+  - **CVV:** 123
+  - **Fecha:** Cualquier fecha futura
+  - **Cuotas:** 1
+
+### Métodos de Pago Disponibles
+
+- **Tarjetas de Crédito:** Visa, MasterCard, American Express, Diners
+- **PSE:** Transferencias bancarias en línea
+- **Efectivo:** Baloto, Efecty, Gana, etc.
+
+### Comisiones
+
+ePayco cobra comisiones por transacción. Consulta las tarifas actuales en su sitio web.
+
 ## 🗂️ Estructura del Proyecto
 
 ```
@@ -418,6 +506,11 @@ AgroConnect/
 │   ├── views.py       # Flujo de pedidos, calificaciones
 │   ├── consumers.py   # WebSocket handlers para chat
 │   └── routing.py     # Rutas de WebSockets
+├── payments/          # Sistema de pagos con ePayco
+│   ├── models.py      # Payment
+│   ├── views.py       # Checkout, confirmaciones, webhooks
+│   ├── epayco_service.py  # Servicio de integración ePayco
+│   └── README.md      # Documentación específica de pagos
 ├── core/              # Funcionalidades compartidas
 │   └── colombia_locations.py  # Base de datos de ubicaciones
 ├── templates/         # Plantillas HTML
@@ -462,10 +555,11 @@ AgroConnect/
 4. **Añadir productos** al carrito con cantidades deseadas
 5. **Contactar productores** para negociar detalles
 6. **Realizar pedido** desde el carrito
-7. **Seguir el estado** del pedido en tiempo real
-8. **Confirmar recepción** cuando el producto llegue
-9. **Calificar al productor** y dejar comentarios
-10. **Ver historial** de compras y gastos totales
+7. **Pagar con ePayco** usando tarjeta, PSE o efectivo
+8. **Seguir el estado** del pedido y pago en tiempo real
+9. **Confirmar recepción** cuando el producto llegue
+10. **Calificar al productor** y dejar comentarios
+11. **Ver historial** de compras, pagos y gastos totales
 
 ### Para un Administrador:
 1. **Gestionar usuarios** (crear, editar, eliminar)
@@ -541,18 +635,30 @@ AgroConnect/
 - **Tarjetas adaptables** que se ajustan perfectamente
 - **Tipografía escalable** que mantiene legibilidad en todos los tamaños
 
-## 🚀 Próximas Funcionalidades
+## 🚀 Funcionalidades Implementadas y Futuras
 
-- [ ] Sistema de pagos integrado (Mercado Pago, PSE)
+### ✅ Implementadas
+- [x] Sistema de pagos con ePayco (tarjetas, PSE, efectivo)
+- [x] Chat en tiempo real con WebSockets
+- [x] Sistema de calificaciones y rankings
+- [x] Gestión completa de inventario
+- [x] Marketplace con filtros avanzados
+- [x] Panel administrativo completo (CRUD)
+- [x] Almacenamiento de imágenes con Cloudinary
+- [x] Sistema de ubicaciones de Colombia
+
+### 🔜 Próximas Funcionalidades
 - [ ] Notificaciones push y por email
 - [ ] API REST con Django REST Framework
-- [ ] Aplicación móvil nativa (React Native)
+- [ ] Aplicación móvil nativa (React Native / Flutter)
 - [ ] Sistema de logística y tracking GPS
 - [ ] Certificaciones de productos orgánicos
 - [ ] Marketplace de insumos agrícolas
-- [ ] Pronósticos de precios con ML
+- [ ] Pronósticos de precios con Machine Learning
 - [ ] Sistema de subastas inversas
 - [ ] Integración con APIs climáticas
+- [ ] Programa de fidelización para compradores
+- [ ] Sistema de cupones y descuentos
 
 ## 📊 Modelos de Datos Principales
 
@@ -577,6 +683,13 @@ AgroConnect/
 - Cantidad, precio total
 - Estado: 7 estados diferentes
 - Timestamps de cada cambio de estado
+
+### Payment (Pago)
+- Relación con orden y usuario
+- Referencia única de ePayco
+- Monto y método de pago
+- Estado: pending, approved, rejected, failed, cancelled
+- Datos de respuesta de ePayco (JSON)
 
 ### Rating (Calificación)
 - Calificación general + 3 aspectos específicos
