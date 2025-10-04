@@ -124,7 +124,27 @@ def is_staff(user):
 
 @user_passes_test(is_staff)
 def admin_dashboard(request):
-    return render(request, 'accounts/admin_dashboard.html')
+    from sales.models import Order
+    from marketplace.models import Publication
+    from inventory.models import Crop
+    
+    # Estadísticas
+    total_users = User.objects.count()
+    total_crops = Crop.objects.count()
+    total_publications = Publication.objects.count()
+    total_orders = Order.objects.count()
+    
+    # Usuarios recientes
+    recent_users = User.objects.order_by('-date_joined')[:5]
+    
+    context = {
+        'total_users': total_users,
+        'total_crops': total_crops,
+        'total_publications': total_publications,
+        'total_orders': total_orders,
+        'recent_users': recent_users,
+    }
+    return render(request, 'accounts/admin_dashboard.html', context)
 
 @user_passes_test(is_staff)
 def admin_publication_list(request):
@@ -264,3 +284,111 @@ def admin_order_delete(request, order_id):
         'order': order,
     }
     return render(request, 'accounts/admin_order_confirm_delete.html', context)
+
+# ===== CRUD COMPLETO DE USUARIOS =====
+@user_passes_test(is_staff)
+def admin_user_create(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role = request.POST.get('role')
+        cedula = request.POST.get('cedula')
+        
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            cedula=cedula
+        )
+        messages.success(request, f'Usuario {username} creado exitosamente.')
+        return redirect('admin_user_list')
+    
+    return render(request, 'accounts/admin_user_create.html')
+
+# ===== CRUD COMPLETO DE CULTIVOS =====
+@user_passes_test(is_staff)
+def admin_crop_list(request):
+    from inventory.models import Crop
+    crops = Crop.objects.all().select_related('productor').order_by('-fecha_siembra')
+    return render(request, 'accounts/admin_crop_list.html', {'crops': crops})
+
+@user_passes_test(is_staff)
+def admin_crop_create(request):
+    from inventory.forms import CropForm
+    if request.method == 'POST':
+        form = CropForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cultivo creado exitosamente.')
+            return redirect('admin_crop_list')
+    else:
+        form = CropForm()
+    
+    context = {
+        'form': form,
+        'title': 'Crear Cultivo (Admin)'
+    }
+    return render(request, 'accounts/admin_crop_form.html', context)
+
+@user_passes_test(is_staff)
+def admin_crop_edit(request, pk):
+    from inventory.models import Crop
+    from inventory.forms import CropForm
+    crop = get_object_or_404(Crop, pk=pk)
+    
+    if request.method == 'POST':
+        form = CropForm(request.POST, instance=crop)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cultivo actualizado exitosamente.')
+            return redirect('admin_crop_list')
+    else:
+        form = CropForm(instance=crop)
+    
+    context = {
+        'form': form,
+        'crop': crop,
+        'title': 'Editar Cultivo (Admin)'
+    }
+    return render(request, 'accounts/admin_crop_form.html', context)
+
+@user_passes_test(is_staff)
+def admin_crop_delete(request, pk):
+    from inventory.models import Crop
+    crop = get_object_or_404(Crop, pk=pk)
+    
+    if request.method == 'POST':
+        crop_name = crop.nombre
+        crop.delete()
+        messages.success(request, f'Cultivo "{crop_name}" eliminado exitosamente.')
+        return redirect('admin_crop_list')
+    
+    context = {
+        'crop': crop
+    }
+    return render(request, 'accounts/admin_crop_confirm_delete.html', context)
+
+# ===== CREATE DE PUBLICACIONES =====
+@user_passes_test(is_staff)
+def admin_publication_create(request):
+    from marketplace.forms import PublicationForm
+    if request.method == 'POST':
+        form = PublicationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Publicación creada exitosamente.')
+            return redirect('admin_publication_list')
+    else:
+        form = PublicationForm()
+    
+    context = {
+        'form': form,
+        'title': 'Crear Publicación (Admin)'
+    }
+    return render(request, 'marketplace/publication_form.html', context)

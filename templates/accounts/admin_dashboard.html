@@ -3,34 +3,135 @@
 {% block title %}Admin Dashboard - AgroConnect{% endblock %}
 
 {% block user_content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Welcome, {{ user.username }}.</p>
+<div class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                        <i class="fas fa-cog text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-5xl font-bold text-gradient">Panel de Administración</h1>
+                        <p class="text-gray-600 mt-2 text-xl">Bienvenido, {{ user.username }}. Control total del sistema.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="border-t border-gray-200">
-            <dl>
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Users</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="{% url 'admin_user_list' %}" class="text-primary-600 hover:text-primary-800">Manage Users</a>
-                    </dd>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
+                    <i class="fas fa-users text-white text-2xl"></i>
                 </div>
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Publications</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="{% url 'admin_publication_list' %}" class="text-primary-600 hover:text-primary-800">Manage Publications</a>
-                    </dd>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{{ total_users }}</h3>
+                    <p class="text-gray-600 font-medium">Usuarios</p>
                 </div>
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Orders</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a href="{% url 'admin_order_list' %}" class="text-primary-600 hover:text-primary-800">View All Orders</a>
-                    </dd>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
+                    <i class="fas fa-seedling text-white text-2xl"></i>
                 </div>
-            </dl>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ total_crops }}</h3>
+                    <p class="text-gray-600 font-medium">Cultivos</p>
+                </div>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-purple-400 to-purple-600">
+                    <i class="fas fa-store text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">{{ total_publications }}</h3>
+                    <p class="text-gray-600 font-medium">Publicaciones</p>
+                </div>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-yellow-400 to-yellow-600">
+                    <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">{{ total_orders }}</h3>
+                    <p class="text-gray-600 font-medium">Órdenes</p>
+                </div>
+            </div>
         </div>
+
+        <!-- Quick Actions -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-bolt text-white text-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Gestión del Sistema</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="{% url 'admin_user_list' %}" class="btn-primary group">
+                        <i class="fas fa-users mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                        Gestionar Usuarios
+                    </a>
+                    <a href="{% url 'admin_crop_list' %}" class="btn-secondary group">
+                        <i class="fas fa-seedling mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                        Gestionar Cultivos
+                    </a>
+                    <a href="{% url 'admin_publication_list' %}" class="btn-outline group">
+                        <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                        Gestionar Publicaciones
+                    </a>
+                    <a href="{% url 'admin_order_list' %}" class="btn-primary group">
+                        <i class="fas fa-shopping-cart mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                        Gestionar Órdenes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        {% if recent_users %}
+        <div class="card">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-user-plus text-white text-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Usuarios Recientes</h2>
+                </div>
+                <div class="space-y-4">
+                    {% for u in recent_users %}
+                    <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-lg">{{ u.get_full_name|default:u.username }}</h4>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span class="text-gray-600">@{{ u.username }}</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                        {% if u.role == 'Productor' %}bg-green-100 text-green-800
+                                        {% elif u.role == 'Comprador' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ u.role }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">{{ u.date_joined|date:"d M Y" }}</p>
+                                <a href="{% url 'admin_user_edit' u.pk %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                    <i class="fas fa-edit mr-1"></i>Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

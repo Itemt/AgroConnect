@@ -77,17 +77,32 @@ urlpatterns = [
     path('inventory/crop/<int:pk>/delete/', inventory_views.crop_delete_view, name='crop_delete'),
 
     # Admin Dashboard
+    # Admin Dashboard
     path('admin_dashboard/', accounts_views.admin_dashboard, name='admin_dashboard'),
+    
+    # Admin - Publications
     path('admin_dashboard/publications/', accounts_views.admin_publication_list, name='admin_publication_list'),
+    path('admin_dashboard/publication/create/', accounts_views.admin_publication_create, name='admin_publication_create'),
     path('admin_dashboard/publication/<int:pk>/edit/', accounts_views.admin_publication_edit, name='admin_publication_edit'),
     path('admin_dashboard/publication/<int:pk>/delete/', accounts_views.admin_publication_delete, name='admin_publication_delete'),
+    
+    # Admin - Users
     path('admin_dashboard/users/', accounts_views.admin_user_list, name='admin_user_list'),
+    path('admin_dashboard/user/create/', accounts_views.admin_user_create, name='admin_user_create'),
     path('admin_dashboard/user/<int:pk>/edit/', accounts_views.admin_user_edit, name='admin_user_edit'),
     path('admin_dashboard/user/<int:pk>/delete/', accounts_views.admin_user_delete, name='admin_user_delete'),
+    
+    # Admin - Orders
     path('admin_dashboard/orders/', accounts_views.admin_order_list, name='admin_order_list'),
     path('admin_dashboard/order/<int:order_id>/', accounts_views.admin_order_detail, name='admin_order_detail'),
     path('admin_dashboard/order/<int:order_id>/edit/', accounts_views.admin_order_edit, name='admin_order_edit'),
     path('admin_dashboard/order/<int:order_id>/delete/', accounts_views.admin_order_delete, name='admin_order_delete'),
+    
+    # Admin - Crops
+    path('admin_dashboard/crops/', accounts_views.admin_crop_list, name='admin_crop_list'),
+    path('admin_dashboard/crop/create/', accounts_views.admin_crop_create, name='admin_crop_create'),
+    path('admin_dashboard/crop/<int:pk>/edit/', accounts_views.admin_crop_edit, name='admin_crop_edit'),
+    path('admin_dashboard/crop/<int:pk>/delete/', accounts_views.admin_crop_delete, name='admin_crop_delete'),
 
     # User Profiles and Rankings
     path('user/<int:user_id>/profile/', sales_views.user_profile_view, name='user_profile'),
