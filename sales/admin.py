@@ -21,7 +21,7 @@ class ConversationAdmin(admin.ModelAdmin):
     inlines = [MessageInline]
     
     def publication_info(self, obj):
-        return f"{obj.publication.cultivo.producto.nombre} - {obj.publication.cultivo.productor.first_name}"
+        return f"{obj.publication.cultivo.nombre} - {obj.publication.cultivo.productor.first_name}"
     publication_info.short_description = 'Publicación'
     
     def participants_list(self, obj):
@@ -30,7 +30,7 @@ class ConversationAdmin(admin.ModelAdmin):
     participants_list.short_description = 'Participantes'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publication__cultivo__productor', 'publication__cultivo__producto').prefetch_related('participants', 'messages')
+        return super().get_queryset(request).select_related('publication__cultivo__productor', 'publication__cultivo').prefetch_related('participants', 'messages')
 
 # Message Admin
 @admin.register(Message)
@@ -83,7 +83,7 @@ class OrderAdmin(admin.ModelAdmin):
     )
     
     def publicacion_info(self, obj):
-        return f"{obj.publicacion.cultivo.producto.nombre} - {obj.publicacion.cultivo.productor.first_name}"
+        return f"{obj.publicacion.cultivo.nombre} - {obj.publicacion.cultivo.productor.first_name}"
     publicacion_info.short_description = 'Publicación'
     
     def comprador_info(self, obj):
@@ -110,7 +110,7 @@ class OrderAdmin(admin.ModelAdmin):
     estado_badge.short_description = 'Estado Visual'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'publicacion__cultivo__producto', 'comprador')
+        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'publicacion__cultivo', 'comprador')
 
 # Rating Admin
 @admin.register(Rating)
@@ -137,7 +137,7 @@ class RatingAdmin(admin.ModelAdmin):
     )
     
     def pedido_info(self, obj):
-        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.producto.nombre}"
+        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.nombre}"
     pedido_info.short_description = 'Pedido'
     
     def promedio_display(self, obj):
@@ -145,7 +145,7 @@ class RatingAdmin(admin.ModelAdmin):
     promedio_display.short_description = 'Promedio'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('pedido__publicacion__cultivo__producto', 'calificador', 'calificado')
+        return super().get_queryset(request).select_related('pedido__publicacion__cultivo__productor', 'pedido__publicacion__cultivo', 'calificador', 'calificado')
 
 # Acciones personalizadas para Order
 @admin.action(description='Confirmar pedidos seleccionados')

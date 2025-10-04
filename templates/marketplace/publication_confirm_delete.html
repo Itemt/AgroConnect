@@ -8,7 +8,7 @@
         <div class="px-4 py-5 sm:p-6">
             <h1 class="text-xl font-bold text-gray-900">Delete Publication</h1>
             <p class="mt-2 text-sm text-gray-600">
-                Are you sure you want to delete the publication for <strong>{{ publication.cultivo.producto.nombre }}</strong>?
+                Are you sure you want to delete the publication for <strong>{{ publication.cultivo.nombre }}</strong>?
             </p>
             <form method="post" class="mt-6">
                 {% csrf_token %}

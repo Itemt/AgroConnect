@@ -44,7 +44,7 @@
                     {% for pub in publications %}
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ pub.cultivo.producto.nombre }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ pub.cultivo.nombre }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ pub.cultivo.productor.get_full_name|default:pub.cultivo.productor.username }}</div>
