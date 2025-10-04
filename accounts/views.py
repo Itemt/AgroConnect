@@ -150,7 +150,7 @@ def admin_dashboard(request):
 def admin_publication_list(request):
     publications = Publication.objects.all().select_related(
         'cultivo__productor', 
-        'cultivo__producto'
+        'cultivo'
     ).order_by('-created_at')
     return render(request, 'accounts/admin_publication_list.html', {'publications': publications})
 
