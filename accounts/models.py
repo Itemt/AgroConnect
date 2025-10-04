@@ -9,6 +9,7 @@ class User(AbstractUser):
         ('Comprador', 'Comprador'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
+    cedula = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name="Cédula", help_text="Número de cédula de identidad")
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
 
 class ProducerProfile(BaseModel):

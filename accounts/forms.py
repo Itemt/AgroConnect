@@ -10,6 +10,16 @@ class CustomUserCreationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label="Nombres")
     last_name = forms.CharField(max_length=30, required=True, label="Apellidos")
     email = forms.EmailField(required=True, label="Correo Electrónico")
+    cedula = forms.CharField(
+        max_length=20, 
+        required=True, 
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: 12345678'
+        }),
+        help_text="Número de cédula de identidad (debe ser único)"
+    )
     role = forms.ChoiceField(
         choices=User.ROLE_CHOICES,
         required=True,
@@ -35,10 +45,117 @@ class CustomUserCreationForm(UserCreationForm):
         label="Ciudad/Municipio",
         required=True
     )
+    
+    # Campos específicos para compradores
+    company_name = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Nombre de la Empresa",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: Distribuidora Agrícola del Norte'
+        })
+    )
+    business_type = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Tipo de Negocio",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: Distribuidor, Supermercado, Restaurante'
+        })
+    )
+    
+    # Campos específicos para productores
+    direccion = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Dirección específica (opcional)",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
+        })
+    )
+    farm_description = forms.CharField(
+        required=False, 
+        label="Descripción de la Finca",
+        widget=forms.Textarea(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'rows': 4,
+            'placeholder': 'Describe tu finca: tamaño, tipo de cultivos, métodos utilizados, etc.'
+        })
+    )
+    main_crops = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Cultivos Principales",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: Café, Plátano, Aguacate'
+        })
+    )
+    
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if first_name:
+            # Validar que no contenga números
+            if any(char.isdigit() for char in first_name):
+                raise forms.ValidationError('Los nombres no pueden contener números.')
+            
+            # Validar que solo contenga letras y espacios
+            if not all(char.isalpha() or char.isspace() for char in first_name):
+                raise forms.ValidationError('Los nombres solo pueden contener letras y espacios.')
+        
+        return first_name
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if last_name:
+            # Validar que no contenga números
+            if any(char.isdigit() for char in last_name):
+                raise forms.ValidationError('Los apellidos no pueden contener números.')
+            
+            # Validar que solo contenga letras y espacios
+            if not all(char.isalpha() or char.isspace() for char in last_name):
+                raise forms.ValidationError('Los apellidos solo pueden contener letras y espacios.')
+        
+        return last_name
+    
+    def clean_cedula(self):
+        cedula = self.cleaned_data.get('cedula')
+        if cedula:
+            # Validar que solo contenga números
+            if not cedula.isdigit():
+                raise forms.ValidationError('La cédula debe contener solo números.')
+            
+            # Validar longitud mínima
+            if len(cedula) < 6:
+                raise forms.ValidationError('La cédula debe tener al menos 6 dígitos.')
+            
+            # Validar cédula única
+            if User.objects.filter(cedula=cedula).exists():
+                raise forms.ValidationError('Ya existe un usuario con esta cédula.')
+        
+        return cedula
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        company_name = cleaned_data.get('company_name')
+        business_type = cleaned_data.get('business_type')
+        
+        # Si es comprador, hacer los campos de empresa requeridos
+        if role == 'Comprador':
+            if not company_name:
+                self.add_error('company_name', 'Este campo es obligatorio para compradores.')
+            if not business_type:
+                self.add_error('business_type', 'Este campo es obligatorio para compradores.')
+        
+        return cleaned_data
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'role', 'departamento', 'ciudad', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'role', 'departamento', 'ciudad', 'company_name', 'business_type', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
         labels = {
             'username': 'Nombre de Usuario',
             'password1': 'Contraseña',
@@ -90,9 +207,63 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class UserEditForm(forms.ModelForm):
+    cedula = forms.CharField(
+        max_length=20, 
+        required=True, 
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 12345678'
+        }),
+        help_text="Número de cédula de identidad (debe ser único)"
+    )
+    
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if first_name:
+            # Validar que no contenga números
+            if any(char.isdigit() for char in first_name):
+                raise forms.ValidationError('Los nombres no pueden contener números.')
+            
+            # Validar que solo contenga letras y espacios
+            if not all(char.isalpha() or char.isspace() for char in first_name):
+                raise forms.ValidationError('Los nombres solo pueden contener letras y espacios.')
+        
+        return first_name
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if last_name:
+            # Validar que no contenga números
+            if any(char.isdigit() for char in last_name):
+                raise forms.ValidationError('Los apellidos no pueden contener números.')
+            
+            # Validar que solo contenga letras y espacios
+            if not all(char.isalpha() or char.isspace() for char in last_name):
+                raise forms.ValidationError('Los apellidos solo pueden contener letras y espacios.')
+        
+        return last_name
+    
+    def clean_cedula(self):
+        cedula = self.cleaned_data.get('cedula')
+        if cedula:
+            # Validar que solo contenga números
+            if not cedula.isdigit():
+                raise forms.ValidationError('La cédula debe contener solo números.')
+            
+            # Validar longitud mínima
+            if len(cedula) < 6:
+                raise forms.ValidationError('La cédula debe tener al menos 6 dígitos.')
+            
+            # Validar cédula única (excluyendo el usuario actual)
+            if User.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
+                raise forms.ValidationError('Ya existe un usuario con esta cédula.')
+        
+        return cedula
+    
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'profile_image')
+        fields = ('first_name', 'last_name', 'email', 'cedula', 'profile_image')
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -103,6 +274,7 @@ class UserEditForm(forms.ModelForm):
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
+            'cedula': 'Cédula',
             'profile_image': 'Imagen de Perfil',
         }
 
@@ -113,7 +285,7 @@ class AdminUserEditForm(UserEditForm):
     is_staff = forms.BooleanField(required=False, label="Staff (Admin)")
 
     class Meta(UserEditForm.Meta):
-        fields = ('first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff', 'profile_image')
+        fields = ('first_name', 'last_name', 'email', 'cedula', 'role', 'is_active', 'is_staff', 'profile_image')
 
 
 class ProducerProfileForm(forms.ModelForm):

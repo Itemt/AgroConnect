@@ -4,111 +4,255 @@
 {% block title %}Registro de Usuario{% endblock %}
 
 {% block content %}
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div>
-                <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
-                    <i class="fas fa-user-plus text-primary-600 text-xl"></i>
+    <div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                    <i class="fas fa-user-plus text-white text-3xl"></i>
                 </div>
-                <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+                <h1 class="text-5xl font-bold text-gradient mb-4">
                     Registro de Usuario
-                </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
+                </h1>
+                <p class="text-xl text-gray-600">
                     Crea tu cuenta en AgroConnect
                 </p>
             </div>
             
-            <form class="mt-8 space-y-6" method="post">
-                {% csrf_token %}
+            <!-- Registration Form -->
+            <div class="card">
+                <div class="card-body p-8">
+                    <form method="post">
+                        {% csrf_token %}
 
-                {% if form.non_field_errors %}
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        {% for error in form.non_field_errors %}
-                            <p class="text-sm">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                        {% if form.non_field_errors %}
+                            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                                {% for error in form.non_field_errors %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
 
-                <div class="space-y-4">
+                        <div class="space-y-6">
                     {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ field.label }}
-                            </label>
-                            
-                            {% if field.field.widget.input_type == 'password' %}
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-lock text-gray-400"></i>
+                        {% if field.name == 'company_name' or field.name == 'business_type' %}
+                            <!-- Campos específicos para compradores - se muestran con JavaScript -->
+                            <div id="buyer-fields" class="space-y-4" style="display: none;">
+                                {% if field.name == 'company_name' %}
+                                    <div class="field-wrapper">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            <i class="fas fa-building mr-2 text-primary-600"></i>{{ field.label }}
+                                        </label>
+                                        <input type="text" 
+                                               name="{{ field.name }}" 
+                                               id="{{ field.id_for_label }}"
+                                               class="form-input"
+                                               placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                               value="{{ field.value|default:'' }}">
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
                                     </div>
+                                {% elif field.name == 'business_type' %}
+                                    <div class="field-wrapper">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            <i class="fas fa-briefcase mr-2 text-primary-600"></i>{{ field.label }}
+                                        </label>
+                                        <input type="text" 
+                                               name="{{ field.name }}" 
+                                               id="{{ field.id_for_label }}"
+                                               class="form-input"
+                                               placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                               value="{{ field.value|default:'' }}">
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% elif field.name == 'direccion' or field.name == 'farm_description' or field.name == 'main_crops' %}
+                            <!-- Campos específicos para productores - se muestran con JavaScript -->
+                            <div id="producer-fields" class="space-y-4" style="display: none;">
+                                {% if field.name == 'direccion' %}
+                                    <div class="field-wrapper">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>{{ field.label }}
+                                        </label>
+                                        <input type="text" 
+                                               name="{{ field.name }}" 
+                                               id="{{ field.id_for_label }}"
+                                               class="form-input"
+                                               placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                               value="{{ field.value|default:'' }}">
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% elif field.name == 'farm_description' %}
+                                    <div class="field-wrapper">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            <i class="fas fa-tractor mr-2 text-primary-600"></i>{{ field.label }}
+                                        </label>
+                                        <textarea name="{{ field.name }}" 
+                                                  id="{{ field.id_for_label }}"
+                                                  class="form-input"
+                                                  placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                                  rows="4">{{ field.value|default:'' }}</textarea>
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% elif field.name == 'main_crops' %}
+                                    <div class="field-wrapper">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            <i class="fas fa-seedling mr-2 text-primary-600"></i>{{ field.label }}
+                                        </label>
+                                        <input type="text" 
+                                               name="{{ field.name }}" 
+                                               id="{{ field.id_for_label }}"
+                                               class="form-input"
+                                               placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                               value="{{ field.value|default:'' }}">
+                                        {% for error in field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <!-- Campos generales -->
+                            <div class="field-wrapper">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {% if field.name == 'role' %}
+                                        <i class="fas fa-user-tag mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'departamento' %}
+                                        <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'ciudad' %}
+                                        <i class="fas fa-city mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'username' %}
+                                        <i class="fas fa-user mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'first_name' %}
+                                        <i class="fas fa-user mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'last_name' %}
+                                        <i class="fas fa-user mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'email' %}
+                                        <i class="fas fa-envelope mr-2 text-primary-600"></i>
+                                    {% elif field.name == 'cedula' %}
+                                        <i class="fas fa-id-card mr-2 text-primary-600"></i>
+                                    {% endif %}
+                                    {{ field.label }}
+                                </label>
+                                
+                                {% if field.field.widget.input_type == 'password' %}
                                     <input type="password" 
                                            name="{{ field.name }}" 
                                            id="{{ field.id_for_label }}"
-                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           class="form-input"
                                            placeholder="Ingresa tu {{ field.label|lower }}">
-                                </div>
-                            {% elif field.field.widget.input_type == 'email' %}
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-envelope text-gray-400"></i>
-                                    </div>
+                                {% elif field.field.widget.input_type == 'email' %}
                                     <input type="email" 
                                            name="{{ field.name }}" 
                                            id="{{ field.id_for_label }}"
-                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           class="form-input"
                                            placeholder="Ingresa tu {{ field.label|lower }}"
                                            value="{{ field.value|default:'' }}">
-                                </div>
-                            {% elif field.name == 'role' or field.name == 'departamento' or field.name == 'ciudad' %}
-                                {{ field }}
-                            {% else %}
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-user text-gray-400"></i>
-                                    </div>
+                                {% elif field.name == 'role' or field.name == 'departamento' or field.name == 'ciudad' %}
+                                    {{ field }}
+                                {% elif field.name == 'cedula' %}
                                     <input type="text" 
                                            name="{{ field.name }}" 
                                            id="{{ field.id_for_label }}"
-                                           class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           class="form-input"
+                                           placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                           value="{{ field.value|default:'' }}">
+                                {% else %}
+                                    <input type="text" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}"
+                                           class="form-input"
                                            placeholder="Ingresa tu {{ field.label|lower }}"
                                            value="{{ field.value|default:'' }}">
-                                </div>
-                            {% endif %}
-                            
-                            {% if field.help_text %}
-                                <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
-                            {% endif %}
-                            
-                            {% for error in field.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                                {% endif %}
+                                
+                                {% for error in field.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
 
-                <div>
-                    <button type="submit" 
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <i class="fas fa-user-plus text-primary-500 group-hover:text-primary-400"></i>
-                        </span>
-                        Registrarse
-                    </button>
-                </div>
+                        <div class="pt-6">
+                            <button type="submit" class="btn-primary w-full group">
+                                <i class="fas fa-user-plus mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                Registrarse
+                            </button>
+                        </div>
 
-                <div class="text-center">
-                    <p class="text-sm text-gray-600">
-                        ¿Ya tienes cuenta? 
-                        <a href="{% url 'login' %}" class="font-medium text-primary-600 hover:text-primary-500">
-                            Inicia sesión aquí
-                        </a>
-                    </p>
+                        <div class="text-center pt-4">
+                            <p class="text-gray-600">
+                                ¿Ya tienes cuenta? 
+                                <a href="{% url 'login' %}" class="font-semibold text-primary-600 hover:text-primary-700 transition-colors duration-300">
+                                    Inicia sesión aquí
+                                </a>
+                            </p>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/main.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('id_role');
+    const buyerFields = document.getElementById('buyer-fields');
+    const producerFields = document.getElementById('producer-fields');
+    
+    function toggleRoleFields() {
+        const role = roleSelect.value;
+        
+        // Ocultar todos los campos específicos primero
+        if (buyerFields) buyerFields.style.display = 'none';
+        if (producerFields) producerFields.style.display = 'none';
+        
+        // Resetear todos los campos específicos a opcionales
+        const companyNameField = document.getElementById('id_company_name');
+        const businessTypeField = document.getElementById('id_business_type');
+        const direccionField = document.getElementById('id_direccion');
+        const farmDescriptionField = document.getElementById('id_farm_description');
+        const mainCropsField = document.getElementById('id_main_crops');
+        
+        if (companyNameField) companyNameField.required = false;
+        if (businessTypeField) businessTypeField.required = false;
+        if (direccionField) direccionField.required = false;
+        if (farmDescriptionField) farmDescriptionField.required = false;
+        if (mainCropsField) mainCropsField.required = false;
+        
+        // Mostrar campos según el rol seleccionado
+        if (role === 'Comprador') {
+            if (buyerFields) buyerFields.style.display = 'block';
+            // Hacer los campos de comprador requeridos
+            if (companyNameField) companyNameField.required = true;
+            if (businessTypeField) businessTypeField.required = true;
+        } else if (role === 'Productor') {
+            if (producerFields) producerFields.style.display = 'block';
+            // Los campos de productor son opcionales, no los hacemos requeridos
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    toggleRoleFields();
+    
+    // Ejecutar cuando cambie el rol
+    roleSelect.addEventListener('change', toggleRoleFields);
+});
+</script>
 {% endblock %}

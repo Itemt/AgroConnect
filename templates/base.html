@@ -79,7 +79,8 @@
 </head>
 <body class="h-full bg-gray-50">
     <!-- Navigation -->
-    <nav class="navbar backdrop-blur sticky top-0 z-50 px-4 py-4">
+    {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}
+    <nav class="navbar backdrop-blur fixed top-0 left-0 right-0 z-30 px-4 py-4 shadow-lg">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
             <a href="{% url 'index' %}" class="navbar-brand flex items-center space-x-3 group">
                 <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
@@ -102,6 +103,19 @@
                                 <i class="fas fa-trophy mr-2"></i>Rankings
                             </a>
                         </li>
+                        {% if user.is_authenticated %}
+                        <li>
+                            {% if user.role == 'Productor' %}
+                            <a href="{% url 'producer_dashboard' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 md:hover:bg-primary-50 md:p-3 transition-all duration-300">
+                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                            </a>
+                            {% elif user.role == 'Comprador' %}
+                            <a href="{% url 'buyer_dashboard' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 md:hover:bg-primary-50 md:p-3 transition-all duration-300">
+                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
                 
@@ -153,19 +167,6 @@
                                     <i class="fas fa-comments mr-3"></i>Mensajes
                                 </a>
                             </li>
-                            {% if user.role == 'Productor' %}
-                            <li>
-                                <a href="{% url 'producer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
-                                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
-                                </a>
-                            </li>
-                            {% elif user.role == 'Comprador' %}
-                            <li>
-                                <a href="{% url 'buyer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
-                                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
-                                </a>
-                            </li>
-                            {% endif %}
                             {% if user.role == 'Productor' %}
                             <li>
                                 <a href="{% url 'producer_dashboard' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
@@ -233,14 +234,16 @@
             </div>
         </div>
     </nav>
+    {% endif %}
 
     <!-- Main Content -->
-    <main class="min-h-screen">
+    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}pt-20{% endif %}">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
+    {% if not request.resolver_match.url_name|slice:":7" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" %}
     <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white mt-16 relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
@@ -312,6 +315,7 @@
             </div>
         </div>
     </footer>
+    {% endif %}
 
     <!-- Flowbite JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>

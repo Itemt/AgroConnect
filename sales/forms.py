@@ -160,7 +160,9 @@ class OrderSearchForm(forms.Form):
     estado = forms.ChoiceField(
         choices=ESTADO_CHOICES,
         required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={
+            'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+        }),
         label="Estado"
     )
     fecha_desde = forms.DateField(
