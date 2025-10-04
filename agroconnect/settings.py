@@ -154,7 +154,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 if DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Usar CompressedStaticFilesStorage en lugar de Manifest para evitar errores con archivos faltantes del admin
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Cloudinary Configuration
 CLOUDINARY_STORAGE = {
