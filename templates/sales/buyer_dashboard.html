@@ -3,88 +3,96 @@
 {% block title %}Dashboard del Comprador{% endblock %}
 
 {% block user_content %}
-    <div class="bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="min-h-screen">
+        <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-primary-500">
-                <h1 class="text-4xl font-bold text-gray-900">Dashboard del Comprador</h1>
-                <p class="text-gray-600 mt-2 text-lg">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
+            <div class="card mb-8">
+                <div class="card-body p-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                            <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-5xl font-bold text-gradient">Dashboard del Comprador</h1>
+                            <p class="text-gray-600 mt-2 text-xl">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-primary-500">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-shopping-cart text-primary-600 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-3xl font-bold text-gray-900">{{ total_orders }}</h3>
-                            <p class="text-gray-600">Pedidos Totales</p>
-                        </div>
+                <div class="stat-card group">
+                    <div class="stat-icon bg-gradient-to-br from-primary-400 to-primary-600">
+                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">{{ total_orders }}</h3>
+                        <p class="text-gray-600 font-medium">Pedidos Totales</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-clock text-yellow-600 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-3xl font-bold text-gray-900">{{ pending_orders }}</h3>
-                            <p class="text-gray-600">Pedidos Pendientes</p>
-                        </div>
+                <div class="stat-card group">
+                    <div class="stat-icon bg-gradient-to-br from-yellow-400 to-yellow-600">
+                        <i class="fas fa-clock text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">{{ pending_orders }}</h3>
+                        <p class="text-gray-600 font-medium">Pedidos Pendientes</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-3xl font-bold text-gray-900">{{ completed_orders }}</h3>
-                            <p class="text-gray-600">Pedidos Completados</p>
-                        </div>
+                <div class="stat-card group">
+                    <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
+                        <i class="fas fa-check-circle text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ completed_orders }}</h3>
+                        <p class="text-gray-600 font-medium">Pedidos Completados</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-dollar-sign text-blue-600 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-3xl font-bold text-gray-900">${{ total_spent|floatformat:2 }}</h3>
-                            <p class="text-gray-600">Total Gastado</p>
-                        </div>
+                <div class="stat-card group">
+                    <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
+                        <i class="fas fa-dollar-sign text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">${{ total_spent|floatformat:2 }}</h3>
+                        <p class="text-gray-600 font-medium">Total Gastado</p>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
-                <div class="flex flex-wrap gap-4">
-                    <a href="{% url 'marketplace' %}" 
-                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
-                        <i class="fas fa-store mr-2"></i>Explorar Marketplace
-                    </a>
-                    <a href="{% url 'order_history' %}" 
-                       class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                        <i class="fas fa-history mr-2"></i>Ver Mis Pedidos
-                    </a>
-                    <a href="{% url 'conversation_list' %}" 
-                       class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        <i class="fas fa-comments mr-2"></i>Mis Conversaciones ({{ active_conversations }})
-                    </a>
+            <div class="card mb-8">
+                <div class="card-body p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                            <i class="fas fa-bolt text-white text-lg"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800">Acciones Rápidas</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="{% url 'marketplace' %}" class="btn-primary group">
+                            <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Explorar Marketplace
+                        </a>
+                        <a href="{% url 'order_history' %}" class="btn-secondary group">
+                            <i class="fas fa-history mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Ver Mis Pedidos
+                        </a>
+                        <a href="{% url 'conversation_list' %}" class="btn-outline group">
+                            <i class="fas fa-comments mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Mis Conversaciones ({{ active_conversations }})
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div class="grid lg:grid-cols-3 gap-8">
                 <!-- Recent Orders -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-xl font-bold text-gray-900">Pedidos Recientes</h2>
                             <a href="{% url 'order_history' %}" 
@@ -128,14 +136,16 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <div class="text-center py-8">
-                                <i class="fas fa-shopping-cart text-gray-400 text-4xl mb-4"></i>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2">No tienes pedidos aún</h3>
-                                <p class="text-gray-600 mb-4">Explora el marketplace para encontrar productos frescos de productores locales.</p>
-                                <a href="{% url 'marketplace' %}" 
-                                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
-                                    Explorar Marketplace
-                                </a>
+                            <div class="flex-1 flex items-center justify-center">
+                                <div class="text-center py-8">
+                                    <i class="fas fa-shopping-cart text-gray-400 text-4xl mb-4"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No tienes pedidos aún</h3>
+                                    <p class="text-gray-600 mb-4">Explora el marketplace para encontrar productos frescos de productores locales.</p>
+                                    <a href="{% url 'marketplace' %}" 
+                                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                                        Explorar Marketplace
+                                    </a>
+                                </div>
                             </div>
                         {% endif %}
                     </div>

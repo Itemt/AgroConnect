@@ -2,89 +2,421 @@
 {% load static %}
 
 {% block extra_head %}
-<style>
-    #sidebar.w-20 .sidebar-text {
-        display: none;
+<!-- Script para evitar parpadeo - se ejecuta ANTES del render -->
+<script>
+(function() {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        document.documentElement.classList.add('sidebar-collapsed');
     }
+})();
+</script>
+
+<style>
+    /* Clase que se aplica al HTML cuando el sidebar está colapsado */
+    html.sidebar-collapsed #sidebar {
+        width: 5rem !important;
+    }
+    
+    html.sidebar-collapsed #main-content {
+        margin-left: 5rem !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-text {
+        display: none !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .user-welcome {
+        display: none !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-header {
+        justify-content: center !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-nav a {
+        justify-content: center !important;
+    }
+
+    /* Sidebar styles */
+    #sidebar {
+        background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-900) 100%);
+        box-shadow: var(--shadow-strong);
+        border-right: 1px solid var(--primary-700);
+    }
+    
+    #sidebar.w-20 .sidebar-text {
+        display: none !important;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+    
     #sidebar.w-20 .sidebar-nav a {
         justify-content: center;
+        padding: 0.75rem;
+        min-height: 2.5rem;
     }
-    #sidebar.w-20 .sidebar-nav a.bg-primary-700 {
-        background-color: transparent;
-        border-right: 4px solid #22c55e;
+    
+    #sidebar.w-20 .sidebar-nav a.bg-gradient-to-r {
+        background: transparent;
+        border: none;
     }
+    
+    #sidebar.w-20 .sidebar-nav a.bg-gradient-to-r i {
+        filter: brightness(1.5);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    #sidebar.w-20 .user-welcome {
+        display: none;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+    
+    #sidebar.w-20 .sidebar-header {
+        justify-content: center;
+        padding: 0 0.5rem;
+    }
+    
+    #sidebar.w-20 .sidebar-header .group {
+        flex: none;
+    }
+    
+    /* Smooth transitions for text visibility */
+    .sidebar-text {
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .user-welcome {
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
     #sidebar-toggle {
-        transition: all 0.3s ease-in-out;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    #sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .sidebar-nav a {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .sidebar-nav a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.5s;
+    }
+    
+    .sidebar-nav a:hover::before {
+        left: 100%;
+    }
+    
+    .sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+    }
+    
+    .sidebar-nav a.bg-primary-600 {
+        background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .sidebar-nav a.bg-primary-600:hover {
+        background: linear-gradient(135deg, var(--accent-600) 0%, var(--accent-700) 100%);
+        transform: translateX(4px) scale(1.02);
+    }
+    
+    .main-content {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+        min-height: 100vh;
+    }
+    
+    .user-welcome {
+        background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--primary-200);
+    }
+    
+    #sidebar-toggle {
+        cursor: pointer !important;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+    
+    #sidebar-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(251, 191, 36, 0.6) !important;
+        transform: scale(1.05);
+    }
+    
+    #sidebar-toggle:active {
+        transform: scale(0.95);
+    }
+    
+    .sidebar-nav a {
+        border-radius: 0.75rem;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3rem;
+        background: transparent;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .sidebar-nav a:hover {
+        transform: none;
+    }
+    
+    .sidebar-nav a.bg-gradient-to-r {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Icon and text spacing */
+    .sidebar-nav a {
+        gap: 0.75rem;
+    }
+    
+    .sidebar-nav a i {
+        font-size: 1.25rem;
+        transition: filter 0.3s ease;
+        filter: brightness(0.7);
+        flex-shrink: 0;
+        opacity: 1;
+        transform: none;
+        position: static;
+        width: 1.25rem;
+        height: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #sidebar.w-20 .sidebar-nav a i {
+        opacity: 1;
+        transform: none;
+        position: static;
+        transition: filter 0.3s ease;
+    }
+    
+    .sidebar-nav a:hover i {
+        filter: brightness(1);
+    }
+    
+    .sidebar-nav a.bg-gradient-to-r i {
+        filter: brightness(1.5);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .sidebar-nav a .sidebar-text {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    /* Ensure all navigation links have consistent styling */
+    .sidebar-nav a {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .sidebar-nav a:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    /* Consistent button styles */
+    .sidebar-nav a,
+    label[for="sidebar-toggle-checkbox"] {
+        transition: all 0.3s ease;
+    }
+    
+    /* Simple sidebar toggle */
+    #sidebar-toggle-checkbox {
+        display: none;
+    }
+    
+    /* When checkbox is checked, collapse sidebar */
+    #sidebar-toggle-checkbox:checked + .relative #sidebar {
+        width: 5rem; /* w-20 */
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #main-content {
+        margin-left: 5rem; /* ml-20 */
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-text {
+        display: none !important;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome {
+        display: none;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-header {
+        justify-content: center;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-nav a {
+        justify-content: center;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="relative flex min-h-screen bg-gray-100">
+<!-- Sidebar Toggle with CSS only - no JavaScript -->
+<input type="checkbox" id="sidebar-toggle-checkbox" class="hidden">
+
+<div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 bg-primary-800 text-white p-6 transition-all duration-300 ease-in-out fixed h-full z-40">
-        <div class="flex justify-between items-center mb-8">
-            <a href="{% url 'index' %}" class="flex items-center sidebar-text">
-                <i class="fas fa-seedling text-white text-2xl"></i>
-                <span class="text-xl font-bold text-white ml-2">AgroConnect</span>
+    <div id="sidebar" class="w-64 text-white p-4 transition-all duration-300 ease-in-out fixed h-full z-50 top-0 left-0">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header flex items-center justify-between mb-8 px-1">
+            <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
+                <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <i class="fas fa-cog text-white text-xl"></i>
+                </div>
+                <span class="sidebar-text text-lg font-bold text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
             </a>
-            <button id="sidebar-toggle" class="text-white focus:outline-none">
-                <i class="fas fa-bars text-2xl"></i>
+            <button type="button" onclick="document.getElementById('sidebar-toggle-checkbox').click()" class="w-10 h-10 flex items-center justify-center text-white hover:text-accent-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-opacity-50 rounded-xl hover:bg-white/10 transition-all duration-300 border border-accent-400/30 hover:border-accent-300 cursor-pointer">
+                <i class="fas fa-bars text-lg"></i>
             </button>
         </div>
 
-        <nav class="text-primary-100 sidebar-nav">
+        <!-- User Welcome Card -->
+        <div class="user-welcome mb-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-lg"></i>
+                </div>
+                <div class="ml-3 sidebar-text">
+                    <h3 class="font-semibold text-gray-800 text-sm">{{ user.first_name|default:user.username }}</h3>
+                    <p class="text-primary-600 text-xs font-medium">{{ user.role }}</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="text-white sidebar-nav">
+            <!-- Botón Inicio -->
+            <a href="{% url 'index' %}" class="mb-4">
+                <i class="fas fa-home"></i>
+                <span class="sidebar-text">Inicio</span>
+            </a>
+            
+            <!-- Divider -->
+            <div class="border-t border-primary-700 my-4"></div>
+            
             {% if user.role == 'Productor' %}
-            <a href="{% url 'producer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-tachometer-alt w-5 mr-3"></i>
+            <a href="{% url 'producer_dashboard' %}" class="{% if request.resolver_match.url_name == 'producer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-user w-5 mr-3"></i>
+            <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-user"></i>
                 <span class="sidebar-text">Perfil</span>
             </a>
-            <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-comments w-5 mr-3"></i>
+            <a href="{% url 'conversation_list' %}" class="{% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-comments"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'crop_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'crop_list' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-leaf w-5 mr-3"></i>
+            <a href="{% url 'crop_list' %}" class="{% if request.resolver_match.url_name == 'crop_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-leaf"></i>
                 <span class="sidebar-text">Mis Cultivos</span>
             </a>
-            <a href="{% url 'producer_sales' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_sales' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-chart-line w-5 mr-3"></i>
+            <a href="{% url 'producer_sales' %}" class="{% if request.resolver_match.url_name == 'producer_sales' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-chart-line"></i>
                 <span class="sidebar-text">Ventas</span>
             </a>
             {% elif user.role == 'Comprador' %}
-            <a href="{% url 'buyer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-tachometer-alt w-5 mr-3"></i>
+            <a href="{% url 'buyer_dashboard' %}" class="{% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-user w-5 mr-3"></i>
+            <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-user"></i>
                 <span class="sidebar-text">Perfil</span>
             </a>
-            <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-comments w-5 mr-3"></i>
+            <a href="{% url 'conversation_list' %}" class="{% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-comments"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'order_history' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'order_history' %}bg-primary-700 font-bold{% endif %}">
-                <i class="fas fa-shopping-cart w-5 mr-3"></i>
+            <a href="{% url 'order_history' %}" class="{% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-shopping-cart"></i>
                 <span class="sidebar-text">Pedidos</span>
             </a>
             {% endif %}
-            <a href="{% url 'logout' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors mt-8">
-                <i class="fas fa-sign-out-alt w-5 mr-3"></i>
+            
+            <!-- Divider -->
+            <div class="border-t border-primary-700 my-4"></div>
+            
+            <a href="{% url 'logout' %}" class="text-red-200 hover:text-red-100">
+                <i class="fas fa-sign-out-alt"></i>
                 <span class="sidebar-text">Cerrar Sesión</span>
             </a>
         </nav>
     </div>
 
     <!-- Main content -->
-    <div id="main-content" class="flex-1 overflow-y-auto transition-all duration-300 ease-in-out ml-64">
-        <div class="p-10">
+    <div id="main-content" class="main-content flex-1 overflow-y-auto transition-all duration-300 ease-in-out ml-64">
+        <div class="p-8 lg:p-10">
             {% block user_content %}{% endblock %}
         </div>
     </div>
 </div>
+
+<!-- JavaScript mejorado para sidebar state persistence -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('sidebar-toggle-checkbox');
+    
+    // Sincronizar checkbox con el estado actual
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        checkbox.checked = true;
+    }
+    
+    // Manejar cambios del checkbox
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            document.documentElement.classList.add('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'true');
+        } else {
+            document.documentElement.classList.remove('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
+    });
+});
+</script>
+
 {% endblock %}
