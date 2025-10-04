@@ -26,16 +26,26 @@ def register(request):
             ciudad = form.cleaned_data['ciudad']
 
             if user.role == 'Productor':
+                direccion = form.cleaned_data.get('direccion', '')
+                farm_description = form.cleaned_data.get('farm_description', '')
+                main_crops = form.cleaned_data.get('main_crops', '')
                 ProducerProfile.objects.create(
                     user=user,
                     departamento=departamento,
-                    ciudad=ciudad
+                    ciudad=ciudad,
+                    direccion=direccion,
+                    farm_description=farm_description,
+                    main_crops=main_crops
                 )
             elif user.role == 'Comprador':
+                company_name = form.cleaned_data.get('company_name', '')
+                business_type = form.cleaned_data.get('business_type', '')
                 BuyerProfile.objects.create(
                     user=user,
                     departamento=departamento,
-                    ciudad=ciudad
+                    ciudad=ciudad,
+                    company_name=company_name,
+                    business_type=business_type
                 )
 
             login(request, user)
