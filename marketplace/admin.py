@@ -6,7 +6,7 @@ from .models import Publication
 class PublicationAdmin(admin.ModelAdmin):
     list_display = ('cultivo_info', 'productor_info', 'precio_por_unidad', 'cantidad_disponible', 'estado', 'estado_badge', 'created_at')
     list_filter = ('estado', 'created_at')
-    search_fields = ('cultivo__nombre_producto', 'cultivo__productor__first_name', 'cultivo__productor__last_name')
+    search_fields = ('cultivo__nombre', 'cultivo__productor__first_name', 'cultivo__productor__last_name')
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
@@ -25,7 +25,7 @@ class PublicationAdmin(admin.ModelAdmin):
     )
     
     def cultivo_info(self, obj):
-        return f"{obj.cultivo.nombre_producto} ({obj.cultivo.cantidad_estimada} {obj.cultivo.unidad_medida})"
+        return f"{obj.cultivo.nombre} ({obj.cultivo.cantidad_estimada} {obj.cultivo.unidad_medida})"
     cultivo_info.short_description = 'Cultivo'
     
     def productor_info(self, obj):
