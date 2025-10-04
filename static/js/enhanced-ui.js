@@ -10,6 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Smooth animations for page elements
 function initSmoothAnimations() {
+    // Disabled fade-in animations for admin sections
+    // Only apply to non-admin pages
+    if (window.location.pathname.includes('/admin/') || 
+        window.location.pathname.includes('/profile') ||
+        window.location.pathname.includes('/dashboard') ||
+        window.location.pathname.includes('/crop') ||
+        window.location.pathname.includes('/order') ||
+        window.location.pathname.includes('/conversation')) {
+        return;
+    }
+    
     // Add fade-in animation to cards when they come into view
     const observerOptions = {
         threshold: 0.1,
@@ -120,23 +131,42 @@ function initLoadingStates() {
 // Scroll effects
 function initScrollEffects() {
     let lastScrollY = window.scrollY;
+    let ticking = false;
     
-    window.addEventListener('scroll', () => {
+    function updateNavbar() {
         const currentScrollY = window.scrollY;
         const navbar = document.querySelector('.navbar');
         
         if (navbar) {
+            // Add scrolled class for visual effect
+            if (currentScrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // Optional: Hide navbar on scroll down, show on scroll up
             if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                // Scrolling down
+                // Scrolling down - hide navbar
                 navbar.style.transform = 'translateY(-100%)';
             } else {
-                // Scrolling up
+                // Scrolling up - show navbar
                 navbar.style.transform = 'translateY(0)';
             }
         }
         
         lastScrollY = currentScrollY;
-    });
+        ticking = false;
+    }
+    
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateNavbar);
+            ticking = true;
+        }
+    }
+    
+    window.addEventListener('scroll', requestTick, { passive: true });
 }
 
 // Utility functions
