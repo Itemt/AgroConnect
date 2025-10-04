@@ -180,10 +180,13 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 - **SQLite** - Desarrollo local
 - **PostgreSQL** - Producción
 
-### Deployment
-- **Docker** - Containerización
-- **Coolify** - Plataforma de despliegue
+### Deployment & Storage
+- **Coolify** - Plataforma de deployment self-hosted
+- **Digital Ocean** - Infraestructura (Droplets)
+- **Docker** - Containerización en producción
 - **Git** - Control de versiones
+- **Cloudinary** - Almacenamiento de imágenes en producción
+- **WhiteNoise** - Servir archivos estáticos en producción
 
 ### Librerías Python Principales
 ```
@@ -192,6 +195,9 @@ channels==4.1.0
 pillow==11.0.0
 psycopg2-binary==2.9.10
 faker==33.1.0
+django-cloudinary-storage==0.3.0
+cloudinary==1.44.1
+whitenoise==6.8.2
 ```
 
 ## 📋 Instalación y Configuración
@@ -222,14 +228,21 @@ pip install -r requirements.txt
 ```
 
 #### 4. Configurar Variables de Entorno (Opcional)
-Para desarrollo local, Django usará SQLite por defecto. Para PostgreSQL, configura:
+Para desarrollo local, Django usará SQLite por defecto. Para PostgreSQL y otras configuraciones:
 ```bash
 # Crear archivo .env en la raíz del proyecto
+
+# Base de Datos (opcional, si usas PostgreSQL localmente)
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=agroconnect
 POSTGRES_USER=tu_usuario
 POSTGRES_PASSWORD=tu_contraseña
+
+# Cloudinary (opcional, solo si quieres usar Cloudinary en desarrollo)
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
 ```
 
 #### 5. Aplicar Migraciones
@@ -255,48 +268,131 @@ python manage.py runserver
 
 La aplicación estará disponible en `http://127.0.0.1:8000/`
 
-### Opción 2: Docker (Producción)
+### Opción 2: Deploy con Coolify en Digital Ocean (Producción)
 
-#### 1. Construir la Imagen
+#### Prerequisitos
+- Droplet de Digital Ocean con Coolify instalado
+- PostgreSQL database configurado (puede ser managed o en el mismo droplet)
+
+#### Configuración en Coolify
+
+1. **Crear nuevo proyecto en Coolify:**
+   - Accede a tu panel de Coolify
+   - Click en "New Resource" → "Application"
+   - Selecciona "Public Repository" o "Private Repository"
+
+2. **Conecta tu repositorio:**
+   - URL del repositorio: `https://github.com/tu-usuario/AgroConnect.git`
+   - Branch: `main`
+   - Build Pack: Dockerfile (Coolify detectará el Dockerfile automáticamente)
+
+3. **Configura Variables de Entorno:**
+   
+   En la sección "Environment Variables" de tu aplicación en Coolify:
+
+   **Base de Datos (PostgreSQL):**
+   ```
+   POSTGRES_HOST=tu_host_postgres
+   POSTGRES_PORT=5432
+   POSTGRES_DB=agroconnect
+   POSTGRES_USER=tu_usuario
+   POSTGRES_PASSWORD=tu_password
+   ```
+
+   **Cloudinary (para imágenes en producción):**
+   ```
+   CLOUDINARY_CLOUD_NAME=tu_cloud_name
+   CLOUDINARY_API_KEY=tu_api_key
+   CLOUDINARY_API_SECRET=tu_api_secret
+   ```
+
+   **Configuración Django:**
+   ```
+   DEBUG=False
+   SECRET_KEY=tu_secret_key_super_segura_aqui
+   ALLOWED_HOSTS=tu-dominio.com,www.tu-dominio.com
+   ```
+
+4. **Configurar dominio (opcional):**
+   - En Coolify, ve a "Domains"
+   - Agrega tu dominio personalizado
+   - Coolify configurará SSL automáticamente con Let's Encrypt
+
+5. **Deploy:**
+   - Click en "Deploy"
+   - Coolify construirá la imagen Docker y la desplegará
+   - Tu app estará disponible en el dominio configurado
+
+#### Crear Usuario Administrador en Producción
+
+**Usando la terminal de Coolify:**
 ```bash
-docker build -t agroconnect:latest .
+# En Coolify, ve a tu aplicación → "Terminal" y ejecuta:
+python manage.py shell
 ```
 
-#### 2. Ejecutar con Docker Compose (recomendado)
-```yaml
-version: '3.8'
-
-services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: agroconnect
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: tu_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  web:
-    image: agroconnect:latest
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: agroconnect
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: tu_password
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-
-volumes:
-  postgres_data:
+Luego en el shell de Python:
+```python
+from accounts.models import User
+admin = User.objects.create_superuser(
+    username='admin',
+    email='admin@agroconnect.com',
+    password='tu_password_seguro',
+    role='administrador',
+    first_name='Admin',
+    last_name='AgroConnect'
+)
+exit()
 ```
 
-#### 3. Iniciar los Servicios
+**Eliminar Usuario Administrador:**
+```python
+# En la terminal de Coolify:
+python manage.py shell
+
+from accounts.models import User
+User.objects.filter(username='admin', role='administrador').delete()
+exit()
+```
+
+#### Comandos Útiles en Coolify
+
+**Ver logs en tiempo real:**
+- En Coolify, ve a tu aplicación → "Logs"
+- O usa la terminal y ejecuta: `docker logs -f nombre_contenedor`
+
+**Reiniciar la aplicación:**
+- Click en "Restart" en el panel de Coolify
+- O redeploy: Click en "Deploy" nuevamente
+
+**Ejecutar migraciones manualmente:**
 ```bash
-docker-compose up -d
+# En la terminal de Coolify:
+python manage.py migrate
 ```
+
+**Recolectar archivos estáticos:**
+```bash
+# En la terminal de Coolify:
+python manage.py collectstatic --noinput
+```
+
+#### Troubleshooting
+
+**Si las imágenes no cargan:**
+1. Verifica que las variables de Cloudinary estén configuradas
+2. Revisa los logs: `docker logs nombre_contenedor`
+3. Asegúrate que `DEFAULT_FILE_STORAGE` esté configurado en `settings.py`
+
+**Si la base de datos no conecta:**
+1. Verifica las variables de entorno de PostgreSQL
+2. Asegúrate que el host de PostgreSQL sea accesible desde el contenedor
+3. Si PostgreSQL está en el mismo droplet, usa la IP interna
+
+**Si el deployment falla:**
+1. Revisa los logs de build en Coolify
+2. Verifica que el `Dockerfile` sea correcto
+3. Asegúrate que `requirements.txt` tenga todas las dependencias
 
 ## 🗂️ Estructura del Proyecto
 
