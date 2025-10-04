@@ -124,13 +124,13 @@
                                             </div>
                                             <div class="flex gap-3">
                                                 <a href="{% url 'crop_edit' crop.pk %}" 
-                                                   class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300 group/btn">
-                                                    <i class="fas fa-edit group-hover/btn:scale-110 transition-transform duration-300"></i>
+                                                   class="px-3 py-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300 group/btn text-sm font-medium">
+                                                    <i class="fas fa-edit group-hover/btn:scale-110 transition-transform duration-300 mr-1"></i> Editar
                                                 </a>
                                                 {% if crop.estado == 'listo_para_cosechar' or crop.estado == 'cosechado' %}
                                                     <a href="{% url 'publication_create' crop.pk %}" 
-                                                       class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-300 group/btn">
-                                                        <i class="fas fa-share group-hover/btn:scale-110 transition-transform duration-300"></i>
+                                                       class="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-300 group/btn text-sm font-medium">
+                                                        <i class="fas fa-share group-hover/btn:scale-110 transition-transform duration-300 mr-1"></i> Editar Pub.
                                                     </a>
                                                 {% endif %}
                                             </div>
