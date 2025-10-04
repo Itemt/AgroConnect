@@ -1,0 +1,135 @@
+{% extends 'accounts/user_base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block user_content %}
+<div class="max-w-4xl mx-auto">
+    <div class="card mb-8">
+        <div class="card-body p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+                <a href="{% url 'admin_crop_list' %}" class="text-primary-600 hover:text-primary-800">&larr; Volver</a>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                <strong>Error:</strong> Por favor corrige los errores en el formulario.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.productor.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Productor *
+                        </label>
+                        {{ form.productor|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.productor.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.productor.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre del Cultivo *
+                        </label>
+                        {{ form.nombre|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.nombre.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.nombre.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Cantidad Estimada *
+                        </label>
+                        {{ form.cantidad_estimada|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.cantidad_estimada.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.cantidad_estimada.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Unidad de Medida *
+                        </label>
+                        {{ form.unidad_medida|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.unidad_medida.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.unidad_medida.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Estado *
+                        </label>
+                        {{ form.estado|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.estado.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.estado.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.fecha_siembra.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Fecha de Siembra *
+                        </label>
+                        {{ form.fecha_siembra|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.fecha_siembra.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.fecha_siembra.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Fecha de Disponibilidad *
+                        </label>
+                        {{ form.fecha_disponibilidad|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                        {% if form.fecha_disponibilidad.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.fecha_disponibilidad.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if form.descripcion %}
+                <div>
+                    <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Descripción
+                    </label>
+                    {{ form.descripcion|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
+                    {% if form.descripcion.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.descripcion.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="flex justify-end space-x-4 pt-4 border-t">
+                    <a href="{% url 'admin_crop_list' %}" 
+                       class="btn-outline">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>Guardar Cultivo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
