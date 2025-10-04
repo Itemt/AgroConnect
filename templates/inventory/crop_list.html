@@ -65,7 +65,7 @@
                                 <div class="flex flex-wrap gap-2">
                                     <a href="{% url 'crop_edit' crop.pk %}" 
                                        class="flex-1 text-center bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-edit mr-1"></i> Editar
                                     </a>
                                     
                                     {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
@@ -76,19 +76,19 @@
                                     {% elif crop.publicacion %}
                                         <a href="{% url 'publication_edit' crop.publicacion.pk %}" 
                                            class="flex-1 text-center bg-blue-200 text-blue-800 py-2 px-4 rounded-lg hover:bg-blue-300 transition-colors text-sm font-medium">
-                                            <i class="fas fa-edit"></i> Editar Pub.
+                                            <i class="fas fa-edit mr-1"></i> Editar Pub.
                                         </a>
                                         <a href="{% url 'publication_delete' crop.publicacion.pk %}" 
-                                           class="text-center bg-orange-200 text-orange-800 py-2 px-2 rounded-lg hover:bg-orange-300 transition-colors text-sm font-medium"
+                                           class="text-center bg-orange-200 text-orange-800 py-2 px-3 rounded-lg hover:bg-orange-300 transition-colors text-sm font-medium"
                                            onclick="return confirm('¿Estás seguro de que quieres eliminar esta publicación? El cultivo se mantendrá.')">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash mr-1"></i> Eliminar
                                         </a>
                                     {% endif %}
                                     
                                     <a href="{% url 'crop_delete' crop.pk %}" 
-                                       class="text-center bg-red-200 text-red-800 py-2 px-2 rounded-lg hover:bg-red-300 transition-colors text-sm font-medium"
+                                       class="text-center bg-red-200 text-red-800 py-2 px-3 rounded-lg hover:bg-red-300 transition-colors text-sm font-medium"
                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este cultivo?')">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash mr-1"></i> Eliminar
                                     </a>
                                 </div>
                             </div>
