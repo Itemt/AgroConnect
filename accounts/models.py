@@ -15,6 +15,51 @@ class User(AbstractUser):
     # Nuevo campo para sistema unificado
     can_sell = models.BooleanField(default=False, verbose_name="¿Puede vender?", help_text="Indica si el usuario puede crear publicaciones y vender productos")
 
+
+class Farm(BaseModel):
+    """Modelo para representar las fincas de los vendedores"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='farms', verbose_name="Propietario")
+    nombre = models.CharField(max_length=200, verbose_name="Nombre de la Finca")
+    
+    # Ubicación
+    departamento = models.CharField(max_length=100, verbose_name="Departamento")
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio")
+    direccion = models.CharField(max_length=255, verbose_name="Dirección/Vereda", blank=True, null=True, 
+                                help_text="Vereda, sector o dirección específica")
+    
+    # Información adicional
+    descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, 
+                                   help_text="Descripción de la finca, tipo de terreno, etc.")
+    area = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Área (hectáreas)", 
+                               blank=True, null=True, help_text="Área total de la finca en hectáreas")
+    cultivos_principales = models.CharField(max_length=255, verbose_name="Cultivos Principales", 
+                                           blank=True, null=True, 
+                                           help_text="Principales cultivos de esta finca")
+    
+    # Estado
+    activa = models.BooleanField(default=True, verbose_name="Finca Activa")
+    
+    class Meta:
+        verbose_name = "Finca"
+        verbose_name_plural = "Fincas"
+        ordering = ['-created_at']
+        unique_together = ['user', 'nombre']  # Un usuario no puede tener dos fincas con el mismo nombre
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.user.get_full_name() or self.user.username}"
+    
+    @property
+    def ubicacion_completa(self):
+        """Retorna la ubicación completa formateada"""
+        parts = []
+        if self.direccion:
+            parts.append(self.direccion)
+        if self.ciudad:
+            parts.append(self.ciudad)
+        if self.departamento:
+            parts.append(self.departamento)
+        return ", ".join(parts) if parts else "Ubicación no especificada"
+
 class ProducerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='producer_profile')
     
