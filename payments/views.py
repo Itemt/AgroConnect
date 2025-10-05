@@ -230,3 +230,54 @@ def cancel_payment_view(request, payment_id):
     
     messages.success(request, 'Pago cancelado exitosamente.')
     return redirect('order_detail', order_id=payment.order.id)
+
+
+@login_required
+@require_POST
+def simulate_test_payment_view(request, payment_id):
+    """
+    Simular un pago exitoso en modo test (solo para desarrollo/pruebas)
+    Esta vista permite aprobar pagos manualmente cuando ePayco en modo test
+    no completa el proceso correctamente.
+    """
+    from django.conf import settings
+    
+    # IMPORTANTE: Solo permitir en modo test
+    if not settings.EPAYCO_TEST_MODE:
+        messages.error(request, 'Esta función solo está disponible en modo test.')
+        return redirect('order_history')
+    
+    payment = get_object_or_404(Payment, pk=payment_id)
+    
+    # Verificar que el usuario sea el dueño del pago
+    if request.user != payment.user and not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para realizar esta acción.')
+        return redirect('order_history')
+    
+    # Verificar que el pago esté pendiente
+    if not payment.is_pending:
+        messages.warning(request, f'El pago ya está en estado: {payment.get_status_display()}')
+        return redirect('order_detail', order_id=payment.order.id)
+    
+    # Simular datos de respuesta de ePayco
+    payment.epayco_transaction_id = f"TEST-{payment.epayco_ref}"
+    payment.response_data = {
+        'simulated': True,
+        'test_mode': True,
+        'x_response': 'Aceptada',
+        'x_transaction_state': 'Aceptada',
+        'x_approval_code': 'TEST-APPROVED',
+        'x_transaction_id': f"TEST-{payment.epayco_ref}",
+        'x_ref_payco': f"TEST-{payment.epayco_ref}",
+        'message': 'Pago simulado para pruebas'
+    }
+    
+    # Marcar el pago como aprobado
+    payment.mark_as_approved()
+    
+    messages.success(
+        request, 
+        f'✅ Pago simulado exitosamente. Orden #{payment.order.id} confirmada.'
+    )
+    
+    return redirect('order_detail', order_id=payment.order.id)
