@@ -4,195 +4,208 @@
 {% block title %}Checkout - Pagar Pedido #{{ order.id }}{% endblock %}
 
 {% block user_content %}
-<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+<div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <!-- Header con gradiente -->
     <div class="card mb-6 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 px-6 py-8 relative">
+        <div class="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 px-6 py-6 relative">
             <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
             <div class="relative text-center">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 backdrop-blur-sm rounded-full mb-4">
-                    <i class="fas fa-credit-card text-white text-4xl"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full mb-3">
+                    <i class="fas fa-credit-card text-white text-3xl"></i>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2">Checkout - Pagar Pedido</h1>
-                <p class="text-blue-100">Completa tu pago de forma segura con ePayco</p>
+                <h1 class="text-2xl font-bold text-white mb-1">Checkout - Pagar Pedido</h1>
+                <p class="text-blue-100 text-sm">Completa tu pago de forma segura con ePayco</p>
             </div>
         </div>
     </div>
 
-    <!-- Detalles del Pedido -->
-    <div class="card mb-6">
-        <div class="bg-gray-800 px-6 py-4 rounded-t-xl">
-            <h3 class="font-bold text-white flex items-center">
-                <i class="fas fa-receipt mr-2"></i>
-                Detalles del Pedido #{{ order.id }}
-            </h3>
-        </div>
-        <div class="px-6 py-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200">
-                    <p class="text-xs text-green-600 font-medium mb-1">Producto</p>
-                    <p class="font-bold text-gray-800">{{ order.publicacion.cultivo.nombre }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Columna Izquierda: Detalles del Pedido -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Detalles del Pedido -->
+            <div class="card">
+                <div class="bg-gray-800 px-6 py-3 rounded-t-xl">
+                    <h3 class="font-bold text-white flex items-center">
+                        <i class="fas fa-receipt mr-2"></i>
+                        Detalles del Pedido #{{ order.id }}
+                    </h3>
                 </div>
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200">
-                    <p class="text-xs text-blue-600 font-medium mb-1">Cantidad</p>
-                    <p class="font-bold text-gray-800">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                </div>
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200">
-                    <p class="text-xs text-purple-600 font-medium mb-1">Precio Unitario</p>
-                    <p class="font-bold text-gray-800">${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 border-2 border-primary-200">
-                    <p class="text-xs text-primary-600 font-medium mb-2 flex items-center">
-                        <i class="fas fa-user mr-1"></i> Vendedor
-                    </p>
-                    <p class="font-bold text-gray-800">{{ order.vendedor.get_full_name }}</p>
-                </div>
-                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border-2 border-yellow-200">
-                    <p class="text-xs text-yellow-600 font-medium mb-2 flex items-center">
-                        <i class="fas fa-calendar mr-1"></i> Fecha
-                    </p>
-                    <p class="font-bold text-gray-800">{{ order.created_at|date:"d/m/Y H:i" }}</p>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-300">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm text-green-600 font-medium mb-1">Total a Pagar</p>
-                        <h3 class="text-4xl font-bold text-green-700">${{ order.precio_total|floatformat:0 }} <span class="text-xl">COP</span></h3>
+                <div class="px-6 py-5">
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border-2 border-green-200">
+                            <p class="text-xs text-green-600 font-medium mb-1">Producto</p>
+                            <p class="font-bold text-gray-800">{{ order.publicacion.cultivo.nombre }}</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 border-2 border-blue-200">
+                            <p class="text-xs text-blue-600 font-medium mb-1">Cantidad</p>
+                            <p class="font-bold text-gray-800">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 border-2 border-purple-200">
+                            <p class="text-xs text-purple-600 font-medium mb-1">Precio Unit.</p>
+                            <p class="font-bold text-gray-800">${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
+                        </div>
                     </div>
-                    <div class="bg-green-500 rounded-full w-16 h-16 flex items-center justify-center">
-                        <i class="fas fa-dollar-sign text-white text-3xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Referencia e Información de Pago -->
-    <div class="card mb-6">
-        <div class="bg-blue-600 px-6 py-4 rounded-t-xl">
-            <h3 class="font-bold text-white flex items-center">
-                <i class="fas fa-shield-alt mr-2"></i>
-                Información de Pago Seguro
-            </h3>
-        </div>
-        <div class="px-6 py-5">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-sm text-gray-600 mb-1">Referencia de Pago:</p>
-                    <code class="bg-gray-100 text-gray-800 rounded-lg px-4 py-2 text-lg font-mono font-bold">{{ payment.epayco_ref }}</code>
-                </div>
-                <div class="bg-blue-100 rounded-lg p-3">
-                    <i class="fas fa-lock text-blue-600 text-3xl"></i>
-                </div>
-            </div>
-            
-            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                <p class="text-sm text-blue-800 flex items-center">
-                    <i class="fas fa-shield-alt mr-2"></i>
-                    <strong>Tus datos están protegidos</strong> con ePayco, una plataforma de pagos segura y certificada.
-                </p>
-            </div>
-            
-            {% if checkout_data.test_mode %}
-            <div class="mt-4 bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
-                <p class="font-bold text-yellow-800 mb-1"><i class="fas fa-exclamation-triangle mr-2"></i>Modo de Prueba</p>
-                <p class="text-sm text-yellow-700">Este es un pago de prueba. No se realizará un cargo real.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-3 border-2 border-primary-200">
+                            <p class="text-xs text-primary-600 font-medium mb-1 flex items-center">
+                                <i class="fas fa-user mr-1"></i> Vendedor
+                            </p>
+                            <p class="font-semibold text-gray-800">{{ order.vendedor.get_full_name }}</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-3 border-2 border-yellow-200">
+                            <p class="text-xs text-yellow-600 font-medium mb-1 flex items-center">
+                                <i class="fas fa-calendar mr-1"></i> Fecha
+                            </p>
+                            <p class="font-semibold text-gray-800">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
 
-    <!-- Botón de Pago con ePayco -->
-    <div class="card mb-6">
-        <div class="px-6 py-8 text-center">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6">Selecciona tu método de pago</h3>
-            
-            <!-- Botón de ePayco -->
-            <form id="paymentForm" class="mb-6">
-                <script
-                    src="https://checkout.epayco.co/checkout.js"
-                    class="epayco-button"
-                    data-epayco-key="{{ checkout_data.public_key }}"
-                    data-epayco-amount="{{ checkout_data.payment_data.amount }}"
-                    data-epayco-name="{{ checkout_data.payment_data.name }}"
-                    data-epayco-description="{{ checkout_data.payment_data.description }}"
-                    data-epayco-currency="{{ checkout_data.payment_data.currency }}"
-                    data-epayco-country="{{ checkout_data.payment_data.country }}"
-                    data-epayco-test="{{ checkout_data.test_mode|yesno:'true,false' }}"
-                    data-epayco-external="false"
-                    data-epayco-response="{{ checkout_data.payment_data.response }}"
-                    data-epayco-confirmation="{{ checkout_data.payment_data.confirmation }}"
-                    data-epayco-name-billing="{{ checkout_data.payment_data.name_billing }}"
-                    data-epayco-invoice="{{ checkout_data.payment_data.invoice }}"
-                    data-epayco-extra1="{{ checkout_data.payment_data.extra1 }}"
-                    data-epayco-extra2="{{ checkout_data.payment_data.extra2 }}"
-                    data-epayco-extra3="{{ checkout_data.payment_data.extra3 }}"
-                    data-epayco-type-doc-billing="{{ checkout_data.payment_data.type_doc_billing }}"
-                    data-epayco-mobilephone-billing="{{ checkout_data.payment_data.mobilephone_billing }}"
-                    data-epayco-number-doc-billing="{{ checkout_data.payment_data.number_doc_billing }}"
-                    data-epayco-button="Pagar con ePayco"
-                >
-                </script>
-            </form>
-
-            <!-- Métodos de pago -->
-            <div class="mb-6">
-                <p class="text-gray-600 mb-4 font-medium">Métodos de pago disponibles:</p>
-                <div class="flex justify-center items-center gap-6">
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200">
-                        <i class="fab fa-cc-visa text-4xl text-blue-600"></i>
-                    </div>
-                    <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border-2 border-red-200">
-                        <i class="fab fa-cc-mastercard text-4xl text-red-600"></i>
-                    </div>
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200">
-                        <i class="fas fa-university text-4xl text-purple-600"></i>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200">
-                        <i class="fas fa-money-bill-wave text-4xl text-green-600"></i>
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-300">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-green-600 font-medium mb-1">Total a Pagar</p>
+                                <h3 class="text-3xl font-bold text-green-700">${{ order.precio_total|floatformat:0 }} <span class="text-lg">COP</span></h3>
+                            </div>
+                            <div class="bg-green-500 rounded-full w-14 h-14 flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-white text-2xl"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <a href="{% url 'order_detail' order.id %}" 
-               class="inline-block bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl hover:from-gray-200 hover:to-gray-300 shadow-sm hover:shadow transition-all">
-                <i class="fas fa-arrow-left mr-2"></i>Volver al Pedido
-            </a>
-        </div>
-    </div>
+            <!-- Información de Pago y Referencia -->
+            <div class="card">
+                <div class="bg-blue-600 px-6 py-3 rounded-t-xl">
+                    <h3 class="font-bold text-white flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        Información de Pago Seguro
+                    </h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">Referencia de Pago:</p>
+                            <code class="bg-gray-100 text-gray-800 rounded-lg px-3 py-1.5 text-sm font-mono font-bold">{{ payment.epayco_ref }}</code>
+                        </div>
+                        <div class="bg-blue-100 rounded-lg p-2">
+                            <i class="fas fa-lock text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+                        <p class="text-xs text-blue-800 flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Tus datos están protegidos con ePayco, una plataforma segura y certificada.
+                        </p>
+                    </div>
+                    
+                    {% if checkout_data.test_mode %}
+                    <div class="mt-3 bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
+                        <p class="font-bold text-yellow-800 text-xs mb-1"><i class="fas fa-exclamation-triangle mr-1"></i>Modo de Prueba</p>
+                        <p class="text-xs text-yellow-700">Este es un pago de prueba. No se realizará un cargo real.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
-    <!-- Información de Seguridad -->
-    <div class="card">
-        <div class="bg-blue-500 px-6 py-4 rounded-t-xl">
-            <h4 class="font-bold text-white flex items-center">
-                <i class="fas fa-info-circle mr-2"></i>
-                Información Importante
-            </h4>
+            <!-- Botón de Pago -->
+            <div class="card">
+                <div class="px-6 py-5 text-center">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Selecciona tu método de pago</h3>
+                    
+                    <!-- Botón de ePayco -->
+                    <form id="paymentForm" class="mb-4">
+                        <script
+                            src="https://checkout.epayco.co/checkout.js"
+                            class="epayco-button"
+                            data-epayco-key="{{ checkout_data.public_key }}"
+                            data-epayco-amount="{{ checkout_data.payment_data.amount }}"
+                            data-epayco-name="{{ checkout_data.payment_data.name }}"
+                            data-epayco-description="{{ checkout_data.payment_data.description }}"
+                            data-epayco-currency="{{ checkout_data.payment_data.currency }}"
+                            data-epayco-country="{{ checkout_data.payment_data.country }}"
+                            data-epayco-test="{{ checkout_data.test_mode|yesno:'true,false' }}"
+                            data-epayco-external="false"
+                            data-epayco-response="{{ checkout_data.payment_data.response }}"
+                            data-epayco-confirmation="{{ checkout_data.payment_data.confirmation }}"
+                            data-epayco-name-billing="{{ checkout_data.payment_data.name_billing }}"
+                            data-epayco-invoice="{{ checkout_data.payment_data.invoice }}"
+                            data-epayco-extra1="{{ checkout_data.payment_data.extra1 }}"
+                            data-epayco-extra2="{{ checkout_data.payment_data.extra2 }}"
+                            data-epayco-extra3="{{ checkout_data.payment_data.extra3 }}"
+                            data-epayco-type-doc-billing="{{ checkout_data.payment_data.type_doc_billing }}"
+                            data-epayco-mobilephone-billing="{{ checkout_data.payment_data.mobilephone_billing }}"
+                            data-epayco-number-doc-billing="{{ checkout_data.payment_data.number_doc_billing }}"
+                            data-epayco-button="Pagar con ePayco"
+                        >
+                        </script>
+                    </form>
+
+                    <a href="{% url 'order_detail' order.id %}" 
+                       class="inline-block bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-semibold py-2 px-5 rounded-lg hover:from-gray-200 hover:to-gray-300 shadow-sm hover:shadow transition-all text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>Volver al Pedido
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="px-6 py-5">
-            <ul class="space-y-3">
-                <li class="flex items-start">
-                    <i class="fas fa-shield-check text-green-500 mr-3 mt-1 text-lg"></i>
-                    <span class="text-sm text-gray-700">El pago se procesa de forma segura a través de ePayco</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-envelope text-blue-500 mr-3 mt-1 text-lg"></i>
-                    <span class="text-sm text-gray-700">Recibirás una confirmación por correo electrónico</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-bell text-purple-500 mr-3 mt-1 text-lg"></i>
-                    <span class="text-sm text-gray-700">El vendedor será notificado automáticamente</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-history text-orange-500 mr-3 mt-1 text-lg"></i>
-                    <span class="text-sm text-gray-700">Puedes seguir el estado de tu pedido en tu historial</span>
-                </li>
-            </ul>
+
+        <!-- Columna Derecha: Métodos e Info -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Métodos de Pago -->
+            <div class="card">
+                <div class="px-6 py-4">
+                    <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-credit-card text-primary-600 mr-2"></i>
+                        Métodos de Pago Disponibles
+                    </h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 border-2 border-blue-200 text-center">
+                            <i class="fab fa-cc-visa text-3xl text-blue-600 mb-1"></i>
+                            <p class="text-xs font-bold text-gray-700">Tarjeta</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 border-2 border-purple-200 text-center">
+                            <i class="fas fa-university text-3xl text-purple-600 mb-1"></i>
+                            <p class="text-xs font-bold text-gray-700">PSE</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border-2 border-green-200 text-center">
+                            <i class="fas fa-money-bill-wave text-3xl text-green-600 mb-1"></i>
+                            <p class="text-xs font-bold text-gray-700">Efectivo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Importante -->
+            <div class="card">
+                <div class="bg-blue-500 px-6 py-3 rounded-t-xl">
+                    <h4 class="font-bold text-white flex items-center text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Información Importante
+                    </h4>
+                </div>
+                <div class="px-6 py-4">
+                    <ul class="space-y-2.5">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5 text-sm"></i>
+                            <span class="text-xs text-gray-700">El pago se procesa de forma segura a través de ePayco</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-blue-500 mr-2 mt-0.5 text-sm"></i>
+                            <span class="text-xs text-gray-700">Recibirás una confirmación por correo electrónico</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bell text-purple-500 mr-2 mt-0.5 text-sm"></i>
+                            <span class="text-xs text-gray-700">El vendedor será notificado automáticamente</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-history text-orange-500 mr-2 mt-0.5 text-sm"></i>
+                            <span class="text-xs text-gray-700">Puedes seguir el estado en tu historial</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
