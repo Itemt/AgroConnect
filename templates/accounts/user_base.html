@@ -410,6 +410,10 @@
                 <i class="fas fa-user"></i>
                 <span class="sidebar-text">Perfil</span>
             </a>
+            <a href="{% url 'farm_list' %}" class="{% if 'farm' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-home"></i>
+                <span class="sidebar-text">Mis Fincas</span>
+            </a>
             <a href="{% url 'conversation_list' %}" class="{% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-comments"></i>
                 <span class="sidebar-text">Mensajes</span>
