@@ -53,6 +53,17 @@
                             <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
                                 <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
                             </a>
+                            {% if epayco_test_mode %}
+                            <form method="POST" action="{% url 'payments:simulate_test_payment' order.payment.id %}" class="inline"
+                                  onsubmit="return confirm('¿Deseas simular un pago exitoso para este pedido?');">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center"
+                                        title="Simular pago exitoso (solo modo test)">
+                                    <i class="fas fa-flask mr-2"></i>Simular Pago (TEST)
+                                </button>
+                            </form>
+                            {% endif %}
                         {% endif %}
                     {% else %}
                         <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">

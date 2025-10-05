@@ -134,11 +134,15 @@ def order_detail_view(request, order_id):
     # Agregar acciones disponibles
     order.available_actions = order.get_available_actions_for_user(request.user)
     
+    # Importar settings para verificar modo test
+    from django.conf import settings
+    
     context = {
         'order': order,
         'can_rate': can_rate,
         'existing_rating': existing_rating,
-        'user_role': request.user.role
+        'user_role': request.user.role,
+        'epayco_test_mode': settings.EPAYCO_TEST_MODE
     }
     return render(request, 'sales/order_detail.html', context)
 
