@@ -7,6 +7,27 @@
     
     {% load static %}
     
+    <!-- Meta Description -->
+    <meta name="description" content="{% block description %}AgroConnect - Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="AgroConnect">
+    <meta property="og:locale" content="es_CO">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
