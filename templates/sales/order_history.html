@@ -87,7 +87,7 @@
                                 <h3 class="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
                                     Pedido #{{ order.id }}
                                 </h3>
-                                <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                                <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y" }}</p>
                             </div>
                         </div>
                         <h4 class="text-lg font-semibold text-gray-800 mb-1">{{ order.publicacion.cultivo.nombre }}</h4>
