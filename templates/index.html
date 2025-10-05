@@ -70,30 +70,40 @@
                                                 <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-primary-600 text-sm"></i>
                                                 </div>
-                                                Gestiona tu inventario de cultivos
+                                                Publica productos y gestiona stock en tiempo real
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-primary-600 text-sm"></i>
                                                 </div>
-                                                Publica productos en el marketplace
+                                                Recibe notificaciones instantáneas de pagos y pedidos
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-primary-600 text-sm"></i>
                                                 </div>
-                                                Comunícate directamente con compradores
+                                                Actualiza estados (confirmado, enviado, entregado)
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-primary-600 text-sm"></i>
                                                 </div>
-                                                Controla tus ventas y pedidos
+                                                Conversa con compradores por chat integrado
+                                            </li>
+                                            <li class="flex items-center text-gray-700">
+                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+                                                </div>
+                                                Recibe calificaciones y construye tu reputación
+                                            </li>
+                                            <li class="flex items-center text-gray-700">
+                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+                                                </div>
+                                                Dashboard de ventas y métricas clave
                                             </li>
                                         </ul>
-                                        <a href="{% url 'register' %}" class="btn-primary w-full">
-                                            <i class="fas fa-seedling mr-2"></i>Registrarse como Productor
-                                        </a>
+                                        
                                     </div>
                                 </div>
                                 
@@ -109,34 +119,81 @@
                                                 <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-blue-600 text-sm"></i>
                                                 </div>
-                                                Explora productos frescos y locales
+                                                Carrito y checkout seguro con ePayco
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-blue-600 text-sm"></i>
                                                 </div>
-                                                Contacta directamente a productores
+                                                Notificaciones en tiempo real del estado del pedido
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-blue-600 text-sm"></i>
                                                 </div>
-                                                Realiza pedidos personalizados
+                                                Seguimiento: enviado, en tránsito, entregado y recibido
                                             </li>
                                             <li class="flex items-center text-gray-700">
                                                 <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                                                     <i class="fas fa-check text-blue-600 text-sm"></i>
                                                 </div>
-                                                Rastrea tus compras
+                                                Mensajería directa con productores
+                                            </li>
+                                            <li class="flex items-center text-gray-700">
+                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
+                                                </div>
+                                                Califica a los vendedores y consulta tu historial
+                                            </li>
+                                            <li class="flex items-center text-gray-700">
+                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
+                                                </div>
+                                                Dashboard de compras y métricas personales
                                             </li>
                                         </ul>
-                                        <a href="{% url 'register' %}" class="btn-primary w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-                                            <i class="fas fa-shopping-cart mr-2"></i>Registrarse como Comprador
-                                        </a>
+                                        
                                     </div>
                                 </div>
                             </div>
-                            
+                            <div class="text-center mt-6">
+                                <a href="{% url 'register' %}" class="btn-primary inline-flex items-center px-10 py-4 text-lg md:text-xl">
+                                    <i class="fas fa-user-plus mr-3"></i>Crear mi cuenta
+                                </a>
+                            </div>
+
+                            <!-- Características principales bajo las tarjetas -->
+                            <div class="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div class="stat-card group">
+                                    <div class="stat-icon bg-gradient-to-br from-primary-100 to-primary-200 group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300">
+                                        <i class="fas fa-seedling text-primary-600"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Directo del Campo</h3>
+                                    <p class="text-gray-600">Productos frescos sin intermediarios, directo de los productores.</p>
+                                </div>
+                                <div class="stat-card group">
+                                    <div class="stat-icon bg-gradient-to-br from-accent-100 to-accent-200 group-hover:from-accent-200 group-hover:to-accent-300 transition-all duration-300">
+                                        <i class="fas fa-dollar-sign text-accent-600"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Precios Justos</h3>
+                                    <p class="text-gray-600">Mejores precios para todos al eliminar intermediarios.</p>
+                                </div>
+                                <div class="stat-card group">
+                                    <div class="stat-icon bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
+                                        <i class="fas fa-handshake text-blue-600"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Comunicación Directa</h3>
+                                    <p class="text-gray-600">Habla con productores para personalizar tus pedidos.</p>
+                                </div>
+                                <div class="stat-card group">
+                                    <div class="stat-icon bg-gradient-to-br from-purple-100 to-purple-200 group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-300">
+                                        <i class="fas fa-chart-bar text-purple-600"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Gestión Completa</h3>
+                                    <p class="text-gray-600">Administra cultivos, ventas y pedidos en un solo lugar.</p>
+                                </div>
+                            </div>
+
                             <div class="text-center mt-12 pt-8 border-t border-gray-200">
                                 <p class="text-gray-600 text-lg">¿Ya tienes cuenta? 
                                     <a href="{% url 'login' %}" class="text-primary-600 hover:text-primary-700 font-semibold text-lg">Inicia sesión aquí</a>
@@ -149,47 +206,4 @@
         </div>
     </div>
     
-    <!-- Features Section -->
-    <div class="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-6">¿Por qué AgroConnect?</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Descubre las ventajas de conectar directamente con el campo y formar parte de una comunidad comprometida con la agricultura sostenible</p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-primary-100 to-primary-200 group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300">
-                        <i class="fas fa-seedling text-primary-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Directo del Campo</h3>
-                    <p class="text-gray-600 leading-relaxed">Productos frescos sin intermediarios, directo de los productores a tu mesa con la máxima calidad y frescura.</p>
-                </div>
-                
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-accent-100 to-accent-200 group-hover:from-accent-200 group-hover:to-accent-300 transition-all duration-300">
-                        <i class="fas fa-dollar-sign text-accent-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Precios Justos</h3>
-                    <p class="text-gray-600 leading-relaxed">Mejores precios para productores y compradores al eliminar intermediarios y crear un comercio más equitativo.</p>
-                </div>
-                
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
-                        <i class="fas fa-handshake text-blue-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Comunicación Directa</h3>
-                    <p class="text-gray-600 leading-relaxed">Habla directamente con productores para personalizar tus pedidos y conocer la historia detrás de cada producto.</p>
-                </div>
-                
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-purple-100 to-purple-200 group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-300">
-                        <i class="fas fa-chart-bar text-purple-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Gestión Completa</h3>
-                    <p class="text-gray-600 leading-relaxed">Herramientas avanzadas para gestionar cultivos, ventas, pedidos y más, todo en una sola plataforma.</p>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}
