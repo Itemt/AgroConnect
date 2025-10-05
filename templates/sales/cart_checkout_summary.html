@@ -199,4 +199,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Detectar cuando se cierra el modal de ePayco
+    // Monitorear clicks en los botones de pagar para empezar a detectar el cierre del modal
+    document.addEventListener('DOMContentLoaded', function() {
+        var payButtons = document.querySelectorAll('button[onclick*="epayco-button-render"]');
+        
+        payButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Esperar a que el modal se abra
+                setTimeout(function() {
+                    var checkModalInterval = setInterval(function() {
+                        var epaycoModal = document.querySelector('.epayco-iframe-content');
+                        var epaycoIframe = document.querySelector('iframe[src*="checkout.epayco"]');
+                        
+                        if (epaycoModal || epaycoIframe) {
+                            // El modal está abierto, comenzar a monitorear su cierre
+                            clearInterval(checkModalInterval);
+                            
+                            var checkClosedInterval = setInterval(function() {
+                                var modalStillOpen = document.querySelector('.epayco-iframe-content') || 
+                                                    document.querySelector('iframe[src*="checkout.epayco"]');
+                                
+                                if (!modalStillOpen) {
+                                    // El modal se cerró, recargar la página
+                                    clearInterval(checkClosedInterval);
+                                    console.log('Modal de ePayco cerrado, recargando página...');
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 500); // Pequeño delay para asegurar que el modal se cerró completamente
+                                }
+                            }, 500); // Verificar cada 500ms
+                        }
+                    }, 500); // Verificar cada 500ms hasta que el modal se abra
+                }, 500); // Delay inicial para que el modal tenga tiempo de abrirse
+            });
+        });
+    });
+</script>
+
 {% endblock %}
