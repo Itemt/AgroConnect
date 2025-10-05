@@ -164,7 +164,7 @@
         document.getElementById('publicationQuantity').textContent = quantity + ' ' + unit;
         
         // Actualizar action del formulario
-        document.getElementById('deleteForm').action = '/marketplace/publication/' + publicationId + '/delete/';
+        document.getElementById('deleteForm').action = '/publication/' + publicationId + '/delete/';
         
         // Mostrar modal con animación
         const modal = document.getElementById('deleteModal');
