@@ -256,7 +256,7 @@
                             {% endif %}
                         {% endif %}
                         
-                        {% if order.can_be_cancelled_by_seller and order.estado not in ['pendiente', 'confirmado', 'en_preparacion'] %}
+                        {% if order.can_be_cancelled_by_seller %}
                             <a href="{% url 'cancel_order' order.id %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
                                 <i class="fas fa-times-circle mr-2"></i>Cancelar
                             </a>
