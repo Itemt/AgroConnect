@@ -9,7 +9,7 @@ class MessageForm(forms.ModelForm):
             'content': forms.Textarea(attrs={
                 'rows': 4, 
                 'placeholder': 'Escribe tu mensaje aquí...',
-                'class': 'form-control'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none'
             })
         }
 
@@ -169,13 +169,15 @@ class OrderConfirmReceiptForm(forms.Form):
     confirmar_recepcion = forms.BooleanField(
         required=True,
         label="Confirmo que he recibido el pedido en buen estado",
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        widget=forms.CheckboxInput(attrs={
+            'class': 'h-5 w-5 text-green-600 border-green-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer'
+        })
     )
     notas_recepcion = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={
-            'rows': 3,
-            'class': 'form-control',
+            'rows': 4,
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none',
             'placeholder': 'Notas sobre la recepción del pedido (opcional)'
         }),
         label="Notas sobre la recepción"
@@ -188,7 +190,7 @@ class OrderSearchForm(forms.Form):
     search = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
             'placeholder': 'Buscar por producto, comprador o vendedor...'
         }),
         label="Buscar"
@@ -205,7 +207,7 @@ class OrderSearchForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={
             'type': 'date',
-            'class': 'form-control'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
         }),
         label="Desde"
     )
@@ -213,7 +215,7 @@ class OrderSearchForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={
             'type': 'date',
-            'class': 'form-control'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
         }),
         label="Hasta"
     )
