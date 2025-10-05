@@ -11,21 +11,24 @@ class User(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
     cedula = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name="Cédula", help_text="Número de cédula de identidad")
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
+    
+    # Nuevo campo para sistema unificado
+    can_sell = models.BooleanField(default=False, verbose_name="¿Puede vender?", help_text="Indica si el usuario puede crear publicaciones y vender productos")
 
 class ProducerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='producer_profile')
     
-    # Ubicación estructurada
-    departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True)
-    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True)
-    direccion = models.CharField(max_length=255, verbose_name="Dirección específica", blank=True, 
+    # Ubicación estructurada (TODOS OPCIONALES)
+    departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True, null=True)
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True, null=True)
+    direccion = models.CharField(max_length=255, verbose_name="Dirección específica", blank=True, null=True,
                                help_text="Ej: Vereda, finca, sector específico")
     
-    # Campos existentes (mantener compatibilidad)
-    location = models.CharField(max_length=255, blank=True, 
+    # Campos existentes (mantener compatibilidad) - TODOS OPCIONALES
+    location = models.CharField(max_length=255, blank=True, null=True,
                               help_text="Campo legacy - se actualizará automáticamente")
-    farm_description = models.TextField(verbose_name="Descripción de la Finca", blank=True)
-    main_crops = models.CharField(max_length=255, verbose_name="Cultivos Principales", blank=True)
+    farm_description = models.TextField(verbose_name="Descripción de la Finca", blank=True, null=True)
+    main_crops = models.CharField(max_length=255, verbose_name="Cultivos Principales", blank=True, null=True)
 
     # Estadísticas de ventas (movidas desde sales.UserProfile)
     total_ventas = models.IntegerField(default=0, verbose_name="Total de Ventas")
@@ -71,12 +74,12 @@ class ProducerProfile(BaseModel):
 
 class BuyerProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_profile')
-    company_name = models.CharField(max_length=255, verbose_name="Nombre de la Empresa", blank=True)
-    business_type = models.CharField(max_length=255, verbose_name="Tipo de Negocio", blank=True)
+    company_name = models.CharField(max_length=255, verbose_name="Nombre de la Empresa", blank=True, null=True)
+    business_type = models.CharField(max_length=255, verbose_name="Tipo de Negocio", blank=True, null=True)
     
-    # Ubicación
-    departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True)
-    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True)
+    # Ubicación (TODOS OPCIONALES)
+    departamento = models.CharField(max_length=100, verbose_name="Departamento", blank=True, null=True)
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad/Municipio", blank=True, null=True)
 
     # Estadísticas de compras (movidas desde sales.UserProfile)
     total_compras = models.IntegerField(default=0, verbose_name="Total de Compras")
