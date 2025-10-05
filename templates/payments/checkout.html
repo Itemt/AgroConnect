@@ -159,13 +159,6 @@
                             Tus datos están protegidos con ePayco, una plataforma segura y certificada.
                         </p>
                     </div>
-                    
-                    {% if checkout_data.test_mode %}
-                    <div class="mt-3 bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
-                        <p class="font-bold text-yellow-800 text-xs mb-1"><i class="fas fa-exclamation-triangle mr-1"></i>Modo de Prueba</p>
-                        <p class="text-xs text-yellow-700">Este es un pago de prueba. No se realizará un cargo real.</p>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
 
@@ -175,50 +168,64 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Selecciona tu método de pago</h3>
                     
                     <!-- Botón de ePayco -->
-                    <form id="paymentForm" class="mb-4">
-                        <script
-                            src="https://checkout.epayco.co/checkout.js"
-                            class="epayco-button"
-                            data-epayco-key="{{ checkout_data.public_key }}"
-                            data-epayco-amount="{{ checkout_data.payment_data.amount }}"
-                            data-epayco-name="{{ checkout_data.payment_data.name }}"
-                            data-epayco-description="{{ checkout_data.payment_data.description }}"
-                            data-epayco-currency="{{ checkout_data.payment_data.currency }}"
-                            data-epayco-country="{{ checkout_data.payment_data.country }}"
-                            data-epayco-test="{{ checkout_data.test_mode|yesno:'true,false' }}"
-                            data-epayco-external="false"
-                            data-epayco-response="{{ checkout_data.payment_data.response }}"
-                            data-epayco-confirmation="{{ checkout_data.payment_data.confirmation }}"
-                            data-epayco-name-billing="{{ checkout_data.payment_data.name_billing }}"
-                            data-epayco-invoice="{{ checkout_data.payment_data.invoice }}"
-                            data-epayco-extra1="{{ checkout_data.payment_data.extra1 }}"
-                            data-epayco-extra2="{{ checkout_data.payment_data.extra2 }}"
-                            data-epayco-extra3="{{ checkout_data.payment_data.extra3 }}"
-                            data-epayco-type-doc-billing="{{ checkout_data.payment_data.type_doc_billing }}"
-                            data-epayco-mobilephone-billing="{{ checkout_data.payment_data.mobilephone_billing }}"
-                            data-epayco-number-doc-billing="{{ checkout_data.payment_data.number_doc_billing }}"
-                            data-epayco-button="Pagar con ePayco"
-                        >
-                        </script>
-                    </form>
+                    <div class="mb-4">
+                        <button type="button" id="epayco-button" 
+                                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Pagar con ePayco
+                        </button>
+                    </div>
+                    
+                    <script src="https://checkout.epayco.co/checkout.js"></script>
+                    <script>
+                        document.getElementById('epayco-button').addEventListener('click', function() {
+                            var handler = ePayco.checkout.configure({
+                                key: '{{ checkout_data.public_key }}',
+                                test: {{ checkout_data.test_mode|yesno:'true,false' }}
+                            });
+                            
+                            var data = {
+                                name: '{{ checkout_data.payment_data.name }}',
+                                description: '{{ checkout_data.payment_data.description }}',
+                                invoice: '{{ checkout_data.payment_data.invoice }}',
+                                currency: '{{ checkout_data.payment_data.currency }}',
+                                amount: '{{ checkout_data.payment_data.amount }}',
+                                tax_base: '0',
+                                tax: '0',
+                                country: '{{ checkout_data.payment_data.country }}',
+                                lang: 'es',
+                                
+                                // URLs de respuesta
+                                external: 'false',
+                                response: '{{ checkout_data.payment_data.response }}',
+                                confirmation: '{{ checkout_data.payment_data.confirmation }}',
+                                
+                                // Información del cliente
+                                name_billing: '{{ checkout_data.payment_data.name_billing }}',
+                                type_doc_billing: '{{ checkout_data.payment_data.type_doc_billing }}',
+                                mobilephone_billing: '{{ checkout_data.payment_data.mobilephone_billing }}',
+                                number_doc_billing: '{{ checkout_data.payment_data.number_doc_billing }}',
+                                
+                                // Extras
+                                extra1: '{{ checkout_data.payment_data.extra1 }}',
+                                extra2: '{{ checkout_data.payment_data.extra2 }}',
+                                extra3: '{{ checkout_data.payment_data.extra3 }}'
+                            };
+                            
+                            handler.open(data);
+                        });
+                    </script>
 
                     {% if checkout_data.test_mode %}
                     <!-- Botón de Simulación de Pago (Solo en Modo Test) -->
-                    <div class="mb-4 bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4">
-                        <h4 class="text-sm font-bold text-yellow-800 mb-2 flex items-center justify-center">
-                            <i class="fas fa-flask mr-2"></i>
-                            Modo de Desarrollo
-                        </h4>
-                        <p class="text-xs text-yellow-700 mb-3">
-                            Si ePayco no completa el proceso (se queda cargando), usa este botón para simular un pago exitoso:
-                        </p>
+                    <div class="mb-4">
                         <form method="POST" action="{% url 'payments:simulate_test_payment' payment.id %}" 
-                              onsubmit="return confirm('¿Deseas simular un pago exitoso para este pedido?');">
+                              onsubmit="return confirm('¿Confirmar pago para este pedido?');">
                             {% csrf_token %}
                             <button type="submit" 
-                                    class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold py-3 px-6 rounded-lg hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center">
+                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center">
                                 <i class="fas fa-check-circle mr-2"></i>
-                                Simular Pago Exitoso (TEST)
+                                Confirmar Pago
                             </button>
                         </form>
                     </div>
