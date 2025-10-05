@@ -76,10 +76,10 @@
                         <a href="{% url 'confirm_order_receipt' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center">
                             <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
                         </a>
-                    {% elif action_key == 'rate_seller' %}
-                        <a href="{% url 'rate_seller' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                    {% elif action_key == 'rate_seller' or action_key == 'edit_rating_seller' %}
+                        <button onclick="openRateSellerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
                             <i class="fas fa-star mr-2"></i>{{ action_label }}
-                        </a>
+                        </button>
                     {% elif action_key == 'rate_buyer' or action_key == 'edit_rating_buyer' %}
                         <button onclick="openRateBuyerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
                             <i class="fas fa-star mr-2"></i>{{ action_label }}
@@ -511,37 +511,35 @@
     </div>
 </div>
 
-<!-- Modal para Calificar Comprador -->
-<div id="rateBuyerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" style="backdrop-filter: blur(4px);">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateBuyerModalContent">
+<!-- Modal para Calificar Vendedor -->
+<div id="rateSellerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateSellerModalContent">
         <!-- Header -->
-        <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-600 px-6 py-6 rounded-t-2xl relative overflow-hidden sticky top-0 z-10">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
+        <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-600 px-5 py-4 rounded-t-2xl relative overflow-hidden sticky top-0 z-10">
+            <div class="absolute inset-0 bg-white opacity-10"></div>
             <div class="relative flex items-center justify-between">
                 <div class="flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full p-3 backdrop-blur-sm">
-                        <i class="fas fa-star text-white text-2xl"></i>
+                    <div class="bg-white bg-opacity-20 rounded-full p-2 backdrop-blur-sm">
+                        <i class="fas fa-star text-white text-xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-white ml-4">{% if my_rating and user_role == 'Productor' %}Editar Calificación{% else %}Calificar Comprador{% endif %}</h3>
+                    <h3 class="text-xl font-bold text-white ml-3">{% if my_rating and user_role == 'Comprador' %}Editar Calificación{% else %}Calificar Vendedor{% endif %}</h3>
                 </div>
-                <button onclick="closeRateBuyerModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all">
-                    <i class="fas fa-times text-xl"></i>
+                <button onclick="closeRateSellerModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <p class="relative text-yellow-100 mt-2 text-sm">{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
         </div>
 
         <!-- Body -->
-        <form method="post" action="{% url 'rate_buyer' order.id %}" class="px-6 py-6">
+        <form method="post" action="{% url 'rate_seller' order.id %}" class="px-5 py-4">
             {% csrf_token %}
-            
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <!-- Calificación General -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         <i class="fas fa-star text-yellow-500 mr-1"></i> Calificación General
                     </label>
-                    <select name="calificacion_general" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <select name="calificacion_general" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         <option value="">Selecciona...</option>
                         <option value="5" {% if my_rating and my_rating.calificacion_general == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
                         <option value="4" {% if my_rating and my_rating.calificacion_general == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
@@ -553,10 +551,10 @@
 
                 <!-- Calificación Comunicación -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         <i class="fas fa-comments text-blue-500 mr-1"></i> Comunicación
                     </label>
-                    <select name="calificacion_comunicacion" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="calificacion_comunicacion" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Selecciona...</option>
                         <option value="5" {% if my_rating and my_rating.calificacion_comunicacion == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
                         <option value="4" {% if my_rating and my_rating.calificacion_comunicacion == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
@@ -568,10 +566,10 @@
 
                 <!-- Calificación Puntualidad -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Pagos
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Entregas
                     </label>
-                    <select name="calificacion_puntualidad" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <select name="calificacion_puntualidad" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         <option value="">Selecciona...</option>
                         <option value="5" {% if my_rating and my_rating.calificacion_puntualidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
                         <option value="4" {% if my_rating and my_rating.calificacion_puntualidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
@@ -581,12 +579,12 @@
                     </select>
                 </div>
 
-                <!-- Calificación Profesionalismo -->
+                <!-- Calificación Calidad -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-handshake text-purple-500 mr-1"></i> Profesionalismo
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-box-open text-purple-500 mr-1"></i> Calidad del Producto
                     </label>
-                    <select name="calificacion_calidad" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <select name="calificacion_calidad" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                         <option value="">Selecciona...</option>
                         <option value="5" {% if my_rating and my_rating.calificacion_calidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
                         <option value="4" {% if my_rating and my_rating.calificacion_calidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
@@ -598,17 +596,133 @@
 
                 <!-- Comentario -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         <i class="fas fa-comment-alt text-gray-500 mr-1"></i> Comentario (Opcional)
                     </label>
-                    <textarea name="comentario" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{% if my_rating %}{{ my_rating.comentario }}{% endif %}</textarea>
+                    <textarea name="comentario" rows="2" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{% if my_rating %}{{ my_rating.comentario }}{% endif %}</textarea>
                 </div>
 
                 <!-- Recomendación -->
-                <div class="bg-gray-50 p-4 rounded-xl">
+                <div class="bg-gray-50 p-3 rounded-lg">
                     <label class="flex items-start cursor-pointer">
-                        <input type="checkbox" name="recomendaria" value="true" {% if not my_rating or my_rating.recomendaria %}checked{% endif %} class="mt-1 h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <span class="ml-3 text-sm font-medium text-gray-700">
+                        <input type="checkbox" name="recomendaria" value="true" {% if not my_rating or my_rating.recomendaria %}checked{% endif %} class="mt-0.5 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700">
+                            <i class="fas fa-thumbs-up text-green-600 mr-1"></i> ¿Recomendarías comprar a este vendedor?
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeRateSellerModal()" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold transition-all text-sm">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all text-sm">
+                    <i class="fas fa-star mr-1"></i> {% if my_rating and user_role == 'Comprador' %}Actualizar{% else %}Enviar{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Calificar Comprador -->
+<div id="rateBuyerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateBuyerModalContent">
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-600 px-5 py-4 rounded-t-2xl relative overflow-hidden sticky top-0 z-10">
+            <div class="absolute inset-0 bg-white opacity-10"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="bg-white bg-opacity-20 rounded-full p-2 backdrop-blur-sm">
+                        <i class="fas fa-star text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white ml-3">{% if my_rating and user_role == 'Productor' %}Editar Calificación{% else %}Calificar Comprador{% endif %}</h3>
+                </div>
+                <button onclick="closeRateBuyerModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <form method="post" action="{% url 'rate_buyer' order.id %}" class="px-5 py-4">
+            {% csrf_token %}
+            
+            <div class="space-y-3">
+                <!-- Calificación General -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-star text-yellow-500 mr-1"></i> Calificación General
+                    </label>
+                    <select name="calificacion_general" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="">Selecciona...</option>
+                        <option value="5" {% if my_rating and my_rating.calificacion_general == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4" {% if my_rating and my_rating.calificacion_general == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                        <option value="3" {% if my_rating and my_rating.calificacion_general == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                        <option value="2" {% if my_rating and my_rating.calificacion_general == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                        <option value="1" {% if my_rating and my_rating.calificacion_general == 1 %}selected{% endif %}>⭐ Malo</option>
+                    </select>
+                </div>
+
+                <!-- Calificación Comunicación -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-comments text-blue-500 mr-1"></i> Comunicación
+                    </label>
+                    <select name="calificacion_comunicacion" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Selecciona...</option>
+                        <option value="5" {% if my_rating and my_rating.calificacion_comunicacion == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4" {% if my_rating and my_rating.calificacion_comunicacion == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                        <option value="3" {% if my_rating and my_rating.calificacion_comunicacion == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                        <option value="2" {% if my_rating and my_rating.calificacion_comunicacion == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                        <option value="1" {% if my_rating and my_rating.calificacion_comunicacion == 1 %}selected{% endif %}>⭐ Malo</option>
+                    </select>
+                </div>
+
+                <!-- Calificación Puntualidad -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Pagos
+                    </label>
+                    <select name="calificacion_puntualidad" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Selecciona...</option>
+                        <option value="5" {% if my_rating and my_rating.calificacion_puntualidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4" {% if my_rating and my_rating.calificacion_puntualidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                        <option value="3" {% if my_rating and my_rating.calificacion_puntualidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                        <option value="2" {% if my_rating and my_rating.calificacion_puntualidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                        <option value="1" {% if my_rating and my_rating.calificacion_puntualidad == 1 %}selected{% endif %}>⭐ Malo</option>
+                    </select>
+                </div>
+
+                <!-- Calificación Profesionalismo -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-handshake text-purple-500 mr-1"></i> Profesionalismo
+                    </label>
+                    <select name="calificacion_calidad" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        <option value="">Selecciona...</option>
+                        <option value="5" {% if my_rating and my_rating.calificacion_calidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4" {% if my_rating and my_rating.calificacion_calidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                        <option value="3" {% if my_rating and my_rating.calificacion_calidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                        <option value="2" {% if my_rating and my_rating.calificacion_calidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                        <option value="1" {% if my_rating and my_rating.calificacion_calidad == 1 %}selected{% endif %}>⭐ Malo</option>
+                    </select>
+                </div>
+
+                <!-- Comentario -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        <i class="fas fa-comment-alt text-gray-500 mr-1"></i> Comentario (Opcional)
+                    </label>
+                    <textarea name="comentario" rows="2" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{% if my_rating %}{{ my_rating.comentario }}{% endif %}</textarea>
+                </div>
+
+                <!-- Recomendación -->
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <label class="flex items-start cursor-pointer">
+                        <input type="checkbox" name="recomendaria" value="true" {% if not my_rating or my_rating.recomendaria %}checked{% endif %} class="mt-0.5 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700">
                             <i class="fas fa-thumbs-up text-green-600 mr-1"></i> ¿Recomendarías hacer negocios con este comprador?
                         </span>
                     </label>
@@ -616,12 +730,12 @@
             </div>
 
             <!-- Buttons -->
-            <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
-                <button type="button" onclick="closeRateBuyerModal()" class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold transition-all">
+            <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeRateBuyerModal()" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold transition-all text-sm">
                     Cancelar
                 </button>
-                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all">
-                    <i class="fas fa-star mr-2"></i> {% if my_rating and user_role == 'Productor' %}Actualizar Calificación{% else %}Enviar Calificación{% endif %}
+                <button type="submit" class="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all text-sm">
+                    <i class="fas fa-star mr-1"></i> {% if my_rating and user_role == 'Productor' %}Actualizar{% else %}Enviar{% endif %}
                 </button>
             </div>
         </form>
@@ -683,7 +797,42 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeCancelModal();
+            closeRateSellerModal();
             closeRateBuyerModal();
+        }
+    });
+
+    // Funciones para el modal de calificar vendedor
+    function openRateSellerModal() {
+        const modal = document.getElementById('rateSellerModal');
+        const modalContent = document.getElementById('rateSellerModalContent');
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeRateSellerModal() {
+        const modal = document.getElementById('rateSellerModal');
+        const modalContent = document.getElementById('rateSellerModalContent');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // Cerrar modal al hacer click fuera de él
+    document.getElementById('rateSellerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRateSellerModal();
         }
     });
 

@@ -165,7 +165,7 @@
                                 <i class="fas fa-check-circle mr-2"></i>Marcar Recibido
                             </a>
                         {% elif action_key == 'rate_seller' or action_key == 'edit_rating_seller' %}
-                            <a href="{% url 'edit_rating_seller' order.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center">
+                            <a href="{% url 'order_detail' order.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center">
                                 <i class="fas fa-{% if action_key == 'edit_rating_seller' %}edit{% else %}star{% endif %} mr-2"></i>{{ action_label }}
                             </a>
                         {% elif action_key == 'rate_buyer' or action_key == 'edit_rating_buyer' %}

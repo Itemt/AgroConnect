@@ -343,7 +343,7 @@ def confirm_order_receipt_view(request, order_id):
 
 @login_required
 def rate_seller_view(request, order_id):
-    """Vista para que el comprador califique al vendedor - redirige a confirm_receipt"""
+    """Vista para que el comprador califique/edite calificación al vendedor (desde modal)"""
     order = get_object_or_404(Order, pk=order_id)
     
     # Verificar que el usuario es el comprador
@@ -351,64 +351,45 @@ def rate_seller_view(request, order_id):
         messages.error(request, 'No tienes permisos para calificar este pedido.')
         return redirect('order_detail', order_id=order.id)
     
-    # Si el pedido aún no ha sido recibido, redirigir a la página de confirmación de recepción
-    if order.can_be_received_by_buyer():
-        messages.info(request, 'Por favor, primero confirma que has recibido el pedido.')
-        return redirect('confirm_order_receipt', order_id=order.id)
-    
-    # Si ya está completado pero no ha calificado, mostrar mensaje
-    if order.can_be_rated_by_buyer():
-        messages.info(request, 'Este pedido ya está completado. La calificación se hace al confirmar la recepción.')
-        return redirect('order_detail', order_id=order.id)
-    
-    # Si ya calificó, mostrar mensaje
-    messages.info(request, 'Ya has calificado este pedido.')
-    return redirect('order_detail', order_id=order.id)
-
-
-@login_required
-def edit_rating_seller_view(request, order_id):
-    """Vista para que el comprador edite su calificación al vendedor"""
-    order = get_object_or_404(Order, pk=order_id)
-    
-    # Verificar que el usuario es el comprador
-    if request.user != order.comprador:
-        messages.error(request, 'No tienes permisos para editar esta calificación.')
-        return redirect('order_detail', order_id=order.id)
-    
     # Verificar que el pedido está completado
     if order.estado != 'completado':
-        messages.error(request, 'El pedido debe estar completado.')
-        return redirect('order_detail', order_id=order.id)
-    
-    # Buscar calificación existente
-    existing_rating = order.calificaciones.filter(
-        calificador=request.user,
-        tipo='comprador_a_vendedor'
-    ).first()
-    
-    if not existing_rating:
-        messages.error(request, 'No has calificado este pedido aún.')
+        messages.error(request, 'El pedido debe estar completado para poder calificar.')
         return redirect('order_detail', order_id=order.id)
     
     if request.method == 'POST':
-        # Actualizar calificación
-        existing_rating.calificacion_general = int(request.POST.get('calificacion_general', 0))
-        existing_rating.calificacion_comunicacion = int(request.POST.get('calificacion_comunicacion', 0))
-        existing_rating.calificacion_puntualidad = int(request.POST.get('calificacion_puntualidad', 0))
-        existing_rating.calificacion_calidad = int(request.POST.get('calificacion_calidad', 0))
-        existing_rating.comentario = request.POST.get('comentario', '')
-        existing_rating.recomendaria = request.POST.get('recomendaria') == 'true'
-        existing_rating.save()
+        # Buscar si ya existe una calificación
+        existing_rating = order.calificaciones.filter(
+            calificador=request.user,
+            tipo='comprador_a_vendedor'
+        ).first()
         
-        messages.success(request, '¡Calificación actualizada exitosamente!')
+        if existing_rating:
+            # Editar calificación existente
+            rating = existing_rating
+            action_text = 'actualizada'
+        else:
+            # Crear nueva calificación
+            rating = Rating()
+            rating.pedido = order
+            rating.calificador = request.user
+            rating.calificado = order.vendedor
+            rating.tipo = 'comprador_a_vendedor'
+            action_text = 'enviada'
+        
+        # Actualizar campos
+        rating.calificacion_general = int(request.POST.get('calificacion_general', 0))
+        rating.calificacion_comunicacion = int(request.POST.get('calificacion_comunicacion', 0))
+        rating.calificacion_puntualidad = int(request.POST.get('calificacion_puntualidad', 0))
+        rating.calificacion_calidad = int(request.POST.get('calificacion_calidad', 0))
+        rating.comentario = request.POST.get('comentario', '')
+        rating.recomendaria = request.POST.get('recomendaria') == 'true'
+        rating.save()
+        
+        messages.success(request, f'¡Calificación {action_text} exitosamente!')
         return redirect('order_detail', order_id=order.id)
     
-    context = {
-        'order': order,
-        'existing_rating': existing_rating
-    }
-    return render(request, 'sales/edit_rating_seller.html', context)
+    # Si no es POST, redirigir al detalle del pedido
+    return redirect('order_detail', order_id=order.id)
 
 
 @login_required
