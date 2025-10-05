@@ -1,133 +1,165 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 {% load static %}
 
-{% block title %}Resumen de Pedidos - Proceder al Pago{% endblock %}
+{% block title %}Pedidos Creados - Proceder al Pago{% endblock %}
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Título -->
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-800">Pedidos Creados Exitosamente</h2>
-            <p class="text-gray-500">Ahora puedes proceder con el pago de tus pedidos</p>
+{% block user_content %}
+<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Header con gradiente -->
+    <div class="card mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-600 via-green-700 to-emerald-600 px-6 py-8 relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+            <div class="relative text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 backdrop-blur-sm rounded-full mb-4">
+                    <i class="fas fa-check-circle text-white text-4xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Pedidos Creados Exitosamente</h1>
+                <p class="text-green-100">Ahora puedes proceder con el pago de tus pedidos</p>
+            </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Columna Izquierda: Lista de Pedidos -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md">
-                    <div class="bg-green-600 text-white p-4 rounded-t-lg">
-                        <h5 class="font-bold text-lg">Resumen de tus Pedidos</h5>
-                    </div>
-                    <div class="p-6">
-                        {% for order in orders %}
-                        <div class="border rounded-lg p-4 mb-4 {% if not forloop.last %}border-b-0{% endif %}">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                                <div class="md:col-span-2">
-                                    <h6 class="font-bold text-lg mb-2">Pedido #{{ order.id }}</h6>
-                                    <p class="mb-1"><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
-                                    <p class="mb-1"><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                                    <p class="text-sm text-gray-500">Vendedor: {{ order.vendedor.get_full_name }}</p>
-                                </div>
-                                <div class="text-center md:text-right">
-                                    <p class="text-gray-500 mb-1">Total</p>
-                                    <h4 class="font-bold text-xl text-green-600 mb-3">${{ order.precio_total|floatformat:0 }}</h4>
-                                    <div class="flex flex-col space-y-2">
-                                        <a href="{% url 'payments:checkout' order.id %}" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
-                                            <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
-                                        </a>
-                                        <a href="{% url 'order_detail' order.id %}" class="w-full text-center bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-300">
-                                            <i class="fas fa-eye mr-2"></i>Ver Detalles
-                                        </a>
-                                    </div>
-                                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Columna Izquierda: Lista de Pedidos -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="card">
+                <div class="px-6 py-5">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-receipt text-primary-600 mr-2"></i>
+                        Resumen de tus Pedidos
+                    </h3>
+                    
+                    {% for order in orders %}
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-5 mb-4 border-2 border-gray-200 hover:border-primary-300 transition-all">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800 mb-2 flex items-center">
+                                    <span class="bg-primary-600 text-white rounded-lg px-3 py-1 text-sm mr-2">
+                                        Pedido #{{ order.id }}
+                                    </span>
+                                </h4>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500 mb-1">Total</p>
+                                <p class="font-bold text-2xl text-green-600">${{ order.precio_total|floatformat:0 }}</p>
                             </div>
                         </div>
-                        {% endfor %}
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white rounded-lg p-3 border border-gray-200">
+                                <p class="text-xs text-gray-500 mb-1">Producto</p>
+                                <p class="font-semibold text-gray-800">{{ order.publicacion.cultivo.nombre }}</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 border border-gray-200">
+                                <p class="text-xs text-gray-500 mb-1">Cantidad</p>
+                                <p class="font-semibold text-gray-800">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-primary-50 rounded-lg p-3 mb-4 border border-primary-200">
+                            <p class="text-xs text-primary-600 font-medium mb-1"><i class="fas fa-user mr-1"></i> Vendedor</p>
+                            <p class="text-sm font-semibold text-gray-800">{{ order.vendedor.get_full_name }}</p>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <a href="{% url 'payments:checkout' order.id %}" 
+                               class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all text-center">
+                                <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
+                            </a>
+                            <a href="{% url 'order_detail' order.id %}" 
+                               class="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:from-gray-200 hover:to-gray-300 shadow-sm hover:shadow transition-all text-center">
+                                <i class="fas fa-eye mr-2"></i>Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
 
-                        <!-- Total general -->
-                        <div class="mt-6 pt-4 border-t">
+                    <!-- Total general -->
+                    <div class="mt-6 pt-6 border-t-2 border-gray-200">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border-2 border-green-300">
                             <div class="flex justify-between items-center">
-                                <h5 class="text-xl font-bold">Total de todos los pedidos:</h5>
-                                <h3 class="text-2xl font-bold text-green-600">${{ total|floatformat:0 }} COP</h3>
+                                <div>
+                                    <p class="text-sm text-green-600 font-medium mb-1">Total de todos los pedidos</p>
+                                    <h3 class="text-3xl font-bold text-green-700">${{ total|floatformat:0 }} <span class="text-lg">COP</span></h3>
+                                </div>
+                                <div class="bg-green-500 rounded-full w-16 h-16 flex items-center justify-center">
+                                    <i class="fas fa-coins text-white text-2xl"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Columna Derecha: Información y Acciones -->
-            <div class="lg:col-span-1">
-                <!-- Métodos de Pago Disponibles -->
-                <div class="bg-white rounded-lg shadow-md mb-6">
-                    <div class="bg-gray-800 text-white p-4 rounded-t-lg">
-                        <h6 class="font-bold text-lg">Métodos de Pago Disponibles</h6>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                                <i class="fab fa-cc-visa text-3xl text-blue-600"></i>
-                                <p class="mt-2 text-sm font-bold">Tarjeta</p>
-                            </div>
-                            <div>
-                                <i class="fas fa-university text-3xl text-blue-600"></i>
-                                <p class="mt-2 text-sm font-bold">PSE</p>
-                            </div>
-                            <div>
-                                <i class="fas fa-money-bill-wave text-3xl text-blue-600"></i>
-                                <p class="mt-2 text-sm font-bold">Efectivo</p>
-                            </div>
+        <!-- Columna Derecha: Información y Acciones -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Métodos de Pago -->
+            <div class="card">
+                <div class="px-6 py-5">
+                    <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-credit-card text-primary-600 mr-2"></i>
+                        Métodos de Pago Disponibles
+                    </h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200 text-center">
+                            <i class="fab fa-cc-visa text-4xl text-blue-600 mb-2"></i>
+                            <p class="text-xs font-bold text-gray-700">Tarjeta</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200 text-center">
+                            <i class="fas fa-university text-4xl text-purple-600 mb-2"></i>
+                            <p class="text-xs font-bold text-gray-700">PSE</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200 text-center">
+                            <i class="fas fa-money-bill-wave text-4xl text-green-600 mb-2"></i>
+                            <p class="text-xs font-bold text-gray-700">Efectivo</p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Información importante -->
-                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
-                    <h6 class="font-bold"><i class="fas fa-info-circle mr-1"></i> Información Importante:</h6>
-                    <ul class="list-disc list-inside text-sm mt-2">
-                        <li>Paga cada pedido de forma individual.</li>
-                        <li>Los pedidos quedarán "Pendientes" hasta el pago.</li>
-                        <li>El vendedor será notificado al pagar.</li>
-                        <li>Consulta tu <a href="{% url 'order_history' %}" class="font-bold hover:underline">Historial de Pedidos</a>.</li>
+            <!-- Información Importante -->
+            <div class="card">
+                <div class="bg-blue-500 px-6 py-4 rounded-t-xl">
+                    <h4 class="font-bold text-white flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Información Importante
+                    </h4>
+                </div>
+                <div class="px-6 py-5">
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                            <span class="text-sm text-gray-700">Paga cada pedido de forma individual.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-clock text-yellow-500 mr-3 mt-1"></i>
+                            <span class="text-sm text-gray-700">Los pedidos quedarán "Pendientes" hasta el pago.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bell text-blue-500 mr-3 mt-1"></i>
+                            <span class="text-sm text-gray-700">El vendedor será notificado al pagar.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-history text-purple-500 mr-3 mt-1"></i>
+                            <span class="text-sm text-gray-700">Consulta tu <a href="{% url 'order_history' %}" class="font-bold text-primary-600 hover:text-primary-700 underline">Historial de Pedidos</a>.</span>
+                        </li>
                     </ul>
                 </div>
+            </div>
 
-                <!-- Acciones -->
-                <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <a href="{% url 'order_history' %}" class="w-full block bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition duration-300 mb-3">
-                        <i class="fas fa-history mr-2"></i>Ver Historial de Pedidos
-                    </a>
-                    <a href="{% url 'marketplace' %}" class="w-full block bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition duration-300">
-                        <i class="fas fa-store mr-2"></i>Seguir Comprando
-                    </a>
-                </div>
+            <!-- Acciones Rápidas -->
+            <div class="space-y-3">
+                <a href="{% url 'order_history' %}" 
+                   class="block bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold py-3 px-6 rounded-xl hover:from-gray-700 hover:to-gray-800 shadow-md hover:shadow-lg transition-all text-center">
+                    <i class="fas fa-history mr-2"></i>Ver Historial de Pedidos
+                </a>
+                <a href="{% url 'marketplace' %}" 
+                   class="block bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all text-center">
+                    <i class="fas fa-shopping-cart mr-2"></i>Seguir Comprando
+                </a>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Script para resaltar el primer pedido -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const firstPayButton = document.querySelector('.hover\:bg-blue-700');
-        if (firstPayButton) {
-            firstPayButton.classList.add('pulse');
-        }
-    });
-</script>
-
-<style>
-    @keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-    }
-    .pulse {
-        animation: pulse 1.5s infinite;
-    }
-</style>
 {% endblock %}
-
