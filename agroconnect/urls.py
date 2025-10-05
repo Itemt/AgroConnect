@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts import views as accounts_views
 from accounts import ajax_views as accounts_ajax
+from accounts import views_farm as farm_views
 from marketplace import views as marketplace_views
 from sales import views as sales_views
 from inventory import views as inventory_views
@@ -40,8 +41,15 @@ urlpatterns = [
     # Incluir otras URLs de auth si las necesitas (ej. password reset)
     path('accounts/', include('django.contrib.auth.urls')),
 
+    # Fincas
+    path('farms/', farm_views.farm_list, name='farm_list'),
+    path('farm/add/', farm_views.farm_create, name='farm_create'),
+    path('farm/<int:farm_id>/edit/', farm_views.farm_edit, name='farm_edit'),
+    path('farm/<int:farm_id>/delete/', farm_views.farm_delete, name='farm_delete'),
+
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
+    path('ajax/farm-cities/', farm_views.get_farm_cities_ajax, name='ajax_get_farm_cities'),
 
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),

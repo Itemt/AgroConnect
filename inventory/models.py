@@ -33,9 +33,12 @@ class Crop(BaseModel):
     nombre = models.CharField(max_length=100, verbose_name="Nombre del Cultivo")
     categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default='otros', verbose_name="Categoría")
     
-    # Información del productor
+    # Información del productor y finca
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
                                 related_name='cultivos', verbose_name="Productor", null=True)
+    finca = models.ForeignKey('accounts.Farm', on_delete=models.SET_NULL, 
+                             related_name='cultivos', verbose_name="Finca", null=True, blank=True,
+                             help_text="Finca donde se cultiva este producto")
     
     # Información de cantidad y medida
     cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, default=0,

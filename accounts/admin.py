@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, ProducerProfile, BuyerProfile
+from .models import User, ProducerProfile, BuyerProfile, Farm
 
 class ProducerProfileInline(admin.StackedInline):
     model = ProducerProfile
@@ -61,6 +61,30 @@ class BuyerProfileAdmin(admin.ModelAdmin):
     list_filter = ('business_type',)
     search_fields = ('user__first_name', 'user__last_name', 'company_name')
     raw_id_fields = ('user',)
+
+@admin.register(Farm)
+class FarmAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'user', 'ciudad', 'departamento', 'activa', 'created_at')
+    list_filter = ('activa', 'departamento', 'ciudad', 'created_at')
+    search_fields = ('nombre', 'user__first_name', 'user__last_name', 'user__username', 'ciudad', 'departamento', 'direccion')
+    raw_id_fields = ('user',)
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('user', 'nombre', 'activa')
+        }),
+        ('Ubicación', {
+            'fields': ('departamento', 'ciudad', 'direccion')
+        }),
+        ('Detalles', {
+            'fields': ('descripcion', 'area', 'cultivos_principales')
+        }),
+        ('Fechas', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 # Personalizar el sitio de administración
 admin.site.site_header = 'AgroConnect Administración'
