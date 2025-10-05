@@ -178,14 +178,6 @@
                             </button>
                         {% endif %}
                     {% endfor %}
-                    {% with whatsapp_base_url="https://wa.me/573203465135" %}
-                        {% capture_as_var message %}
-¡Hola! Te contacto en referencia al pedido #{{ order.id }} de {{ order.publicacion.cultivo.nombre }} para el vendedor {{ order.vendedor.username }}.
-                        {% endcapture_as_var %}
-                        <a href="{{ whatsapp_base_url }}?text={{ message|urlencode }}" class="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 shadow-sm hover:shadow-md flex items-center" target="_blank">
-                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                        </a>
-                    {% endwith %}
                 </div>
             </div>
         {% empty %}
