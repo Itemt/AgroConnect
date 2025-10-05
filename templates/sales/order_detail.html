@@ -58,9 +58,9 @@
                         <i class="fas fa-pencil-alt mr-1"></i>{{ action_label }}
                     </a>
                 {% elif action_key == 'cancel' %}
-                    <a href="{% url 'cancel_order' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                    <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
                         <i class="fas fa-times-circle mr-1"></i>{{ action_label }}
-                    </a>
+                    </button>
                 {% elif action_key == 'contact' %}
                     <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
                         <i class="fas fa-comments mr-1"></i>{{ action_label }}
@@ -169,4 +169,142 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Modal de confirmación de cancelación -->
+<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                </div>
+                <h3 class="ml-4 text-xl font-bold text-white">¿Cancelar Pedido?</h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-6">
+            <p class="text-gray-700 text-lg mb-4">
+                Estás a punto de cancelar el pedido de <strong id="cancelOrderName" class="text-gray-900"></strong>.
+            </p>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Cantidad:</strong> <span id="cancelOrderQuantity"></span><br>
+                            <strong>Total:</strong> $<span id="cancelOrderTotal"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700 font-medium mb-2">
+                            Al cancelar este pedido:
+                        </p>
+                        <ul class="text-sm text-yellow-700 space-y-1">
+                            <li><i class="fas fa-check-circle mr-1"></i> La cantidad será restaurada</li>
+                            <li><i class="fas fa-dollar-sign mr-1"></i> El pago no se procesará o será reembolsado</li>
+                            <li><i class="fas fa-ban mr-1"></i> Esta acción es irreversible</li>
+                            <li><i class="fas fa-envelope mr-1"></i> La otra parte será notificada</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+                <label class="flex items-start cursor-pointer">
+                    <input type="checkbox" id="confirmCancelCheckbox" class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="ml-2 text-sm text-red-700 font-medium">
+                        Confirmo que entiendo las consecuencias y quiero cancelar este pedido.
+                    </span>
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3">
+                <button onclick="closeCancelModal()" 
+                        class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver
+                </button>
+                <form id="cancelForm" method="post" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" id="confirmCancelButton" disabled
+                            class="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-times-circle mr-2"></i>Sí, cancelar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCancelModal(orderId, orderName, quantity, unit, total) {
+        // Actualizar contenido del modal
+        document.getElementById('cancelOrderName').textContent = orderName;
+        document.getElementById('cancelOrderQuantity').textContent = quantity + ' ' + unit;
+        document.getElementById('cancelOrderTotal').textContent = total;
+        
+        // Resetear el checkbox
+        document.getElementById('confirmCancelCheckbox').checked = false;
+        document.getElementById('confirmCancelButton').disabled = true;
+        
+        // Actualizar action del formulario
+        document.getElementById('cancelForm').action = '/order/' + orderId + '/cancel/';
+        
+        // Mostrar modal con animación
+        const modal = document.getElementById('cancelModal');
+        const content = document.getElementById('cancelModalContent');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeCancelModal() {
+        const modal = document.getElementById('cancelModal');
+        const content = document.getElementById('cancelModalContent');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // Habilitar/deshabilitar botón de confirmación según el checkbox
+    document.getElementById('confirmCancelCheckbox').addEventListener('change', function() {
+        document.getElementById('confirmCancelButton').disabled = !this.checked;
+    });
+
+    // Cerrar modal al hacer click fuera de él
+    document.getElementById('cancelModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCancelModal();
+        }
+    });
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCancelModal();
+        }
+    });
+</script>
 {% endblock %}
