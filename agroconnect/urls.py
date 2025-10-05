@@ -70,7 +70,6 @@ urlpatterns = [
     path('order/<int:order_id>/mark-shipped/', sales_views.mark_order_shipped_view, name='mark_order_shipped'),
     path('order/<int:order_id>/confirm_receipt/', sales_views.confirm_order_receipt_view, name='confirm_order_receipt'),
     path('order/<int:order_id>/rate-seller/', sales_views.rate_seller_view, name='rate_seller'),
-    path('order/<int:order_id>/edit-rating-seller/', sales_views.edit_rating_seller_view, name='edit_rating_seller'),
     path('order/<int:order_id>/rate-buyer/', sales_views.rate_buyer_view, name='rate_buyer'),
     path('order/<int:order_id>/cancel/', sales_views.cancel_order_view, name='cancel_order'),
     path('conversation/start/<int:publication_id>/', sales_views.start_or_go_to_conversation, name='start_conversation'),
