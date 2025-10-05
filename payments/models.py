@@ -111,17 +111,15 @@ class Payment(BaseModel):
         return self.status == 'pending'
     
     def mark_as_approved(self):
-        """Marca el pago como aprobado y actualiza la orden"""
+        """Marca el pago como aprobado - la orden permanece pendiente hasta que el vendedor la confirme"""
         from django.utils import timezone
         
         self.status = 'approved'
         self.paid_at = timezone.now()
         self.save()
         
-        # Actualizar el estado de la orden
-        if self.order.estado == 'pendiente':
-            self.order.estado = 'confirmado'
-            self.order.save()
+        # La orden permanece en 'pendiente' hasta que el vendedor la confirme manualmente
+        # Esto permite que el vendedor revise y acepte el pedido antes de empezar a prepararlo
     
     def mark_as_rejected(self):
         """Marca el pago como rechazado"""
