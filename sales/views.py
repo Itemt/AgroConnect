@@ -18,8 +18,9 @@ from cart.models import Cart
 def create_order_view(request, publication_id):
     publication = get_object_or_404(Publication, pk=publication_id)
 
-    if request.user.role != 'Comprador' or request.user == publication.cultivo.productor:
-        # Redirigir si no es un comprador o si es el dueño de la publicación
+    if request.user == publication.cultivo.productor:
+        # Redirigir si es el dueño de la publicación (no puede comprarse a sí mismo)
+        messages.error(request, 'No puedes comprar tu propio producto.')
         return redirect('publication_detail', publication_id=publication.id)
 
     if request.method == 'POST':
