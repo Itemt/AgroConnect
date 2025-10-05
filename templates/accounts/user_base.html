@@ -354,6 +354,11 @@
 {% endblock %}
 </head>
 <body class="bg-gray-50">
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 pointer-events-none">
+    <!-- Los toasts aparecerán aquí dinámicamente -->
+</div>
+
 <!-- Sidebar Toggle with CSS only - no JavaScript -->
 <input type="checkbox" id="sidebar-toggle-checkbox" class="hidden">
 
@@ -484,6 +489,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Custom JS -->
 <script src="{% static 'js/main.js' %}"></script>
+
+<!-- Toast Notification System -->
+<script>
+    // Sistema de notificaciones toast
+    window.showToast = function(message, type = 'success', duration = 3000) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        // Crear el elemento toast
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification pointer-events-auto transform transition-all duration-300 ease-out translate-x-96 opacity-0';
+        
+        // Definir colores e iconos según el tipo
+        const types = {
+            success: {
+                bg: 'bg-gradient-to-r from-green-500 to-green-600',
+                icon: 'fa-check-circle',
+                iconBg: 'bg-green-700'
+            },
+            error: {
+                bg: 'bg-gradient-to-r from-red-500 to-red-600',
+                icon: 'fa-times-circle',
+                iconBg: 'bg-red-700'
+            },
+            warning: {
+                bg: 'bg-gradient-to-r from-yellow-500 to-yellow-600',
+                icon: 'fa-exclamation-triangle',
+                iconBg: 'bg-yellow-700'
+            },
+            info: {
+                bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+                icon: 'fa-info-circle',
+                iconBg: 'bg-blue-700'
+            }
+        };
+        
+        const config = types[type] || types.success;
+        
+        toast.innerHTML = `
+            <div class="${config.bg} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 min-w-[320px] max-w-md">
+                <div class="${config.iconBg} rounded-lg p-2 flex items-center justify-center">
+                    <i class="fas ${config.icon} text-lg"></i>
+                </div>
+                <p class="flex-1 font-medium text-sm">${message}</p>
+                <button onclick="this.closest('.toast-notification').remove()" class="hover:bg-white/20 rounded-lg p-1.5 transition-colors">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+        `;
+        
+        // Agregar al contenedor
+        container.appendChild(toast);
+        
+        // Animar entrada
+        setTimeout(() => {
+            toast.classList.remove('translate-x-96', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+        }, 10);
+        
+        // Auto-remover después de la duración
+        setTimeout(() => {
+            toast.classList.remove('translate-x-0', 'opacity-100');
+            toast.classList.add('translate-x-96', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, duration);
+    };
+    
+    // Manejar mensajes de Django
+    {% if messages %}
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                showToast(
+                    '{{ message|escapejs }}',
+                    '{{ message.tags|default:"info" }}'.replace('error', 'error').replace('success', 'success').replace('warning', 'warning').replace('info', 'info'),
+                    4000
+                );
+            {% endfor %}
+        });
+    {% endif %}
+</script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

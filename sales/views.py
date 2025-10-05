@@ -184,7 +184,7 @@ def update_order_status_view(request, order_id):
 
 @login_required
 def confirm_order_receipt_view(request, order_id):
-    """Vista para que el comprador confirme la recepción del pedido"""
+    """Vista unificada para confirmar recepción y calificar el pedido"""
     order = get_object_or_404(Order, pk=order_id)
     
     # Solo el comprador puede confirmar la recepción
@@ -198,13 +198,16 @@ def confirm_order_receipt_view(request, order_id):
         return redirect('order_detail', order_id=order.id)
     
     if request.method == 'POST':
-        form = OrderConfirmReceiptForm(request.POST)
-        if form.is_valid():
+        receipt_form = OrderConfirmReceiptForm(request.POST)
+        rating_form = RatingForm(request.POST)
+        
+        if receipt_form.is_valid() and rating_form.is_valid():
+            # Confirmar recepción
             order.estado = 'completado'
             order.fecha_recepcion = timezone.now()
             
             # Agregar notas de recepción si las hay
-            notas_recepcion = form.cleaned_data.get('notas_recepcion')
+            notas_recepcion = receipt_form.cleaned_data.get('notas_recepcion')
             if notas_recepcion:
                 if order.notas_comprador:
                     order.notas_comprador += f"\n\nNotas de recepción: {notas_recepcion}"
@@ -213,17 +216,23 @@ def confirm_order_receipt_view(request, order_id):
             
             order.save()
             
-            # Actualizar estadísticas del vendedor
-            profile, created = ProducerProfile.objects.get_or_create(user=order.vendedor)
-            # Aquí necesitarías una función en ProducerProfile para actualizar stats
+            # Crear calificación
+            rating = rating_form.save(commit=False)
+            rating.pedido = order
+            rating.calificador = request.user
+            rating.calificado = order.vendedor
+            rating.tipo = 'comprador_a_vendedor'
+            rating.save()
             
-            messages.success(request, 'Pedido confirmado como completado. Ahora puedes calificar al vendedor.')
-            return redirect('rate_order', order_id=order.id)
+            messages.success(request, '¡Pedido confirmado y calificación enviada exitosamente!')
+            return redirect('order_detail', order_id=order.id)
     else:
-        form = OrderConfirmReceiptForm()
+        receipt_form = OrderConfirmReceiptForm()
+        rating_form = RatingForm()
     
     context = {
-        'form': form,
+        'receipt_form': receipt_form,
+        'rating_form': rating_form,
         'order': order
     }
     return render(request, 'sales/confirm_receipt.html', context)

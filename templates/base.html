@@ -173,7 +173,7 @@
                         {% endif %}
                     </button>
                     <!-- User Dropdown -->
-                    <div class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200" id="user-dropdown">
+                    <div class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200 w-56" id="user-dropdown">
                         {% if user.is_authenticated %}
                         <div class="px-6 py-4 bg-gradient-to-r from-primary-50 to-accent-50 rounded-t-2xl">
                             <span class="block text-sm font-semibold text-gray-900">{{ user.username }}</span>
@@ -224,13 +224,15 @@
                         {% else %}
                         <ul class="py-2" aria-labelledby="user-menu-button">
                             <li>
-                                <a href="{% url 'login' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
-                                    <i class="fas fa-sign-in-alt mr-3"></i>Iniciar Sesión
+                                <a href="{% url 'login' %}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200 rounded-lg mx-2">
+                                    <i class="fas fa-sign-in-alt mr-3 w-4"></i>
+                                    <span>Iniciar Sesión</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url 'register' %}" class="block px-6 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200">
-                                    <i class="fas fa-user-plus mr-3"></i>Registrarse
+                                <a href="{% url 'register' %}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200 rounded-lg mx-2">
+                                    <i class="fas fa-user-plus mr-3 w-4"></i>
+                                    <span>Registrarse</span>
                                 </a>
                             </li>
                         </ul>
