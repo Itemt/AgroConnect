@@ -315,7 +315,7 @@ def admin_user_create(request):
 @user_passes_test(is_staff)
 def admin_crop_list(request):
     from inventory.models import Crop
-    crops = Crop.objects.all().select_related('productor').order_by('-fecha_siembra')
+    crops = Crop.objects.all().select_related('productor').order_by('-created_at')
     return render(request, 'accounts/admin_crop_list.html', {'crops': crops})
 
 @user_passes_test(is_staff)
