@@ -212,14 +212,9 @@
                             </div>
                             
                             <div class="mt-auto">
-                                <form action="{% url 'cart:add_to_cart' pub.id %}" method="post" class="add-to-cart-form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantity" value="1">
-                                    <input type="hidden" name="next" value="{{ request.path }}">
-                                    <button type="submit" class="btn-primary w-full">
-                                        <i class="fas fa-cart-plus mr-2"></i>Añadir al carrito
-                                    </button>
-                                </form>
+                                <a href="{% url 'publication_detail' pub.id %}" class="btn-primary w-full inline-block text-center">
+                                    <i class="fas fa-eye mr-2"></i>Ver Detalles
+                                </a>
                             </div>
                         </div>
                     </div>
