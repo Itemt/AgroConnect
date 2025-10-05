@@ -528,8 +528,11 @@ def buyer_dashboard(request):
     
     # Calificaciones pendientes
     orders_to_rate = request.user.pedidos_como_comprador.filter(
-        estado='recibido'
-    ).exclude(calificacion__isnull=False).count()
+        estado='completado'
+    ).exclude(
+        calificaciones__calificador=request.user,
+        calificaciones__tipo='comprador_a_vendedor'
+    ).count()
     
     context = {
         'total_orders': total_orders,
