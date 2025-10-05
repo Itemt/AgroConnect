@@ -14,7 +14,10 @@ class CustomUserCreationForm(UserCreationForm):
         label="Nombres",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Tus nombres'
+            'placeholder': 'Tus nombres',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
         })
     )
     last_name = forms.CharField(
@@ -23,7 +26,10 @@ class CustomUserCreationForm(UserCreationForm):
         label="Apellidos",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Tus apellidos'
+            'placeholder': 'Tus apellidos',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
         })
     )
     email = forms.EmailField(
@@ -40,9 +46,13 @@ class CustomUserCreationForm(UserCreationForm):
         label="Cédula",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: 12345678'
+            'placeholder': 'Ej: 12345678',
+            'type': 'number',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
         }),
-        help_text="Número de cédula de identidad (debe ser único)"
+        help_text="Número de cédula de identidad"
     )
     
     # Ubicación básica
@@ -141,9 +151,9 @@ class CustomUserCreationForm(UserCreationForm):
             if len(cedula) < 6:
                 raise forms.ValidationError('La cédula debe tener al menos 6 dígitos.')
             
-            # Validar cédula única
+            # Validar cédula única (sin revelar información sensible)
             if User.objects.filter(cedula=cedula).exists():
-                raise forms.ValidationError('Ya existe un usuario con esta cédula.')
+                raise forms.ValidationError('Esta cédula no está disponible. Por favor, verifica los datos ingresados.')
         
         return cedula
     
@@ -257,9 +267,13 @@ class UserEditForm(forms.ModelForm):
         label="Cédula",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ej: 12345678'
+            'placeholder': 'Ej: 12345678',
+            'type': 'number',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
         }),
-        help_text="Número de cédula de identidad (debe ser único)"
+        help_text="Número de cédula de identidad"
     )
     
     can_sell = forms.BooleanField(
@@ -381,7 +395,7 @@ class UserEditForm(forms.ModelForm):
             if len(cedula) < 6:
                 raise forms.ValidationError('La cédula debe tener al menos 6 dígitos.')
             if User.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
-                raise forms.ValidationError('Ya existe un usuario con esta cédula.')
+                raise forms.ValidationError('Esta cédula no está disponible. Por favor, verifica los datos ingresados.')
         return cedula
     
     def clean(self):
