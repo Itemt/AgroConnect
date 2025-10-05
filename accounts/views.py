@@ -11,6 +11,7 @@ from marketplace.forms import PublicationForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from sales.models import Order
+from core.models import Notification
 
 # Create your views here.
 
@@ -155,6 +156,7 @@ def admin_dashboard(request):
         'total_publications': total_publications,
         'total_orders': total_orders,
         'recent_users': recent_users,
+        'recent_notifications': Notification.objects.filter(recipient=request.user).order_by('-created_at')[:20],
     }
     return render(request, 'accounts/admin_dashboard.html', context)
 

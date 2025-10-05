@@ -11,6 +11,8 @@ from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderCon
 from accounts.models import ProducerProfile, BuyerProfile
 from django.views.decorators.http import require_POST
 from cart.models import Cart
+from core.models import create_and_emit_notification
+from core.models import Notification
 
 # Create your views here.
 
@@ -42,9 +44,17 @@ def create_order_view(request, publication_id):
                 publication.cantidad_disponible -= order.cantidad_acordada
                 publication.save()
                 
-                order.save()
-                messages.success(request, 'Pedido creado exitosamente. El vendedor será notificado.')
-                return redirect('order_detail', order_id=order.id)
+            order.save()
+            # Notificar al vendedor que hay un nuevo pedido
+            create_and_emit_notification(
+                recipient=publication.cultivo.productor,
+                title='Nuevo pedido recibido',
+                message=f'El comprador {request.user.first_name} ha creado el pedido #{order.id} de {order.cantidad_acordada} unidades.',
+                category='order',
+                order_id=order.id,
+            )
+            messages.success(request, 'Pedido creado exitosamente. El vendedor será notificado.')
+            return redirect('order_detail', order_id=order.id)
     else:
         form = OrderForm()
 
@@ -187,6 +197,14 @@ def quick_update_order_status_view(request, order_id):
                 order.fecha_confirmacion = timezone.now()
             
             order.save()
+            # Notificar al comprador sobre el cambio de estado
+            create_and_emit_notification(
+                recipient=order.comprador,
+                title='Estado de pedido actualizado',
+                message=f'Tu pedido #{order.id} ahora está: {order.get_estado_display()}.',
+                category='order',
+                order_id=order.id,
+            )
             messages.success(request, f'Estado actualizado a: {order.get_estado_display()}')
         else:
             messages.error(request, 'Estado no válido para esta transición.')
@@ -234,6 +252,14 @@ def mark_order_shipped_view(request, order_id):
                 )
             
             order.save()
+            # Notificar al comprador que el pedido fue enviado
+            create_and_emit_notification(
+                recipient=order.comprador,
+                title='Pedido enviado',
+                message=f'Tu pedido #{order.id} fue enviado. Pronto recibirás más actualizaciones.',
+                category='order',
+                order_id=order.id,
+            )
             messages.success(request, 'Pedido marcado como enviado exitosamente.')
             return redirect('producer_sales')
     else:
@@ -273,6 +299,14 @@ def update_order_status_view(request, order_id):
                 updated_order.fecha_envio = timezone.now()
             
             updated_order.save()
+            # Notificar al comprador sobre el cambio de estado
+            create_and_emit_notification(
+                recipient=updated_order.comprador,
+                title='Estado de pedido actualizado',
+                message=f'Tu pedido #{updated_order.id} ahora está: {updated_order.get_estado_display()}.',
+                category='order',
+                order_id=updated_order.id,
+            )
             messages.success(request, 'Estado del pedido actualizado exitosamente.')
             return redirect('order_detail', order_id=order.id)
     else:
@@ -318,6 +352,14 @@ def confirm_order_receipt_view(request, order_id):
                     order.notas_comprador = f"Notas de recepción: {notas_recepcion}"
             
             order.save()
+            # Notificar al vendedor que el comprador confirmó recepción y calificó
+            create_and_emit_notification(
+                recipient=order.vendedor,
+                title='Pedido completado',
+                message=f'El comprador confirmó la recepción y calificó el pedido #{order.id}.',
+                category='order',
+                order_id=order.id,
+            )
             
             # Crear calificación
             rating = rating_form.save(commit=False)
@@ -544,6 +586,7 @@ def buyer_dashboard(request):
         'recent_orders': recent_orders,
         'active_conversations': active_conversations,
         'profile': profile,
+        'recent_notifications': Notification.objects.filter(recipient=request.user).order_by('-created_at')[:10],
     }
     return render(request, 'sales/buyer_dashboard.html', context)
 
@@ -685,6 +728,14 @@ def create_order_from_cart(request):
         publication.cantidad_disponible -= item.quantity
         publication.save()
         created_orders.append(order)
+        # Notificar al vendedor sobre pedidos creados desde carrito
+        create_and_emit_notification(
+            recipient=publication.cultivo.productor,
+            title='Nuevo pedido recibido',
+            message=f'Pedido #{order.id} creado por {request.user.first_name} desde el carrito.',
+            category='order',
+            order_id=order.id,
+        )
 
     cart_items.delete()
     
