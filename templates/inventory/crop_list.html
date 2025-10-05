@@ -94,11 +94,10 @@
                                             </a>
                                         {% endif %}
                                         
-                                        <a href="{% url 'crop_delete' crop.pk %}" 
-                                           class="text-red-600 hover:text-red-900" title="Eliminar Cultivo"
-                                           onclick="return confirm('¿Estás seguro de eliminar este cultivo?')">
+                                        <button onclick="showDeleteModal({{ crop.pk }}, '{{ crop.nombre|escapejs }}', '{{ crop.cantidad_estimada }}', '{{ crop.unidad_medida }}', {% if crop.publicacion %}true{% else %}false{% endif %})" 
+                                           class="text-red-600 hover:text-red-900" title="Eliminar Cultivo">
                                             <i class="fas fa-trash"></i>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -123,4 +122,116 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
+        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                    </div>
+                    <h3 class="ml-4 text-xl font-bold text-white">¿Estás seguro?</h3>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-6">
+                <p class="text-gray-700 text-lg mb-4">
+                    Estás a punto de eliminar permanentemente el cultivo de <strong id="cropName" class="text-gray-900"></strong> 
+                    (<span id="cropQuantity"></span>).
+                </p>
+                
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 font-medium">
+                                Esta acción no se puede deshacer.
+                            </p>
+                            <p id="publicationWarning" class="text-sm text-red-600 mt-2 hidden">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Este cultivo tiene una publicación activa que también será eliminada.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" 
+                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                    <form id="deleteForm" method="post" class="flex-1">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                            <i class="fas fa-trash-alt mr-2"></i>Sí, eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDeleteModal(cropId, cropName, quantity, unit, hasPublication) {
+            // Actualizar contenido del modal
+            document.getElementById('cropName').textContent = cropName;
+            document.getElementById('cropQuantity').textContent = quantity + ' ' + unit;
+            
+            // Mostrar/ocultar advertencia de publicación
+            const warning = document.getElementById('publicationWarning');
+            if (hasPublication) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+            
+            // Actualizar action del formulario
+            document.getElementById('deleteForm').action = '/inventory/crop/' + cropId + '/delete/';
+            
+            // Mostrar modal con animación
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Cerrar modal al hacer click fuera de él
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+    </script>
 {% endblock %}
