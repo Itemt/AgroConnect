@@ -81,10 +81,22 @@ class Order(BaseModel):
     def vendedor(self):
         """Propiedad para obtener el vendedor del pedido"""
         return self.publicacion.cultivo.productor
+    
+    @property
+    def is_paid(self):
+        """Verifica si el pedido tiene un pago aprobado"""
+        return hasattr(self, 'payment') and self.payment.is_approved
+    
+    @property
+    def payment_status_display(self):
+        """Muestra el estado del pago de forma legible"""
+        if not hasattr(self, 'payment'):
+            return "Sin pago registrado"
+        return self.payment.get_status_display()
 
     def can_be_confirmed_by_seller(self):
-        """Verifica si el pedido puede ser confirmado por el vendedor"""
-        return self.estado == 'pendiente'
+        """Verifica si el pedido puede ser confirmado por el vendedor - debe estar pagado"""
+        return self.estado == 'pendiente' and self.is_paid
 
     def can_be_marked_as_shipped(self):
         """Verifica si el pedido puede ser marcado como enviado"""
