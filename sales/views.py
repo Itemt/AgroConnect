@@ -524,6 +524,10 @@ def create_order_from_cart(request):
 @login_required
 def cart_checkout_summary(request):
     """Vista de resumen después de crear pedidos desde el carrito"""
+    from django.conf import settings
+    from payments.epayco_service import EpaycoService
+    from payments.models import Payment
+    
     order_ids = request.session.get('pending_payment_orders', [])
     
     if not order_ids:
@@ -539,12 +543,43 @@ def cart_checkout_summary(request):
     # Calcular total
     total = sum(order.precio_total for order in orders)
     
+    # Crear datos de checkout para cada pedido
+    epayco_service = EpaycoService()
+    orders_with_checkout = []
+    
+    for order in orders:
+        # Crear o obtener pago
+        payment, created = Payment.objects.get_or_create(
+            order=order,
+            user=request.user,
+            defaults={
+                'amount': order.precio_total,
+                'currency': 'COP',
+                'payment_method': 'card',
+                'description': f"Pago orden #{order.id}",
+                'status': 'pending'
+            }
+        )
+        
+        # Si el pago ya existía, actualizar el epayco_ref
+        checkout_data = epayco_service.create_checkout_session(order, request.user)
+        payment.epayco_ref = checkout_data['reference']
+        payment.save()
+        
+        orders_with_checkout.append({
+            'order': order,
+            'payment': payment,
+            'checkout_data': checkout_data
+        })
+    
     # Limpiar sesión después de obtener los pedidos
     if 'pending_payment_orders' in request.session:
         del request.session['pending_payment_orders']
     
     context = {
-        'orders': orders,
+        'orders_with_checkout': orders_with_checkout,
         'total': total,
+        'epayco_public_key': settings.EPAYCO_PUBLIC_KEY,
+        'epayco_test_mode': settings.EPAYCO_TEST_MODE,
     }
     return render(request, 'sales/cart_checkout_summary.html', context)
