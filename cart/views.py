@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from marketplace.models import Publication
 from .models import Cart, CartItem
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 # Create your views here.
 
@@ -28,13 +29,20 @@ def add_to_cart(request, publication_id):
     if not created:
         cart_item.quantity += quantity
         cart_item.save()
-        
-    return redirect('cart:cart_detail')
+        messages.success(request, f'✓ Cantidad actualizada: {publication.cultivo.nombre} ({cart_item.quantity} {publication.cultivo.unidad_medida})')
+    else:
+        messages.success(request, f'✓ Producto agregado al carrito: {publication.cultivo.nombre} ({quantity} {publication.cultivo.unidad_medida})')
+    
+    # Redirigir de vuelta a la página anterior o al marketplace
+    next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
+    return redirect(next_url)
 
 @login_required
 def remove_from_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    product_name = cart_item.publication.cultivo.nombre
     cart_item.delete()
+    messages.success(request, f'✓ Producto eliminado del carrito: {product_name}')
     return redirect('cart:cart_detail')
 
 @login_required
@@ -42,9 +50,13 @@ def remove_from_cart(request, item_id):
 def update_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     quantity = int(request.POST.get('quantity'))
+    product_name = cart_item.publication.cultivo.nombre
+    
     if quantity > 0:
         cart_item.quantity = quantity
         cart_item.save()
+        messages.success(request, f'✓ Cantidad actualizada: {product_name} ({quantity} {cart_item.publication.cultivo.unidad_medida})')
     else:
         cart_item.delete()
+        messages.success(request, f'✓ Producto eliminado del carrito: {product_name}')
     return redirect('cart:cart_detail')
