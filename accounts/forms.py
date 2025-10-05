@@ -7,6 +7,7 @@ from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LO
 
 
 class CustomUserCreationForm(UserCreationForm):
+    # Campos básicos
     first_name = forms.CharField(max_length=30, required=True, label="Nombres")
     last_name = forms.CharField(max_length=30, required=True, label="Apellidos")
     email = forms.EmailField(required=True, label="Correo Electrónico")
@@ -15,23 +16,17 @@ class CustomUserCreationForm(UserCreationForm):
         required=True, 
         label="Cédula",
         widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'placeholder': 'Ej: 12345678'
         }),
         help_text="Número de cédula de identidad (debe ser único)"
     )
-    role = forms.ChoiceField(
-        choices=User.ROLE_CHOICES,
-        required=True,
-        label="Tipo de Usuario",
-        widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
-        })
-    )
+    
+    # Ubicación básica
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento",
@@ -40,39 +35,30 @@ class CustomUserCreationForm(UserCreationForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
         }),
         label="Ciudad/Municipio",
         required=True
     )
     
-    # Campos específicos para compradores
-    company_name = forms.CharField(
-        max_length=255, 
-        required=False, 
-        label="Nombre de la Empresa",
-        widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: Distribuidora Agrícola del Norte'
-        })
-    )
-    business_type = forms.CharField(
-        max_length=255, 
-        required=False, 
-        label="Tipo de Negocio",
-        widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: Distribuidor, Supermercado, Restaurante'
-        })
+    # NUEVO: Checkbox para vender
+    can_sell = forms.BooleanField(
+        required=False,
+        label="Quiero vender productos",
+        widget=forms.CheckboxInput(attrs={
+            'class': 'w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500',
+            'id': 'id_can_sell'
+        }),
+        help_text="Marca esta casilla si deseas publicar y vender productos agrícolas"
     )
     
-    # Campos específicos para productores
+    # Campos de vendedor (solo requeridos si can_sell=True)
     direccion = forms.CharField(
         max_length=255, 
         required=False, 
-        label="Dirección específica (opcional)",
+        label="Dirección de la Finca",
         widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
         })
     )
@@ -80,9 +66,9 @@ class CustomUserCreationForm(UserCreationForm):
         required=False, 
         label="Descripción de la Finca",
         widget=forms.Textarea(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'rows': 4,
-            'placeholder': 'Describe tu finca: tamaño, tipo de cultivos, métodos utilizados, etc.'
+            'class': 'form-input',
+            'rows': 3,
+            'placeholder': 'Describe tu finca brevemente'
         })
     )
     main_crops = forms.CharField(
@@ -90,7 +76,7 @@ class CustomUserCreationForm(UserCreationForm):
         required=False, 
         label="Cultivos Principales",
         widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'placeholder': 'Ej: Café, Plátano, Aguacate'
         })
     )
@@ -140,22 +126,25 @@ class CustomUserCreationForm(UserCreationForm):
     
     def clean(self):
         cleaned_data = super().clean()
-        role = cleaned_data.get('role')
-        company_name = cleaned_data.get('company_name')
-        business_type = cleaned_data.get('business_type')
+        can_sell = cleaned_data.get('can_sell')
+        direccion = cleaned_data.get('direccion')
+        farm_description = cleaned_data.get('farm_description')
+        main_crops = cleaned_data.get('main_crops')
         
-        # Si es comprador, hacer los campos de empresa requeridos
-        if role == 'Comprador':
-            if not company_name:
-                self.add_error('company_name', 'Este campo es obligatorio para compradores.')
-            if not business_type:
-                self.add_error('business_type', 'Este campo es obligatorio para compradores.')
+        # Si quiere vender, los campos de finca son requeridos
+        if can_sell:
+            if not direccion:
+                self.add_error('direccion', 'Este campo es obligatorio si deseas vender productos.')
+            if not farm_description:
+                self.add_error('farm_description', 'Este campo es obligatorio si deseas vender productos.')
+            if not main_crops:
+                self.add_error('main_crops', 'Este campo es obligatorio si deseas vender productos.')
         
         return cleaned_data
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'role', 'departamento', 'ciudad', 'company_name', 'business_type', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'can_sell', 'departamento', 'ciudad', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
         labels = {
             'username': 'Nombre de Usuario',
             'password1': 'Contraseña',
@@ -218,52 +207,149 @@ class UserEditForm(forms.ModelForm):
         help_text="Número de cédula de identidad (debe ser único)"
     )
     
+    can_sell = forms.BooleanField(
+        required=False,
+        label="Quiero vender productos",
+        widget=forms.CheckboxInput(attrs={
+            'class': 'w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500',
+        }),
+        help_text="Marca esta casilla si deseas publicar y vender productos agrícolas"
+    )
+    
+    # Campos de ubicación
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-cities-url': '/ajax/cities/'
+        }),
+        label="Departamento",
+        required=False
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+        }),
+        label="Ciudad/Municipio",
+        required=False
+    )
+    
+    # Campos de vendedor (opcionales)
+    direccion = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Dirección de la Finca",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
+        })
+    )
+    farm_description = forms.CharField(
+        required=False, 
+        label="Descripción de la Finca",
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Describe tu finca brevemente'
+        })
+    )
+    main_crops = forms.CharField(
+        max_length=255, 
+        required=False, 
+        label="Cultivos Principales",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: Café, Plátano, Aguacate'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Pre-cargar datos si existen perfiles
+        if self.instance.pk:
+            # Cargar datos de BuyerProfile si existe
+            try:
+                buyer_profile = self.instance.buyer_profile
+                self.fields['departamento'].initial = buyer_profile.departamento
+                self.fields['ciudad'].initial = buyer_profile.ciudad
+                
+                # Cargar ciudades del departamento
+                if buyer_profile.departamento:
+                    cities = COLOMBIA_LOCATIONS.get(buyer_profile.departamento, [])
+                    self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+            except:
+                pass
+            
+            # Cargar datos de ProducerProfile si existe
+            try:
+                producer_profile = self.instance.producer_profile
+                self.fields['direccion'].initial = producer_profile.direccion
+                self.fields['farm_description'].initial = producer_profile.farm_description
+                self.fields['main_crops'].initial = producer_profile.main_crops
+            except:
+                pass
+        
+        # Si hay data del POST, actualizar ciudades
+        if 'departamento' in self.data:
+            try:
+                departamento = self.data.get('departamento')
+                cities = COLOMBIA_LOCATIONS.get(departamento, [])
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+            except (ValueError, TypeError):
+                pass
+    
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name')
         if first_name:
-            # Validar que no contenga números
             if any(char.isdigit() for char in first_name):
                 raise forms.ValidationError('Los nombres no pueden contener números.')
-            
-            # Validar que solo contenga letras y espacios
             if not all(char.isalpha() or char.isspace() for char in first_name):
                 raise forms.ValidationError('Los nombres solo pueden contener letras y espacios.')
-        
         return first_name
     
     def clean_last_name(self):
         last_name = self.cleaned_data.get('last_name')
         if last_name:
-            # Validar que no contenga números
             if any(char.isdigit() for char in last_name):
                 raise forms.ValidationError('Los apellidos no pueden contener números.')
-            
-            # Validar que solo contenga letras y espacios
             if not all(char.isalpha() or char.isspace() for char in last_name):
                 raise forms.ValidationError('Los apellidos solo pueden contener letras y espacios.')
-        
         return last_name
     
     def clean_cedula(self):
         cedula = self.cleaned_data.get('cedula')
         if cedula:
-            # Validar que solo contenga números
             if not cedula.isdigit():
                 raise forms.ValidationError('La cédula debe contener solo números.')
-            
-            # Validar longitud mínima
             if len(cedula) < 6:
                 raise forms.ValidationError('La cédula debe tener al menos 6 dígitos.')
-            
-            # Validar cédula única (excluyendo el usuario actual)
             if User.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
                 raise forms.ValidationError('Ya existe un usuario con esta cédula.')
-        
         return cedula
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        can_sell = cleaned_data.get('can_sell')
+        direccion = cleaned_data.get('direccion')
+        farm_description = cleaned_data.get('farm_description')
+        main_crops = cleaned_data.get('main_crops')
+        
+        # Si quiere vender, los campos de finca son requeridos
+        if can_sell:
+            if not direccion:
+                self.add_error('direccion', 'Este campo es obligatorio si deseas vender productos.')
+            if not farm_description:
+                self.add_error('farm_description', 'Este campo es obligatorio si deseas vender productos.')
+            if not main_crops:
+                self.add_error('main_crops', 'Este campo es obligatorio si deseas vender productos.')
+        
+        return cleaned_data
     
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'cedula', 'profile_image')
+        fields = ('first_name', 'last_name', 'email', 'cedula', 'can_sell', 'profile_image')
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
