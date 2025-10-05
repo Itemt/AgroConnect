@@ -4,7 +4,7 @@ from .models import Crop
 class CropForm(forms.ModelForm):
     class Meta:
         model = Crop
-        fields = ['nombre', 'categoria', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas', 'imagen']
+        fields = ['nombre', 'categoria', 'cantidad_estimada', 'unidad_medida', 'estado', 'fecha_disponibilidad', 'notas']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -28,5 +28,4 @@ class CropForm(forms.ModelForm):
                 'placeholder': 'Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.',
                 'class': 'form-control'
             }),
-            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
