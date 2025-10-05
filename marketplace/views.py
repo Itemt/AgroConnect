@@ -198,10 +198,12 @@ def publication_delete_view(request, pk):
     publication = get_object_or_404(Publication, pk=pk, cultivo__productor=request.user)
     
     if request.method == 'POST':
-        publication.estado = 'agotado'
-        publication.save()
-        messages.success(request, 'Publicación marcada como agotada exitosamente.')
-        return redirect('producer_dashboard')
+        # Guardar el nombre del cultivo antes de eliminar
+        cultivo_nombre = publication.cultivo.nombre
+        # Eliminar la publicación permanentemente
+        publication.delete()
+        messages.success(request, f'Publicación de {cultivo_nombre} eliminada exitosamente.')
+        return redirect('my_publications')
     
     context = {
         'publication': publication
