@@ -144,6 +144,26 @@ class RatingForm(forms.ModelForm):
             'recomendaria': '¿Recomendarías a este usuario?'
         }
 
+class OrderShipmentForm(forms.Form):
+    """Formulario para marcar pedido como enviado con notas y fecha de entrega"""
+    notas_vendedor = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none',
+            'placeholder': 'Notas sobre el envío, número de guía, transportadora, etc.'
+        }),
+        label="Notas del Envío"
+    )
+    fecha_entrega_estimada = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
+        }),
+        label="Fecha Estimada de Entrega (solo fecha, sin hora)"
+    )
+
 class OrderConfirmReceiptForm(forms.Form):
     """Formulario simple para que el comprador confirme la recepción"""
     confirmar_recepcion = forms.BooleanField(

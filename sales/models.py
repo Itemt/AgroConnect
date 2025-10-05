@@ -106,9 +106,19 @@ class Order(BaseModel):
         """Verifica si el pedido puede ser marcado como recibido por el comprador"""
         return self.estado in ['enviado', 'en_transito', 'entregado']
 
-    def can_be_rated(self):
-        """Verifica si el pedido puede ser calificado"""
-        return self.estado == 'completado' and not hasattr(self, 'calificacion')
+    def can_be_rated_by_buyer(self):
+        """Verifica si el comprador puede calificar al vendedor"""
+        if self.estado != 'completado':
+            return False
+        # Verificar si el comprador ya calificó
+        return not self.calificaciones.filter(calificador=self.comprador, tipo='comprador_a_vendedor').exists()
+    
+    def can_be_rated_by_seller(self):
+        """Verifica si el vendedor puede calificar al comprador"""
+        if self.estado != 'completado':
+            return False
+        # Verificar si el vendedor ya calificó
+        return not self.calificaciones.filter(calificador=self.vendedor, tipo='vendedor_a_comprador').exists()
 
     def can_be_cancelled(self):
         """Verifica si el pedido puede ser cancelado"""
@@ -130,8 +140,16 @@ class Order(BaseModel):
             # Acciones para el comprador
             if self.can_be_received_by_buyer():
                 actions.append(('confirm_receipt', 'Confirmar Recepción', 'success'))
-            if self.can_be_rated():
-                actions.append(('rate', 'Calificar Vendedor', 'warning'))
+            if self.can_be_rated_by_buyer():
+                actions.append(('rate_seller', 'Calificar Vendedor', 'warning'))
+            # Verificar si ya calificó al vendedor (para editar)
+            elif self.estado == 'completado':
+                existing_rating = self.calificaciones.filter(
+                    calificador=user, 
+                    tipo='comprador_a_vendedor'
+                ).first()
+                if existing_rating:
+                    actions.append(('edit_rating_seller', 'Editar Calificación', 'warning'))
             if self.can_be_cancelled_by_buyer():
                 actions.append(('cancel', 'Cancelar Pedido', 'danger'))
                 
@@ -139,6 +157,16 @@ class Order(BaseModel):
             # Acciones para el vendedor
             if self.can_be_confirmed_by_seller() or self.can_be_marked_as_shipped():
                 actions.append(('update_status', 'Actualizar Estado', 'primary'))
+            if self.can_be_rated_by_seller():
+                actions.append(('rate_buyer', 'Calificar Comprador', 'warning'))
+            # Verificar si ya calificó al comprador (para editar)
+            elif self.estado == 'completado':
+                existing_rating = self.calificaciones.filter(
+                    calificador=user, 
+                    tipo='vendedor_a_comprador'
+                ).first()
+                if existing_rating:
+                    actions.append(('edit_rating_buyer', 'Editar Calificación', 'warning'))
             if self.can_be_cancelled_by_seller():
                 actions.append(('cancel', 'Cancelar Pedido', 'danger'))
         
@@ -155,8 +183,8 @@ class Rating(BaseModel):
         ('vendedor_a_comprador', 'Vendedor califica a Comprador'),
     )
     
-    pedido = models.OneToOneField(Order, on_delete=models.CASCADE, 
-                                related_name='calificacion', verbose_name="Pedido", null=True)
+    pedido = models.ForeignKey(Order, on_delete=models.CASCADE, 
+                                related_name='calificaciones', verbose_name="Pedido", null=True)
     calificador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
                                   related_name='calificaciones_dadas', verbose_name="Calificador", null=True)
     calificado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
