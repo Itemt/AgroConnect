@@ -1,48 +1,131 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Actualizar Estado del Pedido{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-pencil-alt mr-3 text-primary-600"></i>Actualizar Estado del Pedido</h1>
-        <p class="mt-2 text-lg text-gray-600">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Pedido</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</div>
-            <div><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}</div>
-            <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
-            <div><strong>Total:</strong> ${{ order.precio_total }}</div>
-            <div><strong>Estado Actual:</strong> <span class="font-semibold">{{ order.get_estado_display }}</span></div>
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-sync-alt text-white text-3xl"></i>
+            </div>
+            <h1 class="text-5xl font-bold text-gradient mb-4">
+                Actualizar Estado del Pedido
+            </h1>
+            <p class="text-xl text-gray-600">
+                Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}
+            </p>
         </div>
-    </div>
 
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-sync-alt mr-3"></i>Actualizar Estado</h2>
-        <form method="post">
-            {% csrf_token %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700">Nuevo Estado:</label>
-                    {{ form.estado }}
+        <!-- Información del Pedido -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-box text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Información del Pedido</h2>
                 </div>
-                <div>
-                    <label for="{{ form.fecha_entrega_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700">Fecha Estimada de Entrega:</label>
-                    {{ form.fecha_entrega_estimada }}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Producto</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.publicacion.cultivo.nombre }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Comprador</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Cantidad</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-primary-50 to-white p-4 rounded-xl border border-primary-200">
+                        <p class="text-sm text-primary-600 mb-1">Total</p>
+                        <p class="text-2xl font-bold text-primary-700">${{ order.precio_total|floatformat:0 }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-accent-50 to-white p-4 rounded-xl border border-accent-200 md:col-span-2">
+                        <p class="text-sm text-gray-600 mb-1">Estado Actual</p>
+                        <p class="text-lg font-bold text-accent-700">
+                            <i class="fas fa-info-circle mr-2"></i>{{ order.get_estado_display }}
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="mb-6">
-                <label for="{{ form.notas_vendedor.id_for_label }}" class="block text-sm font-medium text-gray-700">Notas para el Comprador:</label>
-                {{ form.notas_vendedor }}
+        </div>
+
+        <!-- Formulario de Actualización -->
+        <div class="card">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-edit text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Actualizar Estado</h2>
+                </div>
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="field-wrapper">
+                            <label for="{{ form.estado.id_for_label }}" class="form-label">
+                                <i class="fas fa-tasks mr-2 text-primary-600"></i>
+                                Nuevo Estado
+                            </label>
+                            {{ form.estado }}
+                            {% for error in form.estado.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.fecha_entrega_estimada.id_for_label }}" class="form-label">
+                                <i class="fas fa-calendar-alt mr-2 text-primary-600"></i>
+                                Fecha Estimada de Entrega
+                            </label>
+                            {{ form.fecha_entrega_estimada }}
+                            {% for error in form.fecha_entrega_estimada.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="field-wrapper">
+                        <label for="{{ form.notas_vendedor.id_for_label }}" class="form-label">
+                            <i class="fas fa-comment-alt mr-2 text-primary-600"></i>
+                            Notas para el Comprador
+                        </label>
+                        {{ form.notas_vendedor }}
+                        <p class="mt-1 text-xs text-gray-500">Información adicional sobre el estado del pedido que será visible para el comprador</p>
+                        {% for error in form.notas_vendedor.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% url 'order_detail' order.id %}" class="btn-secondary group">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-primary group">
+                            <i class="fas fa-check-circle mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Actualizar Estado
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="flex justify-end space-x-4">
-                <a href="{% url 'order_detail' order.id %}" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400"><i class="fas fa-times-circle mr-2"></i>Cancelar</a>
-                <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700"><i class="fas fa-check-circle mr-2"></i>Actualizar Estado</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
