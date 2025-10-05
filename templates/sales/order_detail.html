@@ -158,6 +158,32 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Estado del Pago -->
+                    <div class="col-span-2 md:col-span-4 bg-gradient-to-br from-{% if order.is_paid %}green{% else %}red{% endif %}-50 to-{% if order.is_paid %}green{% else %}red{% endif %}-100 rounded-xl p-4 border-2 border-{% if order.is_paid %}green{% else %}red{% endif %}-300">
+                        <div class="flex items-start">
+                            <div class="bg-{% if order.is_paid %}green{% else %}red{% endif %}-500 rounded-lg p-3 mr-3">
+                                <i class="fas fa-{% if order.is_paid %}check-circle{% else %}exclamation-circle{% endif %} text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-{% if order.is_paid %}green{% else %}red{% endif %}-700 font-bold mb-1">ESTADO DEL PAGO</p>
+                                <p class="font-bold text-gray-900 text-lg">
+                                    {% if order.is_paid %}
+                                        ✓ PAGADO
+                                    {% elif order.payment %}
+                                        {{ order.payment.get_status_display|upper }}
+                                    {% else %}
+                                        SIN PAGAR
+                                    {% endif %}
+                                </p>
+                                {% if order.is_paid and order.payment.paid_at %}
+                                <p class="text-xs text-gray-600 mt-1">
+                                    <i class="fas fa-calendar mr-1"></i>{{ order.payment.paid_at|date:"d/m/Y H:i" }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-6 pt-6 border-t border-gray-200">
