@@ -16,7 +16,7 @@ class CustomUserCreationForm(UserCreationForm):
         required=True, 
         label="Cédula",
         widget=forms.TextInput(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Ej: 12345678'
         }),
         help_text="Número de cédula de identidad (debe ser único)"
@@ -26,7 +26,7 @@ class CustomUserCreationForm(UserCreationForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento",
@@ -35,7 +35,7 @@ class CustomUserCreationForm(UserCreationForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
         }),
         label="Ciudad/Municipio",
         required=True
@@ -58,7 +58,7 @@ class CustomUserCreationForm(UserCreationForm):
         required=False, 
         label="Dirección de la Finca",
         widget=forms.TextInput(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
         })
     )
@@ -66,7 +66,7 @@ class CustomUserCreationForm(UserCreationForm):
         required=False, 
         label="Descripción de la Finca",
         widget=forms.Textarea(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'rows': 3,
             'placeholder': 'Describe tu finca brevemente'
         })
@@ -76,7 +76,7 @@ class CustomUserCreationForm(UserCreationForm):
         required=False, 
         label="Cultivos Principales",
         widget=forms.TextInput(attrs={
-            'class': 'form-input',
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Ej: Café, Plátano, Aguacate'
         })
     )
@@ -147,8 +147,29 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'can_sell', 'departamento', 'ciudad', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
         labels = {
             'username': 'Nombre de Usuario',
+            'first_name': 'Nombres',
+            'last_name': 'Apellidos',
+            'email': 'Correo Electrónico',
             'password1': 'Contraseña',
             'password2': 'Confirmar Contraseña'
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+                'placeholder': 'Tu nombre de usuario'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+                'placeholder': 'Tus nombres'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+                'placeholder': 'Tus apellidos'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+                'placeholder': 'tu@email.com'
+            }),
         }
         help_texts = {
             'username': 'Requerido. 150 caracteres o menos. Solo letras, dígitos y @/./+/-/_',
@@ -171,6 +192,17 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Aplicar clases CSS a los campos de contraseña
+        self.fields['password1'].widget.attrs.update({
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Mínimo 6 caracteres'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Repite tu contraseña'
+        })
+        
         if 'departamento' in self.data:
             try:
                 departamento = self.data.get('departamento')
