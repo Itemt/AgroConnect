@@ -158,14 +158,14 @@
                             <i class="fas fa-bell text-xl group-hover:scale-110 transition-transform duration-300"></i>
                             <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center shadow-lg"></span>
                         </button>
-                        <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
+                        <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
                             <div class="px-4 py-3 flex items-center justify-between">
                                 <span class="block text-sm font-semibold text-gray-900">Notificaciones</span>
                                 <button id="mark-all-read" class="text-xs text-primary-700 hover:underline">Marcar todo como leído</button>
                             </div>
                             <div id="notifications-empty" class="py-6 text-center text-sm text-gray-600">No hay notificaciones</div>
                             <ul id="notifications-list" class="py-2 space-y-1 max-h-72 overflow-y-auto"></ul>
-                            <div class="px-4 py-2 border-t border-gray-200 text-center">
+                            <div class="px-4 py-2 text-center">
                                 <a href="{% url 'buyer_dashboard' %}" class="text-sm text-primary-700 hover:underline">Ver panel</a>
                             </div>
                         </div>
