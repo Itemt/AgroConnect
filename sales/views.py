@@ -224,7 +224,7 @@ def mark_order_shipped_view(request, order_id):
                 else:
                     order.notas_vendedor = f"[Envío] {notas}"
             
-            # Agregar fecha de entrega estimada (solo fecha, sin hora)
+            # Agregar fecha de entrega estimada
             fecha_entrega = form.cleaned_data.get('fecha_entrega_estimada')
             if fecha_entrega:
                 # Convertir date a datetime (medianoche del día)
