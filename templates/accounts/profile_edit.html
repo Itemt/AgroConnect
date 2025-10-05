@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Editar Perfil{% endblock %}
 
@@ -14,13 +15,13 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- User Information -->
-                    <div class="space-y-6">
-                        <h2 class="text-xl font-semibold text-gray-800">Información de la Cuenta</h2>
+                <div class="space-y-8">
+                    <!-- Información Personal -->
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">Información Personal</h2>
                         
                         <!-- Profile Image Preview -->
-                        <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-4 mb-6">
                             {% if user.profile_image %}
                                 <img src="{{ user.profile_image.url }}" alt="Imagen de Perfil" class="w-24 h-24 rounded-full object-cover">
                             {% else %}
@@ -29,59 +30,167 @@
                                 </div>
                             {% endif %}
                             <div class="field-wrapper">
-                                <label for="{{ user_form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ user_form.profile_image.label }}</label>
+                                <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.profile_image.label }}</label>
                                 <div class="mt-1">
-                                    {{ user_form.profile_image }}
+                                    {{ form.profile_image }}
                                 </div>
-                                {% for error in user_form.profile_image.errors %}
+                                {% for error in form.profile_image.errors %}
                                 <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
                         </div>
 
-                        {% for field in user_form %}
-                            {% if field.name != 'profile_image' %}
-                                <div class="field-wrapper">
-                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                                    <div class="mt-1">
-                                        {{ field }}
-                                    </div>
-                                    {% if field.help_text %}
-                                    <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.first_name.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.first_name }}
+                                </div>
+                                {% for error in form.first_name.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.last_name.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.last_name }}
+                                </div>
+                                {% for error in form.last_name.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.email.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.email }}
+                                </div>
+                                {% for error in form.email.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.cedula.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.cedula.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.cedula }}
+                                </div>
+                                {% if form.cedula.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.cedula.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.cedula.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="border-t border-gray-200 pt-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">Ubicación</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.departamento.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.departamento }}
+                                </div>
+                                {% for error in form.departamento.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.ciudad.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.ciudad }}
+                                </div>
+                                {% for error in form.ciudad.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opción de Vender -->
+                    <div class="border-t border-gray-200 pt-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">Opciones de Venta</h2>
+                        <div class="field-wrapper">
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    {{ form.can_sell }}
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="{{ form.can_sell.id_for_label }}" class="font-medium text-gray-700 cursor-pointer">
+                                        <i class="fas fa-store mr-2 text-primary-600"></i>
+                                        {{ form.can_sell.label }}
+                                    </label>
+                                    {% if form.can_sell.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form.can_sell.help_text }}</p>
                                     {% endif %}
-                                    {% for error in field.errors %}
+                                </div>
+                            </div>
+                            {% for error in form.can_sell.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Campos de Vendedor -->
+                    <div id="seller-fields" class="border-t border-gray-200 pt-8" style="display: none;">
+                        <div class="bg-primary-50 border border-primary-200 rounded-lg p-6">
+                            <h2 class="text-xl font-semibold text-primary-800 mb-6">
+                                <i class="fas fa-tractor mr-2"></i>
+                                Información de tu Finca
+                            </h2>
+                            <div class="space-y-6">
+                                <div class="field-wrapper">
+                                    <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.direccion.label }}</label>
+                                    <div class="mt-1">
+                                        {{ form.direccion }}
+                                    </div>
+                                    {% if form.direccion.help_text %}
+                                    <p class="mt-2 text-sm text-gray-500">{{ form.direccion.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in form.direccion.errors %}
                                     <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                                     {% endfor %}
                                 </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
 
-                    <!-- Profile Information -->
-                    {% if profile_form %}
-                    <div class="space-y-6">
-                        <h2 class="text-xl font-semibold text-gray-800">Información del Perfil de {{ user.role }}</h2>
-                        {% for field in profile_form %}
-                        <div class="field-wrapper">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                            <div class="mt-1">
-                                {{ field }}
+                                <div class="field-wrapper">
+                                    <label for="{{ form.farm_description.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.farm_description.label }}</label>
+                                    <div class="mt-1">
+                                        {{ form.farm_description }}
+                                    </div>
+                                    {% if form.farm_description.help_text %}
+                                    <p class="mt-2 text-sm text-gray-500">{{ form.farm_description.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in form.farm_description.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="field-wrapper">
+                                    <label for="{{ form.main_crops.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.main_crops.label }}</label>
+                                    <div class="mt-1">
+                                        {{ form.main_crops }}
+                                    </div>
+                                    {% if form.main_crops.help_text %}
+                                    <p class="mt-2 text-sm text-gray-500">{{ form.main_crops.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in form.main_crops.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
                             </div>
-                            {% if field.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% for error in field.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
-                    {% endif %}
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
                     <a href="{% url 'profile' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
-                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm" onclick="return confirm('¿Estás seguro de que quieres guardar los cambios?')">
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+                        <i class="fas fa-save mr-2"></i>
                         Guardar Cambios
                     </button>
                 </div>
@@ -89,4 +198,34 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📝 Formulario de edición de perfil cargado');
+    
+    const canSellCheckbox = document.getElementById('id_can_sell');
+    const sellerFields = document.getElementById('seller-fields');
+    
+    function toggleSellerFields() {
+        if (canSellCheckbox.checked) {
+            console.log('✅ Mostrando campos de vendedor');
+            sellerFields.style.display = 'block';
+        } else {
+            console.log('❌ Ocultando campos de vendedor');
+            sellerFields.style.display = 'none';
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    toggleSellerFields();
+    
+    // Ejecutar cuando cambie el checkbox
+    if (canSellCheckbox) {
+        canSellCheckbox.addEventListener('change', toggleSellerFields);
+    }
+});
+</script>
 {% endblock %}
