@@ -15,5 +15,8 @@ urlpatterns = [
     path('history/', views.payment_history_view, name='payment_history'),
     path('<int:payment_id>/', views.payment_detail_view, name='payment_detail'),
     path('<int:payment_id>/cancel/', views.cancel_payment_view, name='cancel_payment'),
+    
+    # Simulación de pago en modo test
+    path('<int:payment_id>/simulate-test/', views.simulate_test_payment_view, name='simulate_test_payment'),
 ]
 
