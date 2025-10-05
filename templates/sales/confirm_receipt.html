@@ -1,65 +1,248 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Confirmar Recepción del Pedido{% endblock %}
+{% block title %}Confirmar Recepción - Pedido #{{ order.id }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-check-circle mr-3 text-primary-600"></i>Confirmar Recepción del Pedido</h1>
-        <p class="mt-2 text-lg text-gray-600">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</p>
-    </div>
-
-    <!-- Order Info -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-box mr-3"></i>Información del Pedido</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</div>
-            <div><strong>Vendedor:</strong> {{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</div>
-            <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
-            <div><strong>Total Pagado:</strong> ${{ order.precio_total }}</div>
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-check-circle text-white text-3xl"></i>
+            </div>
+            <h1 class="text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Confirmar Recepción
+            </h1>
+            <p class="text-xl text-gray-600">
+                Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}
+            </p>
         </div>
-    </div>
 
-    <!-- Confirmation Form -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-4"><i class="fas fa-home mr-3"></i>Confirmar Recepción</h2>
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6">
-            <h3 class="font-bold"><i class="fas fa-exclamation-triangle mr-2"></i>¿Has recibido tu pedido?</h3>
-            <p>Al confirmar la recepción:</p>
-            <ul class="list-disc list-inside mt-2">
-                <li><i class="fas fa-check-circle mr-2"></i>El pedido se marcará como <strong>completado</strong>.</li>
-                <li><i class="fas fa-dollar-sign mr-2"></i>Se confirmará el pago al vendedor.</li>
-                <li><i class="fas fa-star mr-2"></i>Podrás calificar al vendedor.</li>
-                <li><i class="fas fa-lock mr-2"></i>No podrás cancelar el pedido.</li>
-            </ul>
+        <!-- Información del Pedido -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-box text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Información del Pedido</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Producto</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.publicacion.cultivo.nombre }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Vendedor</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Cantidad</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-white p-4 rounded-xl border border-green-200">
+                        <p class="text-sm text-green-600 mb-1">Total Pagado</p>
+                        <p class="text-xl font-bold text-green-700">${{ order.precio_total|floatformat:0 }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-4">
-                <label for="{{ form.notas_recepcion.id_for_label }}" class="block text-sm font-medium text-gray-700">Comentarios sobre la Recepción (opcional):</label>
-                {{ form.notas_recepcion }}
-            </div>
-            <div class="mb-6">
-                <label class="flex items-center">
-                    {{ form.confirmar_recepcion }}
-                    <span class="ml-2">{{ form.confirmar_recepcion.label }}</span>
-                </label>
-            </div>
-            <div class="flex justify-end space-x-4">
-                <a href="{% url 'order_detail' order.id %}" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400"><i class="fas fa-times-circle mr-2"></i>Cancelar</a>
-                <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700"><i class="fas fa-check-circle mr-2"></i>Confirmar Recepción</button>
-            </div>
-        </form>
-    </div>
 
-    <!-- Problem with order -->
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg shadow-lg">
-        <h3 class="font-bold"><i class="fas fa-exclamation-circle mr-3"></i>¿Hay algún problema con tu pedido?</h3>
-        <p>Si no has recibido el pedido, está dañado o no cumple con lo acordado, puedes contactar al vendedor o reportar un problema.</p>
-        <div class="mt-4 flex space-x-4">
-            <a href="{% url 'start_conversation' order.publicacion.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"><i class="fas fa-comments mr-2"></i>Contactar al Vendedor</a>
-            <a href="{% url 'cancel_order' order.id %}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"><i class="fas fa-times-circle mr-2"></i>Reportar Problema</a>
+        <!-- Formulario Unificado -->
+        <div class="card">
+            <div class="card-body p-8">
+                <form method="post" id="confirmForm">
+                    {% csrf_token %}
+
+                    <!-- Sección de Confirmación -->
+                    <div class="mb-8">
+                        <div class="bg-gradient-to-br from-yellow-50 to-white border border-yellow-200 rounded-xl p-6 mb-6">
+                            <div class="flex items-start mb-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-yellow-800 mb-2">¿Has recibido tu pedido?</h3>
+                                    <p class="text-gray-700 mb-3">Al confirmar la recepción:</p>
+                                    <div class="space-y-2">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                                            <span class="text-gray-700">El pedido se marcará como <strong>completado</strong>.</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-dollar-sign text-blue-600 mr-2 mt-1"></i>
+                                            <span class="text-gray-700">Se confirmará el pago al vendedor.</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-lock text-red-600 mr-2 mt-1"></i>
+                                            <span class="text-gray-700">No podrás cancelar el pedido.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field-wrapper mb-6">
+                            <label for="{{ receipt_form.notas_recepcion.id_for_label }}" class="form-label">
+                                <i class="fas fa-comment-alt mr-2 text-primary-600"></i>
+                                Comentarios sobre la Recepción (opcional)
+                            </label>
+                            {{ receipt_form.notas_recepcion }}
+                        </div>
+
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                            <label class="flex items-start cursor-pointer group">
+                                {{ receipt_form.confirmar_recepcion }}
+                                <span class="ml-3 font-semibold text-gray-800 group-hover:text-green-700 transition-colors">
+                                    <i class="fas fa-check-circle mr-2 text-green-600"></i>
+                                    {{ receipt_form.confirmar_recepcion.label }}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sección de Calificación (se muestra al marcar el checkbox) -->
+                    <div id="ratingSection" class="hidden border-t border-gray-200 pt-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                                <i class="fas fa-star text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Califica tu Experiencia</h2>
+                                <p class="text-sm text-gray-600">Ayuda a otros usuarios con tu opinión</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-50 to-white border border-yellow-200 rounded-xl p-6 mb-6">
+                            <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-star-half-alt text-yellow-500 mr-2"></i>
+                                Calificaciones Detalladas
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="field-wrapper">
+                                    <label class="form-label">
+                                        <i class="fas fa-star mr-2 text-yellow-500"></i>
+                                        {{ rating_form.calificacion_general.label }}
+                                    </label>
+                                    {{ rating_form.calificacion_general }}
+                                </div>
+
+                                <div class="field-wrapper">
+                                    <label class="form-label">
+                                        <i class="fas fa-comments mr-2 text-blue-500"></i>
+                                        {{ rating_form.calificacion_comunicacion.label }}
+                                    </label>
+                                    {{ rating_form.calificacion_comunicacion }}
+                                </div>
+
+                                <div class="field-wrapper">
+                                    <label class="form-label">
+                                        <i class="fas fa-clock mr-2 text-green-500"></i>
+                                        {{ rating_form.calificacion_puntualidad.label }}
+                                    </label>
+                                    {{ rating_form.calificacion_puntualidad }}
+                                </div>
+
+                                <div class="field-wrapper">
+                                    <label class="form-label">
+                                        <i class="fas fa-carrot mr-2 text-orange-500"></i>
+                                        {{ rating_form.calificacion_calidad.label }}
+                                    </label>
+                                    {{ rating_form.calificacion_calidad }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field-wrapper mb-6">
+                            <label class="form-label">
+                                <i class="fas fa-comment-dots mr-2 text-primary-600"></i>
+                                {{ rating_form.comentario.label }}
+                            </label>
+                            {{ rating_form.comentario }}
+                            <p class="mt-1 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Comparte más detalles sobre tu experiencia
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-white border border-green-200 rounded-xl p-6">
+                            <label class="flex items-start cursor-pointer group">
+                                {{ rating_form.recomendaria }}
+                                <span class="ml-3 font-semibold text-gray-800 group-hover:text-green-700 transition-colors flex items-center">
+                                    <i class="fas fa-thumbs-up mr-2 text-green-600"></i>
+                                    {{ rating_form.recomendaria.label }}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+                        <a href="{% url 'order_detail' order.id %}" class="btn-secondary group">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Volver al Pedido
+                        </a>
+                        <button type="submit" id="submitBtn" class="btn-primary group" disabled>
+                            <i class="fas fa-check-circle mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            <span id="submitText">Confirmar Recepción</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Problema con el pedido -->
+                <div class="bg-gradient-to-br from-red-50 to-white border border-red-200 rounded-xl p-6 mt-8">
+                    <h3 class="font-bold text-red-800 mb-2 flex items-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        ¿Hay algún problema con tu pedido?
+                    </h3>
+                    <p class="text-gray-700 mb-4">Si no has recibido el pedido, está dañado o no cumple con lo acordado:</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 shadow-md hover:shadow-lg">
+                            <i class="fas fa-comments mr-2"></i>Contactar al Vendedor
+                        </a>
+                        <a href="{% url 'cancel_order' order.id %}" class="bg-gradient-to-r from-red-500 to-red-700 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg">
+                            <i class="fas fa-times-circle mr-2"></i>Reportar Problema
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('{{ receipt_form.confirmar_recepcion.id_for_label }}');
+    const ratingSection = document.getElementById('ratingSection');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    
+    confirmCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            // Mostrar sección de calificación con animación
+            ratingSection.classList.remove('hidden');
+            ratingSection.style.opacity = '0';
+            setTimeout(() => {
+                ratingSection.style.transition = 'opacity 0.5s ease-in-out';
+                ratingSection.style.opacity = '1';
+            }, 10);
+            
+            submitBtn.disabled = false;
+            submitText.textContent = 'Confirmar y Calificar';
+            
+            // Hacer scroll suave a la sección de calificación
+            setTimeout(() => {
+                ratingSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        } else {
+            ratingSection.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitText.textContent = 'Confirmar Recepción';
+        }
+    });
+});
+</script>
 {% endblock %}

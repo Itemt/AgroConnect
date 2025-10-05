@@ -1,64 +1,172 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Realizar Pedido{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <!-- Order Summary -->
-        <div class="bg-white rounded-lg shadow-lg">
-            <div class="px-6 py-8">
-                <h2 class="text-2xl font-bold text-gray-900">Resumen del Producto</h2>
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-shopping-cart text-white text-3xl"></i>
             </div>
-            <div class="border-t border-gray-200 px-6 py-8 space-y-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">{{ publication.cultivo.nombre }}</h3>
-                    <p class="text-sm text-gray-600">de {{ publication.cultivo.productor.first_name }} {{ publication.cultivo.productor.last_name }}</p>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Precio:</span>
-                    <span class="font-semibold text-lg">${{ publication.precio_por_unidad }} / {{ publication.cultivo.unidad_medida }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Cantidad Disponible:</span>
-                    <span class="font-semibold">{{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</span>
-                </div>
-            </div>
+            <h1 class="text-5xl font-bold text-gradient mb-4">
+                Realizar Pedido
+            </h1>
+            <p class="text-xl text-gray-600">
+                Completa los detalles de tu compra
+            </p>
         </div>
 
-        <!-- Order Form -->
-        <div class="bg-white rounded-lg shadow-lg">
-            <div class="px-6 py-8">
-                <h1 class="text-2xl font-bold text-gray-900">Confirmar Pedido</h1>
-                <p class="mt-2 text-sm text-gray-600">Completa los detalles de tu pedido.</p>
-            </div>
-            <div class="border-t border-gray-200 px-6 py-8">
-                <form method="post">
-                    {% csrf_token %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Resumen del Producto -->
+            <div class="card h-fit sticky top-24">
+                <div class="card-body p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                            <i class="fas fa-box text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">Resumen del Producto</h2>
+                    </div>
+
                     <div class="space-y-6">
+                        <!-- Información del Producto -->
+                        <div class="bg-gradient-to-br from-primary-50 to-white p-6 rounded-xl border border-primary-200">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ publication.cultivo.nombre }}</h3>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-user-circle mr-2"></i>
+                                <p class="text-sm">de <span class="font-semibold">{{ publication.cultivo.productor.first_name }} {{ publication.cultivo.productor.last_name }}</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Detalles del Precio -->
+                        <div class="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border border-gray-200 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 font-medium">
+                                    <i class="fas fa-tag mr-2 text-accent-600"></i>
+                                    Precio por Unidad
+                                </span>
+                                <span class="font-bold text-xl text-gray-900">${{ publication.precio_por_unidad|floatformat:0 }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 font-medium">
+                                    <i class="fas fa-balance-scale mr-2 text-primary-600"></i>
+                                    Unidad de Medida
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ publication.cultivo.unidad_medida }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                                <span class="text-gray-700 font-medium">
+                                    <i class="fas fa-warehouse mr-2 text-blue-600"></i>
+                                    Cantidad Disponible
+                                </span>
+                                <span class="font-bold text-lg text-primary-600">{{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Información del Vendedor -->
+                        <div class="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-200">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-store mr-2 text-blue-600"></i>
+                                Información del Vendedor
+                            </h4>
+                            <div class="space-y-2 text-sm text-gray-700">
+                                {% if publication.cultivo.productor.producer_profile.ubicacion_completa %}
+                                <p class="flex items-start">
+                                    <i class="fas fa-map-marker-alt mr-2 text-blue-600 mt-1"></i>
+                                    <span>{{ publication.cultivo.productor.producer_profile.ubicacion_completa }}</span>
+                                </p>
+                                {% endif %}
+                                {% if publication.cultivo.productor.producer_profile.calificacion_promedio %}
+                                <p class="flex items-center">
+                                    <i class="fas fa-star mr-2 text-yellow-400"></i>
+                                    <span class="font-semibold">{{ publication.cultivo.productor.producer_profile.calificacion_promedio|floatformat:1 }}</span>
+                                    <span class="text-gray-500 ml-1">({{ publication.cultivo.productor.producer_profile.total_ventas }} ventas)</span>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Pedido -->
+            <div class="card">
+                <div class="card-body p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                            <i class="fas fa-clipboard-list text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Detalles del Pedido</h2>
+                            <p class="text-sm text-gray-600">Completa la información requerida</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                                {% for error in form.non_field_errors %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
                         {% for field in form %}
                         <div class="field-wrapper">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {% if 'cantidad' in field.name %}
+                                    <i class="fas fa-calculator mr-2 text-primary-600"></i>
+                                {% elif 'direccion' in field.name %}
+                                    <i class="fas fa-map-marked-alt mr-2 text-primary-600"></i>
+                                {% elif 'nota' in field.name %}
+                                    <i class="fas fa-sticky-note mr-2 text-primary-600"></i>
+                                {% else %}
+                                    <i class="fas fa-pencil-alt mr-2 text-primary-600"></i>
+                                {% endif %}
+                                {{ field.label }}
+                            </label>
                             <div class="mt-1">
                                 {{ field }}
                             </div>
                             {% if field.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    {{ field.help_text }}
+                                </p>
                             {% endif %}
                             {% for error in field.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                <p class="mt-2 text-sm text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    {{ error }}
+                                </p>
                             {% endfor %}
                         </div>
                         {% endfor %}
-                    </div>
 
-                    <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
-                        <a href="{% url 'publication_detail' publication.id %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
-                        <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm" onclick="return confirm('¿Estás seguro de que quieres realizar este pedido?')">
-                            Realizar Pedido
-                        </button>
-                    </div>
-                </form>
+                        <!-- Términos y Condiciones -->
+                        <div class="bg-accent-50 border border-accent-200 rounded-xl p-4">
+                            <p class="text-sm text-gray-700 flex items-start">
+                                <i class="fas fa-shield-alt text-accent-600 mr-2 mt-1"></i>
+                                <span>Al realizar este pedido, aceptas que el vendedor confirmará la disponibilidad y procederá con la preparación del mismo. El pago se procesará de acuerdo a los términos acordados.</span>
+                            </p>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                            <a href="{% url 'publication_detail' publication.id %}" class="btn-secondary group">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Volver al Producto
+                            </a>
+                            <button type="submit" class="btn-primary group" onclick="return confirm('¿Estás seguro de que quieres realizar este pedido?')">
+                                <i class="fas fa-check-circle mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                Confirmar Pedido
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
