@@ -16,30 +16,50 @@ def producer_dashboard(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    # Estadísticas del productor
+    # Estadísticas de producción/ventas
     total_crops = request.user.cultivos.count()
     active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='Activa').count()
-    total_orders = Order.objects.filter(publicacion__cultivo__productor=request.user).count()
-    total_revenue = Order.objects.filter(
-        publicacion__cultivo__productor=request.user,
-        estado='entregado'
-    ).aggregate(total=Sum('precio_total'))['total'] or 0
+    
+    # Estadísticas de VENTAS (donde soy el vendedor)
+    sales_orders = Order.objects.filter(publicacion__cultivo__productor=request.user)
+    total_sales = sales_orders.count()
+    total_revenue = sales_orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
+    pending_sales = sales_orders.filter(estado='pendiente').count()
+    
+    # Estadísticas de COMPRAS (donde soy el comprador)
+    purchase_orders = Order.objects.filter(comprador=request.user)
+    total_purchases = purchase_orders.count()
+    total_spent = purchase_orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
+    pending_purchases = purchase_orders.filter(estado='pendiente').count()
     
     # Cultivos recientes
     recent_crops = request.user.cultivos.order_by('-created_at')[:5]
     
-    # Pedidos recientes
-    recent_orders = Order.objects.filter(
-        publicacion__cultivo__productor=request.user
-    ).select_related('publicacion__cultivo', 'comprador').order_by('-created_at')[:5]
+    # Pedidos recientes de VENTAS
+    recent_sales = sales_orders.select_related('publicacion__cultivo', 'comprador').order_by('-created_at')[:5]
+    
+    # Pedidos recientes de COMPRAS
+    recent_purchases = purchase_orders.select_related('publicacion__cultivo__productor', 'publicacion__cultivo').order_by('-created_at')[:5]
     
     context = {
+        # Producción
         'total_crops': total_crops,
         'active_publications': active_publications,
-        'total_orders': total_orders,
+        
+        # Ventas
+        'total_sales': total_sales,
         'total_revenue': total_revenue,
+        'pending_sales': pending_sales,
+        'recent_sales': recent_sales,
+        
+        # Compras
+        'total_purchases': total_purchases,
+        'total_spent': total_spent,
+        'pending_purchases': pending_purchases,
+        'recent_purchases': recent_purchases,
+        
+        # Otros
         'recent_crops': recent_crops,
-        'recent_orders': recent_orders,
     }
     return render(request, 'inventory/producer_dashboard.html', context)
 
