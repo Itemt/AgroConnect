@@ -6,7 +6,7 @@ class PublicationForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento de Origen",
@@ -16,7 +16,7 @@ class PublicationForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-control'
+            'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
         }),
         label="Ciudad/Municipio de Origen",
         required=False
@@ -29,13 +29,31 @@ class PublicationForm(forms.ModelForm):
             'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen'
         ]
         widgets = {
-            'cultivo': forms.Select(attrs={'class': 'form-control'}),
-            'precio_por_unidad': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 2.50'}),
-            'cantidad_disponible': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 100'}),
-            'cantidad_minima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10'}),
-            'categoria': forms.Select(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'cultivo': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
+            'precio_por_unidad': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
+                'placeholder': 'Ej: 2.50'
+            }),
+            'cantidad_disponible': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
+                'placeholder': 'Ej: 100'
+            }),
+            'cantidad_minima': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
+                'placeholder': 'Ej: 10'
+            }),
+            'categoria': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none', 
+                'rows': 3
+            }),
+            'imagen': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100'
+            }),
         }
 
     def __init__(self, *args, **kwargs):

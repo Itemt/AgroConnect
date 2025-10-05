@@ -11,26 +11,32 @@ class CropForm(forms.ModelForm):
                 'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
             }),
             'nombre': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
                 'placeholder': 'Ej: Tomate Chonto'
             }),
-            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
             'cantidad_estimada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
-                'class': 'form-control',
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
                 'placeholder': 'Ej: 500'
             }),
-            'unidad_medida': forms.Select(attrs={'class': 'form-control'}),
-            'estado': forms.Select(attrs={'class': 'form-control'}),
+            'unidad_medida': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
             'fecha_disponibilidad': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'form-control'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
             }),
             'notas': forms.Textarea(attrs={
                 'rows': 3, 
                 'placeholder': 'Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.',
-                'class': 'form-control'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none'
             }),
         }
         labels = {
