@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Sum, Count, Avg
-from .models import Order
+from .models import Order, Rating
 from accounts.models import ProducerProfile, BuyerProfile
 
 
@@ -79,3 +79,45 @@ def update_user_statistics(sender, instance, created, **kwargs):
         # En caso de cancelación, recalcular sin incluir esta orden
         # (Similar al código anterior pero excluyendo órdenes canceladas)
         pass
+
+
+@receiver(post_save, sender=Rating)
+def update_ratings_on_profiles(sender, instance, created, **kwargs):
+    """
+    Actualiza las calificaciones promedio en los perfiles cuando se crea/actualiza un rating
+    """
+    if instance.tipo == 'comprador_a_vendedor':
+        # Actualizar calificación del vendedor (ProducerProfile)
+        vendedor = instance.calificado
+        if vendedor and hasattr(vendedor, 'producer_profile'):
+            producer_profile = vendedor.producer_profile
+            
+            # Calcular calificación promedio de todas las calificaciones recibidas como vendedor
+            ratings = vendedor.calificaciones_recibidas.filter(tipo='comprador_a_vendedor')
+            if ratings.exists():
+                producer_profile.calificacion_promedio = ratings.aggregate(
+                    avg=Avg('calificacion_general')
+                )['avg'] or 0
+                producer_profile.total_calificaciones = ratings.count()
+                producer_profile.save()
+    
+    elif instance.tipo == 'vendedor_a_comprador':
+        # Actualizar calificación del comprador (BuyerProfile)
+        comprador = instance.calificado
+        if comprador and hasattr(comprador, 'buyer_profile'):
+            buyer_profile = comprador.buyer_profile
+            
+            # Calcular calificación promedio de todas las calificaciones recibidas como comprador
+            ratings = comprador.calificaciones_recibidas.filter(tipo='vendedor_a_comprador')
+            if ratings.exists():
+                # BuyerProfile necesita campos para las calificaciones
+                avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg'] or 0
+                total_ratings = ratings.count()
+                
+                # Si BuyerProfile no tiene estos campos, los agregaremos después
+                if hasattr(buyer_profile, 'calificacion_promedio'):
+                    buyer_profile.calificacion_promedio = avg_rating
+                if hasattr(buyer_profile, 'total_calificaciones'):
+                    buyer_profile.total_calificaciones = total_ratings
+                
+                buyer_profile.save()
