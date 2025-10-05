@@ -398,6 +398,12 @@
                 <span class="sidebar-text">Inicio</span>
             </a>
             
+            <!-- Marketplace para todos los usuarios (el más importante después de Inicio) -->
+            <a href="{% url 'marketplace' %}" class="{% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %} mb-4">
+                <i class="fas fa-store"></i>
+                <span class="sidebar-text">Marketplace</span>
+            </a>
+            
             <!-- Divider -->
             <div class="border-t border-primary-700 my-4"></div>
             
@@ -448,12 +454,6 @@
                 <span class="sidebar-text">Pedidos</span>
             </a>
             {% endif %}
-            
-            <!-- Marketplace para todos los usuarios (incluyendo admin) -->
-            <a href="{% url 'marketplace' %}" class="{% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-store"></i>
-                <span class="sidebar-text">Marketplace</span>
-            </a>
             
             {% if user.is_staff %}
             <!-- Botones adicionales para administradores -->

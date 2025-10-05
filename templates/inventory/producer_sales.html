@@ -47,20 +47,56 @@
         <h2 class="text-2xl font-bold"><i class="fas fa-exclamation-triangle mr-3"></i>Pedidos que Requieren Atención</h2>
         <div class="mt-4 space-y-4">
             {% for order in orders_need_attention %}
-                <div class="bg-white p-4 rounded-lg shadow-md flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
-                        <p class="text-sm text-gray-600"><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | <strong>Estado:</strong> {{ order.get_estado_display }}</p>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
+                            <p class="text-sm text-gray-600"><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | <strong>Estado:</strong> {{ order.get_estado_display }}</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            Requiere Atención
+                        </span>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        {% for action_key, action_label, action_class in order.available_actions %}
-                            {% if action_key == 'update_status' %}
-                                <a href="{% url 'update_order_status' order.id %}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm font-semibold"><i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}</a>
-                            {% elif action_key == 'cancel' %}
-                                <a href="{% url 'cancel_order' order.id %}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm font-semibold"><i class="fas fa-times-circle mr-2"></i>Cancelar</a>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium">
+                            <i class="fas fa-eye mr-1"></i>Ver Detalles
+                        </a>
+                        
+                        {% if order.estado == 'pendiente' and order.is_paid %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">Acción...</option>
+                                    <option value="confirmado">✓ Confirmar</option>
+                                    <option value="cancelado">✗ Cancelar</option>
+                                </select>
+                                <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                                    Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'confirmado' %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">Acción...</option>
+                                    <option value="en_preparacion">En Preparación</option>
+                                    <option value="cancelado">✗ Cancelar</option>
+                                </select>
+                                <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                                    Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'en_preparacion' %}
+                            <a href="{% url 'mark_order_shipped' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                                <i class="fas fa-shipping-fast mr-1"></i>Marcar Enviado
+                            </a>
+                        {% elif order.estado == 'completado' %}
+                            {% if order.can_be_rated_by_seller %}
+                                <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-medium">
+                                    <i class="fas fa-star mr-1"></i>Calificar
+                                </a>
                             {% endif %}
-                        {% endfor %}
-                        <a href="{% url 'order_detail' order.id %}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm font-semibold"><i class="fas fa-eye mr-2"></i>Ver Detalles</a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -154,17 +190,81 @@
                         <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
                         <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>
                     </div>
-                    <div class="mt-4 flex space-x-4">
-                        <a href="{% url 'order_detail' order.id %}" class="text-primary-600 hover:underline"><i class="fas fa-eye mr-1"></i>Ver Detalles</a>
-                        {% for action_key, action_label, action_class in order.available_actions %}
-                            {% if action_key == 'update_status' %}
-                                <a href="{% url 'update_order_status' order.id %}" class="text-blue-600 hover:underline"><i class="fas fa-pencil-alt mr-1"></i>Actualizar</a>
-                            {% elif action_key == 'cancel' %}
-                                <a href="{% url 'cancel_order' order.id %}" class="text-red-600 hover:underline"><i class="fas fa-times-circle mr-1"></i>Cancelar</a>
-                            {% elif action_key == 'contact' %}
-                                <a href="{% url 'start_conversation' order.publicacion.id %}" class="text-green-600 hover:underline"><i class="fas fa-comments mr-1"></i>Contactar</a>
+                    
+                    <!-- Quick Status Update -->
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                            <i class="fas fa-eye mr-2"></i>Ver Detalles
+                        </a>
+                        
+                        {% if order.estado == 'pendiente' and order.is_paid %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">Cambiar estado...</option>
+                                    <option value="confirmado">✓ Confirmar Pedido</option>
+                                    <option value="cancelado">✗ Cancelar</option>
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-check mr-1"></i>Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'confirmado' %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">Cambiar estado...</option>
+                                    <option value="en_preparacion">📦 En Preparación</option>
+                                    <option value="cancelado">✗ Cancelar</option>
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-check mr-1"></i>Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'en_preparacion' %}
+                            <a href="{% url 'mark_order_shipped' order.id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                <i class="fas fa-shipping-fast mr-2"></i>Marcar como Enviado
+                            </a>
+                        {% elif order.estado == 'enviado' %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">Cambiar estado...</option>
+                                    <option value="en_transito">🚚 En Tránsito</option>
+                                    <option value="entregado">📬 Entregado</option>
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-check mr-1"></i>Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'en_transito' %}
+                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                    <option value="">Cambiar estado...</option>
+                                    <option value="entregado">📬 Entregado</option>
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-check mr-1"></i>Confirmar
+                                </button>
+                            </form>
+                        {% elif order.estado == 'completado' %}
+                            {% if order.can_be_rated_by_seller %}
+                                <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium">
+                                    <i class="fas fa-star mr-2"></i>Calificar Comprador
+                                </a>
                             {% endif %}
-                        {% endfor %}
+                        {% endif %}
+                        
+                        {% if order.can_be_cancelled_by_seller and order.estado not in ['pendiente', 'confirmado', 'en_preparacion'] %}
+                            <a href="{% url 'cancel_order' order.id %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                                <i class="fas fa-times-circle mr-2"></i>Cancelar
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                            <i class="fas fa-comments mr-2"></i>Contactar
+                        </a>
                     </div>
                 </div>
             {% empty %}
