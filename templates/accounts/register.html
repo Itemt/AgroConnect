@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-8">
                 <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
@@ -156,13 +156,13 @@
                             <div class="field-wrapper border-t border-gray-200 pt-6">
                                 <div class="flex items-center">
                                     {{ form.can_sell }}
-                                    <label for="{{ form.can_sell.id_for_label }}" class="ml-3 font-medium text-gray-700 cursor-pointer flex items-center">
+                                    <label for="{{ form.can_sell.id_for_label }}" class="ml-4 font-medium text-gray-700 cursor-pointer flex items-center">
                                         <i class="fas fa-store mr-2 text-primary-600"></i>
                                         {{ form.can_sell.label }}
                                     </label>
                                 </div>
                                 {% if form.can_sell.help_text %}
-                                    <p class="mt-2 text-sm text-gray-500 ml-7">{{ form.can_sell.help_text }}</p>
+                                    <p class="mt-2 text-sm text-gray-500 ml-8">{{ form.can_sell.help_text }}</p>
                                 {% endif %}
                                 {% for error in form.can_sell.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
