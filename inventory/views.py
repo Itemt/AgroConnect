@@ -95,7 +95,7 @@ def crop_create_view(request):
         return redirect('index')
     
     if request.method == 'POST':
-        form = CropForm(request.POST, request.FILES)
+        form = CropForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             crop = form.save(commit=False)
             crop.productor = request.user
@@ -103,7 +103,7 @@ def crop_create_view(request):
             messages.success(request, 'Cultivo creado exitosamente.')
             return redirect('crop_list')
     else:
-        form = CropForm()
+        form = CropForm(user=request.user)
     
     context = {
         'form': form,
@@ -117,13 +117,13 @@ def crop_update_view(request, pk):
     crop = get_object_or_404(Crop, pk=pk, productor=request.user)
     
     if request.method == 'POST':
-        form = CropForm(request.POST, request.FILES, instance=crop)
+        form = CropForm(request.POST, request.FILES, instance=crop, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Cultivo actualizado exitosamente.')
             return redirect('crop_list')
     else:
-        form = CropForm(instance=crop)
+        form = CropForm(instance=crop, user=request.user)
     
     context = {
         'form': form,

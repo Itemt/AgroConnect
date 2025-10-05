@@ -1,0 +1,238 @@
+{% extends 'accounts/user_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-home text-white text-3xl"></i>
+            </div>
+            <h1 class="text-5xl font-bold text-gradient mb-4">
+                {{ title }}
+            </h1>
+            <p class="text-xl text-gray-600">
+                Gestiona la información de tu finca
+            </p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="card">
+            <div class="card-body p-8">
+                <form method="post" id="farmForm">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Información Básica -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                                <i class="fas fa-info-circle text-white text-xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800">Información Básica</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper md:col-span-2">
+                                <label class="form-label">
+                                    <i class="fas fa-signature mr-2 text-primary-600"></i>
+                                    {{ form.nombre.label }}
+                                </label>
+                                {{ form.nombre }}
+                                {% for error in form.nombre.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                                <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800">Ubicación</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label class="form-label">
+                                    <i class="fas fa-map mr-2 text-primary-600"></i>
+                                    {{ form.departamento.label }}
+                                </label>
+                                {{ form.departamento }}
+                                {% for error in form.departamento.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label class="form-label">
+                                    <i class="fas fa-city mr-2 text-primary-600"></i>
+                                    {{ form.ciudad.label }}
+                                </label>
+                                {{ form.ciudad }}
+                                {% for error in form.ciudad.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper md:col-span-2">
+                                <label class="form-label">
+                                    <i class="fas fa-location-arrow mr-2 text-primary-600"></i>
+                                    {{ form.direccion.label }}
+                                </label>
+                                {{ form.direccion }}
+                                <p class="mt-1 text-xs text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Opcional: Vereda, sector o dirección específica
+                                </p>
+                                {% for error in form.direccion.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalles de la Finca -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                                <i class="fas fa-seedling text-white text-xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800">Detalles de la Finca</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label class="form-label">
+                                    <i class="fas fa-ruler-combined mr-2 text-primary-600"></i>
+                                    {{ form.area.label }}
+                                </label>
+                                {{ form.area }}
+                                <p class="mt-1 text-xs text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Opcional: Área en hectáreas
+                                </p>
+                                {% for error in form.area.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label class="form-label">
+                                    <i class="fas fa-leaf mr-2 text-primary-600"></i>
+                                    {{ form.cultivos_principales.label }}
+                                </label>
+                                {{ form.cultivos_principales }}
+                                <p class="mt-1 text-xs text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Opcional: Ej: Café, Plátano, Yuca
+                                </p>
+                                {% for error in form.cultivos_principales.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper md:col-span-2">
+                                <label class="form-label">
+                                    <i class="fas fa-align-left mr-2 text-primary-600"></i>
+                                    {{ form.descripcion.label }}
+                                </label>
+                                {{ form.descripcion }}
+                                <p class="mt-1 text-xs text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Opcional: Describe el tipo de terreno, clima, características especiales
+                                </p>
+                                {% for error in form.descripcion.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-8">
+                        <div class="bg-gradient-to-br from-green-50 to-white border border-green-200 rounded-xl p-6">
+                            <label class="flex items-start cursor-pointer group">
+                                {{ form.activa }}
+                                <span class="ml-3 font-semibold text-gray-800 group-hover:text-green-700 transition-colors flex items-center">
+                                    <i class="fas fa-check-circle mr-2 text-green-600"></i>
+                                    {{ form.activa.label }}
+                                </span>
+                            </label>
+                            <p class="ml-8 mt-2 text-sm text-gray-600">
+                                Las fincas inactivas no aparecerán como opción al crear nuevos cultivos
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                        <a href="{% url 'farm_list' %}" class="btn-secondary group">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Volver a Mis Fincas
+                        </a>
+                        <button type="submit" class="btn-primary group">
+                            <i class="fas fa-save mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            {{ button_text }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departamentoSelect = document.getElementById('id_farm_departamento');
+    const ciudadSelect = document.getElementById('id_farm_ciudad');
+    
+    if (departamentoSelect && ciudadSelect) {
+        departamentoSelect.addEventListener('change', function() {
+            const departamento = this.value;
+            
+            if (departamento) {
+                // Cargar ciudades mediante AJAX
+                fetch(`{% url 'ajax_get_farm_cities' %}?departamento=${encodeURIComponent(departamento)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Limpiar select de ciudades
+                        ciudadSelect.innerHTML = '<option value="">Selecciona una ciudad</option>';
+                        
+                        // Agregar las ciudades
+                        data.cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city;
+                            option.textContent = city;
+                            ciudadSelect.appendChild(option);
+                        });
+                        
+                        // Habilitar select de ciudades
+                        ciudadSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar ciudades:', error);
+                        ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    });
+            } else {
+                ciudadSelect.innerHTML = '<option value="">Primero selecciona un departamento</option>';
+                ciudadSelect.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
