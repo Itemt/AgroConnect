@@ -39,3 +39,4 @@ epaycosdk==3.3.2
 requests==2.32.3
 django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
+django-widget-tweaks==1.5.0
