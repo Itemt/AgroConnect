@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Calificación - Pedido #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-edit text-white text-3xl"></i>
+            </div>
+            <h1 class="text-5xl font-bold mb-4" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Editar Calificación
+            </h1>
+            <p class="text-xl text-gray-600">
+                Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}
+            </p>
+        </div>
+
+        <!-- Información del Pedido -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                        <i class="fas fa-box text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Información del Pedido</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Vendedor</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Producto</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.publicacion.cultivo.nombre }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">Cantidad</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-white p-4 rounded-xl border border-green-200">
+                        <p class="text-sm text-green-600 mb-1">Total</p>
+                        <p class="text-xl font-bold text-green-700">${{ order.precio_total|floatformat:0 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Calificación -->
+        <div class="card">
+            <div class="card-body p-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="space-y-6">
+                        <!-- Calificación General -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-star text-yellow-500 mr-1"></i> Calificación General
+                            </label>
+                            <select name="calificacion_general" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                <option value="">Selecciona...</option>
+                                <option value="5" {% if existing_rating.calificacion_general == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                                <option value="4" {% if existing_rating.calificacion_general == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                                <option value="3" {% if existing_rating.calificacion_general == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                                <option value="2" {% if existing_rating.calificacion_general == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                                <option value="1" {% if existing_rating.calificacion_general == 1 %}selected{% endif %}>⭐ Malo</option>
+                            </select>
+                        </div>
+
+                        <!-- Calificación Comunicación -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-comments text-blue-500 mr-1"></i> Comunicación
+                            </label>
+                            <select name="calificacion_comunicacion" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Selecciona...</option>
+                                <option value="5" {% if existing_rating.calificacion_comunicacion == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                                <option value="4" {% if existing_rating.calificacion_comunicacion == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                                <option value="3" {% if existing_rating.calificacion_comunicacion == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                                <option value="2" {% if existing_rating.calificacion_comunicacion == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                                <option value="1" {% if existing_rating.calificacion_comunicacion == 1 %}selected{% endif %}>⭐ Malo</option>
+                            </select>
+                        </div>
+
+                        <!-- Calificación Puntualidad -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Entregas
+                            </label>
+                            <select name="calificacion_puntualidad" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">Selecciona...</option>
+                                <option value="5" {% if existing_rating.calificacion_puntualidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                                <option value="4" {% if existing_rating.calificacion_puntualidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                                <option value="3" {% if existing_rating.calificacion_puntualidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                                <option value="2" {% if existing_rating.calificacion_puntualidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                                <option value="1" {% if existing_rating.calificacion_puntualidad == 1 %}selected{% endif %}>⭐ Malo</option>
+                            </select>
+                        </div>
+
+                        <!-- Calificación Calidad -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-box-open text-purple-500 mr-1"></i> Calidad del Producto
+                            </label>
+                            <select name="calificacion_calidad" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                <option value="">Selecciona...</option>
+                                <option value="5" {% if existing_rating.calificacion_calidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
+                                <option value="4" {% if existing_rating.calificacion_calidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
+                                <option value="3" {% if existing_rating.calificacion_calidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
+                                <option value="2" {% if existing_rating.calificacion_calidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
+                                <option value="1" {% if existing_rating.calificacion_calidad == 1 %}selected{% endif %}>⭐ Malo</option>
+                            </select>
+                        </div>
+
+                        <!-- Comentario -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-comment-alt text-gray-500 mr-1"></i> Comentario (Opcional)
+                            </label>
+                            <textarea name="comentario" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{{ existing_rating.comentario }}</textarea>
+                        </div>
+
+                        <!-- Recomendación -->
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <label class="flex items-start cursor-pointer">
+                                <input type="checkbox" name="recomendaria" value="true" {% if existing_rating.recomendaria %}checked{% endif %} class="mt-1 h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                <span class="ml-3 text-sm font-medium text-gray-700">
+                                    <i class="fas fa-thumbs-up text-green-600 mr-1"></i> ¿Recomendarías comprar productos de este vendedor?
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                        <a href="{% url 'order_history' %}" class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold transition-all">
+                            <i class="fas fa-arrow-left mr-2"></i> Volver
+                        </a>
+                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all">
+                            <i class="fas fa-save mr-2"></i> Actualizar Calificación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
