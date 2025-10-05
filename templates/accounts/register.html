@@ -212,12 +212,16 @@
 <script src="{% static 'js/main.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('📝 Formulario de registro cargado');
+    
     const roleSelect = document.getElementById('id_role');
     const buyerFields = document.getElementById('buyer-fields');
     const producerFields = document.getElementById('producer-fields');
+    const form = document.querySelector('form');
     
     function toggleRoleFields() {
         const role = roleSelect.value;
+        console.log('🔄 Rol seleccionado:', role);
         
         // Ocultar todos los campos específicos primero
         if (buyerFields) buyerFields.style.display = 'none';
@@ -238,12 +242,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mostrar campos según el rol seleccionado
         if (role === 'Comprador') {
-            if (buyerFields) buyerFields.style.display = 'block';
+            if (buyerFields) {
+                buyerFields.style.display = 'block';
+                console.log('✅ Mostrando campos de comprador');
+            }
             // Hacer los campos de comprador requeridos
             if (companyNameField) companyNameField.required = true;
             if (businessTypeField) businessTypeField.required = true;
         } else if (role === 'Productor') {
-            if (producerFields) producerFields.style.display = 'block';
+            if (producerFields) {
+                producerFields.style.display = 'block';
+                console.log('✅ Mostrando campos de productor');
+            }
             // Los campos de productor son opcionales, no los hacemos requeridos
         }
     }
@@ -252,7 +262,33 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleRoleFields();
     
     // Ejecutar cuando cambie el rol
-    roleSelect.addEventListener('change', toggleRoleFields);
+    if (roleSelect) {
+        roleSelect.addEventListener('change', toggleRoleFields);
+    }
+    
+    // Debug del envío del formulario
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('📤 Intentando enviar formulario...');
+            
+            // Verificar campos requeridos
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    console.error('❌ Campo requerido vacío:', field.name || field.id);
+                    hasErrors = true;
+                }
+            });
+            
+            if (hasErrors) {
+                console.error('❌ Hay campos requeridos sin completar');
+            } else {
+                console.log('✅ Todos los campos requeridos están completos');
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
