@@ -8,9 +8,32 @@ from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LO
 
 class CustomUserCreationForm(UserCreationForm):
     # Campos básicos
-    first_name = forms.CharField(max_length=30, required=True, label="Nombres")
-    last_name = forms.CharField(max_length=30, required=True, label="Apellidos")
-    email = forms.EmailField(required=True, label="Correo Electrónico")
+    first_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Nombres",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus nombres'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Apellidos",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus apellidos'
+        })
+    )
+    email = forms.EmailField(
+        required=True, 
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'tu@email.com'
+        })
+    )
     cedula = forms.CharField(
         max_length=20, 
         required=True, 
