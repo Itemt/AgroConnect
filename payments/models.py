@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from core.models import BaseModel
 from sales.models import Order
+from core.models import create_and_emit_notification
 
 
 class Payment(BaseModel):
@@ -120,6 +121,24 @@ class Payment(BaseModel):
         
         # La orden permanece en 'pendiente' hasta que el vendedor la confirme manualmente
         # Esto permite que el vendedor revise y acepte el pedido antes de empezar a prepararlo
+
+        # Notificar al vendedor y al comprador
+        create_and_emit_notification(
+            recipient=self.order.vendedor,
+            title='Pago aprobado',
+            message=f'El pago del pedido #{self.order.id} ha sido aprobado.',
+            category='payment',
+            order_id=self.order.id,
+            payment_id=self.id,
+        )
+        create_and_emit_notification(
+            recipient=self.user,
+            title='Pago confirmado',
+            message=f'Tu pago del pedido #{self.order.id} fue aprobado.',
+            category='payment',
+            order_id=self.order.id,
+            payment_id=self.id,
+        )
     
     def mark_as_rejected(self):
         """Marca el pago como rechazado"""
@@ -134,3 +153,21 @@ class Payment(BaseModel):
         # Cancelar la orden
         self.order.estado = 'cancelado'
         self.order.save()
+
+        # Notificar al comprador y vendedor del rechazo
+        create_and_emit_notification(
+            recipient=self.user,
+            title='Pago rechazado',
+            message=f'Tu pago del pedido #{self.order.id} fue rechazado.',
+            category='payment',
+            order_id=self.order.id,
+            payment_id=self.id,
+        )
+        create_and_emit_notification(
+            recipient=self.order.vendedor,
+            title='Pago rechazado',
+            message=f'El pago del pedido #{self.order.id} fue rechazado y la orden se canceló.',
+            category='payment',
+            order_id=self.order.id,
+            payment_id=self.id,
+        )
