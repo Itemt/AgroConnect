@@ -73,6 +73,7 @@ urlpatterns = [
     # Inventory for Producers
     path('inventory/crops/', inventory_views.crop_list_view, name='crop_list'),
     path('inventory/crop/add/', inventory_views.crop_create_view, name='crop_add'),
+    path('inventory/crop/<int:pk>/', inventory_views.crop_detail_view, name='crop_detail'),
     path('inventory/crop/<int:pk>/edit/', inventory_views.crop_update_view, name='crop_edit'),
     path('inventory/crop/<int:pk>/delete/', inventory_views.crop_delete_view, name='crop_delete'),
 
