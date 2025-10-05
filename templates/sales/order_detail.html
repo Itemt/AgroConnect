@@ -1,173 +1,317 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 
 {% block title %}Pedido #{{ order.id }}{% endblock %}
 
-{% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Pedido #{{ order.id }}</h1>
-            <p class="text-sm text-gray-500">Realizado el: {{ order.created_at|date:"d M Y, H:i" }}</p>
+{% block user_content %}
+<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Header con gradiente -->
+    <div class="card mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600 px-6 py-8 relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+            <div class="relative flex justify-between items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-3 py-1">
+                            <i class="fas fa-receipt text-white text-xl"></i>
+                        </div>
+                        <h1 class="text-3xl font-bold text-white">Pedido #{{ order.id }}</h1>
+                    </div>
+                    <p class="text-primary-100">Realizado el: {{ order.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+                {% with status=order.get_estado_display|lower|slugify %}
+                <div class="px-4 py-2 text-sm font-bold rounded-xl shadow-lg
+                    {% if status == 'pendiente' %}bg-blue-500 text-white
+                    {% elif status == 'acordado' %}bg-blue-600 text-white
+                    {% elif status == 'en-transito' or status == 'en-tránsito' %}bg-yellow-500 text-white
+                    {% elif status == 'entregado' %}bg-green-500 text-white
+                    {% elif status == 'recibido' %}bg-purple-500 text-white
+                    {% elif status == 'completado' %}bg-green-600 text-white
+                    {% elif status == 'cancelado' %}bg-red-500 text-white
+                    {% else %}bg-gray-500 text-white{% endif %}">
+                    <i class="fas fa-circle mr-2 text-xs"></i>{{ order.get_estado_display }}
+                </div>
+                {% endwith %}
+            </div>
         </div>
-        {% with status=order.get_estado_display|lower|slugify %}
-        <div class="px-3 py-1 text-sm font-semibold rounded-full 
-            {% if status == 'acordado' %}bg-blue-100 text-blue-800
-            {% elif status == 'en-transito' %}bg-yellow-100 text-yellow-800
-            {% elif status == 'entregado' %}bg-green-100 text-green-800
-            {% elif status == 'cancelado' %}bg-red-100 text-red-800
-            {% else %}bg-gray-100 text-gray-800{% endif %}
-        ">
-            {{ order.get_estado_display }}
-        </div>
-        {% endwith %}
     </div>
 
     <!-- Actions -->
-    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h2 class="text-lg font-bold mb-3">Acciones del Pedido</h2>
-        <div class="flex flex-wrap items-center gap-2">
-            {% if user_role == 'Comprador' and order.estado == 'pendiente' %}
-                {% if order.payment %}
-                    {% if order.payment.is_approved %}
-                        <span class="px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600">
-                            <i class="fas fa-check-circle mr-1"></i>Pagado
-                        </span>
+    <div class="card mb-6">
+        <div class="px-6 py-5">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-tasks text-primary-600 mr-2"></i>
+                Acciones Disponibles
+            </h2>
+            <div class="flex flex-wrap items-center gap-3">
+                {% if user_role == 'Comprador' and order.estado == 'pendiente' %}
+                    {% if order.payment %}
+                        {% if order.payment.is_approved %}
+                            <span class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 shadow-md flex items-center">
+                                <i class="fas fa-check-circle mr-2"></i>Pagado
+                            </span>
+                        {% else %}
+                            <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
+                            </a>
+                        {% endif %}
                     {% else %}
-                        <a href="{% url 'payments:checkout' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
-                            <i class="fas fa-credit-card mr-1"></i>Pagar Ahora
+                        <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
                         </a>
                     {% endif %}
-                {% else %}
-                    <a href="{% url 'payments:checkout' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
-                        <i class="fas fa-credit-card mr-1"></i>Pagar Ahora
-                    </a>
                 {% endif %}
-            {% endif %}
-            {% for action_key, action_label, action_class in order.available_actions %}
-                {% if action_key == 'confirm_receipt' %}
-                    <a href="{% url 'confirm_order_receipt' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                        <i class="fas fa-check-circle mr-1"></i>{{ action_label }}
-                    </a>
-                {% elif action_key == 'rate' %}
-                    <a href="{% url 'rate_order' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600">
-                        <i class="fas fa-star mr-1"></i>{{ action_label }}
-                    </a>
-                {% elif action_key == 'update_status' %}
-                    <a href="{% url 'update_order_status' order.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-pencil-alt mr-1"></i>{{ action_label }}
-                    </a>
-                {% elif action_key == 'cancel' %}
-                    <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
-                        <i class="fas fa-times-circle mr-1"></i>{{ action_label }}
-                    </button>
-                {% elif action_key == 'contact' %}
-                    <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-3 py-2 text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
-                        <i class="fas fa-comments mr-1"></i>{{ action_label }}
-                    </a>
-                {% endif %}
-            {% endfor %}
-            <a href="{% url 'order_history' %}" class="px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300">
-                <i class="fas fa-clipboard-list mr-1"></i>Volver al Historial
-            </a>
+                {% for action_key, action_label, action_class in order.available_actions %}
+                    {% if action_key == 'confirm_receipt' %}
+                        <a href="{% url 'confirm_order_receipt' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
+                        </a>
+                    {% elif action_key == 'rate' %}
+                        <a href="{% url 'rate_order' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-star mr-2"></i>{{ action_label }}
+                        </a>
+                    {% elif action_key == 'update_status' %}
+                        <a href="{% url 'update_order_status' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}
+                        </a>
+                    {% elif action_key == 'cancel' %}
+                        <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-times-circle mr-2"></i>{{ action_label }}
+                        </button>
+                    {% elif action_key == 'contact' %}
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <i class="fas fa-comments mr-2"></i>{{ action_label }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                <a href="{% url 'order_history' %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-gray-700 bg-gray-100 hover:bg-gray-200 shadow-sm hover:shadow transition-all flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver al Historial
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Order Details -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Left Column -->
-            <div>
-                <h3 class="text-xl font-bold mb-4">Detalles del Producto</h3>
-                <div class="space-y-2">
-                    <p><strong>Producto:</strong> {{ order.publicacion.cultivo.nombre }}</p>
-                    <p><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                    <p><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</p>
-                    <p class="text-lg font-bold"><strong>Total:</strong> ${{ order.precio_total }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Detalles del Producto -->
+        <div class="lg:col-span-2 card">
+            <div class="px-6 py-5">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-box text-primary-600 mr-2"></i>
+                    Detalles del Producto
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200">
+                        <div class="flex items-start">
+                            <div class="bg-green-500 rounded-lg p-2 mr-3">
+                                <i class="fas fa-seedling text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-green-600 font-medium mb-1">Producto</p>
+                                <p class="font-bold text-gray-800">{{ order.publicacion.cultivo.nombre }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200">
+                        <div class="flex items-start">
+                            <div class="bg-blue-500 rounded-lg p-2 mr-3">
+                                <i class="fas fa-weight text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-600 font-medium mb-1">Cantidad</p>
+                                <p class="font-bold text-gray-800">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200">
+                        <div class="flex items-start">
+                            <div class="bg-purple-500 rounded-lg p-2 mr-3">
+                                <i class="fas fa-tag text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-purple-600 font-medium mb-1">Precio/Unidad</p>
+                                <p class="font-bold text-gray-800">${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border-2 border-amber-200">
+                        <div class="flex items-start">
+                            <div class="bg-amber-500 rounded-lg p-2 mr-3">
+                                <i class="fas fa-dollar-sign text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-amber-600 font-medium mb-1">Total</p>
+                                <p class="font-bold text-gray-800 text-lg">${{ order.precio_total|floatformat:0 }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="text-xl font-bold mt-6 mb-4">Participantes</h3>
-                <div class="space-y-3">
-                    <div>
-                        <p class="font-semibold"><i class="fas fa-seedling mr-2"></i>Vendedor</p>
-                        <p>{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
-                        <p class="text-sm text-gray-600">{{ order.vendedor.producer_profile.location }}</p>
-                    </div>
-                    <div>
-                        <p class="font-semibold"><i class="fas fa-shopping-cart mr-2"></i>Comprador</p>
-                        <p>{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-users text-accent-600 mr-2"></i>
+                        Participantes
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 border-2 border-primary-200">
+                            <div class="flex items-start">
+                                <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-seedling text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-primary-600 font-medium mb-1">Vendedor</p>
+                                    <p class="font-bold text-gray-800">{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
+                                    <p class="text-xs text-gray-600 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>{{ order.vendedor.producer_profile.location }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl p-4 border-2 border-accent-200">
+                            <div class="flex items-start">
+                                <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-shopping-cart text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-accent-600 font-medium mb-1">Comprador</p>
+                                    <p class="font-bold text-gray-800">{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Right Column -->
-            <div>
-                <h3 class="text-xl font-bold mb-4">Cronología del Pedido</h3>
+        <!-- Cronología del Pedido -->
+        <div class="card">
+            <div class="px-6 py-5">
+                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-history text-primary-600 mr-2"></i>
+                    Cronología
+                </h3>
                 <div class="relative">
-                    <div class="border-l-2 border-gray-200 absolute h-full top-0 left-4"></div>
+                    <div class="border-l-2 border-primary-200 absolute h-full top-0 left-4"></div>
                     <div class="space-y-6">
-                        <div class="flex items-center">
-                            <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
-                            <div class="ml-4"><strong>Pedido Creado:</strong><br>{{ order.created_at|date:"d M Y, H:i" }}</div>
+                        <div class="flex items-start relative">
+                            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="font-semibold text-gray-800">Pedido Creado</p>
+                                <p class="text-sm text-gray-600">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                            </div>
                         </div>
                         {% if order.fecha_confirmacion %}
-                        <div class="flex items-center">
-                            <div class="bg-green-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-check text-white"></i></div>
-                            <div class="ml-4"><strong>Confirmado:</strong><br>{{ order.fecha_confirmacion|date:"d M Y, H:i" }}</div>
+                        <div class="flex items-start relative">
+                            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                <i class="fas fa-check-double text-white"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="font-semibold text-gray-800">Confirmado</p>
+                                <p class="text-sm text-gray-600">{{ order.fecha_confirmacion|date:"d M Y, H:i" }}</p>
+                            </div>
                         </div>
                         {% endif %}
                         {% if order.fecha_envio %}
-                        <div class="flex items-center">
-                            <div class="bg-blue-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-truck text-white"></i></div>
-                            <div class="ml-4"><strong>Enviado:</strong><br>{{ order.fecha_envio|date:"d M Y, H:i" }}</div>
+                        <div class="flex items-start relative">
+                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                <i class="fas fa-truck text-white"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="font-semibold text-gray-800">En Tránsito</p>
+                                <p class="text-sm text-gray-600">{{ order.fecha_envio|date:"d M Y, H:i" }}</p>
+                            </div>
                         </div>
                         {% endif %}
                         {% if order.fecha_recepcion %}
-                        <div class="flex items-center">
-                            <div class="bg-purple-500 rounded-full h-8 w-8 flex items-center justify-center z-10"><i class="fas fa-home text-white"></i></div>
-                            <div class="ml-4"><strong>Recibido:</strong><br>{{ order.fecha_recepcion|date:"d M Y, H:i" }}</div>
+                        <div class="flex items-start relative">
+                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                <i class="fas fa-home text-white"></i>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="font-semibold text-gray-800">Recibido</p>
+                                <p class="text-sm text-gray-600">{{ order.fecha_recepcion|date:"d M Y, H:i" }}</p>
+                            </div>
                         </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Notes -->
-        {% if order.notas_comprador or order.notas_vendedor %}
-        <div class="mt-8 pt-6 border-t">
-            <h3 class="text-xl font-bold mb-4">Notas</h3>
-            {% if order.notas_comprador %}
-            <div class="mb-4">
-                <p class="font-semibold">Notas del Comprador:</p>
-                <p class="text-gray-600 italic">"{{ order.notas_comprador }}"</p>
+    <!-- Notes -->
+    {% if order.notas_comprador or order.notas_vendedor %}
+    <div class="card mb-6">
+        <div class="px-6 py-5">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-sticky-note text-primary-600 mr-2"></i>
+                Notas
+            </h3>
+            <div class="space-y-4">
+                {% if order.notas_comprador %}
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-l-4 border-blue-500">
+                    <p class="font-semibold text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        Notas del Comprador:
+                    </p>
+                    <p class="text-gray-700 italic">"{{ order.notas_comprador }}"</p>
+                </div>
+                {% endif %}
+                {% if order.notas_vendedor %}
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-l-4 border-green-500">
+                    <p class="font-semibold text-green-800 mb-2 flex items-center">
+                        <i class="fas fa-seedling mr-2"></i>
+                        Notas del Vendedor:
+                    </p>
+                    <p class="text-gray-700 italic">"{{ order.notas_vendedor }}"</p>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            {% if order.notas_vendedor %}
-            <div>
-                <p class="font-semibold">Notas del Vendedor:</p>
-                <p class="text-gray-600 italic">"{{ order.notas_vendedor }}"</p>
-            </div>
-            {% endif %}
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        <!-- Rating -->
-        {% if existing_rating %}
-        <div class="mt-8 pt-6 border-t">
-            <h3 class="text-xl font-bold mb-4">Calificación del Pedido</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex justify-between"><span>General:</span> <span class="font-bold">{{ existing_rating.calificacion_general }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                <div class="flex justify-between"><span>Comunicación:</span> <span class="font-bold">{{ existing_rating.calificacion_comunicacion }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                <div class="flex justify-between"><span>Puntualidad:</span> <span class="font-bold">{{ existing_rating.calificacion_puntualidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
-                <div class="flex justify-between"><span>Calidad:</span> <span class="font-bold">{{ existing_rating.calificacion_calidad }}/5 <i class="fas fa-star text-yellow-400"></i></span></div>
+    <!-- Rating -->
+    {% if existing_rating %}
+    <div class="card mb-6">
+        <div class="px-6 py-5">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                Calificación del Pedido
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border-2 border-yellow-200 text-center">
+                    <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
+                    <p class="text-xs text-yellow-600 font-medium mb-1">General</p>
+                    <p class="font-bold text-gray-800 text-xl">{{ existing_rating.calificacion_general }}<span class="text-sm text-gray-600">/5</span></p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200 text-center">
+                    <i class="fas fa-comments text-blue-500 text-2xl mb-2"></i>
+                    <p class="text-xs text-blue-600 font-medium mb-1">Comunicación</p>
+                    <p class="font-bold text-gray-800 text-xl">{{ existing_rating.calificacion_comunicacion }}<span class="text-sm text-gray-600">/5</span></p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200 text-center">
+                    <i class="fas fa-clock text-purple-500 text-2xl mb-2"></i>
+                    <p class="text-xs text-purple-600 font-medium mb-1">Puntualidad</p>
+                    <p class="font-bold text-gray-800 text-xl">{{ existing_rating.calificacion_puntualidad }}<span class="text-sm text-gray-600">/5</span></p>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200 text-center">
+                    <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                    <p class="text-xs text-green-600 font-medium mb-1">Calidad</p>
+                    <p class="font-bold text-gray-800 text-xl">{{ existing_rating.calificacion_calidad }}<span class="text-sm text-gray-600">/5</span></p>
+                </div>
             </div>
             {% if existing_rating.comentario %}
-                <p class="mt-4 text-gray-600 italic">"{{ existing_rating.comentario }}"</p>
+                <div class="mt-4 bg-gray-50 rounded-xl p-4 border-l-4 border-gray-300">
+                    <p class="text-gray-700 italic">"{{ existing_rating.comentario }}"</p>
+                </div>
             {% endif %}
         </div>
-        {% endif %}
     </div>
+    {% endif %}
 </div>
 
 <!-- Modal de confirmación de cancelación -->
