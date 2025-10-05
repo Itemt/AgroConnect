@@ -58,6 +58,16 @@ def crop_list_view(request):
     return render(request, 'inventory/crop_list.html', context)
 
 @login_required
+def crop_detail_view(request, pk):
+    """Ver detalles del cultivo"""
+    crop = get_object_or_404(Crop, pk=pk, productor=request.user)
+    
+    context = {
+        'crop': crop
+    }
+    return render(request, 'inventory/crop_detail.html', context)
+
+@login_required
 def crop_create_view(request):
     """Crear nuevo cultivo"""
     if request.user.role != 'Productor':
