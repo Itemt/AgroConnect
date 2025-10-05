@@ -159,10 +159,11 @@
                             <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center shadow-lg"></span>
                         </button>
                         <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
-                            <div class="px-4 py-3">
+                            <div class="px-4 py-3 flex items-center justify-between">
                                 <span class="block text-sm font-semibold text-gray-900">Notificaciones</span>
-                                <span class="block text-xs text-gray-600">Actualizaciones de pedidos y pagos</span>
+                                <button id="mark-all-read" class="text-xs text-primary-700 hover:underline">Marcar todo como leído</button>
                             </div>
+                            <div id="notifications-empty" class="py-6 text-center text-sm text-gray-600 hidden">No hay notificaciones</div>
                             <ul id="notifications-list" class="py-2 space-y-1 max-h-72 overflow-y-auto"></ul>
                             <div class="px-4 py-2 border-t border-gray-200 text-center">
                                 <a href="{% url 'buyer_dashboard' %}" class="text-sm text-primary-700 hover:underline">Ver panel</a>
@@ -470,7 +471,7 @@
                 const list = document.getElementById('notifications-list');
                 if (!list) return;
                 const li = document.createElement('li');
-                li.className = 'px-4 py-2 hover:bg-primary-50/50 transition-colors';
+                li.className = 'notification-item unread px-4 py-2 hover:bg-primary-50/50 transition-colors';
                 const icon = payload.category === 'payment' ? 'fa-credit-card' : (payload.category === 'order' ? 'fa-box' : 'fa-info-circle');
                 li.innerHTML = `
                     <div class="flex items-start space-x-3">
@@ -484,6 +485,39 @@
                 list.prepend(li);
                 const current = parseInt(document.getElementById('notifications-badge')?.textContent || '0') || 0;
                 updateBadge(current + 1);
+                toggleEmptyState();
+            }
+
+            function renderNotifications(items){
+                const list = document.getElementById('notifications-list');
+                if (!list) return;
+                list.innerHTML = '';
+                (items || []).forEach(n => {
+                    const li = document.createElement('li');
+                    li.className = 'notification-item ' + (n.is_read ? 'read' : 'unread') + ' px-4 py-2 hover:bg-primary-50/50 transition-colors';
+                    const icon = n.category === 'payment' ? 'fa-credit-card' : (n.category === 'order' ? 'fa-box' : 'fa-info-circle');
+                    li.innerHTML = `
+                        <div class="flex items-start space-x-3">
+                            <div class="mt-0.5 text-primary-600"><i class="fas ${icon}"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${n.title}</p>
+                                <p class="text-sm text-gray-600">${n.message}</p>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+                const unreadCount = (items || []).filter(n => !n.is_read).length;
+                updateBadge(unreadCount);
+                toggleEmptyState();
+            }
+
+            function toggleEmptyState(){
+                const list = document.getElementById('notifications-list');
+                const empty = document.getElementById('notifications-empty');
+                if (!list || !empty) return;
+                const hasItems = list.children.length > 0;
+                empty.classList.toggle('hidden', hasItems);
             }
 
             function connect(){
@@ -508,6 +542,39 @@
             document.addEventListener('DOMContentLoaded', function(){
                 updateBadge(0);
                 connect();
+                // Load on dropdown open
+                const btn = document.getElementById('notifications-button');
+                const markAllBtn = document.getElementById('mark-all-read');
+                if (btn){
+                    btn.addEventListener('click', function(){
+                        fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
+                          .then(r => r.json()).then(res => {
+                              if (res && res.success){ renderNotifications(res.notifications); }
+                          }).catch(()=>{});
+                    });
+                }
+                function getCookie(name){
+                    const value = `; ${document.cookie}`;
+                    const parts = value.split(`; ${name}=`);
+                    if (parts.length === 2) return parts.pop().split(';').shift();
+                }
+
+                if (markAllBtn){
+                    markAllBtn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        const csrftoken = getCookie('csrftoken');
+                        fetch('{% url "core:notifications_mark_all_read" %}', { method: 'POST', headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }, credentials: 'same-origin', body: '{}' })
+                          .then(r => r.json()).then(res => {
+                              if (res && res.success){
+                                  document.querySelectorAll('#notifications-list .notification-item').forEach(el => {
+                                      el.classList.remove('unread');
+                                      el.classList.add('read');
+                                  });
+                                  updateBadge(0);
+                              }
+                          }).catch(()=>{});
+                    });
+                }
             });
         })();
         {% endif %}
