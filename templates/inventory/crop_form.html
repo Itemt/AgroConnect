@@ -11,7 +11,7 @@
         </div>
 
         <div class="border-t border-gray-200 px-6 py-8">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post">
                 {% csrf_token %}
                 <div class="space-y-6">
                     <!-- Nombre y Categoria -->
@@ -113,27 +113,11 @@
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                         {% endfor %}
                     </div>
-
-                    <!-- Imagen -->
-                    <div class="field-wrapper">
-                        <label for="{{ form.imagen.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-image text-gray-600 mr-2"></i>{{ form.imagen.label }}
-                        </label>
-                        <div class="mt-1">
-                            {{ form.imagen }}
-                        </div>
-                        {% if form.imagen.help_text %}
-                        <p class="mt-2 text-sm text-gray-500">{{ form.imagen.help_text }}</p>
-                        {% endif %}
-                        {% for error in form.imagen.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                        {% endfor %}
-                    </div>
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
                     <a href="{% url 'crop_list' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
-                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm" onclick="return confirm('¿Estás seguro de que quieres guardar este cultivo?')">
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
                         {% if form.instance.pk %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}
                     </button>
                 </div>
