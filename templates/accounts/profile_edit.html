@@ -116,20 +116,16 @@
                     <div class="border-t border-gray-200 pt-8">
                         <h2 class="text-xl font-semibold text-gray-800 mb-6">Opciones de Venta</h2>
                         <div class="field-wrapper">
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    {{ form.can_sell }}
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="{{ form.can_sell.id_for_label }}" class="font-medium text-gray-700 cursor-pointer">
-                                        <i class="fas fa-store mr-2 text-primary-600"></i>
-                                        {{ form.can_sell.label }}
-                                    </label>
-                                    {% if form.can_sell.help_text %}
-                                        <p class="mt-1 text-xs text-gray-500">{{ form.can_sell.help_text }}</p>
-                                    {% endif %}
-                                </div>
+                            <div class="flex items-center">
+                                {{ form.can_sell }}
+                                <label for="{{ form.can_sell.id_for_label }}" class="ml-3 font-medium text-gray-700 cursor-pointer flex items-center">
+                                    <i class="fas fa-store mr-2 text-primary-600"></i>
+                                    {{ form.can_sell.label }}
+                                </label>
                             </div>
+                            {% if form.can_sell.help_text %}
+                                <p class="mt-2 text-sm text-gray-500 ml-7">{{ form.can_sell.help_text }}</p>
+                            {% endif %}
                             {% for error in form.can_sell.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                             {% endfor %}
