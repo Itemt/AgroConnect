@@ -277,7 +277,7 @@ def simulate_test_payment_view(request, payment_id):
     
     messages.success(
         request, 
-        f'✅ Pago simulado exitosamente. Orden #{payment.order.id} confirmada.'
+        f'✅ Pago marcado como PAGADO. El vendedor ahora puede confirmar la orden #{payment.order.id}.'
     )
     
     return redirect('order_detail', order_id=payment.order.id)

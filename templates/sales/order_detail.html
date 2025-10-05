@@ -55,12 +55,12 @@
                             </a>
                             {% if epayco_test_mode %}
                             <form method="POST" action="{% url 'payments:simulate_test_payment' order.payment.id %}" class="inline"
-                                  onsubmit="return confirm('¿Deseas simular un pago exitoso para este pedido?');">
+                                  onsubmit="return confirm('⚠️ MODO TEST\n\n¿Marcar este pedido como PAGADO?\n\nEl pedido pasará a estado: PAGADO\nEl vendedor podrá confirmar la orden.');">
                                 {% csrf_token %}
                                 <button type="submit" 
-                                        class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center"
-                                        title="Simular pago exitoso (solo modo test)">
-                                    <i class="fas fa-flask mr-2"></i>Simular Pago (TEST)
+                                        class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center"
+                                        title="Marcar como pagado (solo modo test)">
+                                    <i class="fas fa-check-circle mr-2"></i>Marcar como Pagado (TEST)
                                 </button>
                             </form>
                             {% endif %}
