@@ -38,10 +38,10 @@ def update_user_statistics(sender, instance, created, **kwargs):
                     producer_profile.fecha_primera_venta = primera_venta.created_at
             
             # Actualizar calificación promedio si hay ratings
-            ratings = vendedor.calificaciones_recibidas_como_vendedor.all()
+            ratings = vendedor.calificaciones_recibidas.filter(tipo='comprador_a_vendedor')
             if ratings.exists():
                 producer_profile.calificacion_promedio = ratings.aggregate(
-                    avg=Avg('puntuacion_vendedor')
+                    avg=Avg('calificacion_general')
                 )['avg'] or 0
                 producer_profile.total_calificaciones = ratings.count()
             
