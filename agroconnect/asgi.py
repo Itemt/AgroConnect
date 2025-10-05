@@ -17,14 +17,13 @@ from django.contrib.staticfiles.handlers import ASGIStaticFilesHandler
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import sales.routing
+import core.routing
 
 django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "http": ASGIStaticFilesHandler(django_asgi_app),
     "websocket": AuthMiddlewareStack(
-        URLRouter(
-            sales.routing.websocket_urlpatterns
-        )
+        URLRouter(sales.routing.websocket_urlpatterns + core.routing.websocket_urlpatterns)
     ),
 })

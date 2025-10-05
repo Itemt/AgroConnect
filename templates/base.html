@@ -151,6 +151,25 @@
                 
                 <!-- User Menu and Hamburger -->
                 <div class="flex items-center space-x-4 md:ml-6">
+                    {% if user.is_authenticated %}
+                    <!-- Notifications Bell -->
+                    <div class="relative">
+                        <button id="notifications-button" type="button" class="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 group" data-dropdown-toggle="notifications-dropdown" data-dropdown-placement="bottom">
+                            <i class="fas fa-bell text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                            <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center shadow-lg"></span>
+                        </button>
+                        <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
+                            <div class="px-4 py-3">
+                                <span class="block text-sm font-semibold text-gray-900">Notificaciones</span>
+                                <span class="block text-xs text-gray-600">Actualizaciones de pedidos y pagos</span>
+                            </div>
+                            <ul id="notifications-list" class="py-2 space-y-1 max-h-72 overflow-y-auto"></ul>
+                            <div class="px-4 py-2 border-t border-gray-200 text-center">
+                                <a href="{% url 'buyer_dashboard' %}" class="text-sm text-primary-700 hover:underline">Ver panel</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     <!-- Cart Icon -->
                     {% if user.is_authenticated %}
                     <a href="{% url 'cart:cart_detail' %}" class="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 group">
@@ -432,6 +451,65 @@
                     );
                 {% endfor %}
             });
+        {% endif %}
+        {% if user.is_authenticated %}
+        // WebSocket para notificaciones
+        (function(){
+            function updateBadge(count){
+                const badge = document.getElementById('notifications-badge');
+                if (!badge) return;
+                if (count > 0){
+                    badge.textContent = count > 9 ? '9+' : String(count);
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            function addNotificationToList(payload){
+                const list = document.getElementById('notifications-list');
+                if (!list) return;
+                const li = document.createElement('li');
+                li.className = 'px-4 py-2 hover:bg-primary-50/50 transition-colors';
+                const icon = payload.category === 'payment' ? 'fa-credit-card' : (payload.category === 'order' ? 'fa-box' : 'fa-info-circle');
+                li.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="mt-0.5 text-primary-600"><i class="fas ${icon}"></i></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${payload.title || 'Notificación'}</p>
+                            <p class="text-sm text-gray-600">${payload.message || ''}</p>
+                        </div>
+                    </div>
+                `;
+                list.prepend(li);
+                const current = parseInt(document.getElementById('notifications-badge')?.textContent || '0') || 0;
+                updateBadge(current + 1);
+            }
+
+            function connect(){
+                const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+                const socket = new WebSocket(protocol + '://' + window.location.host + '/ws/notifications/');
+
+                socket.onopen = function(){ /* connected */ };
+                socket.onclose = function(){ setTimeout(connect, 3000); };
+                socket.onerror = function(){ try { socket.close(); } catch(e){} };
+                socket.onmessage = function(event){
+                    try{
+                        const data = JSON.parse(event.data);
+                        addNotificationToList(data);
+                        const category = (data.category || 'info');
+                        const type = category === 'payment' ? 'info' : 'success';
+                        if (window.showToast){ window.showToast(data.title + ': ' + data.message, type, 4500); }
+                    }catch(e){ console.error('Invalid notification payload', e); }
+                }
+            }
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', function(){
+                updateBadge(0);
+                connect();
+            });
+        })();
         {% endif %}
     </script>
     
