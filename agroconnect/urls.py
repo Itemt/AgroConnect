@@ -125,6 +125,9 @@ urlpatterns = [
     
     # Payments
     path('payments/', include('payments.urls', namespace='payments')),
+
+    # Core (AJAX)
+    path('core/', include(('core.urls', 'core'), namespace='core')),
 ]
 
 # Servir archivos media en desarrollo y producción

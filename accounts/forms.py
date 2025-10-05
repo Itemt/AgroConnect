@@ -59,7 +59,7 @@ class CustomUserCreationForm(UserCreationForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento",
@@ -68,7 +68,7 @@ class CustomUserCreationForm(UserCreationForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
         }),
         label="Ciudad/Municipio",
         required=True
@@ -228,11 +228,11 @@ class CustomUserCreationForm(UserCreationForm):
         
         # Aplicar clases CSS a los campos de contraseña
         self.fields['password1'].widget.attrs.update({
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'placeholder': 'Mínimo 6 caracteres'
         })
         self.fields['password2'].widget.attrs.update({
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-input',
             'placeholder': 'Repite tu contraseña'
         })
         
@@ -289,7 +289,7 @@ class UserEditForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'form-select',
             'data-cities-url': '/ajax/cities/'
         }),
         label="Departamento",
@@ -298,7 +298,7 @@ class UserEditForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'form-select',
         }),
         label="Ciudad/Municipio",
         required=False
@@ -310,7 +310,7 @@ class UserEditForm(forms.ModelForm):
         required=False, 
         label="Dirección de la Finca",
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
         })
     )
@@ -318,7 +318,7 @@ class UserEditForm(forms.ModelForm):
         required=False, 
         label="Descripción de la Finca",
         widget=forms.Textarea(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'rows': 3,
             'placeholder': 'Describe tu finca brevemente'
         })
@@ -328,7 +328,7 @@ class UserEditForm(forms.ModelForm):
         required=False, 
         label="Cultivos Principales",
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'placeholder': 'Ej: Café, Plátano, Aguacate'
         })
     )
@@ -447,7 +447,7 @@ class ProducerProfileForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
             'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
         label="Departamento",
@@ -457,7 +457,7 @@ class ProducerProfileForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
             'id': 'id_ciudad'
         }),
         label="Ciudad/Municipio",
@@ -469,16 +469,16 @@ class ProducerProfileForm(forms.ModelForm):
         fields = ['departamento', 'ciudad', 'direccion', 'farm_description', 'main_crops']
         widgets = {
             'direccion': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
             }),
             'farm_description': forms.Textarea(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'rows': 4,
                 'placeholder': 'Describe tu finca: tamaño, tipo de cultivos, métodos utilizados, etc.'
             }),
             'main_crops': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'placeholder': 'Ej: Café, Plátano, Aguacate'
             })
         }
@@ -509,7 +509,7 @@ class BuyerProfileForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
             'id': 'id_departamento_buyer',
             'data-cities-url': '/ajax/cities/'  # Corrected URL
         }),
@@ -520,7 +520,7 @@ class BuyerProfileForm(forms.ModelForm):
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'form-select',
             'id': 'id_ciudad_buyer'
         }),
         label="Ciudad/Municipio",
