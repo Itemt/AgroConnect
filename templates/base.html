@@ -163,7 +163,7 @@
                                 <span class="block text-sm font-semibold text-gray-900">Notificaciones</span>
                                 <button id="mark-all-read" class="text-xs text-primary-700 hover:underline">Marcar todo como leído</button>
                             </div>
-                            <div id="notifications-empty" class="py-6 text-center text-sm text-gray-600 hidden">No hay notificaciones</div>
+                            <div id="notifications-empty" class="py-6 text-center text-sm text-gray-600">No hay notificaciones</div>
                             <ul id="notifications-list" class="py-2 space-y-1 max-h-72 overflow-y-auto"></ul>
                             <div class="px-4 py-2 border-t border-gray-200 text-center">
                                 <a href="{% url 'buyer_dashboard' %}" class="text-sm text-primary-700 hover:underline">Ver panel</a>
@@ -492,7 +492,8 @@
                 const list = document.getElementById('notifications-list');
                 if (!list) return;
                 list.innerHTML = '';
-                (items || []).forEach(n => {
+                const arr = Array.isArray(items) ? items : [];
+                arr.forEach(n => {
                     const li = document.createElement('li');
                     li.className = 'notification-item ' + (n.is_read ? 'read' : 'unread') + ' px-4 py-2 hover:bg-primary-50/50 transition-colors';
                     const icon = n.category === 'payment' ? 'fa-credit-card' : (n.category === 'order' ? 'fa-box' : 'fa-info-circle');
@@ -507,7 +508,7 @@
                     `;
                     list.appendChild(li);
                 });
-                const unreadCount = (items || []).filter(n => !n.is_read).length;
+                const unreadCount = arr.filter(n => !n.is_read).length;
                 updateBadge(unreadCount);
                 toggleEmptyState();
             }
@@ -550,7 +551,8 @@
                         fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
                           .then(r => r.json()).then(res => {
                               if (res && res.success){ renderNotifications(res.notifications); }
-                          }).catch(()=>{});
+                              else { toggleEmptyState(); }
+                          }).catch(()=>{ toggleEmptyState(); });
                     });
                 }
                 function getCookie(name){
