@@ -74,6 +74,12 @@ def marketplace_view(request):
     # Convertir a lista para poder agregar atributos dinámicos
     publications_list = list(publications)
     
+    # Si el usuario está autenticado, mover sus propios productos al final
+    if request.user.is_authenticated:
+        own_publications = [p for p in publications_list if p.cultivo.productor == request.user]
+        other_publications = [p for p in publications_list if p.cultivo.productor != request.user]
+        publications_list = other_publications + own_publications
+    
     # Procesar ubicación para cada publicación (la categoría ya viene en la consulta)
     for publication in publications_list:
         # Procesar ubicación para mostrar solo ciudad/región
