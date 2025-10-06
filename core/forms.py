@@ -1,6 +1,6 @@
 from django import forms
 from .models import Farm
-from .colombia_locations import DEPARTAMENTOS, CIUDADES
+from .colombia_locations import get_departments, get_cities_by_department
 
 class FarmForm(forms.ModelForm):
     """Formulario para crear y editar fincas"""
@@ -81,14 +81,15 @@ class FarmForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # Configurar opciones de departamentos
-        self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + list(DEPARTAMENTOS.items())
+        self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + get_departments()
         
         # Configurar opciones de ciudades basadas en el departamento seleccionado
         if self.instance and self.instance.pk:
             # Si estamos editando, cargar las ciudades del departamento actual
             departamento = self.instance.departamento
-            if departamento in CIUDADES:
-                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + [(ciudad, ciudad) for ciudad in CIUDADES[departamento]]
+            if departamento:
+                ciudades = get_cities_by_department(departamento)
+                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
             else:
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')]
         else:
