@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copiar requirements y instalar dependencias de Python
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el código de la aplicación
 COPY . .
@@ -27,9 +27,5 @@ RUN python manage.py collectstatic --noinput
 # Exponer el puerto
 EXPOSE 8000
 
-# Copiar y configurar script de inicio
-COPY start.sh .
-RUN sed -i 's/\r$//' start.sh && chmod +x start.sh
-
-# Comando para ejecutar la aplicación con inicialización de PostgreSQL
-CMD ["./start.sh"]
+# Comando para ejecutar la aplicación con Gunicorn (más simple)
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "agroconnect.wsgi:application"]
