@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, ProducerProfile, BuyerProfile
 from core.models import Farm
-from core.colombia_locations import DEPARTAMENTOS, CIUDADES
+from core.colombia_locations import get_departments, get_cities_by_department
 
 class ProducerRegistrationForm(UserCreationForm):
     """Formulario de registro para productores con finca inicial"""
@@ -69,7 +69,7 @@ class ProducerRegistrationForm(UserCreationForm):
         })
     )
     finca_departamento = forms.ChoiceField(
-        choices=[('', 'Seleccionar departamento')] + list(DEPARTAMENTOS.items()),
+        choices=[('', 'Seleccionar departamento')] + get_departments(),
         required=True,
         label="Departamento de la Finca",
         widget=forms.Select(attrs={
@@ -242,7 +242,7 @@ class ProducerProfileEditForm(forms.ModelForm):
         })
     )
     finca_departamento = forms.ChoiceField(
-        choices=[('', 'Seleccionar departamento')] + list(DEPARTAMENTOS.items()),
+        choices=[('', 'Seleccionar departamento')] + get_departments(),
         required=False,
         label="Departamento de Nueva Finca",
         widget=forms.Select(attrs={
