@@ -73,7 +73,8 @@ def order_history_view(request):
     if request.user.role == 'Comprador':
         orders = Order.objects.filter(comprador=request.user)
     elif request.user.role == 'Productor':
-        orders = Order.objects.filter(publicacion__cultivo__productor=request.user)
+        # Los productores también pueden ser compradores, mostrar sus compras
+        orders = Order.objects.filter(comprador=request.user)
     else:
         orders = Order.objects.none()
 
