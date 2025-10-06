@@ -44,11 +44,8 @@ class Notification(BaseModel):
 
 
 # Helper to create and emit notifications via Channels
-def create_and_emit_notification(*, recipient, title, message, category='system', order_id=None, payment_id=None):
-    from asgiref.sync import async_to_sync
-    from channels.layers import get_channel_layer
-    from django.utils import timezone
-
+def create_notification(*, recipient, title, message, category='system', order_id=None, payment_id=None):
+    """Crear notificación simple (sin WebSockets)"""
     notification = Notification.objects.create(
         recipient=recipient,
         title=title,
@@ -57,20 +54,6 @@ def create_and_emit_notification(*, recipient, title, message, category='system'
         order_id=order_id,
         payment_id=payment_id,
     )
-
-    channel_layer = get_channel_layer()
-    group_name = f'user_{recipient.id}_notifications'
-    payload = {
-        'type': 'notification_message',
-        'title': title,
-        'message': message,
-        'category': category,
-        'order_id': order_id,
-        'payment_id': payment_id,
-        'created_at': timezone.localtime(notification.created_at).isoformat(),
-    }
-    async_to_sync(channel_layer.group_send)(group_name, payload)
-
     return notification
 
 

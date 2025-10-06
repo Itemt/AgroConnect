@@ -5,11 +5,10 @@ from . import views_farm
 app_name = 'core'
 
 urlpatterns = [
-    # Notifications
+    # Notifications API (sin WebSockets)
     path('notifications/list/', views.notifications_list, name='notifications_list'),
     path('notifications/mark-all-read/', views.notifications_mark_all_read, name='notifications_mark_all_read'),
     path('notifications/mark-all-unread/', views.notifications_mark_all_unread, name='notifications_mark_all_unread'),
-    path('notifications/', views.notifications_page, name='notifications_page'),
     
     # Farms
     path('farms/', views_farm.farm_list, name='farm_list'),

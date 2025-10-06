@@ -134,13 +134,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Channels
-ASGI_APPLICATION = 'agroconnect.asgi.application'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+# Channels - Solo para notificaciones (opcional)
+# ASGI_APPLICATION = 'agroconnect.asgi.application'
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 
 # Static files (CSS, JavaScript, Images)
