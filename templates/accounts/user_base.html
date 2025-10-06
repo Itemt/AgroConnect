@@ -432,6 +432,10 @@
                 <i class="fas fa-chart-line"></i>
                 <span class="sidebar-text">Ventas</span>
             </a>
+            <a href="{% url 'order_history' %}" class="{% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="sidebar-text">Mis Compras</span>
+            </a>
             {% elif user.role == 'Comprador' %}
             <a href="{% url 'buyer_dashboard' %}" class="{% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-tachometer-alt"></i>
