@@ -183,6 +183,99 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Sección de Fincas (solo para productores) -->
+                    {% if user.role == 'Productor' and form.finca_nombre %}
+                    <div class="border-t border-gray-200 pt-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-tractor text-green-600 mr-3"></i>
+                            Agregar Nueva Finca
+                        </h2>
+                        <p class="text-gray-600 mb-6">Opcional: Puedes agregar una nueva finca a tu perfil.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_nombre.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_nombre.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_nombre }}
+                                </div>
+                                {% for error in form.finca_nombre.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_departamento.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_departamento.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_departamento }}
+                                </div>
+                                {% for error in form.finca_departamento.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_ciudad.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_ciudad }}
+                                </div>
+                                {% for error in form.finca_ciudad.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_area_total.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_area_total.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_area_total }}
+                                </div>
+                                {% for error in form.finca_area_total.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_area_cultivable.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_area_cultivable }}
+                                </div>
+                                {% for error in form.finca_area_cultivable.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_tipo_suelo.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_tipo_suelo }}
+                                </div>
+                                {% for error in form.finca_tipo_suelo.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca_tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_tipo_riego.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_tipo_riego }}
+                                </div>
+                                {% for error in form.finca_tipo_riego.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="field-wrapper md:col-span-2">
+                                <label for="{{ form.finca_direccion.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.finca_direccion.label }}</label>
+                                <div class="mt-1">
+                                    {{ form.finca_direccion }}
+                                </div>
+                                {% for error in form.finca_direccion.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
@@ -196,6 +289,49 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departamentoSelect = document.getElementById('id_finca_departamento');
+    const ciudadSelect = document.getElementById('id_finca_ciudad');
+    
+    if (departamentoSelect && ciudadSelect) {
+        departamentoSelect.addEventListener('change', function() {
+            const departamento = this.value;
+            
+            // Limpiar opciones de ciudad
+            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+            
+            if (departamento) {
+                fetch('{% url "core:get_ciudades" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: 'departamento=' + encodeURIComponent(departamento)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                    data.ciudades.forEach(ciudad => {
+                        const option = document.createElement('option');
+                        option.value = ciudad.value;
+                        option.textContent = ciudad.text;
+                        ciudadSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                });
+            } else {
+                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
 
 {% block extra_js %}
