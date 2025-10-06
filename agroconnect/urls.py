@@ -21,7 +21,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts import views as accounts_views
 from accounts import ajax_views as accounts_ajax
-from accounts import views_farm as farm_views
 from marketplace import views as marketplace_views
 from sales import views as sales_views
 from inventory import views as inventory_views
