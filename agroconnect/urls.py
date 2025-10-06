@@ -41,15 +41,9 @@ urlpatterns = [
     # Incluir otras URLs de auth si las necesitas (ej. password reset)
     path('accounts/', include('django.contrib.auth.urls')),
 
-    # Fincas
-    path('farms/', farm_views.farm_list, name='farm_list'),
-    path('farm/add/', farm_views.farm_create, name='farm_create'),
-    path('farm/<int:farm_id>/edit/', farm_views.farm_edit, name='farm_edit'),
-    path('farm/<int:farm_id>/delete/', farm_views.farm_delete, name='farm_delete'),
 
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
-    path('ajax/farm-cities/', farm_views.get_farm_cities_ajax, name='ajax_get_farm_cities'),
 
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),
