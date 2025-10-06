@@ -14,28 +14,62 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Información de negocio (para productores)
 - **Dashboard personalizado** según el rol del usuario.
 
-### 🌾 Gestión de Inventario (Productores)
-- **Gestión de cultivos completa:**
-  - Registro de productos con nombre personalizado
-  - 6 categorías principales: Hortalizas, Frutas, Granos, Tubérculos, Aromáticas, Otros
-  - Cantidad estimada y unidades de medida (kg, ton, und, etc.)
-  - Ubicación precisa (departamento y ciudad)
-  - Imágenes de los cultivos
+### 🏡 Sistema de Gestión de Fincas
+- **Gestión completa de fincas:**
+  - Registro de fincas con información detallada
+  - Ubicación específica (departamento/ciudad con dropdown dinámico)
+  - Características del suelo y tipo de riego
+  - Área total, cultivable y ocupada
+  - Certificaciones (orgánica, BPA, otras)
+- **Registro de productores con finca inicial:**
+  - Al registrarse como productor, se crea automáticamente su primera finca
+  - Formulario unificado que incluye datos personales + finca
+  - Mensaje informativo: "Si quieres agregar más fincas, puedes hacerlo desde tu perfil"
+- **Panel principal de gestión:**
+  - "Mis Fincas" como punto central de gestión
+  - Vista detallada de cada finca con cultivos asociados
+  - CRUD completo para fincas
+  - Estadísticas de área disponible vs ocupada
+
+### 🌾 Gestión de Inventario Orientada a Fincas
+- **Cultivos asociados a fincas:**
+  - Cada cultivo se asocia a una finca específica
+  - Área ocupada por cultivo en la finca
+  - Validación de área disponible vs ocupada
 - **Estados de cultivo:** 
   - Siembra → Crecimiento → Listo para Cosecha → Cosechado
 - **Dashboard del productor:**
-  - Resumen de cultivos activos
+  - Resumen de fincas y cultivos
   - Ingresos totales y pendientes
   - Estadísticas de ventas por producto
   - Pedidos recientes y que requieren atención
-  - Top compradores y productos más vendidos
-- **Publicaciones:** Conversión directa de cultivos en publicaciones del marketplace.
+- **Publicaciones con origen de finca:**
+  - Las publicaciones muestran la finca de origen
+  - Filtros por finca en el marketplace
+  - Trazabilidad completa desde finca hasta comprador
+
+### 🔔 Sistema de Notificaciones en Tiempo Real
+- **Notificaciones automáticas:**
+  - Nuevos pedidos para productores
+  - Cambios de estado de pedidos para compradores
+  - Confirmaciones de pago
+  - Cancelaciones y actualizaciones
+- **Panel de notificaciones:**
+  - Bell icon con badge de notificaciones no leídas
+  - Dropdown con notificaciones recientes
+  - Página dedicada con historial completo
+  - Estadísticas: total, no leídas, leídas
+- **Gestión de notificaciones:**
+  - Marcar como leída individual
+  - Marcar todas como leídas/no leídas
+  - Filtros por categoría (pedido, pago, sistema)
+- **WebSockets:** Actualización en tiempo real con Django Channels
 
 ### 🛒 Marketplace y Carrito de Compras
 - **Catálogo de productos dinámico:**
   - Grid responsivo de productos con imágenes
   - Badges de categoría y precio
-  - Vista detallada de cada publicación
+  - Vista detallada de cada publicación con información de finca
 - **Búsqueda y filtros avanzados:**
   - Búsqueda por texto (productos, productores, descripciones)
   - Filtro por categoría
@@ -50,8 +84,8 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Resumen completo del pedido
 - **Gestión de publicaciones:**
   - Crear publicaciones desde cultivos listos
+  - Seleccionar finca de origen
   - Editar precio, cantidad, descripción e imagen
-  - Eliminar publicaciones sin afectar el cultivo
   - Estados: Activa, Vendida, Inactiva
 
 ### 📦 Sistema de Pedidos Avanzado
@@ -140,6 +174,10 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Ingresos totales generados
   - Ingresos pendientes de cobro
   - Gráficos de tendencias de ventas
+- **Análisis de fincas:**
+  - Resumen de todas las fincas
+  - Área total vs cultivable vs ocupada
+  - Cultivos por finca
 - **Análisis de productos:**
   - Top 5 productos más vendidos
   - Estadísticas por categoría
@@ -187,7 +225,7 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 ### Backend
 - **Python 3.9+**
 - **Django 4.2** - Framework web principal
-- **Django Channels** - WebSockets para chat en tiempo real
+- **Django Channels** - WebSockets para chat y notificaciones en tiempo real
 - **Pillow** - Procesamiento de imágenes
 - **ePayco SDK** - Integración con pasarela de pagos
 
@@ -201,6 +239,7 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 
 ### Base de Datos
 - **PostgreSQL** - Producción
+- **SQLite** - Desarrollo
 
 ### Deployment & Storage
 - **Coolify** - Plataforma de deployment self-hosted
@@ -221,6 +260,7 @@ epaycosdk==3.3.2
 django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
 whitenoise==6.8.2
+widget-tweaks==1.4.12
 ```
 
 ## 📋 Instalación y Configuración
@@ -489,13 +529,22 @@ AgroConnect/
 ├── accounts/           # Gestión de usuarios y perfiles
 │   ├── models.py      # User, ProducerProfile, BuyerProfile
 │   ├── views.py       # Autenticación, registro, perfiles
-│   └── forms.py       # Formularios de usuario
+│   ├── forms.py       # Formularios de usuario
+│   └── forms_farm.py  # Formularios extendidos con fincas
+├── core/              # Funcionalidades compartidas
+│   ├── models.py      # Notification, Farm, BaseModel
+│   ├── views.py       # Notificaciones, APIs
+│   ├── views_farm.py  # CRUD de fincas
+│   ├── forms.py       # Formularios de fincas
+│   ├── consumers.py   # WebSocket para notificaciones
+│   ├── routing.py     # Rutas de WebSockets
+│   └── colombia_locations.py  # Base de datos de ubicaciones
 ├── inventory/         # Gestión de cultivos (productores)
-│   ├── models.py      # Crop
+│   ├── models.py      # Crop (con relación a Farm)
 │   ├── views.py       # CRUD de cultivos, dashboard
 │   └── forms.py       # Formularios de cultivos
 ├── marketplace/       # Marketplace y publicaciones
-│   ├── models.py      # Publication
+│   ├── models.py      # Publication (con relación a Farm)
 │   ├── views.py       # Listado, búsqueda, filtros
 │   └── forms.py       # Formularios de publicaciones
 ├── cart/              # Carrito de compras
@@ -511,12 +560,17 @@ AgroConnect/
 │   ├── views.py       # Checkout, confirmaciones, webhooks
 │   ├── epayco_service.py  # Servicio de integración ePayco
 │   └── README.md      # Documentación específica de pagos
-├── core/              # Funcionalidades compartidas
-│   └── colombia_locations.py  # Base de datos de ubicaciones
 ├── templates/         # Plantillas HTML
 │   ├── base.html      # Template base con navegación mejorada
 │   ├── index.html     # Página de inicio renovada
 │   ├── accounts/      # Templates de autenticación
+│   │   └── register_producer.html  # Registro específico de productores
+│   ├── core/          # Templates de notificaciones y fincas
+│   │   ├── notifications.html
+│   │   ├── farm_list.html
+│   │   ├── farm_form.html
+│   │   ├── farm_detail.html
+│   │   └── farm_confirm_delete.html
 │   ├── marketplace/   # Templates del marketplace
 │   └── sales/         # Templates de pedidos y dashboards
 ├── static/            # Archivos estáticos (CSS, JS, imágenes)
@@ -538,28 +592,32 @@ AgroConnect/
 ## 🔄 Flujo de Trabajo Típico
 
 ### Para un Productor:
-1. **Registrarse** como productor con información de negocio y ubicación
-2. **Crear cultivos** con detalles completos (nombre, categoría, cantidad, ubicación, imagen)
-3. **Actualizar estado** de cultivos conforme crecen
-4. **Publicar productos** cuando estén listos para venta
-5. **Recibir y gestionar pedidos** de compradores
-6. **Actualizar estados de envío** (preparación → enviado → entregado)
-7. **Recibir calificaciones** y construir reputación
-8. **Analizar métricas** de ventas en el dashboard
-9. **Comunicarse** con compradores vía chat en tiempo real
+1. **Registrarse** como productor con información de negocio, ubicación y finca inicial
+2. **Gestionar fincas** desde "Mis Fincas" (agregar más fincas desde el perfil)
+3. **Crear cultivos** asociados a fincas específicas con área ocupada
+4. **Actualizar estado** de cultivos conforme crecen
+5. **Publicar productos** cuando estén listos para venta (seleccionando finca de origen)
+6. **Recibir notificaciones** de nuevos pedidos en tiempo real
+7. **Recibir y gestionar pedidos** de compradores
+8. **Actualizar estados de envío** (preparación → enviado → entregado)
+9. **Recibir calificaciones** y construir reputación
+10. **Analizar métricas** de ventas en el dashboard
+11. **Comunicarse** con compradores vía chat en tiempo real
 
 ### Para un Comprador:
 1. **Registrarse** como comprador con información de contacto
 2. **Explorar el marketplace** con filtros avanzados
 3. **Ver detalles** de productos y perfiles de productores
-4. **Añadir productos** al carrito con cantidades deseadas
-5. **Contactar productores** para negociar detalles
-6. **Realizar pedido** desde el carrito
-7. **Pagar con ePayco** usando tarjeta, PSE o efectivo
-8. **Seguir el estado** del pedido y pago en tiempo real
-9. **Confirmar recepción** cuando el producto llegue
-10. **Calificar al productor** y dejar comentarios
-11. **Ver historial** de compras, pagos y gastos totales
+4. **Ver información de fincas** de origen de los productos
+5. **Añadir productos** al carrito con cantidades deseadas
+6. **Contactar productores** para negociar detalles
+7. **Realizar pedido** desde el carrito
+8. **Pagar con ePayco** usando tarjeta, PSE o efectivo
+9. **Recibir notificaciones** de cambios de estado en tiempo real
+10. **Seguir el estado** del pedido y pago en tiempo real
+11. **Confirmar recepción** cuando el producto llegue
+12. **Calificar al productor** y dejar comentarios
+13. **Ver historial** de compras, pagos y gastos totales
 
 ### Para un Administrador:
 1. **Gestionar usuarios** (crear, editar, eliminar)
@@ -567,6 +625,7 @@ AgroConnect/
 3. **Revisar pedidos** y resolver disputas
 4. **Monitorear estadísticas** generales de la plataforma
 5. **Gestionar categorías** y configuraciones
+6. **Ver notificaciones** del sistema
 
 ## 📱 Características de UX/UI
 
@@ -587,6 +646,7 @@ AgroConnect/
 - 🔍 **Búsqueda instantánea** con sugerencias
 - ✅ **Validación de formularios** en tiempo real
 - 🖼️ **Optimización de imágenes** automática
+- 🏡 **Gestión visual de fincas** con mapas y estadísticas
 
 ### 🎨 Componentes Mejorados
 - 🃏 **Tarjetas modernas** con sombras sofisticadas
@@ -595,6 +655,8 @@ AgroConnect/
 - 🧭 **Navegación mejorada** con backdrop blur
 - 🏠 **Hero sections** con patrones decorativos
 - 📊 **Dashboards visuales** con estadísticas atractivas
+- 🔔 **Panel de notificaciones** con animaciones suaves
+- 🏡 **Vistas de fincas** con información detallada
 
 ## 🔐 Seguridad
 
@@ -605,6 +667,7 @@ AgroConnect/
 - 📝 **Sanitización de inputs** para prevenir XSS
 - 🌐 **Protección contra SQL injection** con ORM de Django
 - 🔐 **Variables de entorno** para datos sensibles
+- 🔔 **Notificaciones seguras** con validación de usuarios
 
 ## 🎨 Mejoras de Diseño Implementadas
 
@@ -621,6 +684,7 @@ AgroConnect/
 - **Botones modernos** con gradientes, efectos ripple y estados de carga
 - **Formularios mejorados** con labels flotantes e iconos descriptivos
 - **Hero sections** con patrones decorativos y animaciones
+- **Panel de notificaciones** con diseño moderno y animaciones
 
 ### 🚀 Interactividad Mejorada
 - **JavaScript personalizado** para micro-interacciones
@@ -628,12 +692,14 @@ AgroConnect/
 - **Efectos hover** en todos los componentes interactivos
 - **Navegación inteligente** que se oculta al hacer scroll
 - **Estados de carga** dinámicos para operaciones asíncronas
+- **WebSockets** para actualizaciones en tiempo real
 
 ### 📱 Responsive Design Avanzado
 - **Breakpoints optimizados** para todos los dispositivos
 - **Navegación móvil** rediseñada con mejor UX
 - **Tarjetas adaptables** que se ajustan perfectamente
 - **Tipografía escalable** que mantiene legibilidad en todos los tamaños
+- **Gestión de fincas** optimizada para móviles
 
 ## 🚀 Funcionalidades Implementadas y Futuras
 
@@ -641,11 +707,15 @@ AgroConnect/
 - [x] Sistema de pagos con ePayco (tarjetas, PSE, efectivo)
 - [x] Chat en tiempo real con WebSockets
 - [x] Sistema de calificaciones y rankings
-- [x] Gestión completa de inventario
+- [x] Gestión completa de inventario orientada a fincas
 - [x] Marketplace con filtros avanzados
 - [x] Panel administrativo completo (CRUD)
 - [x] Almacenamiento de imágenes con Cloudinary
 - [x] Sistema de ubicaciones de Colombia
+- [x] Sistema de notificaciones en tiempo real
+- [x] Gestión completa de fincas
+- [x] Registro de productores con finca inicial
+- [x] Trazabilidad desde finca hasta comprador
 
 ### 🔜 Próximas Funcionalidades
 - [ ] Notificaciones push y por email
@@ -659,6 +729,8 @@ AgroConnect/
 - [ ] Integración con APIs climáticas
 - [ ] Programa de fidelización para compradores
 - [ ] Sistema de cupones y descuentos
+- [ ] Mapa interactivo de fincas
+- [ ] Sistema de certificaciones por finca
 
 ## 📊 Modelos de Datos Principales
 
@@ -666,17 +738,33 @@ AgroConnect/
 - Roles: productor, comprador, administrador
 - Información de contacto y perfil
 
+### Farm (Finca)
+- Nombre, descripción, ubicación (departamento/ciudad)
+- Área total, cultivable y ocupada
+- Tipo de suelo y riego
+- Certificaciones (orgánica, BPA, otras)
+- Relación con productor
+- Estado activo/inactivo
+
 ### Crop (Cultivo)
 - Nombre, categoría, cantidad, unidad
 - Estado: siembra → crecimiento → listo → cosechado
 - Ubicación y fecha de disponibilidad
-- Relación con productor
+- Relación con productor y finca
+- Área ocupada en la finca
 
 ### Publication (Publicación)
-- Relación con cultivo
+- Relación con cultivo y finca
 - Precio, cantidad disponible, cantidad mínima
 - Estado: Activa, Vendida, Inactiva
 - Imagen y descripción
+
+### Notification (Notificación)
+- Destinatario, título, mensaje
+- Categoría: pedido, pago, sistema
+- Estado leído/no leído
+- Relación opcional con pedido/pago
+- Timestamps de creación y lectura
 
 ### Order (Pedido)
 - Relación con publicación, comprador, vendedor

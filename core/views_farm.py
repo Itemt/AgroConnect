@@ -115,9 +115,9 @@ def get_ciudades(request):
     if not departamento:
         return JsonResponse({'ciudades': []})
     
-    from .colombia_locations import CIUDADES
+    from .colombia_locations import get_cities_by_department
     
-    ciudades = CIUDADES.get(departamento, [])
-    ciudades_options = [{'value': ciudad, 'text': ciudad} for ciudad in ciudades]
+    ciudades = get_cities_by_department(departamento)
+    ciudades_options = [{'value': ciudad[0], 'text': ciudad[1]} for ciudad in ciudades]
     
     return JsonResponse({'ciudades': ciudades_options})
