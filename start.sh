@@ -10,6 +10,6 @@ sleep 10
 echo "🗄️ Aplicando migraciones..."
 python manage.py migrate --noinput
 
-# Iniciar Gunicorn
-echo "🌟 Iniciando servidor..."
-exec gunicorn --bind 0.0.0.0:8000 --workers 3 agroconnect.wsgi:application
+# Iniciar Daphne (soporte para WebSockets)
+echo "🌟 Iniciando servidor con soporte para WebSockets..."
+exec daphne -b 0.0.0.0 -p 8000 agroconnect.asgi:application
