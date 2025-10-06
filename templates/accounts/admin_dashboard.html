@@ -63,6 +63,32 @@
             </div>
         </div>
 
+        <!-- Recent Notifications -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                            <i class="fas fa-bell text-white text-lg"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800">Notificaciones Recientes</h2>
+                    </div>
+                    <a href="{% url 'core:notifications_page' %}" class="text-primary-600 hover:text-primary-700 font-semibold text-lg transition-colors duration-300">
+                        Ver todas <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <div id="recent-notifications">
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bell text-gray-400 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-600">Cargando notificaciones...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Quick Actions -->
         <div class="card mb-8">
             <div class="card-body p-8">
@@ -134,4 +160,95 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadRecentNotifications();
+});
+
+function loadRecentNotifications() {
+    fetch('/core/notifications/list/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.notifications.length > 0) {
+                renderRecentNotifications(data.notifications.slice(0, 5)); // Mostrar solo las 5 más recientes
+            } else {
+                showNoNotifications();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading notifications:', error);
+            showNoNotifications();
+        });
+}
+
+function renderRecentNotifications(notifications) {
+    const container = document.getElementById('recent-notifications');
+    container.innerHTML = '';
+
+    notifications.forEach(notification => {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = `bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 group ${notification.is_read ? 'opacity-70' : ''}`;
+        
+        const iconClass = getNotificationIcon(notification.category);
+        const timeAgo = getTimeAgo(notification.created_at);
+        
+        notificationElement.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${iconClass.bg}">
+                        <i class="${iconClass.icon} text-sm"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900">${notification.title}</p>
+                    <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                    <p class="text-xs text-gray-500 mt-2">${timeAgo}</p>
+                </div>
+                ${!notification.is_read ? '<div class="flex-shrink-0"><div class="w-2 h-2 bg-primary-500 rounded-full"></div></div>' : ''}
+            </div>
+        `;
+        
+        container.appendChild(notificationElement);
+    });
+}
+
+function showNoNotifications() {
+    const container = document.getElementById('recent-notifications');
+    container.innerHTML = `
+        <div class="text-center py-8">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-bell text-gray-400 text-2xl"></i>
+            </div>
+            <p class="text-gray-600">No tienes notificaciones recientes</p>
+        </div>
+    `;
+}
+
+function getNotificationIcon(category) {
+    const icons = {
+        'order_status_update': { icon: 'fas fa-shopping-cart', bg: 'bg-blue-100 text-blue-600' },
+        'payment_approved': { icon: 'fas fa-check-circle', bg: 'bg-green-100 text-green-600' },
+        'payment_rejected': { icon: 'fas fa-times-circle', bg: 'bg-red-100 text-red-600' },
+        'new_order': { icon: 'fas fa-plus-circle', bg: 'bg-yellow-100 text-yellow-600' },
+        'order_received': { icon: 'fas fa-handshake', bg: 'bg-purple-100 text-purple-600' },
+        'order_shipped': { icon: 'fas fa-truck', bg: 'bg-indigo-100 text-indigo-600' },
+        'order_cancelled': { icon: 'fas fa-ban', bg: 'bg-gray-100 text-gray-600' },
+        'new_message': { icon: 'fas fa-comment', bg: 'bg-pink-100 text-pink-600' },
+        'rating_received': { icon: 'fas fa-star', bg: 'bg-orange-100 text-orange-600' }
+    };
+    return icons[category] || { icon: 'fas fa-bell', bg: 'bg-gray-100 text-gray-600' };
+}
+
+function getTimeAgo(dateString) {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Hace un momento';
+    if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} min`;
+    if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} h`;
+    return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
+}
+</script>
 {% endblock %}
