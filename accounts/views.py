@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm, AdminUserEditForm
+from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm
+from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile, User
 from inventory.models import Crop
@@ -47,6 +48,20 @@ def register(request):
                     farm_description=farm_description,
                     main_crops=main_crops
                 )
+                
+                # Crear finca inicial
+                from core.models import Farm
+                Farm.objects.create(
+                    propietario=user,
+                    nombre=form.cleaned_data['finca_nombre'],
+                    departamento=form.cleaned_data['finca_departamento'],
+                    ciudad=form.cleaned_data['finca_ciudad'],
+                    direccion=form.cleaned_data['finca_direccion'],
+                    area_total=form.cleaned_data['finca_area_total'],
+                    area_cultivable=form.cleaned_data['finca_area_cultivable'],
+                    tipo_suelo=form.cleaned_data['finca_tipo_suelo'],
+                    tipo_riego=form.cleaned_data['finca_tipo_riego']
+                )
 
             login(request, user)
             messages.success(request, '¡Registro exitoso! Bienvenido a AgroConnect.')
@@ -54,6 +69,28 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
+
+def register_producer(request):
+    """Registro específico para productores con finca inicial"""
+    if request.method == 'POST':
+        form = ProducerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            
+            # Crear BuyerProfile también (pueden comprar)
+            BuyerProfile.objects.create(
+                user=user,
+                departamento=form.cleaned_data['finca_departamento'],
+                ciudad=form.cleaned_data['finca_ciudad']
+            )
+            
+            login(request, user)
+            messages.success(request, '¡Registro exitoso! Tu cuenta de productor y finca han sido creadas.')
+            return redirect('core:farm_list')
+    else:
+        form = ProducerRegistrationForm()
+    
+    return render(request, 'accounts/register_producer.html', {'form': form})
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
@@ -90,42 +127,45 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     if request.method == 'POST':
-        form = UserEditForm(request.POST, request.FILES, instance=request.user)
-        
-        if form.is_valid():
-            # Guardar usuario
-            user = form.save(commit=False)
-            user.can_sell = form.cleaned_data.get('can_sell', False)
-            user.role = 'Productor' if user.can_sell else 'Comprador'  # Mantener role por compatibilidad
-            user.save()
+        if request.user.role == 'Productor':
+            # Usar formulario extendido para productores
+            try:
+                producer_profile = request.user.producerprofile
+                form = ProducerProfileEditForm(request.POST, instance=producer_profile, user=request.user)
+            except ProducerProfile.DoesNotExist:
+                form = ProducerProfileEditForm(request.POST, user=request.user)
             
-            # Obtener datos del formulario
-            departamento = form.cleaned_data.get('departamento')
-            ciudad = form.cleaned_data.get('ciudad')
-            direccion = form.cleaned_data.get('direccion', '')
-            farm_description = form.cleaned_data.get('farm_description', '')
-            main_crops = form.cleaned_data.get('main_crops', '')
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Perfil actualizado exitosamente.')
+                return redirect('profile')
+        else:
+            # Usar formulario estándar para compradores
+            form = UserEditForm(request.POST, request.FILES, instance=request.user)
             
-            # Crear/actualizar BuyerProfile para TODOS (todos pueden comprar)
-            buyer_profile, created = BuyerProfile.objects.get_or_create(user=user)
-            buyer_profile.departamento = departamento
-            buyer_profile.ciudad = ciudad
-            buyer_profile.save()
-            
-            # Crear/actualizar ProducerProfile solo si quiere vender
-            if user.can_sell:
-                producer_profile, created = ProducerProfile.objects.get_or_create(user=user)
-                producer_profile.departamento = departamento
-                producer_profile.ciudad = ciudad
-                producer_profile.direccion = direccion
-                producer_profile.farm_description = farm_description
-                producer_profile.main_crops = main_crops
-                producer_profile.save()
-            
-            messages.success(request, 'Perfil actualizado exitosamente.')
-            return redirect('profile')
+            if form.is_valid():
+                user = form.save(commit=False)
+                user.can_sell = form.cleaned_data.get('can_sell', False)
+                user.role = 'Productor' if user.can_sell else 'Comprador'
+                user.save()
+                
+                # Actualizar BuyerProfile
+                buyer_profile, created = BuyerProfile.objects.get_or_create(user=user)
+                buyer_profile.departamento = form.cleaned_data.get('departamento')
+                buyer_profile.ciudad = form.cleaned_data.get('ciudad')
+                buyer_profile.save()
+                
+                messages.success(request, 'Perfil actualizado exitosamente.')
+                return redirect('profile')
     else:
-        form = UserEditForm(instance=request.user)
+        if request.user.role == 'Productor':
+            try:
+                producer_profile = request.user.producerprofile
+                form = ProducerProfileEditForm(instance=producer_profile, user=request.user)
+            except ProducerProfile.DoesNotExist:
+                form = ProducerProfileEditForm(user=request.user)
+        else:
+            form = UserEditForm(instance=request.user)
 
     context = {
         'form': form,

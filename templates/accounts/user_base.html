@@ -424,9 +424,9 @@
                 <i class="fas fa-comments"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'crop_list' %}" class="{% if request.resolver_match.url_name == 'crop_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-leaf"></i>
-                <span class="sidebar-text">Mis Cultivos</span>
+            <a href="{% url 'core:farm_list' %}" class="{% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-tractor"></i>
+                <span class="sidebar-text">Mis Fincas</span>
             </a>
             <a href="{% url 'my_publications' %}" class="{% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-bullhorn"></i>

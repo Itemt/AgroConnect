@@ -34,6 +34,7 @@ urlpatterns = [
 
     # Accounts
     path('accounts/register/', accounts_views.register, name='register'),
+    path('accounts/register-producer/', accounts_views.register_producer, name='register_producer'),
     path('accounts/login/', accounts_views.CustomLoginView.as_view(), name='login'),
     path('accounts/logout/', accounts_views.custom_logout, name='logout'),
     path('accounts/profile/', accounts_views.profile_view, name='profile'),

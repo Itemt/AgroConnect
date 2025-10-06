@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import User, ProducerProfile, BuyerProfile
 from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LOCATIONS
+from core.models import Farm
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -85,19 +86,97 @@ class CustomUserCreationForm(UserCreationForm):
         help_text="Marca esta casilla si deseas publicar y vender productos agrícolas"
     )
     
-    # Campos de vendedor (solo requeridos si can_sell=True)
+    # Campos de finca (solo requeridos si can_sell=True)
+    finca_nombre = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Nombre de la Finca",
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Ej: Finca El Paraíso'
+        })
+    )
+    finca_departamento = forms.ChoiceField(
+        choices=[('', 'Seleccionar departamento')] + get_departments(),
+        required=False,
+        label="Departamento de la Finca",
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_finca_departamento'
+        })
+    )
+    finca_ciudad = forms.ChoiceField(
+        choices=[('', 'Primero seleccione un departamento')],
+        required=False,
+        label="Ciudad/Municipio de la Finca",
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_finca_ciudad'
+        })
+    )
+    finca_direccion = forms.CharField(
+        required=False,
+        label="Dirección de la Finca",
+        widget=forms.Textarea(attrs={
+            'class': 'form-input',
+            'rows': 2,
+            'placeholder': 'Dirección completa de la finca'
+        })
+    )
+    finca_area_total = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        label="Área Total (hectáreas)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input',
+            'step': '0.01',
+            'min': '0.01',
+            'placeholder': 'Ej: 5.5'
+        })
+    )
+    finca_area_cultivable = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        label="Área Cultivable (hectáreas)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input',
+            'step': '0.01',
+            'min': '0.01',
+            'placeholder': 'Ej: 4.0'
+        })
+    )
+    finca_tipo_suelo = forms.ChoiceField(
+        choices=[('', 'Seleccionar tipo de suelo')] + list(Farm.TIPO_SUELO_CHOICES),
+        required=False,
+        label="Tipo de Suelo",
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    finca_tipo_riego = forms.ChoiceField(
+        choices=[('', 'Seleccionar tipo de riego')] + list(Farm.TIPO_RIEGO_CHOICES),
+        required=False,
+        label="Tipo de Riego",
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    
+    # Campos adicionales del productor
     direccion = forms.CharField(
         max_length=255, 
         required=False, 
-        label="Dirección de la Finca",
+        label="Dirección de Residencia",
         widget=forms.TextInput(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
+            'class': 'form-input',
+            'placeholder': 'Tu dirección de residencia'
         })
     )
     farm_description = forms.CharField(
         required=False, 
-        label="Descripción de la Finca",
+        label="Descripción de tu Experiencia",
         widget=forms.Textarea(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'rows': 3,
@@ -258,6 +337,32 @@ class CustomUserCreationForm(UserCreationForm):
             if password1 != password2:
                 raise ValidationError('Las contraseñas no coinciden.')
         return password2
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        can_sell = cleaned_data.get('can_sell')
+        area_total = cleaned_data.get('finca_area_total')
+        area_cultivable = cleaned_data.get('finca_area_cultivable')
+        
+        # Si quiere vender, validar campos de finca
+        if can_sell:
+            required_finca_fields = [
+                'finca_nombre', 'finca_departamento', 'finca_ciudad', 'finca_direccion',
+                'finca_area_total', 'finca_area_cultivable', 'finca_tipo_suelo', 'finca_tipo_riego'
+            ]
+            
+            for field in required_finca_fields:
+                if not cleaned_data.get(field):
+                    raise ValidationError(f"Si quieres vender, el campo '{self.fields[field].label}' es obligatorio.")
+        
+        # Validar área cultivable vs área total
+        if area_total and area_cultivable:
+            if area_cultivable > area_total:
+                raise ValidationError(
+                    "El área cultivable no puede ser mayor que el área total de la finca."
+                )
+        
+        return cleaned_data
 
 
 class UserEditForm(forms.ModelForm):

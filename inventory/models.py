@@ -36,9 +36,18 @@ class Crop(BaseModel):
     # Información del productor y finca
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
                                 related_name='cultivos', verbose_name="Productor", null=True)
-    finca = models.ForeignKey('accounts.Farm', on_delete=models.SET_NULL, 
+    finca = models.ForeignKey('core.Farm', on_delete=models.SET_NULL, 
                              related_name='cultivos', verbose_name="Finca", null=True, blank=True,
                              help_text="Finca donde se cultiva este producto")
+    
+    # Área ocupada en la finca
+    area_ocupada = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Área Ocupada (hectáreas)",
+        help_text="Área que ocupa este cultivo en la finca"
+    )
     
     # Información de cantidad y medida
     cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, default=0,

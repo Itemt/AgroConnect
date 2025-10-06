@@ -60,17 +60,20 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2">
                                 <a href="{% url 'publication_detail' publication.id %}" 
-                                   class="text-primary-600 hover:text-primary-900" title="Ver Detalle">
-                                    <i class="fas fa-eye"></i>
+                                   class="inline-flex items-center px-3 py-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-colors" title="Ver Detalle">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <span class="text-xs">Ver</span>
                                 </a>
                                 <a href="{% url 'publication_edit' publication.pk %}" 
-                                   class="text-blue-600 hover:text-blue-900" title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                   class="inline-flex items-center px-3 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    <span class="text-xs">Editar</span>
                                 </a>
-                                        <button onclick="showDeleteModal({{ publication.pk }}, '{{ publication.cultivo.nombre|escapejs }}', '{{ publication.precio_por_unidad }}', '{{ publication.cantidad_disponible }}', '{{ publication.cultivo.unidad_medida }}')" 
-                                           class="text-red-600 hover:text-red-900" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                <button onclick="showDeleteModal({{ publication.pk }}, '{{ publication.cultivo.nombre|escapejs }}', '{{ publication.precio_por_unidad }}', '{{ publication.cantidad_disponible }}', '{{ publication.cultivo.unidad_medida }}')" 
+                                   class="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash mr-1"></i>
+                                    <span class="text-xs">Eliminar</span>
+                                </button>
                             </div>
                         </td>
                     </tr>
