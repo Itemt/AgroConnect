@@ -39,6 +39,17 @@ def notifications_mark_all_unread(request):
     Notification.objects.filter(recipient=request.user, is_read=True).update(is_read=False, read_at=None)
     return JsonResponse({'success': True})
 
+
+@login_required
+@require_POST
+def notifications_mark_read(request):
+    import json
+    data = json.loads(request.body)
+    notification_id = data.get('notification_id')
+    if notification_id:
+        Notification.objects.filter(id=notification_id, recipient=request.user).update(is_read=True)
+    return JsonResponse({'success': True})
+
 from django.shortcuts import render
 
 # Create your views here.
@@ -46,4 +57,24 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'index.html')
 
-# Vista de notificaciones eliminada - usar solo API endpoints
+@login_required
+def notifications_page(request):
+    """Vista para mostrar todas las notificaciones del usuario"""
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
+    
+    # Paginación
+    paginator = Paginator(notifications, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Estadísticas
+    total_notifications = notifications.count()
+    unread_count = notifications.filter(is_read=False).count()
+    
+    context = {
+        'page_obj': page_obj,
+        'total_notifications': total_notifications,
+        'unread_count': unread_count,
+    }
+    
+    return render(request, 'core/notifications.html', context)
