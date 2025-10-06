@@ -68,7 +68,9 @@ urlpatterns = [
     path('order/<int:order_id>/cancel/', sales_views.cancel_order_view, name='cancel_order'),
     path('conversation/start/<int:publication_id>/', sales_views.start_or_go_to_conversation, name='start_conversation'),
     path('conversations/', sales_views.conversation_list, name='conversation_list'),
-    path('conversation/<int:conversation_id>/', sales_views.conversation_detail, name='conversation_detail'),
+    path('conversation/<int:conversation_id>/', sales_views.conversation_detail_simple, name='conversation_detail'),
+    path('conversation/<int:conversation_id>/websocket/', sales_views.conversation_detail, name='conversation_detail_websocket'),
+    path('conversation/<int:conversation_id>/messages/', sales_views.get_new_messages, name='get_new_messages'),
     
     # Dashboards
     path('dashboard/producer/', inventory_views.producer_dashboard, name='producer_dashboard'),

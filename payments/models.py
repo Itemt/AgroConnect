@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from core.models import BaseModel
 from sales.models import Order
-from core.models import create_and_emit_notification
+from core.models import create_notification
 
 
 class Payment(BaseModel):
@@ -123,7 +123,7 @@ class Payment(BaseModel):
         # Esto permite que el vendedor revise y acepte el pedido antes de empezar a prepararlo
 
         # Notificar al vendedor y al comprador
-        create_and_emit_notification(
+        create_notification(
             recipient=self.order.vendedor,
             title='Pago aprobado',
             message=f'El pago del pedido #{self.order.id} ha sido aprobado.',
@@ -131,7 +131,7 @@ class Payment(BaseModel):
             order_id=self.order.id,
             payment_id=self.id,
         )
-        create_and_emit_notification(
+        create_notification(
             recipient=self.user,
             title='Pago confirmado',
             message=f'Tu pago del pedido #{self.order.id} fue aprobado.',
@@ -155,7 +155,7 @@ class Payment(BaseModel):
         self.order.save()
 
         # Notificar al comprador y vendedor del rechazo
-        create_and_emit_notification(
+        create_notification(
             recipient=self.user,
             title='Pago rechazado',
             message=f'Tu pago del pedido #{self.order.id} fue rechazado.',
@@ -163,7 +163,7 @@ class Payment(BaseModel):
             order_id=self.order.id,
             payment_id=self.id,
         )
-        create_and_emit_notification(
+        create_notification(
             recipient=self.order.vendedor,
             title='Pago rechazado',
             message=f'El pago del pedido #{self.order.id} fue rechazado y la orden se canceló.',
