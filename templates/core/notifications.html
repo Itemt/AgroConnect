@@ -55,6 +55,16 @@
                 <div class="ml-4">
                     <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ total_notifications|add:"-"|add:unread_count }}</h3>
                     <p class="text-gray-600 font-medium">Leídas</p>
+                    <div class="flex gap-1 mt-3">
+                        {% if unread_count > 0 %}
+                        <button id="mark-all-read-btn" class="px-2 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors flex items-center">
+                            <i class="fas fa-check-double mr-1 text-xs"></i>Leer
+                        </button>
+                        {% endif %}
+                        <button id="mark-all-unread-btn" class="px-2 py-1 bg-gray-600 text-white text-xs rounded-md hover:bg-gray-700 transition-colors flex items-center">
+                            <i class="fas fa-eye-slash mr-1 text-xs"></i>No leer
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -195,6 +205,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const markAllReadBtn = document.getElementById('mark-all-read-btn');
+    const markAllUnreadBtn = document.getElementById('mark-all-unread-btn');
     
     if (markAllReadBtn) {
         markAllReadBtn.addEventListener('click', function() {
@@ -209,7 +220,28 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Recargar la página para mostrar los cambios
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+    
+    if (markAllUnreadBtn) {
+        markAllUnreadBtn.addEventListener('click', function() {
+            fetch('/core/notifications/mark-all-unread/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     location.reload();
                 }
             })

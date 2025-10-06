@@ -32,6 +32,12 @@ def notifications_mark_all_read(request):
     Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True, read_at=timezone.now())
     return JsonResponse({'success': True})
 
+@login_required
+@require_POST
+def notifications_mark_all_unread(request):
+    Notification.objects.filter(recipient=request.user, is_read=True).update(is_read=False, read_at=None)
+    return JsonResponse({'success': True})
+
 from django.shortcuts import render
 
 # Create your views here.
