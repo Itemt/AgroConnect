@@ -521,28 +521,11 @@
                 empty.classList.toggle('hidden', hasItems);
             }
 
-            function connect(){
-                const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-                const socket = new WebSocket(protocol + '://' + window.location.host + '/ws/notifications/');
-
-                socket.onopen = function(){ /* connected */ };
-                socket.onclose = function(){ setTimeout(connect, 3000); };
-                socket.onerror = function(){ try { socket.close(); } catch(e){} };
-                socket.onmessage = function(event){
-                    try{
-                        const data = JSON.parse(event.data);
-                        addNotificationToList(data);
-                        const category = (data.category || 'info');
-                        const type = category === 'payment' ? 'info' : 'success';
-                        if (window.showToast){ window.showToast(data.title + ': ' + data.message, type, 4500); }
-                    }catch(e){ console.error('Invalid notification payload', e); }
-                }
-            }
+            // WebSocket eliminado - usar solo polling
 
             // Initialize
             document.addEventListener('DOMContentLoaded', function(){
                 updateBadge(0);
-                connect();
                 // Load on dropdown open
                 const btn = document.getElementById('notifications-button');
                 const markAllBtn = document.getElementById('mark-all-read');
