@@ -1,11 +1,13 @@
 from django.db import models
 from django.conf import settings
-from core.models import BaseModel
+from core.models import BaseModel, Farm
 from inventory.models import Crop
 
 # Create your models here.
 class Publication(BaseModel):
     cultivo = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name='publicaciones')
+    finca = models.ForeignKey(Farm, on_delete=models.SET_NULL, null=True, blank=True, 
+                             related_name='publicaciones', verbose_name="Finca de Origen")
     
     # Campos de la publicación
     precio_por_unidad = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio por Unidad")

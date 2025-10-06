@@ -75,7 +75,7 @@
 
                 <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
                     <a href="{% url 'my_publications' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
-                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm" onclick="return confirm('¿Estás seguro de que quieres guardar esta publicación?')">
+                    <button type="submit" id="publish-btn" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
                         {% if form.instance.pk %}Guardar Cambios{% else %}Publicar en el Marketplace{% endif %}
                     </button>
                 </div>
@@ -83,4 +83,88 @@
         </div>
     </div>
 </div>
+
+<!-- Custom Alert Modal -->
+<div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-strong max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="alert-modal">
+        <div class="p-8">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">Confirmar Publicación</h3>
+                    <p class="text-gray-600 text-sm">Esta acción hará visible tu producto en el marketplace</p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                <p class="text-gray-700 text-sm">
+                    <strong>¿Estás seguro de que quieres publicar este producto en el marketplace?</strong>
+                </p>
+                <p class="text-gray-600 text-xs mt-2">
+                    Una vez publicado, estará disponible para que otros usuarios puedan verlo y hacer pedidos.
+                </p>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button id="cancel-alert" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                    Cancelar
+                </button>
+                <button id="confirm-publish" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                    <i class="fas fa-check mr-2"></i>
+                    Sí, Publicar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const publishBtn = document.getElementById('publish-btn');
+    const customAlert = document.getElementById('custom-alert');
+    const alertModal = document.getElementById('alert-modal');
+    const cancelBtn = document.getElementById('cancel-alert');
+    const confirmBtn = document.getElementById('confirm-publish');
+    const form = document.querySelector('form');
+    
+    publishBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showCustomAlert();
+    });
+    
+    cancelBtn.addEventListener('click', function() {
+        hideCustomAlert();
+    });
+    
+    confirmBtn.addEventListener('click', function() {
+        hideCustomAlert();
+        form.submit();
+    });
+    
+    // Cerrar al hacer clic fuera del modal
+    customAlert.addEventListener('click', function(e) {
+        if (e.target === customAlert) {
+            hideCustomAlert();
+        }
+    });
+    
+    function showCustomAlert() {
+        customAlert.classList.remove('hidden');
+        setTimeout(() => {
+            alertModal.classList.remove('scale-95', 'opacity-0');
+            alertModal.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+    
+    function hideCustomAlert() {
+        alertModal.classList.remove('scale-100', 'opacity-100');
+        alertModal.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            customAlert.classList.add('hidden');
+        }, 300);
+    }
+});
+</script>
 {% endblock %}

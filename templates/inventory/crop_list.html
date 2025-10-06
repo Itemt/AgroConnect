@@ -81,33 +81,39 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end gap-2">
                                         <a href="{% url 'crop_detail' crop.pk %}" 
-                                           class="text-primary-600 hover:text-primary-900" title="Ver Detalles">
-                                            <i class="fas fa-eye"></i>
+                                           class="inline-flex items-center px-3 py-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-colors" title="Ver Detalles">
+                                            <i class="fas fa-eye mr-1"></i>
+                                            <span class="text-xs">Ver</span>
                                         </a>
                                         <a href="{% url 'crop_edit' crop.pk %}" 
-                                           class="text-blue-600 hover:text-blue-900" title="Editar">
-                                            <i class="fas fa-edit"></i>
+                                           class="inline-flex items-center px-3 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                            <i class="fas fa-edit mr-1"></i>
+                                            <span class="text-xs">Editar</span>
                                         </a>
                                         
                                         {% if crop.estado == 'listo_cosecha' and not crop.publicacion or crop.estado == 'cosechado' and not crop.publicacion %}
                                             <a href="{% url 'publication_create' crop.pk %}" 
-                                               class="text-green-600 hover:text-green-900" title="Publicar">
-                                                <i class="fas fa-share"></i>
+                                               class="inline-flex items-center px-3 py-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors" title="Publicar">
+                                                <i class="fas fa-share mr-1"></i>
+                                                <span class="text-xs">Publicar</span>
                                             </a>
                                         {% elif crop.publicacion %}
                                             <a href="{% url 'publication_edit' crop.publicacion.pk %}" 
-                                               class="text-indigo-600 hover:text-indigo-900" title="Editar Publicación">
-                                                <i class="fas fa-store"></i>
+                                               class="inline-flex items-center px-3 py-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar Publicación">
+                                                <i class="fas fa-store mr-1"></i>
+                                                <span class="text-xs">Editar Pub.</span>
                                             </a>
                                             <a href="{% url 'publication_delete' crop.publicacion.pk %}" 
-                                               class="text-orange-600 hover:text-orange-900" title="Eliminar Publicación">
-                                                <i class="fas fa-store-slash"></i>
+                                               class="inline-flex items-center px-3 py-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg transition-colors" title="Eliminar Publicación">
+                                                <i class="fas fa-store-slash mr-1"></i>
+                                                <span class="text-xs">Eliminar Pub.</span>
                                             </a>
                                         {% endif %}
                                         
                                         <button onclick="showDeleteModal({{ crop.pk }}, '{{ crop.nombre|escapejs }}', '{{ crop.cantidad_estimada }}', '{{ crop.unidad_medida }}', {% if crop.publicacion %}true{% else %}false{% endif %})" 
-                                           class="text-red-600 hover:text-red-900" title="Eliminar Cultivo">
-                                            <i class="fas fa-trash"></i>
+                                           class="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar Cultivo">
+                                            <i class="fas fa-trash mr-1"></i>
+                                            <span class="text-xs">Eliminar</span>
                                         </button>
                                     </div>
                                 </td>
