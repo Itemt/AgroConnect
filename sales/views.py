@@ -11,7 +11,7 @@ from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderCon
 from accounts.models import ProducerProfile, BuyerProfile
 from django.views.decorators.http import require_POST
 from cart.models import Cart
-from core.models import create_and_emit_notification
+from core.models import create_notification
 from core.models import Notification
 
 # Create your views here.
@@ -46,7 +46,7 @@ def create_order_view(request, publication_id):
                 
             order.save()
             # Notificar al vendedor que hay un nuevo pedido
-            create_and_emit_notification(
+            create_notification(
                 recipient=publication.cultivo.productor,
                 title='Nuevo pedido recibido',
                 message=f'El comprador {request.user.first_name} ha creado el pedido #{order.id} de {order.cantidad_acordada} unidades.',
@@ -207,7 +207,7 @@ def quick_update_order_status_view(request, order_id):
             
             order.save()
             # Notificar al comprador sobre el cambio de estado
-            create_and_emit_notification(
+            create_notification(
                 recipient=order.comprador,
                 title='Estado de pedido actualizado',
                 message=f'Tu pedido #{order.id} ahora está: {order.get_estado_display()}.',
@@ -262,7 +262,7 @@ def mark_order_shipped_view(request, order_id):
             
             order.save()
             # Notificar al comprador que el pedido fue enviado
-            create_and_emit_notification(
+            create_notification(
                 recipient=order.comprador,
                 title='Pedido enviado',
                 message=f'Tu pedido #{order.id} fue enviado. Pronto recibirás más actualizaciones.',
@@ -309,7 +309,7 @@ def update_order_status_view(request, order_id):
             
             updated_order.save()
             # Notificar al comprador sobre el cambio de estado
-            create_and_emit_notification(
+            create_notification(
                 recipient=updated_order.comprador,
                 title='Estado de pedido actualizado',
                 message=f'Tu pedido #{updated_order.id} ahora está: {updated_order.get_estado_display()}.',
@@ -362,7 +362,7 @@ def confirm_order_receipt_view(request, order_id):
             
             order.save()
             # Notificar al vendedor que el comprador confirmó recepción y calificó
-            create_and_emit_notification(
+            create_notification(
                 recipient=order.vendedor,
                 title='Pedido completado',
                 message=f'El comprador confirmó la recepción y calificó el pedido #{order.id}.',
@@ -539,6 +539,21 @@ def conversation_detail(request, conversation_id):
             message.conversation = conversation
             message.sender = request.user
             message.save()
+            
+            # Si es una petición AJAX, devolver JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True,
+                    'message': {
+                        'id': message.id,
+                        'sender_id': message.sender.id,
+                        'sender_name': message.sender.get_full_name() or message.sender.username,
+                        'content': message.content,
+                        'created_at': message.created_at.isoformat(),
+                    }
+                })
+            
             return redirect('conversation_detail', conversation_id=conversation.id)
     else:
         form = MessageForm()
@@ -548,6 +563,84 @@ def conversation_detail(request, conversation_id):
         'form': form
     }
     return render(request, 'sales/conversation_detail.html', context)
+
+
+@login_required
+def conversation_detail_simple(request, conversation_id):
+    """Vista simple con polling - NO necesita WebSockets ni Redis"""
+    conversation = get_object_or_404(Conversation.objects.prefetch_related('messages__sender'), pk=conversation_id)
+    
+    # Asegurarse que el usuario es parte de la conversación
+    if request.user not in conversation.participants.all():
+        return redirect('conversation_list')
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.conversation = conversation
+            message.sender = request.user
+            message.save()
+            
+            # Si es una petición AJAX, devolver JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True,
+                    'message': {
+                        'id': message.id,
+                        'sender_id': message.sender.id,
+                        'sender_name': message.sender.get_full_name() or message.sender.username,
+                        'content': message.content,
+                        'created_at': message.created_at.isoformat(),
+                    }
+                })
+            
+            return redirect('conversation_detail_simple', conversation_id=conversation.id)
+    else:
+        form = MessageForm()
+
+    context = {
+        'conversation': conversation,
+        'form': form
+    }
+    return render(request, 'sales/conversation_detail_simple.html', context)
+
+
+@login_required
+def get_new_messages(request, conversation_id):
+    """API endpoint para obtener nuevos mensajes (polling)"""
+    conversation = get_object_or_404(Conversation, pk=conversation_id)
+    
+    # Verificar que el usuario es parte de la conversación
+    if request.user not in conversation.participants.all():
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    since_id = request.GET.get('since', 0)
+    try:
+        since_id = int(since_id)
+    except ValueError:
+        since_id = 0
+    
+    # Obtener mensajes nuevos
+    new_messages = conversation.messages.filter(id__gt=since_id).order_by('created_at')
+    
+    messages_data = []
+    for message in new_messages:
+        messages_data.append({
+            'id': message.id,
+            'sender_id': message.sender.id,
+            'sender_name': message.sender.get_full_name() or message.sender.username,
+            'content': message.content,
+            'created_at': message.created_at.isoformat(),
+        })
+    
+    from django.http import JsonResponse
+    return JsonResponse({
+        'messages': messages_data,
+        'count': len(messages_data)
+    })
 
 @login_required
 def buyer_dashboard(request):
@@ -738,7 +831,7 @@ def create_order_from_cart(request):
         publication.save()
         created_orders.append(order)
         # Notificar al vendedor sobre pedidos creados desde carrito
-        create_and_emit_notification(
+        create_notification(
             recipient=publication.cultivo.productor,
             title='Nuevo pedido recibido',
             message=f'Pedido #{order.id} creado por {request.user.first_name} desde el carrito.',

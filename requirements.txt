@@ -10,13 +10,13 @@ autobahn==24.4.2
 Automat==25.4.16
 certifi==2025.10.5
 cffi==2.0.0
-channels==4.3.1
-channels_redis==4.3.0
+# channels==4.3.1  # Comentado - no necesario para polling simple
+# channels_redis==4.3.0  # Comentado - no necesario para polling simple
 charset-normalizer==3.4.3
 cloudinary==1.44.1
 constantly==23.10.4
 cryptography==46.0.1
-daphne==4.2.1
+# daphne==4.2.1  # Comentado - no necesario para polling simple
 dj-database-url==2.1.0
 Django==4.2.24
 django-cloudinary-storage==0.3.0
@@ -35,7 +35,7 @@ pyasn1_modules==0.4.2
 pycparser==2.23
 pyOpenSSL==25.3.0
 python-decouple==3.8
-redis==6.4.0
+# redis==6.4.0  # Comentado - no necesario para polling simple
 requests==2.32.5
 service-identity==24.2.0
 six==1.17.0

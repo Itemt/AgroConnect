@@ -4,6 +4,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
 from django.core.paginator import Paginator
 from .models import Notification
+from django.shortcuts import render
 
 
 @login_required
@@ -45,24 +46,4 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'index.html')
 
-@login_required
-def notifications_page(request):
-    """Vista para mostrar todas las notificaciones del usuario"""
-    notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
-    
-    # Paginación
-    paginator = Paginator(notifications, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    # Estadísticas
-    total_notifications = notifications.count()
-    unread_count = notifications.filter(is_read=False).count()
-    
-    context = {
-        'page_obj': page_obj,
-        'total_notifications': total_notifications,
-        'unread_count': unread_count,
-    }
-    
-    return render(request, 'core/notifications.html', context)
+# Vista de notificaciones eliminada - usar solo API endpoints
