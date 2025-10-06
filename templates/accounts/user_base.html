@@ -449,7 +449,7 @@
                 <i class="fas fa-comments"></i>
                 <span class="sidebar-text">Mensajes</span>
             </a>
-            <a href="{% url 'core:notifications_page' %}" class="{% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+            <a href="#" onclick="alert('Notificaciones disponibles en el dropdown del header')" class="{% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-bell"></i>
                 <span class="sidebar-text">Notificaciones</span>
             </a>
