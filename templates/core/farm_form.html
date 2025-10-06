@@ -1,0 +1,264 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}{{ title }} - AgroConnect{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                        <i class="fas fa-tractor text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-5xl font-bold text-gradient">{{ title }}</h1>
+                        <p class="text-gray-600 mt-2 text-xl">Completa la información de tu finca</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="card">
+            <div class="card-body p-8">
+                <form method="post" id="farm-form">
+                    {% csrf_token %}
+                    
+                    <!-- Información Básica -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                            Información Básica
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre de la Finca *
+                                </label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.nombre.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Suelo *
+                                </label>
+                                {{ form.tipo_suelo }}
+                                {% if form.tipo_suelo.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.tipo_suelo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción
+                            </label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.descripcion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-600 mr-3"></i>
+                            Ubicación
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Departamento *
+                                </label>
+                                {{ form.departamento }}
+                                {% if form.departamento.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.departamento.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Ciudad/Municipio *
+                                </label>
+                                {{ form.ciudad }}
+                                {% if form.ciudad.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.ciudad.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Dirección Completa *
+                            </label>
+                            {{ form.direccion }}
+                            {% if form.direccion.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.direccion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label for="{{ form.coordenadas_lat.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Latitud (opcional)
+                                </label>
+                                {{ form.coordenadas_lat }}
+                                {% if form.coordenadas_lat.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.coordenadas_lat.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.coordenadas_lng.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Longitud (opcional)
+                                </label>
+                                {{ form.coordenadas_lng }}
+                                {% if form.coordenadas_lng.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.coordenadas_lng.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características de la Finca -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-chart-area text-purple-600 mr-3"></i>
+                            Características de la Finca
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ form.area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Área Total (hectáreas) *
+                                </label>
+                                {{ form.area_total }}
+                                {% if form.area_total.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.area_total.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Área Cultivable (hectáreas) *
+                                </label>
+                                {{ form.area_cultivable }}
+                                {% if form.area_cultivable.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.area_cultivable.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label for="{{ form.tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Riego *
+                                </label>
+                                {{ form.tipo_riego }}
+                                {% if form.tipo_riego.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.tipo_riego.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certificaciones -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-certificate text-yellow-600 mr-3"></i>
+                            Certificaciones
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                {{ form.certificacion_organica }}
+                                <label for="{{ form.certificacion_organica.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                                    Certificación Orgánica
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                {{ form.certificacion_bpa }}
+                                <label for="{{ form.certificacion_bpa.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                                    Certificación BPA (Buenas Prácticas Agrícolas)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <label for="{{ form.otras_certificaciones.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Otras Certificaciones
+                            </label>
+                            {{ form.otras_certificaciones }}
+                            {% if form.otras_certificaciones.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.otras_certificaciones.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-end space-x-4">
+                        <a href="{% url 'core:farm_list' %}" class="btn-secondary">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save mr-2"></i>
+                            {% if finca %}Actualizar Finca{% else %}Crear Finca{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departamentoSelect = document.getElementById('id_departamento');
+    const ciudadSelect = document.getElementById('id_ciudad');
+    
+    departamentoSelect.addEventListener('change', function() {
+        const departamento = this.value;
+        
+        // Limpiar opciones de ciudad
+        ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+        
+        if (departamento) {
+            fetch('{% url "core:get_ciudades" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: 'departamento=' + encodeURIComponent(departamento)
+            })
+            .then(response => response.json())
+            .then(data => {
+                ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                data.ciudades.forEach(ciudad => {
+                    const option = document.createElement('option');
+                    option.value = ciudad.value;
+                    option.textContent = ciudad.text;
+                    ciudadSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+            });
+        } else {
+            ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+        }
+    });
+});
+</script>
+{% endblock %}

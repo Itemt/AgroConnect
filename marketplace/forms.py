@@ -1,6 +1,7 @@
 from django import forms
 from .models import Publication
 from core.colombia_locations import get_departments, COLOMBIA_LOCATIONS
+from core.models import Farm
 
 class PublicationForm(forms.ModelForm):
     departamento = forms.ChoiceField(
@@ -25,11 +26,14 @@ class PublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = [
-            'cultivo', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
+            'cultivo', 'finca', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
             'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen'
         ]
         widgets = {
             'cultivo': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+            }),
+            'finca': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
             }),
             'precio_por_unidad': forms.NumberInput(attrs={
@@ -61,6 +65,8 @@ class PublicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields['cultivo'].queryset = user.cultivos.all()
+            self.fields['finca'].queryset = Farm.objects.filter(propietario=user, activa=True)
+            self.fields['finca'].empty_label = "Seleccionar finca (opcional)"
         
         # Cargar ciudades dinámicamente según el departamento seleccionado
         if 'departamento' in self.data:

@@ -1,0 +1,93 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}Eliminar Finca - AgroConnect{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                        <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-5xl font-bold text-gradient">Eliminar Finca</h1>
+                        <p class="text-gray-600 mt-2 text-xl">Esta acción no se puede deshacer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Card -->
+        <div class="card">
+            <div class="card-body p-8">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">¿Estás seguro de que quieres eliminar esta finca?</h2>
+                    <p class="text-gray-600 mb-6">
+                        Esta acción eliminará permanentemente la finca <strong>"{{ finca.nombre }}"</strong> y todos sus datos asociados.
+                    </p>
+                </div>
+
+                <!-- Finca Info -->
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Información de la Finca</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <strong>Nombre:</strong> {{ finca.nombre }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <strong>Ubicación:</strong> {{ finca.ubicacion_completa }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <strong>Área Total:</strong> {{ finca.area_total }} hectáreas
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <strong>Cultivos:</strong> {{ finca.cultivos.count }} cultivo{{ finca.cultivos.count|pluralize }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-3 mt-1"></i>
+                        <div>
+                            <h4 class="text-lg font-semibold text-yellow-800 mb-2">Advertencia</h4>
+                            <ul class="text-yellow-700 text-sm space-y-1">
+                                <li>• Se eliminarán todos los cultivos asociados a esta finca</li>
+                                <li>• Se eliminarán todas las publicaciones de productos de esta finca</li>
+                                <li>• Esta acción no se puede deshacer</li>
+                                <li>• Los pedidos existentes no se verán afectados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-center space-x-4">
+                    <a href="{% url 'core:farm_detail' finca.pk %}" class="btn-secondary group">
+                        <i class="fas fa-arrow-left mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                        Cancelar
+                    </a>
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger group">
+                            <i class="fas fa-trash mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Eliminar Finca
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

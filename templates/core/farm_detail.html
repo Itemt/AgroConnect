@@ -1,0 +1,255 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}{{ finca.nombre }} - AgroConnect{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                            <i class="fas fa-tractor text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-5xl font-bold text-gradient">{{ finca.nombre }}</h1>
+                            <p class="text-gray-600 mt-2 text-xl">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                {{ finca.ubicacion_completa }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="{% url 'core:farm_edit' finca.pk %}" class="btn-outline group">
+                            <i class="fas fa-edit mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Editar Finca
+                        </a>
+                        <a href="{% url 'core:farm_list' %}" class="btn-secondary group">
+                            <i class="fas fa-arrow-left mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
+                    <i class="fas fa-chart-area text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ finca.area_total }} ha</h3>
+                    <p class="text-gray-600 font-medium">Área Total</p>
+                </div>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
+                    <i class="fas fa-seedling text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{{ finca.area_cultivable }} ha</h3>
+                    <p class="text-gray-600 font-medium">Cultivable</p>
+                </div>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-purple-400 to-purple-600">
+                    <i class="fas fa-leaf text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">{{ cultivos.count }}</h3>
+                    <p class="text-gray-600 font-medium">Cultivos</p>
+                </div>
+            </div>
+
+            <div class="stat-card group">
+                <div class="stat-icon bg-gradient-to-br from-yellow-400 to-yellow-600">
+                    <i class="fas fa-thermometer-half text-white text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">{{ finca.get_tipo_suelo_display }}</h3>
+                    <p class="text-gray-600 font-medium">Tipo de Suelo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Información de la Finca -->
+            <div class="lg:col-span-2">
+                <div class="card mb-8">
+                    <div class="card-body p-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                            Información de la Finca
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Ubicación</h3>
+                                <p class="text-gray-600 mb-1">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>
+                                    {{ finca.direccion }}
+                                </p>
+                                <p class="text-gray-600">
+                                    <i class="fas fa-city mr-2"></i>
+                                    {{ finca.ciudad }}, {{ finca.departamento }}
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Características</h3>
+                                <p class="text-gray-600 mb-1">
+                                    <i class="fas fa-thermometer-half mr-2"></i>
+                                    Suelo: {{ finca.get_tipo_suelo_display }}
+                                </p>
+                                <p class="text-gray-600">
+                                    <i class="fas fa-tint mr-2"></i>
+                                    Riego: {{ finca.get_tipo_riego_display }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if finca.descripcion %}
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Descripción</h3>
+                            <p class="text-gray-600">{{ finca.descripcion }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if finca.certificacion_organica or finca.certificacion_bpa or finca.otras_certificaciones %}
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Certificaciones</h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% if finca.certificacion_organica %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-leaf mr-1"></i>
+                                    Orgánica
+                                </span>
+                                {% endif %}
+                                {% if finca.certificacion_bpa %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-certificate mr-1"></i>
+                                    BPA
+                                </span>
+                                {% endif %}
+                                {% if finca.otras_certificaciones %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-award mr-1"></i>
+                                    Otras
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if finca.otras_certificaciones %}
+                            <p class="text-gray-600 text-sm mt-2">{{ finca.otras_certificaciones }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Cultivos de la Finca -->
+                <div class="card">
+                    <div class="card-body p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-seedling text-green-600 mr-3"></i>
+                                Cultivos en esta Finca
+                            </h2>
+                            <a href="{% url 'crop_add' %}?finca={{ finca.pk }}" class="btn-primary group">
+                                <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
+                                Agregar Cultivo
+                            </a>
+                        </div>
+                        
+                        {% if cultivos %}
+                        <div class="space-y-4">
+                            {% for cultivo in cultivos %}
+                            <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300 group">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-900 mb-2 text-lg group-hover:text-green-600 transition-colors duration-300">
+                                            {{ cultivo.nombre }}
+                                        </h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="text-sm text-gray-600">
+                                                <i class="fas fa-weight mr-2 text-green-600"></i>
+                                                <strong>Cantidad:</strong> {{ cultivo.cantidad_estimada }} {{ cultivo.unidad_medida }}
+                                            </div>
+                                            <div class="text-sm text-gray-600">
+                                                <i class="fas fa-calendar mr-2 text-blue-600"></i>
+                                                <strong>Estado:</strong> {{ cultivo.get_estado_display }}
+                                            </div>
+                                            <div class="text-sm text-gray-600">
+                                                <i class="fas fa-chart-area mr-2 text-purple-600"></i>
+                                                <strong>Área:</strong> {{ cultivo.area_ocupada }} ha
+                                            </div>
+                                        </div>
+                                        {% if cultivo.fecha_disponibilidad %}
+                                        <div class="text-sm text-gray-600 mb-2">
+                                            <i class="fas fa-clock mr-2 text-yellow-600"></i>
+                                            <strong>Disponible desde:</strong> {{ cultivo.fecha_disponibilidad|date:"d M Y" }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'crop_detail' cultivo.pk %}" class="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                                            <i class="fas fa-eye mr-1"></i> Ver
+                                        </a>
+                                        <a href="{% url 'crop_edit' cultivo.pk %}" class="px-3 py-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-300 text-sm font-medium">
+                                            <i class="fas fa-edit mr-1"></i> Editar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-seedling text-gray-400 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-4">No hay cultivos en esta finca</h3>
+                            <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                                Comienza agregando tu primer cultivo a esta finca.
+                            </p>
+                            <a href="{% url 'crop_add' %}?finca={{ finca.pk }}" class="btn-primary group">
+                                <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
+                                Agregar Primer Cultivo
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="card">
+                    <div class="card-body p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h3>
+                        <div class="space-y-3">
+                            <a href="{% url 'crop_add' %}?finca={{ finca.pk }}" class="w-full btn-primary group">
+                                <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
+                                Agregar Cultivo
+                            </a>
+                            <a href="{% url 'core:farm_edit' finca.pk %}" class="w-full btn-outline group">
+                                <i class="fas fa-edit mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                Editar Finca
+                            </a>
+                            <a href="{% url 'core:farm_list' %}" class="w-full btn-secondary group">
+                                <i class="fas fa-list mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                Ver Todas las Fincas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
