@@ -153,8 +153,16 @@ def order_detail_view(request, order_id):
     # Importar settings para verificar modo test
     from django.conf import settings
     
+    # Obtener el payment asociado al order
+    payment = None
+    try:
+        payment = order.payment
+    except:
+        pass
+    
     context = {
         'order': order,
+        'payment': payment,
         'rating_from_buyer': rating_from_buyer,
         'rating_from_seller': rating_from_seller,
         'my_rating': my_rating,
