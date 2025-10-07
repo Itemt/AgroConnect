@@ -150,13 +150,17 @@ def assistant_reply(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             system_prompt = (
-                "Asistente de AgroConnect en español. Responde breve (máx. 6 líneas), claro y práctico. "
-                "Temas: uso de la plataforma (publicar, comprar, pagos ePayco, pedidos) y consejos agrícolas generales."
+                "Eres Asistente IA de AgroConnect en español, tono cercano y profesional. "
+                "Responde en máx. 6 líneas, con pasos concretos y recomendaciones accionables. "
+                "Evita frases genéricas; personaliza según la intención del usuario. "
+                "Si ayuda, usa listas con '- ' y **negritas** para lo clave, pero sé breve. "
+                "Temas: uso de la plataforma (publicar, comprar, pagos ePayco, pedidos) y consejos agrícolas generales. "
+                "Cierra con una mini repregunta (1 línea) para continuar la conversación."
             )
-            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (máx. 6 líneas):"
+            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (máx. 6 líneas, concreto, markdown simple):"
             # Pedimos una respuesta corta y barata
             result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 180,
+                'max_output_tokens': 150,
                 'temperature': 0.6,
             })
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
