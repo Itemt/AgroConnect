@@ -13,6 +13,12 @@ class MercadoPagoService:
     def __init__(self):
         """Inicializar cliente de MercadoPago"""
         self.access_token = config('MERCADOPAGO_ACCESS_TOKEN', default='')
+        
+        # Fallback temporal para desarrollo
+        if not self.access_token:
+            self.access_token = 'TEST-1261412824198770-100718-66491d0e1f1b1381978604366ca01034-308635696'
+            print("⚠️ Usando token de prueba temporal")
+        
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
         else:
@@ -132,13 +138,36 @@ class MercadoPagoService:
         
         try:
             reference = self.create_payment_reference(order)
-            payment_data = self.prepare_payment_data(order, user, reference)
             
-            # Asegurar que todos los valores numéricos sean float
-            payment_data = self._ensure_json_serializable(payment_data)
+            # Datos simplificados para prueba
+            payment_data = {
+                "transaction_amount": float(order.precio_total),
+                "currency_id": "COP",
+                "description": f"Compra orden #{order.id}",
+                "payer": {
+                    "email": user.email or "test@example.com",
+                    "name": user.get_full_name() or "Usuario"
+                },
+                "external_reference": reference,
+                "notification_url": "https://agroconnect.itemt.tech/payments/notification/"
+            }
+            
+            print(f"=== DEBUG PREFERENCE DATA ===")
+            print(f"Transaction amount: {payment_data['transaction_amount']}")
+            print(f"Currency: {payment_data['currency_id']}")
+            print(f"Description: {payment_data['description']}")
+            print(f"External reference: {payment_data['external_reference']}")
+            print("=============================")
             
             # Crear preferencia
             preference_response = self.sdk.preference().create(payment_data)
+            
+            print(f"=== DEBUG PREFERENCE RESPONSE ===")
+            print(f"Status: {preference_response.get('status')}")
+            print(f"Response keys: {list(preference_response.keys())}")
+            if 'response' in preference_response:
+                print(f"Response ID: {preference_response['response'].get('id')}")
+            print("================================")
             
             if preference_response["status"] == 201:
                 return {
@@ -150,11 +179,15 @@ class MercadoPagoService:
             else:
                 return {
                     'success': False,
-                    'error': 'Error al crear preferencia',
+                    'error': f"Error al crear preferencia. Status: {preference_response.get('status')}",
                     'response': preference_response
                 }
                 
         except Exception as e:
+            print(f"=== DEBUG EXCEPTION ===")
+            print(f"Exception type: {type(e)}")
+            print(f"Exception message: {str(e)}")
+            print("======================")
             return {
                 'success': False,
                 'error': str(e)
