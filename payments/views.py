@@ -124,6 +124,26 @@ def payment_success_view(request):
             payment = Payment.objects.get(mercadopago_id=payment_id)
         else:
             payment = Payment.objects.get(preference_id=preference_id)
+        
+        # Procesar automáticamente el pago para proyecto universitario
+        if payment.status == 'pending':
+            mercadopago_service = MercadoPagoService()
+            simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+            
+            # Actualizar el pago
+            payment.mercadopago_id = simulated_result['payment_id']
+            payment.status = 'approved'
+            payment.response_data = simulated_result['raw_data']
+            payment.paid_at = timezone.now()
+            payment.save()
+            
+            # Actualizar estado del pedido
+            order = payment.order
+            order.estado = 'pagado'
+            order.save()
+            
+            messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
+        
         order = payment.order
         
         context = {
@@ -299,19 +319,69 @@ def simulate_test_payment_view(request, payment_id):
 @login_required
 def payment_failure_view(request):
     """
-    Vista para cuando el pago falla
+    Vista para cuando el pago falla - Para proyecto universitario, procesar automáticamente
     """
-    messages.error(request, 'El pago no pudo ser procesado. Por favor, intenta nuevamente.')
-    return redirect('order_history')
+    # Para proyecto universitario, simular que el pago se procesa automáticamente
+    try:
+        # Buscar el pago más reciente del usuario
+        payment = Payment.objects.filter(user=request.user, status='pending').latest('created_at')
+        
+        # Procesar automáticamente el pago
+        mercadopago_service = MercadoPagoService()
+        simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+        
+        # Actualizar el pago
+        payment.mercadopago_id = simulated_result['payment_id']
+        payment.status = 'approved'
+        payment.response_data = simulated_result['raw_data']
+        payment.paid_at = timezone.now()
+        payment.save()
+        
+        # Actualizar estado del pedido
+        order = payment.order
+        order.estado = 'pagado'
+        order.save()
+        
+        messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
+        return redirect('order_detail', order_id=order.id)
+        
+    except Payment.DoesNotExist:
+        messages.error(request, 'No se encontró el pago.')
+        return redirect('order_history')
 
 
 @login_required
 def payment_pending_view(request):
     """
-    Vista para cuando el pago está pendiente
+    Vista para cuando el pago está pendiente - Para proyecto universitario, procesar automáticamente
     """
-    messages.info(request, 'Tu pago está siendo procesado. Te notificaremos cuando esté confirmado.')
-    return redirect('order_history')
+    # Para proyecto universitario, simular que el pago se procesa automáticamente
+    try:
+        # Buscar el pago más reciente del usuario
+        payment = Payment.objects.filter(user=request.user, status='pending').latest('created_at')
+        
+        # Procesar automáticamente el pago
+        mercadopago_service = MercadoPagoService()
+        simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+        
+        # Actualizar el pago
+        payment.mercadopago_id = simulated_result['payment_id']
+        payment.status = 'approved'
+        payment.response_data = simulated_result['raw_data']
+        payment.paid_at = timezone.now()
+        payment.save()
+        
+        # Actualizar estado del pedido
+        order = payment.order
+        order.estado = 'pagado'
+        order.save()
+        
+        messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
+        return redirect('order_detail', order_id=order.id)
+        
+    except Payment.DoesNotExist:
+        messages.error(request, 'No se encontró el pago.')
+        return redirect('order_history')
 
 
 def payment_notification_webhook(request):
@@ -352,3 +422,42 @@ def payment_notification_webhook(request):
             print(f"❌ Webhook exception: {str(e)}")
     
     return HttpResponse(status=200)
+
+
+@login_required
+def simulate_payment_processing(request, payment_id):
+    """
+    Simular procesamiento automático de pago para proyecto universitario
+    """
+    try:
+        payment = Payment.objects.get(id=payment_id, user=request.user)
+        
+        # Simular procesamiento automático
+        mercadopago_service = MercadoPagoService()
+        simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+        
+        # Actualizar el pago con datos simulados
+        payment.mercadopago_id = simulated_result['payment_id']
+        payment.status = 'approved'
+        payment.response_data = simulated_result['raw_data']
+        payment.paid_at = timezone.now()
+        payment.save()
+        
+        # Actualizar estado del pedido
+        order = payment.order
+        order.estado = 'pagado'
+        order.save()
+        
+        messages.success(
+            request, 
+            f'✅ Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.'
+        )
+        
+        return redirect('order_detail', order_id=order.id)
+        
+    except Payment.DoesNotExist:
+        messages.error(request, 'Pago no encontrado.')
+        return redirect('order_history')
+    except Exception as e:
+        messages.error(request, f'Error al procesar el pago: {str(e)}')
+        return redirect('order_history')
