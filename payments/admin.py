@@ -5,7 +5,7 @@ from .models import Payment
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = [
-        'epayco_ref',
+        'mercadopago_id',
         'order',
         'user',
         'amount',
@@ -17,8 +17,9 @@ class PaymentAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'payment_method', 'currency', 'created_at']
     search_fields = [
-        'epayco_ref',
-        'epayco_transaction_id',
+        'mercadopago_id',
+        'preference_id',
+        'external_reference',
         'user__username',
         'user__email',
         'order__id'
@@ -26,8 +27,9 @@ class PaymentAdmin(admin.ModelAdmin):
     readonly_fields = [
         'created_at',
         'updated_at',
-        'epayco_ref',
-        'epayco_transaction_id',
+        'mercadopago_id',
+        'preference_id',
+        'external_reference',
         'response_data'
     ]
     
@@ -38,8 +40,8 @@ class PaymentAdmin(admin.ModelAdmin):
         ('Detalles del Pago', {
             'fields': ('amount', 'currency', 'payment_method', 'description')
         }),
-        ('Información de ePayco', {
-            'fields': ('epayco_ref', 'epayco_transaction_id', 'response_data')
+        ('Información de MercadoPago', {
+            'fields': ('mercadopago_id', 'preference_id', 'external_reference', 'response_data')
         }),
         ('Fechas', {
             'fields': ('created_at', 'updated_at', 'paid_at')

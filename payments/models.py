@@ -6,7 +6,7 @@ from core.models import create_notification
 
 
 class Payment(BaseModel):
-    """Modelo para almacenar información de pagos con ePayco"""
+    """Modelo para almacenar información de pagos con MercadoPago"""
     
     STATUS_CHOICES = (
         ('pending', 'Pendiente'),
@@ -14,13 +14,16 @@ class Payment(BaseModel):
         ('rejected', 'Rechazado'),
         ('failed', 'Fallido'),
         ('cancelled', 'Cancelado'),
+        ('in_process', 'En Proceso'),
+        ('in_mediation', 'En Mediación'),
     )
     
     PAYMENT_METHOD_CHOICES = (
-        ('card', 'Tarjeta de Crédito/Débito'),
         ('pse', 'PSE'),
+        ('credit_card', 'Tarjeta de Crédito'),
+        ('debit_card', 'Tarjeta de Débito'),
         ('cash', 'Efectivo'),
-        ('transfer', 'Transferencia'),
+        ('bank_transfer', 'Transferencia Bancaria'),
     )
     
     # Relaciones
@@ -37,18 +40,28 @@ class Payment(BaseModel):
         verbose_name="Usuario"
     )
     
-    # Información de ePayco
-    epayco_ref = models.CharField(
+    # Información de MercadoPago
+    mercadopago_id = models.CharField(
         max_length=255, 
-        unique=True, 
-        verbose_name="Referencia ePayco",
-        help_text="Referencia única de la transacción en ePayco"
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name="ID MercadoPago",
+        help_text="ID único de la transacción en MercadoPago"
     )
-    epayco_transaction_id = models.CharField(
+    preference_id = models.CharField(
         max_length=255, 
         blank=True, 
         null=True,
-        verbose_name="ID de Transacción ePayco"
+        verbose_name="ID de Preferencia",
+        help_text="ID de la preferencia de pago creada"
+    )
+    external_reference = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name="Referencia Externa",
+        help_text="Referencia externa única del pago"
     )
     
     # Detalles del pago
@@ -83,7 +96,7 @@ class Payment(BaseModel):
         default=dict,
         blank=True,
         verbose_name="Datos de Respuesta",
-        help_text="Respuesta completa de ePayco"
+        help_text="Respuesta completa de MercadoPago"
     )
     
     # Fechas
@@ -99,7 +112,7 @@ class Payment(BaseModel):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f'Pago {self.epayco_ref} - {self.get_status_display()}'
+        return f'Pago {self.mercadopago_id} - {self.get_status_display()}'
     
     @property
     def is_approved(self):
