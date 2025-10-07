@@ -294,3 +294,61 @@ def simulate_test_payment_view(request, payment_id):
     )
     
     return redirect('order_detail', order_id=payment.order.id)
+
+
+@login_required
+def payment_failure_view(request):
+    """
+    Vista para cuando el pago falla
+    """
+    messages.error(request, 'El pago no pudo ser procesado. Por favor, intenta nuevamente.')
+    return redirect('order_history')
+
+
+@login_required
+def payment_pending_view(request):
+    """
+    Vista para cuando el pago está pendiente
+    """
+    messages.info(request, 'Tu pago está siendo procesado. Te notificaremos cuando esté confirmado.')
+    return redirect('order_history')
+
+
+def payment_notification_webhook(request):
+    """
+    Webhook para notificaciones de MercadoPago
+    """
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            mercadopago_service = MercadoPagoService()
+            result = mercadopago_service.process_webhook(data)
+            
+            if result['success']:
+                # Buscar el pago por external_reference
+                try:
+                    payment = Payment.objects.get(external_reference=result['external_reference'])
+                    
+                    # Actualizar estado del pago
+                    payment.mercadopago_id = result['payment_id']
+                    payment.status = 'approved' if result['approved'] else 'rejected'
+                    payment.response_data = result['raw_data']
+                    payment.save()
+                    
+                    # Actualizar estado del pedido
+                    if result['approved']:
+                        order = payment.order
+                        order.estado = 'pagado'
+                        order.save()
+                    
+                    print(f"✅ Webhook procesado: Payment {payment.id} - Status: {payment.status}")
+                    
+                except Payment.DoesNotExist:
+                    print(f"❌ Payment not found for external_reference: {result['external_reference']}")
+            else:
+                print(f"❌ Webhook error: {result['error']}")
+                
+        except Exception as e:
+            print(f"❌ Webhook exception: {str(e)}")
+    
+    return HttpResponse(status=200)
