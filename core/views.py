@@ -98,47 +98,22 @@ def assistant_reply(request):
         data = {}
 
     raw_message = (data.get('message') or '').strip()
-    # Limitar tamaño de entrada para controlar consumo
-    if len(raw_message) > 1200:
-        raw_message = raw_message[:1200]
+    # Rate limit simple por sesión: 1 solicitud cada 4s
+    last_ts = request.session.get('assistant_last_ts')
+    now_ts = timezone.now().timestamp()
+    min_interval = 4.0
+    if last_ts and (now_ts - float(last_ts)) < min_interval:
+        retry_after = max(1, int(min_interval - (now_ts - float(last_ts))))
+        return JsonResponse({'success': False, 'error': 'rate_limited', 'retry_after': retry_after}, status=429)
+    # Limitar tamaño de entrada para controlar consumo (más estricto)
+    if len(raw_message) > 800:
+        raw_message = raw_message[:800]
     user_message = raw_message.lower()
 
-    # Very simple intent detection
-    response_text = (
-        "Hola, soy tu asistente de AgroConnect. Puedo ayudarte con: \n"
-        "- Cómo publicar o comprar productos.\n"
-        "- Estados de pedidos y pagos.\n"
-        "- Conceptos básicos agrícolas (rendimientos, épocas de siembra generales).\n"
-        "Cuéntame, ¿en qué te ayudo?"
-    )
+    # Intentar SIEMPRE IA primero si hay clave
+    used_model = 'fallback'
+    response_text = None
 
-    if user_message:
-        if any(k in user_message for k in ["publicar", "venta", "vender", "anuncio", "producto"]):
-            response_text = (
-                "Para publicar: ve a tu Dashboard de Productor > Cultivos y crea un nuevo cultivo. "
-                "Luego, en Marketplace, publica la oferta indicando precio, cantidad y fotos."
-            )
-        elif any(k in user_message for k in ["comprar", "pedido", "orden", "carrito"]):
-            response_text = (
-                "Para comprar: entra al Marketplace, agrega productos al carrito y continúa al pago. "
-                "Podrás revisar el estado en tu Dashboard de Comprador."
-            )
-        elif any(k in user_message for k in ["pago", "epayco", "transaccion", "transacción"]):
-            response_text = (
-                "Los pagos se procesan con ePayco. Si tu pago aparece pendiente, suele confirmarse en minutos. "
-                "Si se cancela, verifica tu método de pago o inténtalo nuevamente."
-            )
-        elif any(k in user_message for k in ["papa", "maiz", "arroz", "siembra", "cosecha", "clima"]):
-            response_text = (
-                "Consejo general: Ajusta fechas de siembra y riego según el clima local. "
-                "Usa semillas certificadas cuando sea posible y rota cultivos para mejorar el suelo."
-            )
-        elif any(k in user_message for k in ["contacto", "soporte", "ayuda", "whatsapp", "email"]):
-            response_text = (
-                "Soporte: contacto@agroconnect.com. Comparte tu problema y el ID del pedido si aplica."
-            )
-
-    # Try Gemini if key is configured
     # Leer desde .env/variables de entorno
     api_key = (
         config('GOOGLE_API_KEY', default='')
@@ -150,24 +125,63 @@ def assistant_reply(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             system_prompt = (
-                "Eres Asistente IA de AgroConnect en español, tono cercano y profesional. "
-                "Responde en máx. 6 líneas, con pasos concretos y recomendaciones accionables. "
-                "Evita frases genéricas; personaliza según la intención del usuario. "
-                "Si ayuda, usa listas con '- ' y **negritas** para lo clave, pero sé breve. "
-                "Temas: uso de la plataforma (publicar, comprar, pagos ePayco, pedidos) y consejos agrícolas generales. "
-                "Cierra con una mini repregunta (1 línea) para continuar la conversación."
+                "Asistente IA de AgroConnect (español). Breve (≤6 líneas), concreto y accionable. "
+                "Usa **negritas** para lo clave y listas con '- ' si ayuda. "
+                "Temas: publicar/comprar/pagos ePayco/pedidos y consejos agrícolas generales. "
+                "Termina con una repregunta de 1 línea."
             )
-            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (máx. 6 líneas, concreto, markdown simple):"
-            # Pedimos una respuesta corta y barata
+            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (máx. 6 líneas, markdown simple):"
             result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 150,
-                'temperature': 0.6,
+                'max_output_tokens': 120,
+                'temperature': 0.5,
+                'top_k': 1,
+                'top_p': 0.8,
             })
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
                 response_text = text.strip()
+                used_model = 'gemini-1.5-flash'
         except Exception:
-            # Keep heuristic fallback silently
+            # Continuar a fallback silenciosamente
             pass
 
-    return JsonResponse({"success": True, "reply": response_text})
+    # Fallback heurístico solo si no hubo respuesta IA
+    if response_text is None:
+        response_text = (
+            "Hola, soy tu asistente de AgroConnect. Puedo ayudarte con: \n"
+            "- Cómo publicar o comprar productos.\n"
+            "- Estados de pedidos y pagos.\n"
+            "- Conceptos básicos agrícolas (rendimientos, épocas de siembra generales).\n"
+            "Cuéntame, ¿en qué te ayudo?"
+        )
+
+        if user_message:
+            if any(k in user_message for k in ["publicar", "venta", "vender", "anuncio", "producto"]):
+                response_text = (
+                    "Para publicar: ve a tu Dashboard de Productor > Cultivos y crea un nuevo cultivo. "
+                    "Luego, en Marketplace, publica la oferta indicando precio, cantidad y fotos."
+                )
+            elif any(k in user_message for k in ["comprar", "pedido", "orden", "carrito"]):
+                response_text = (
+                    "Para comprar: entra al Marketplace, agrega productos al carrito y continúa al pago. "
+                    "Podrás revisar el estado en tu Dashboard de Comprador."
+                )
+            elif any(k in user_message for k in ["pago", "epayco", "transaccion", "transacción"]):
+                response_text = (
+                    "Los pagos se procesan con ePayco. Si tu pago aparece pendiente, suele confirmarse en minutos. "
+                    "Si se cancela, verifica tu método de pago o inténtalo nuevamente."
+                )
+            elif any(k in user_message for k in ["papa", "maiz", "arroz", "siembra", "cosecha", "clima"]):
+                response_text = (
+                    "Consejo general: Ajusta fechas de siembra y riego según el clima local. "
+                    "Usa semillas certificadas cuando sea posible y rota cultivos para mejorar el suelo."
+                )
+            elif any(k in user_message for k in ["contacto", "soporte", "ayuda", "whatsapp", "email"]):
+                response_text = (
+                    "Soporte: contacto@agroconnect.com. Comparte tu problema y el ID del pedido si aplica."
+                )
+        used_model = 'fallback'
+
+    # Guardar timestamp de la solicitud atendida
+    request.session['assistant_last_ts'] = str(now_ts)
+    return JsonResponse({"success": True, "reply": response_text, "model": used_model})
