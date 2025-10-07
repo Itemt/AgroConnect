@@ -30,6 +30,30 @@ class MercadoPagoService:
         """
         return f"AGC-{order.id}-{uuid.uuid4().hex[:8].upper()}"
     
+    def _ensure_json_serializable(self, data):
+        """
+        Convertir todos los valores Decimal a float para serialización JSON
+        
+        Args:
+            data: Diccionario con datos del pago
+            
+        Returns:
+            dict: Diccionario con valores convertidos
+        """
+        from decimal import Decimal
+        
+        def convert_value(value):
+            if isinstance(value, Decimal):
+                return float(value)
+            elif isinstance(value, dict):
+                return {k: convert_value(v) for k, v in value.items()}
+            elif isinstance(value, list):
+                return [convert_value(item) for item in value]
+            else:
+                return value
+        
+        return convert_value(data)
+    
     def prepare_payment_data(self, order, user, reference):
         """
         Preparar datos para el pago con MercadoPago
@@ -67,7 +91,7 @@ class MercadoPagoService:
                         "id": str(order.publicacion.id),
                         "title": order.publicacion.cultivo.nombre,
                         "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
-                        "quantity": order.cantidad_acordada,
+                        "quantity": float(order.cantidad_acordada),
                         "unit_price": float(order.publicacion.precio_por_unidad),
                         "category_id": "food",
                         "currency_id": "COP"
@@ -109,6 +133,9 @@ class MercadoPagoService:
         try:
             reference = self.create_payment_reference(order)
             payment_data = self.prepare_payment_data(order, user, reference)
+            
+            # Asegurar que todos los valores numéricos sean float
+            payment_data = self._ensure_json_serializable(payment_data)
             
             # Crear preferencia
             preference_response = self.sdk.preference().create(payment_data)
