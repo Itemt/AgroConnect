@@ -210,6 +210,40 @@ class MercadoPagoService:
                 'error': str(e)
             }
     
+    def simulate_automatic_payment(self, order, user):
+        """
+        Simular pago automático para proyecto universitario
+        """
+        import uuid
+        from django.utils import timezone
+        
+        # Crear datos simulados de pago
+        simulated_payment_data = {
+            'success': True,
+            'payment_id': f"MP-{uuid.uuid4().hex[:8].upper()}",
+            'status': 'approved',
+            'status_detail': 'accredited',
+            'transaction_amount': float(order.precio_total),
+            'currency_id': 'COP',
+            'external_reference': self.create_payment_reference(order),
+            'payment_method_id': 'pse',
+            'date_approved': timezone.now().isoformat(),
+            'date_created': timezone.now().isoformat(),
+            'raw_data': {
+                'id': f"MP-{uuid.uuid4().hex[:8].upper()}",
+                'status': 'approved',
+                'status_detail': 'accredited',
+                'transaction_amount': float(order.precio_total),
+                'currency_id': 'COP',
+                'external_reference': self.create_payment_reference(order),
+                'payment_method_id': 'pse',
+                'date_approved': timezone.now().isoformat(),
+                'date_created': timezone.now().isoformat()
+            }
+        }
+        
+        return simulated_payment_data
+    
     def get_payment_info(self, payment_id):
         """
         Obtener información de un pago específico
