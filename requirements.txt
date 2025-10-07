@@ -1,6 +1,6 @@
 autobahn==24.4.2
 gunicorn==21.2.0
-epaycosdk==3.3.2
+mercadopago==2.3.0
 django-cloudinary-storage==0.3.0
 django-widget-tweaks==1.5.0
 asgiref==3.10.0

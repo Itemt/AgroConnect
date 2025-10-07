@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Detalle del Pago - {{ payment.epayco_ref }}{% endblock %}
+{% block title %}Detalle del Pago - {{ payment.mercadopago_id|default:"N/A" }}{% endblock %}
 
 {% block content %}
 <div class="container my-5">
@@ -17,12 +17,12 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Referencia:</strong> <code>{{ payment.epayco_ref }}</code></p>
-                            <p><strong>ID Transacción:</strong> 
-                                {% if payment.epayco_transaction_id %}
-                                    <code>{{ payment.epayco_transaction_id }}</code>
+                            <p><strong>ID MercadoPago:</strong> <code>{{ payment.mercadopago_id|default:"No disponible" }}</code></p>
+                            <p><strong>Referencia Externa:</strong> 
+                                {% if payment.external_reference %}
+                                    <code>{{ payment.external_reference }}</code>
                                 {% else %}
-                                    <span class="text-muted">Pendiente</span>
+                                    <span class="text-muted">No disponible</span>
                                 {% endif %}
                             </p>
                             <p><strong>Monto:</strong> ${{ payment.amount|floatformat:0 }} {{ payment.currency }}</p>

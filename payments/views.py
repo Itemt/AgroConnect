@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from sales.models import Order
 from .models import Payment
-from .epayco_service import EpaycoService
+from .mercadopago_service import MercadoPagoService
 import json
 
 
@@ -18,11 +18,12 @@ def checkout_view(request, order_id):
     """
     from django.conf import settings
     
-    # Verificar que las credenciales de ePayco estén configuradas
-    if not settings.EPAYCO_PUBLIC_KEY or not settings.EPAYCO_PRIVATE_KEY:
+    # Verificar que las credenciales de MercadoPago estén configuradas
+    from decouple import config
+    if not config('MERCADOPAGO_ACCESS_TOKEN', default=''):
         messages.error(
             request, 
-            '⚠️ Error de Configuración: Las credenciales de ePayco no están configuradas. '
+            '⚠️ Error de Configuración: Las credenciales de MercadoPago no están configuradas. '
             'Por favor contacta al administrador del sistema.'
         )
         return redirect('order_detail', order_id=order_id)
@@ -39,8 +40,8 @@ def checkout_view(request, order_id):
         messages.error(request, 'Esta orden ya no puede ser pagada.')
         return redirect('order_detail', order_id=order.id)
     
-    # Verificar monto mínimo de ePayco (mínimo $5,000 COP)
-    MINIMUM_AMOUNT = 5000
+    # Verificar monto mínimo de MercadoPago (mínimo $1,000 COP)
+    MINIMUM_AMOUNT = 1000
     if order.precio_total < MINIMUM_AMOUNT:
         messages.error(
             request, 
@@ -56,35 +57,41 @@ def checkout_view(request, order_id):
         messages.info(request, 'Esta orden ya ha sido pagada.')
         return redirect('order_detail', order_id=order.id)
     
-    # Crear servicio de ePayco
-    epayco_service = EpaycoService()
+    # Crear servicio de MercadoPago
+    mercadopago_service = MercadoPagoService()
     
-    # Crear sesión de checkout
-    checkout_data = epayco_service.create_checkout_session(order, request.user)
+    # Crear preferencia de pago
+    preference_result = mercadopago_service.create_preference(order, request.user)
     
-    # Debug temporal - imprimir datos que se envían a ePayco
-    print("=== DEBUG EPAYCO ===")
-    print(f"Public Key: {settings.EPAYCO_PUBLIC_KEY}")
-    print(f"Test Mode: {settings.EPAYCO_TEST_MODE}")
-    print(f"Response URL: {settings.EPAYCO_RESPONSE_URL}")
-    print(f"Confirmation URL: {settings.EPAYCO_CONFIRMATION_URL}")
-    print(f"Payment Data: {checkout_data['payment_data']}")
-    print("===================")
+    if not preference_result['success']:
+        messages.error(request, f'Error al crear el pago: {preference_result["error"]}')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Debug temporal - imprimir datos que se envían a MercadoPago
+    print("=== DEBUG MERCADOPAGO ===")
+    print(f"Access Token: {config('MERCADOPAGO_ACCESS_TOKEN', default='')[:10]}...")
+    print(f"Preference ID: {preference_result['preference_id']}")
+    print(f"Init Point: {preference_result['init_point']}")
+    print("========================")
     
     # Crear o actualizar el registro de pago
     if existing_payment:
         payment = existing_payment
-        payment.epayco_ref = checkout_data['reference']
+        payment.mercadopago_id = preference_result['preference_id']
+        payment.preference_id = preference_result['preference_id']
+        payment.external_reference = preference_result['reference']
         payment.amount = order.precio_total
         payment.save()
     else:
         payment = Payment.objects.create(
             order=order,
             user=request.user,
-            epayco_ref=checkout_data['reference'],
+            mercadopago_id=preference_result['preference_id'],
+            preference_id=preference_result['preference_id'],
+            external_reference=preference_result['reference'],
             amount=order.precio_total,
             currency='COP',
-            payment_method='card',  # Por defecto
+            payment_method='pse',  # Por defecto PSE para Colombia
             description=f"Pago orden #{order.id}",
             status='pending'
         )
@@ -92,10 +99,10 @@ def checkout_view(request, order_id):
     context = {
         'order': order,
         'payment': payment,
-        'checkout_data': checkout_data,
+        'preference_data': preference_result,
     }
     
-    return render(request, 'payments/checkout.html', context)
+    return render(request, 'payments/checkout_mercadopago.html', context)
 
 
 @login_required
@@ -103,14 +110,18 @@ def payment_success_view(request):
     """
     Vista de éxito después del pago (página de respuesta)
     """
-    ref_payco = request.GET.get('ref_payco')
+    payment_id = request.GET.get('payment_id')
+    preference_id = request.GET.get('preference_id')
     
-    if not ref_payco:
-        messages.error(request, 'No se encontró la referencia del pago.')
+    if not payment_id and not preference_id:
+        messages.error(request, 'No se encontró la información del pago.')
         return redirect('order_history')
     
     try:
-        payment = Payment.objects.get(epayco_transaction_id=ref_payco)
+        if payment_id:
+            payment = Payment.objects.get(mercadopago_id=payment_id)
+        else:
+            payment = Payment.objects.get(preference_id=preference_id)
         order = payment.order
         
         context = {
@@ -130,34 +141,34 @@ def payment_success_view(request):
 @require_POST
 def payment_confirmation_webhook(request):
     """
-    Webhook para recibir confirmación de pago desde ePayco
+    Webhook para recibir confirmación de pago desde MercadoPago
     Este endpoint debe ser accesible sin autenticación
     """
     try:
         # Obtener datos del POST
         data = request.POST.dict()
         
-        # Procesar confirmación con el servicio de ePayco
-        epayco_service = EpaycoService()
-        result = epayco_service.process_confirmation(data)
+        # Procesar confirmación con el servicio de MercadoPago
+        mercadopago_service = MercadoPagoService()
+        result = mercadopago_service.process_webhook(data)
         
         if not result['success']:
             return HttpResponse('Error processing payment', status=400)
         
-        # Buscar el pago por la referencia
-        x_id_invoice = data.get('x_id_invoice')
+        # Buscar el pago por la referencia externa
+        external_reference = result.get('external_reference')
         
         try:
-            payment = Payment.objects.get(epayco_ref=x_id_invoice)
+            payment = Payment.objects.get(external_reference=external_reference)
         except Payment.DoesNotExist:
             return HttpResponse('Payment not found', status=404)
         
         # Actualizar información del pago
-        payment.epayco_transaction_id = result.get('ref_payco')
+        payment.mercadopago_id = result.get('payment_id')
         payment.response_data = result.get('raw_data', {})
         
         # Actualizar estado según la respuesta
-        if result['approved'] and result['state'] == 'Aceptada':
+        if result['approved'] and result['status'] == 'approved':
             payment.mark_as_approved()
             
             # Enviar notificación al usuario (opcional)

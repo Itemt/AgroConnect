@@ -12,12 +12,8 @@ ALLOWED_HOSTS=tu-dominio.com,www.tu-dominio.com
 # Base de datos
 DATABASE_URL=postgresql://usuario:password@host:5432/agroconnect
 
-# ePayco
-EPAYCO_PUBLIC_KEY=tu-public-key
-EPAYCO_PRIVATE_KEY=tu-private-key
-EPAYCO_TEST_MODE=False
-EPAYCO_RESPONSE_URL=https://tu-dominio.com/payments/success/
-EPAYCO_CONFIRMATION_URL=https://tu-dominio.com/payments/confirmation/
+# MercadoPago
+MERCADOPAGO_ACCESS_TOKEN=tu-access-token
 ```
 
 ### **Comando de Inicio**
