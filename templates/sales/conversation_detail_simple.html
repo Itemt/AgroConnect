@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     addMessageToList(data.message);
+                    // Asegurar que el próximo polling no duplique el mensaje propio
+                    lastMessageId = Math.max(lastMessageId, data.message.id);
                     messageInput.value = '';
                     messageList.scrollTop = messageList.scrollHeight;
                 }
@@ -110,10 +112,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function addMessageToList(message) {
+        // Evitar duplicados si ya existe en el DOM
+        if (messagesContainer.querySelector(`[data-message-id="${message.id}"]`)) {
+            return;
+        }
         const messageDiv = document.createElement('div');
         const isOwnMessage = message.sender_id === {{ user.id }};
         
         messageDiv.className = `flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
+        messageDiv.setAttribute('data-message-id', message.id);
         messageDiv.innerHTML = `
             <div class="max-w-lg px-4 py-3 rounded-xl ${isOwnMessage ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-800'}">
                 <p class="text-sm">${escapeHtml(message.content)}</p>
