@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             fetch(window.location.href, {
                 method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData
             })
             .then(response => response.json())
@@ -103,8 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error sending message:', error);
-                // Fallback: recargar página
-                messageForm.submit();
+                // Mantener en la misma página si falla
             });
         }
     });
