@@ -894,6 +894,11 @@ def cart_checkout_summary(request):
     
     order_ids = request.session.get('pending_payment_orders', [])
     
+    print(f"=== DEBUG CART CHECKOUT ===")
+    print(f"Order IDs from session: {order_ids}")
+    print(f"User: {request.user}")
+    print("===========================")
+    
     if not order_ids:
         messages.info(request, 'No hay pedidos pendientes de pago.')
         return redirect('order_history')
@@ -903,6 +908,10 @@ def cart_checkout_summary(request):
         comprador=request.user,
         estado='pendiente'
     ).select_related('publicacion__cultivo__productor')
+    
+    print(f"Orders found: {orders.count()}")
+    for order in orders:
+        print(f"Order {order.id}: {order.publicacion.cultivo.nombre} - ${order.precio_total}")
     
     # Calcular total
     total = sum(order.precio_total for order in orders)
@@ -928,6 +937,12 @@ def cart_checkout_summary(request):
         # Crear preferencia de MercadoPago
         preference_result = mercadopago_service.create_preference(order, request.user)
         
+        print(f"=== DEBUG PREFERENCE RESULT ===")
+        print(f"Order ID: {order.id}")
+        print(f"Success: {preference_result.get('success', False)}")
+        print(f"Error: {preference_result.get('error', 'No error')}")
+        print("================================")
+        
         if preference_result['success']:
             payment.mercadopago_id = preference_result['preference_id']
             payment.preference_id = preference_result['preference_id']
@@ -938,6 +953,14 @@ def cart_checkout_summary(request):
                 'order': order,
                 'payment': payment,
                 'preference_data': preference_result
+            })
+        else:
+            # Agregar el pedido aunque falle la preferencia para mostrar el error
+            orders_with_checkout.append({
+                'order': order,
+                'payment': payment,
+                'preference_data': preference_result,
+                'error': preference_result.get('error', 'Error desconocido')
             })
     
     # Limpiar sesión después de obtener los pedidos

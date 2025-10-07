@@ -69,11 +69,23 @@
                             
                             <!-- Botón de Pago MercadoPago -->
                             <div class="mt-4">
-                                <a href="{{ item.preference_data.init_point }}" 
-                                   class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center no-underline">
-                                    <i class="fas fa-credit-card mr-2"></i>
-                                    Pagar con MercadoPago
-                                </a>
+                                {% if item.error %}
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                            <div>
+                                                <p class="text-red-800 font-semibold">Error al crear el pago</p>
+                                                <p class="text-red-600 text-sm">{{ item.error }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <a href="{{ item.preference_data.init_point }}" 
+                                       class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center no-underline">
+                                        <i class="fas fa-credit-card mr-2"></i>
+                                        Pagar con MercadoPago
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
