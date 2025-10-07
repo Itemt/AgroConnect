@@ -596,7 +596,7 @@ def conversation_detail_simple(request, conversation_id):
                     }
                 })
             
-            return redirect('conversation_detail_simple', conversation_id=conversation.id)
+            return redirect('conversation_detail', conversation_id=conversation.id)
     else:
         form = MessageForm()
 
