@@ -384,7 +384,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-robot"></i>
-                        <span class="font-semibold">Asistente AgroConnect</span>
+                        <span class="font-semibold">Asistente IA · AgroConnect</span>
                     </div>
                     <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
@@ -396,7 +396,7 @@
             </div>
             <form id="assistant-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
                 <input id="assistant-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma o el campo..." required>
-                <button class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                <button id="assistant-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
@@ -605,13 +605,42 @@
             const form = document.getElementById('assistant-form');
             const input = document.getElementById('assistant-input');
             const messages = document.getElementById('assistant-messages');
+            const sendBtn = document.getElementById('assistant-send');
 
             function appendMessage(text, from){
                 const div = document.createElement('div');
                 div.className = `text-sm rounded-xl p-3 shadow-soft ${from === 'user' ? 'bg-primary-600 text-white ml-10' : 'bg-white text-gray-800 mr-10'}`;
-                div.textContent = text;
+                if (from === 'bot'){
+                    // Render minimal markdown: **bold** and '- ' lists
+                    const html = (text || '')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1<\/strong>')
+                        .split('\n')
+                        .map(line => line.trim().startsWith('- ')
+                            ? `<li>${line.trim().substring(2)}</li>`
+                            : `<p>${line}</p>`)
+                        .join('');
+                    div.innerHTML = html.includes('<li>') ? `<ul class="list-disc ml-4 space-y-1">${html}<\/ul>` : html;
+                } else {
+                    div.textContent = text;
+                }
                 messages.appendChild(div);
                 messages.scrollTop = messages.scrollHeight;
+            }
+
+            function setTyping(state){
+                let el = document.getElementById('assistant-typing');
+                if (state){
+                    if (!el){
+                        el = document.createElement('div');
+                        el.id = 'assistant-typing';
+                        el.className = 'text-xs text-gray-600 italic mr-10 px-3 py-2';
+                        el.textContent = 'El asistente está escribiendo…';
+                        messages.appendChild(el);
+                        messages.scrollTop = messages.scrollHeight;
+                    }
+                } else if (el){
+                    el.remove();
+                }
             }
 
             function getCookie(name){
@@ -629,6 +658,8 @@
                 if (!text) return;
                 appendMessage(text, 'user');
                 input.value = '';
+                sendBtn.disabled = true;
+                setTyping(true);
                 const csrftoken = getCookie('csrftoken');
                 fetch('{% url "core:assistant_reply" %}', {
                     method: 'POST',
@@ -636,10 +667,14 @@
                     credentials: 'same-origin',
                     body: JSON.stringify({ message: text })
                 }).then(r=>r.json()).then(res=>{
+                    setTyping(false);
                     if (res && res.success){ appendMessage(res.reply, 'bot'); }
                     else { appendMessage('Lo siento, hubo un problema. Intenta de nuevo.', 'bot'); }
                 }).catch(()=>{
+                    setTyping(false);
                     appendMessage('No pude conectar con el asistente.', 'bot');
+                }).finally(()=>{
+                    sendBtn.disabled = false;
                 });
             });
         })();
