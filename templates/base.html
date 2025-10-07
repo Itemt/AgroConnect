@@ -393,7 +393,8 @@
                 <button id="tab-ai" class="flex-1 px-3 py-2 text-sm font-medium bg-white">Asistente</button>
                 <button id="tab-chat" class="flex-1 px-3 py-2 text-sm text-gray-600 bg-gray-100">Chats</button>
             </div>
-            <div id="assistant-messages" class="h-72 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div id="assistant-title" class="px-4 py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
+            <div id="assistant-messages" class="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50">
                 <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
                     Hola, ¿en qué te ayudo hoy?
                 </div>
@@ -622,6 +623,7 @@
             const form = document.getElementById('assistant-form');
             const input = document.getElementById('assistant-input');
             const messages = document.getElementById('assistant-messages');
+            const aiTitle = document.getElementById('assistant-title');
             const sendBtn = document.getElementById('assistant-send');
             const tabAI = document.getElementById('tab-ai');
             const tabChat = document.getElementById('tab-chat');
@@ -634,6 +636,7 @@
             let activeConversationId = null;
             let lastMsgId = 0;
             let polling = false;
+            let conversationsCache = [];
 
             function appendMessage(text, from){
                 const div = document.createElement('div');
@@ -670,6 +673,22 @@
                     el.remove();
                 }
             }
+
+            function setTitleIfEmpty(fromText){
+                try{
+                    const stored = sessionStorage.getItem('assistant_title');
+                    if (!stored && fromText){
+                        const t = fromText.trim().replace(/\s+/g,' ').slice(0,60);
+                        aiTitle.textContent = t || 'Nueva conversación';
+                        sessionStorage.setItem('assistant_title', aiTitle.textContent);
+                    } else if (stored){
+                        aiTitle.textContent = stored;
+                    }
+                }catch(_){/* ignore */}
+            }
+
+            // Restaurar título de conversación IA si existe
+            setTitleIfEmpty('');
 
             function getCookie(name){
                 const value = `; ${document.cookie}`;
@@ -712,6 +731,7 @@
                 sendBtn.disabled = true;
                 setTyping(true);
                 const csrftoken = getCookie('csrftoken');
+                setTitleIfEmpty(text);
                 fetch('{% url "core:assistant_reply" %}', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
@@ -760,7 +780,8 @@
                 fetch('/api/conversations/', { credentials: 'same-origin' })
                   .then(r=>r.json()).then(res=>{
                     if (res && res.success){
-                        renderConvList(res.conversations);
+                        conversationsCache = res.conversations || [];
+                        renderConvList(conversationsCache);
                         // Mostrar aviso si hay archivadas
                         if ((res.archived_count||0) > 0){
                             const note = document.createElement('div');
@@ -770,6 +791,18 @@
                         }
                     }
                   }).catch(()=>{});
+            }
+
+            // Filtro de conversaciones
+            const chatSearch = document.getElementById('chat-search');
+            if (chatSearch){
+                chatSearch.addEventListener('input', function(){
+                    const q = this.value.toLowerCase().trim();
+                    const filtered = conversationsCache.filter(c =>
+                        (c.other_user||'').toLowerCase().includes(q) || (c.last_message||'').toLowerCase().includes(q)
+                    );
+                    renderConvList(filtered);
+                });
             }
 
             function pollMessages(){
@@ -794,7 +827,14 @@
 
             chatForm.addEventListener('submit', function(e){
                 e.preventDefault();
-                if (!activeConversationId) return;
+                if (!activeConversationId){
+                    const warn = document.createElement('div');
+                    warn.className = 'text-xs text-red-600 px-3 pb-2';
+                    warn.textContent = 'Primero selecciona una conversación.';
+                    chatThread.prepend(warn);
+                    setTimeout(()=> warn.remove(), 3000);
+                    return;
+                }
                 const text = chatInput.value.trim();
                 if (!text) return;
                 const fd = new FormData();
