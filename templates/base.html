@@ -379,7 +379,7 @@
         <button id="assistant-toggle" class="w-14 h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
             <i class="fas fa-robot text-xl"></i>
         </button>
-        <div id="assistant-panel" class="hidden mt-3 w-80 bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
+        <div id="assistant-panel" class="hidden mt-3 w-[28rem] md:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
             <div class="px-4 py-3 bg-primary-600 text-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
@@ -399,18 +399,24 @@
                     Hola, ¿en qué te ayudo hoy?
                 </div>
             </div>
-            <div id="chat-pane" class="hidden h-72 bg-gray-50">
-                <div class="p-3 border-b bg-white">
-                    <input id="chat-search" type="text" placeholder="Buscar conversación..." class="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            <div id="chat-pane" class="hidden h-[28rem] bg-gray-50 flex">
+                <!-- Left: conversations list -->
+                <div class="w-44 md:w-56 border-r bg-white flex flex-col">
+                    <div class="p-3 border-b bg-white">
+                        <input id="chat-search" type="text" placeholder="Buscar conversación..." class="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
                 </div>
-                <div id="chat-list" class="overflow-y-auto h-28 p-2 space-y-1"></div>
-                <div id="chat-thread" class="overflow-y-auto h-36 p-3 space-y-2"></div>
-                <form id="chat-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
-                    <input id="chat-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
-                    <button id="chat-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </form>
+                <!-- Right: thread + input -->
+                <div class="flex-1 flex flex-col">
+                    <div id="chat-thread" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+                    <form id="chat-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
+                        <input id="chat-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
+                        <button id="chat-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
             <form id="assistant-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
                 <input id="assistant-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma o el campo..." required>
@@ -823,7 +829,7 @@
                   }).catch(()=>{ polling = false; });
             }
 
-            setInterval(()=>{ if (chatPane && !chatPane.classList.contains('hidden')) pollMessages(); }, 500);
+            setInterval(()=>{ if (chatPane && !chatPane.classList.contains('hidden') && activeConversationId) pollMessages(); }, 500);
 
             chatForm.addEventListener('submit', function(e){
                 e.preventDefault();
