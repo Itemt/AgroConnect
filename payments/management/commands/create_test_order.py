@@ -1,5 +1,5 @@
 """
-Comando para crear un pedido de prueba con monto válido para ePayco
+Comando para crear un pedido de prueba con monto válido para MercadoPago
 """
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
@@ -11,7 +11,7 @@ from decimal import Decimal
 User = get_user_model()
 
 class Command(BaseCommand):
-    help = 'Crea un pedido de prueba con monto válido para ePayco'
+    help = 'Crea un pedido de prueba con monto válido para MercadoPago'
 
     def handle(self, *args, **options):
         # Buscar un usuario comprador
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             cantidad_acordada=cantidad,
             precio_total=precio_total,
             estado='pendiente',
-            notas_comprador='Pedido de prueba para ePayco'
+            notas_comprador='Pedido de prueba para MercadoPago'
         )
 
         self.stdout.write(

@@ -53,17 +53,6 @@
                             <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
                                 <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
                             </a>
-                            {% if epayco_test_mode %}
-                            <form method="POST" action="{% url 'payments:simulate_test_payment' order.payment.id %}" class="inline"
-                                  onsubmit="return confirm('⚠️ MODO TEST\n\n¿Marcar este pedido como PAGADO?\n\nEl pedido pasará a estado: PAGADO\nEl vendedor podrá confirmar la orden.');">
-                                {% csrf_token %}
-                                <button type="submit" 
-                                        class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center"
-                                        title="Marcar como pagado (solo modo test)">
-                                    <i class="fas fa-check-circle mr-2"></i>Marcar como Pagado (TEST)
-                                </button>
-                            </form>
-                            {% endif %}
                         {% endif %}
                     {% else %}
                         <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
