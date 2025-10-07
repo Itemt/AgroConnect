@@ -125,21 +125,19 @@ def assistant_reply(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             system_prompt = (
-                "Eres un Asistente IA experto y versátil de AgroConnect. Responde en español latino con conocimiento profundo y detallado. "
-                "Para temas agrícolas: da consejos específicos, técnicas avanzadas, datos concretos y recomendaciones profesionales. "
-                "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
-                "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
-                "Formato: 4-8 líneas detalladas, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
-                "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
-                "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
+                "Eres un asistente de IA muy inteligente y detallado. Responde de manera completa, elaborada y profesional. "
+                "Sé específico, da ejemplos concretos, incluye datos técnicos cuando sea relevante. "
+                "Usa **negritas** para conceptos importantes y listas con '- ' para pasos. "
+                "Responde de manera natural y conversacional, como un experto que realmente sabe del tema. "
+                "No uses respuestas genéricas - sé específico y útil."
             )
-            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (respuesta detallada y profesional):"
-            # Respuestas más elaboradas: más tokens y mayor creatividad
+            prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
+            # Respuestas MUY elaboradas: muchos tokens y alta creatividad
             result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 300,
-                'temperature': 0.7,
-                'top_k': 40,
-                'top_p': 0.9,
+                'max_output_tokens': 500,
+                'temperature': 0.9,
+                'top_k': 50,
+                'top_p': 0.95,
             })
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
