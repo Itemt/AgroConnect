@@ -14,9 +14,15 @@
             
             <!-- Product Information Card -->
             <div class="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
-                    <i class="fas fa-info-circle text-primary-600 mr-2"></i>Información del Producto
-                </h3>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-info-circle text-primary-600 mr-2"></i>Información del Producto
+                    </h3>
+                    <button type="button" id="ai-suggestions-btn" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm font-medium flex items-center">
+                        <i class="fas fa-magic mr-2"></i>
+                        Sugerencias IA
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex items-center">
                         <i class="fas fa-seedling text-green-600 mr-3"></i>
@@ -84,6 +90,75 @@
     </div>
 </div>
 
+<!-- AI Suggestions Modal -->
+<div id="ai-suggestions-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-strong max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="ai-modal">
+        <div class="p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-magic text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Sugerencias de IA</h3>
+                        <p class="text-gray-600 text-sm">Optimiza tu publicación con inteligencia artificial</p>
+                    </div>
+                </div>
+                <button id="close-ai-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="ai-loading" class="text-center py-8 hidden">
+                <div class="inline-flex items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                    <span class="ml-3 text-gray-600">Generando sugerencias...</span>
+                </div>
+            </div>
+            
+            <div id="ai-suggestions-content" class="hidden">
+                <!-- Títulos sugeridos -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-heading text-blue-600 mr-2"></i>Títulos Sugeridos
+                    </h4>
+                    <div id="title-suggestions" class="space-y-2"></div>
+                </div>
+                
+                <!-- Precios sugeridos -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-dollar-sign text-green-600 mr-2"></i>Precios Sugeridos
+                    </h4>
+                    <div id="price-suggestions" class="bg-gray-50 rounded-lg p-4"></div>
+                </div>
+                
+                <!-- Descripciones sugeridas -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-align-left text-orange-600 mr-2"></i>Descripciones Sugeridas
+                    </h4>
+                    <div id="description-suggestions" class="space-y-2"></div>
+                </div>
+                
+                <!-- Tips de marketing -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>Tips de Marketing
+                    </h4>
+                    <div id="marketing-tips" class="space-y-2"></div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button id="close-ai-modal-btn" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Custom Alert Modal -->
 <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-strong max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="alert-modal">
@@ -128,6 +203,210 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelBtn = document.getElementById('cancel-alert');
     const confirmBtn = document.getElementById('confirm-publish');
     const form = document.querySelector('form');
+    
+    // AI Suggestions functionality
+    const aiSuggestionsBtn = document.getElementById('ai-suggestions-btn');
+    const aiModal = document.getElementById('ai-suggestions-modal');
+    const aiModalContent = document.getElementById('ai-modal');
+    const closeAiModal = document.getElementById('close-ai-modal');
+    const closeAiModalBtn = document.getElementById('close-ai-modal-btn');
+    const aiLoading = document.getElementById('ai-loading');
+    const aiContent = document.getElementById('ai-suggestions-content');
+    
+    // Form fields
+    const precioField = document.querySelector('input[name="precio_por_unidad"]');
+    const descripcionField = document.querySelector('textarea[name="descripcion"]');
+    
+    aiSuggestionsBtn.addEventListener('click', function() {
+        showAiModal();
+        getAiSuggestions();
+    });
+    
+    closeAiModal.addEventListener('click', hideAiModal);
+    closeAiModalBtn.addEventListener('click', hideAiModal);
+    
+    // Cerrar al hacer clic fuera del modal
+    aiModal.addEventListener('click', function(e) {
+        if (e.target === aiModal) {
+            hideAiModal();
+        }
+    });
+    
+    function showAiModal() {
+        aiModal.classList.remove('hidden');
+        setTimeout(() => {
+            aiModalContent.classList.remove('scale-95', 'opacity-0');
+            aiModalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+    
+    function hideAiModal() {
+        aiModalContent.classList.remove('scale-100', 'opacity-100');
+        aiModalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            aiModal.classList.add('hidden');
+        }, 300);
+    }
+    
+    function getAiSuggestions() {
+        // Mostrar loading
+        aiLoading.classList.remove('hidden');
+        aiContent.classList.add('hidden');
+        
+        // Obtener datos del cultivo
+        const cropName = '{{ crop.nombre }}';
+        const cropCategory = '{{ crop.categoria }}';
+        const cropQuantity = {{ crop.cantidad_estimada }};
+        const cropUnit = '{{ crop.unidad_medida }}';
+        const location = '{{ request.user.producer_profile.ciudad|default:"" }}';
+        
+        // Enviar solicitud a la API
+        fetch('/ai/suggestions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                crop_name: cropName,
+                crop_category: cropCategory,
+                crop_quantity: cropQuantity,
+                crop_unit: cropUnit,
+                location: location
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displaySuggestions(data.suggestions);
+            } else {
+                showError(data.error || 'Error al generar sugerencias');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Error de conexión');
+        });
+    }
+    
+    function displaySuggestions(suggestions) {
+        // Ocultar loading y mostrar contenido
+        aiLoading.classList.add('hidden');
+        aiContent.classList.remove('hidden');
+        
+        // Títulos sugeridos
+        const titleContainer = document.getElementById('title-suggestions');
+        titleContainer.innerHTML = '';
+        if (suggestions.title_suggestions) {
+            suggestions.title_suggestions.forEach((title, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer';
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-800">${title}</span>
+                        <button onclick="useSuggestion('title', '${title.replace(/'/g, "\\'")}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Usar
+                        </button>
+                    </div>
+                `;
+                titleContainer.appendChild(div);
+            });
+        }
+        
+        // Precios sugeridos
+        const priceContainer = document.getElementById('price-suggestions');
+        if (suggestions.price_suggestions) {
+            const price = suggestions.price_suggestions;
+            priceContainer.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">$${price.recommended_price?.toLocaleString() || 'N/A'}</div>
+                        <div class="text-sm text-gray-600">Precio Recomendado</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-gray-700">$${price.min_price?.toLocaleString() || 'N/A'}</div>
+                        <div class="text-sm text-gray-600">Precio Mínimo</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-gray-700">$${price.max_price?.toLocaleString() || 'N/A'}</div>
+                        <div class="text-sm text-gray-600">Precio Máximo</div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="text-sm text-blue-800">
+                        <strong>Explicación:</strong> ${price.reasoning || 'Precio basado en mercado local'}
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <button onclick="useSuggestion('price', ${price.recommended_price})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                        Usar Precio Recomendado
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Descripciones sugeridas
+        const descContainer = document.getElementById('description-suggestions');
+        descContainer.innerHTML = '';
+        if (suggestions.description_suggestions) {
+            suggestions.description_suggestions.forEach((desc, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white border border-gray-200 rounded-lg p-3 hover:border-orange-300 transition-colors cursor-pointer';
+                div.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-gray-800 text-sm">${desc}</span>
+                        <button onclick="useSuggestion('description', '${desc.replace(/'/g, "\\'")}')" class="text-orange-600 hover:text-orange-800 text-sm font-medium ml-2">
+                            Usar
+                        </button>
+                    </div>
+                `;
+                descContainer.appendChild(div);
+            });
+        }
+        
+        // Tips de marketing
+        const tipsContainer = document.getElementById('marketing-tips');
+        tipsContainer.innerHTML = '';
+        if (suggestions.marketing_tips) {
+            suggestions.marketing_tips.forEach((tip, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-yellow-50 border border-yellow-200 rounded-lg p-3';
+                div.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fas fa-lightbulb text-yellow-600 mr-2 mt-1"></i>
+                        <span class="text-yellow-800 text-sm">${tip}</span>
+                    </div>
+                `;
+                tipsContainer.appendChild(div);
+            });
+        }
+    }
+    
+    function showError(message) {
+        aiLoading.classList.add('hidden');
+        aiContent.classList.remove('hidden');
+        aiContent.innerHTML = `
+            <div class="text-center py-8">
+                <div class="text-red-600 mb-4">
+                    <i class="fas fa-exclamation-triangle text-3xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Error</h4>
+                <p class="text-gray-600">${message}</p>
+            </div>
+        `;
+    }
+    
+    // Función global para usar sugerencias
+    window.useSuggestion = function(type, value) {
+        if (type === 'price' && precioField) {
+            precioField.value = value;
+            precioField.focus();
+        } else if (type === 'description' && descripcionField) {
+            descripcionField.value = value;
+            descripcionField.focus();
+        }
+        hideAiModal();
+    };
     
     publishBtn.addEventListener('click', function(e) {
         e.preventDefault();

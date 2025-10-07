@@ -167,6 +167,45 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Historial completo de mensajes
 - **WebSockets:** Actualización en tiempo real con Django Channels.
 
+### 🤖 Inteligencia Artificial Integrada
+
+#### Asistente IA Flotante
+- **Burbuja flotante** disponible en todas las páginas
+- **Dos pestañas principales:**
+  - **"Asistente"**: Consultas generales con respuestas elaboradas usando Gemini Pro
+  - **"Chats"**: Mini chat para conversaciones activas sin salir del marketplace
+- **Características técnicas:**
+  - Integración con Google Gemini Pro (`gemini-1.5-flash`)
+  - Rate limiting de 2 segundos entre consultas
+  - Respuestas de hasta 800 tokens con markdown completo
+  - Fallback inteligente cuando la IA no está disponible
+  - Soporte para preguntas generales y específicas de agricultura
+
+#### Sugerencias de IA para Publicaciones
+- **Sistema inteligente** que optimiza publicaciones de cultivos:
+  - **Títulos sugeridos** atractivos y descriptivos
+  - **Precios recomendados** basados en mercado colombiano
+  - **Descripciones profesionales** que resaltan calidad
+  - **Tips de marketing** específicos para Colombia
+- **Integración perfecta:**
+  - Botón "Sugerencias IA" en formularios de publicación
+  - Modal elegante con loading y contenido dinámico
+  - Aplicación directa de sugerencias a campos del formulario
+  - Rate limit de 3 segundos entre sugerencias
+- **Optimización de tokens:**
+  - 400 tokens máximo por sugerencia
+  - Prompt optimizado para respuestas concisas
+  - Fallback robusto si la IA no está disponible
+
+#### Gestión de Conversaciones Inteligente
+- **Conversaciones activas**: Solo conversaciones con actividad en los últimos 15 días
+- **Conversaciones archivadas**: Indicador de cantidad con link al panel completo
+- **Reactivación automática**: Al enviar mensaje en conversación antigua, se reactiva
+- **Endpoints especializados:**
+  - `GET /api/conversations/` → conversaciones activas + contador de archivadas
+  - `POST /assistant/reply/` → respuestas del asistente IA
+  - `POST /ai/suggestions/` → sugerencias para publicaciones
+
 ### 📊 Analytics y Estadísticas Detalladas
 
 #### Dashboard del Productor:
@@ -261,6 +300,8 @@ django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
 whitenoise==6.8.2
 widget-tweaks==1.4.12
+google-generativeai==0.7.1
+python-decouple==3.8
 ```
 
 ## 📋 Instalación y Configuración
@@ -320,20 +361,39 @@ GOOGLE_API_KEY=tu_clave
 GEMINI_API_KEY=tu_clave
 ```
 
-### Asistente IA y Mini Chat Integrado
+### 🤖 Asistente IA y Mini Chat Integrado
 
-- Burbuja flotante en todas las páginas con dos pestañas:
-  - "Asistente": respuestas breves (máx. 6 líneas) usando Gemini (`gemini-1.5-flash`) cuando `GOOGLE_API_KEY` está configurada; si no, fallback heurístico.
-  - "Chats": lista de conversaciones activas y un hilo compacto para seguir conversando sin salir del marketplace.
-- Ahorro de costo: entrada limitada, `max_output_tokens=150`, markdown ligero y sin historial largo.
-- Conversaciones activas y archivadas:
+- **Burbuja flotante** en todas las páginas con dos pestañas:
+  - **"Asistente"**: respuestas elaboradas usando Gemini (`gemini-1.5-flash`) cuando `GOOGLE_API_KEY` está configurada; si no, fallback inteligente.
+  - **"Chats"**: lista de conversaciones activas y un hilo compacto para seguir conversando sin salir del marketplace.
+- **Optimización de tokens**: entrada limitada, `max_output_tokens=800`, markdown completo y respuestas detalladas.
+- **Conversaciones activas y archivadas**:
   - La pestaña "Chats" muestra solo conversaciones con actividad en los últimos 15 días.
   - Si hay conversaciones antiguas, se indica la cantidad como "archivadas" con link al panel completo (`/conversations/`).
   - Al enviar un mensaje en una conversación antigua desde el panel completo, se re-activa y vuelve a aparecer como reciente.
-- Endpoints relevantes:
+- **Endpoints relevantes**:
   - `GET /api/conversations/` → conversaciones activas (≤15 días) + `archived_count`.
   - `GET /conversation/<id>/messages/?since=<lastId>` → polling de nuevos mensajes.
   - `POST /conversation/<id>/` (AJAX) → enviar mensaje.
+  - `POST /assistant/reply/` → respuestas del asistente IA.
+
+### 🧠 Sugerencias de IA para Publicaciones
+
+- **Sistema inteligente** que optimiza publicaciones de cultivos usando IA:
+  - **Títulos sugeridos** atractivos y descriptivos
+  - **Precios recomendados** basados en mercado colombiano con explicaciones
+  - **Descripciones profesionales** que resaltan calidad y origen
+  - **Tips de marketing** específicos para Colombia
+- **Integración perfecta**:
+  - Botón "Sugerencias IA" en el formulario de publicación
+  - Modal elegante con loading y contenido dinámico
+  - Aplicación directa de sugerencias a campos del formulario
+  - Rate limit de 3 segundos entre sugerencias
+- **Optimización de tokens**:
+  - `max_output_tokens=400` por sugerencia
+  - Prompt optimizado para respuestas concisas pero útiles
+  - Fallback robusto si la IA no está disponible
+- **Endpoint**: `POST /ai/suggestions/` → genera sugerencias basadas en datos del cultivo
 
 ### Clave de Gemini en Producción (Coolify)
 
@@ -425,6 +485,13 @@ La aplicación estará disponible en `http://127.0.0.1:8000/`
    EPAYCO_TEST_MODE=False
    EPAYCO_RESPONSE_URL=https://tu-dominio.com/payments/success/
    EPAYCO_CONFIRMATION_URL=https://tu-dominio.com/payments/confirmation/
+   ```
+
+   **Google Gemini (para IA):**
+   ```
+   GOOGLE_API_KEY=tu_clave_de_google_ai_studio
+   # o alternativamente:
+   GEMINI_API_KEY=tu_clave_de_google_ai_studio
    ```
 
    **Configuración Django:**
@@ -758,6 +825,11 @@ AgroConnect/
 - [x] Gestión completa de fincas
 - [x] Registro de productores con finca inicial
 - [x] Trazabilidad desde finca hasta comprador
+- [x] **Asistente IA integrado** con Gemini Pro para consultas generales
+- [x] **Mini chat flotante** para conversaciones activas
+- [x] **Sugerencias de IA** para optimizar publicaciones de cultivos
+- [x] **Sistema de rate limiting** para control de tokens
+- [x] **Fallback inteligente** cuando la IA no está disponible
 
 ### 🔜 Próximas Funcionalidades
 - [ ] Notificaciones push y por email
