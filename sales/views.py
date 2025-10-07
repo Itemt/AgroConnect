@@ -167,7 +167,6 @@ def order_detail_view(request, order_id):
         'rating_from_seller': rating_from_seller,
         'my_rating': my_rating,
         'user_role': request.user.role,
-        'epayco_test_mode': settings.EPAYCO_TEST_MODE
     }
     return render(request, 'sales/order_detail.html', context)
 
@@ -890,7 +889,7 @@ def create_order_from_cart(request):
 def cart_checkout_summary(request):
     """Vista de resumen después de crear pedidos desde el carrito"""
     from django.conf import settings
-    from payments.epayco_service import EpaycoService
+    from payments.mercadopago_service import MercadoPagoService
     from payments.models import Payment
     
     order_ids = request.session.get('pending_payment_orders', [])
@@ -909,7 +908,7 @@ def cart_checkout_summary(request):
     total = sum(order.precio_total for order in orders)
     
     # Crear datos de checkout para cada pedido
-    epayco_service = EpaycoService()
+    mercadopago_service = MercadoPagoService()
     orders_with_checkout = []
     
     for order in orders:
@@ -920,22 +919,26 @@ def cart_checkout_summary(request):
             defaults={
                 'amount': order.precio_total,
                 'currency': 'COP',
-                'payment_method': 'card',
+                'payment_method': 'pse',
                 'description': f"Pago orden #{order.id}",
                 'status': 'pending'
             }
         )
         
-        # Si el pago ya existía, actualizar el epayco_ref
-        checkout_data = epayco_service.create_checkout_session(order, request.user)
-        payment.epayco_ref = checkout_data['reference']
-        payment.save()
+        # Crear preferencia de MercadoPago
+        preference_result = mercadopago_service.create_preference(order, request.user)
         
-        orders_with_checkout.append({
-            'order': order,
-            'payment': payment,
-            'checkout_data': checkout_data
-        })
+        if preference_result['success']:
+            payment.mercadopago_id = preference_result['preference_id']
+            payment.preference_id = preference_result['preference_id']
+            payment.external_reference = preference_result['reference']
+            payment.save()
+            
+            orders_with_checkout.append({
+                'order': order,
+                'payment': payment,
+                'preference_data': preference_result
+            })
     
     # Limpiar sesión después de obtener los pedidos
     if 'pending_payment_orders' in request.session:
@@ -944,7 +947,5 @@ def cart_checkout_summary(request):
     context = {
         'orders_with_checkout': orders_with_checkout,
         'total': total,
-        'epayco_public_key': settings.EPAYCO_PUBLIC_KEY,
-        'epayco_test_mode': settings.EPAYCO_TEST_MODE,
     }
     return render(request, 'sales/cart_checkout_summary.html', context)

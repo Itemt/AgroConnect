@@ -112,26 +112,27 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Estado actual y timeline de progreso
   - Botones de acción según el estado y rol
 
-### 💳 Sistema de Pagos con ePayco
-- **Integración completa con ePayco:**
-  - Pasarela de pagos oficial para Colombia
+### 💳 Sistema de Pagos con MercadoPago
+- **Integración completa con MercadoPago:**
+  - Pasarela de pagos líder en Latinoamérica
   - Procesamiento seguro de transacciones
   - Webhooks para confirmación automática de pagos
 - **Métodos de pago soportados:**
   - 💳 Tarjetas de Crédito y Débito (Visa, MasterCard, AmEx)
   - 🏦 PSE (Transferencia bancaria en línea)
   - 💵 Efectivo (Baloto, Efecty, Gana, etc.)
+  - 🏪 Transferencias bancarias
 - **Funcionalidades:**
-  - Checkout seguro con formulario de ePayco
+  - Checkout seguro con formulario de MercadoPago
   - Referencias únicas por transacción
   - Historial completo de pagos
   - Estados de pago en tiempo real
-  - Validación de montos mínimos
+  - Validación de montos mínimos ($1,000 COP)
   - Modo de prueba para desarrollo
 - **Seguridad:**
   - No se almacenan datos sensibles de tarjetas
   - Todas las transacciones usan HTTPS
-  - Verificación de firmas en webhooks
+  - Verificación de webhooks
   - Cumplimiento con estándares PCI DSS
 
 ### ⭐ Sistema de Calificaciones y Rankings
@@ -266,7 +267,7 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
 - **Django 4.2** - Framework web principal
 - **Django Channels** - WebSockets para chat y notificaciones en tiempo real
 - **Pillow** - Procesamiento de imágenes
-- **ePayco SDK** - Integración con pasarela de pagos
+- **MercadoPago SDK** - Integración con pasarela de pagos
 
 ### Frontend
 - **HTML5 / CSS3** con semántica moderna
@@ -295,7 +296,7 @@ channels==4.1.0
 pillow==11.0.0
 psycopg2-binary==2.9.10
 faker==33.1.0
-epaycosdk==3.3.2
+mercadopago==2.3.0
 django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
 whitenoise==6.8.2
@@ -348,12 +349,8 @@ CLOUDINARY_CLOUD_NAME=tu_cloud_name
 CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
 
-# ePayco (requerido para funcionalidad de pagos)
-EPAYCO_PUBLIC_KEY=tu_public_key
-EPAYCO_PRIVATE_KEY=tu_private_key
-EPAYCO_TEST_MODE=True
-EPAYCO_RESPONSE_URL=http://127.0.0.1:8000/payments/success/
-EPAYCO_CONFIRMATION_URL=http://127.0.0.1:8000/payments/confirmation/
+# MercadoPago (requerido para funcionalidad de pagos)
+MERCADOPAGO_ACCESS_TOKEN=tu_access_token
 
 # Gemini (opcional, para el asistente)
 GOOGLE_API_KEY=tu_clave
@@ -478,13 +475,9 @@ La aplicación estará disponible en `http://127.0.0.1:8000/`
    CLOUDINARY_API_SECRET=tu_api_secret
    ```
 
-   **ePayco (para pagos):**
+   **MercadoPago (para pagos):**
    ```
-   EPAYCO_PUBLIC_KEY=tu_public_key
-   EPAYCO_PRIVATE_KEY=tu_private_key
-   EPAYCO_TEST_MODE=False
-   EPAYCO_RESPONSE_URL=https://tu-dominio.com/payments/success/
-   EPAYCO_CONFIRMATION_URL=https://tu-dominio.com/payments/confirmation/
+   MERCADOPAGO_ACCESS_TOKEN=tu_access_token
    ```
 
    **Google Gemini (para IA):**
@@ -813,7 +806,7 @@ AgroConnect/
 ## 🚀 Funcionalidades Implementadas y Futuras
 
 ### ✅ Implementadas
-- [x] Sistema de pagos con ePayco (tarjetas, PSE, efectivo)
+- [x] Sistema de pagos con MercadoPago (tarjetas, PSE, efectivo)
 - [x] Chat en tiempo real con WebSockets
 - [x] Sistema de calificaciones y rankings
 - [x] Gestión completa de inventario orientada a fincas
