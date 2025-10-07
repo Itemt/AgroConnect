@@ -64,7 +64,9 @@ def checkout_view(request, order_id):
     preference_result = mercadopago_service.create_preference(order, request.user)
     
     if not preference_result['success']:
-        messages.error(request, f'Error al crear el pago: {preference_result["error"]}')
+        error_msg = preference_result.get('error', 'Error desconocido')
+        messages.error(request, f'Error al crear el pago: {error_msg}')
+        print(f"Error MercadoPago: {preference_result}")
         return redirect('order_detail', order_id=order.id)
     
     # Debug temporal - imprimir datos que se envían a MercadoPago
