@@ -147,42 +147,13 @@ def assistant_reply(request):
             # Continuar a fallback silenciosamente
             pass
 
-    # Fallback heurístico solo si no hubo respuesta IA
+    # Sin fallback - solo IA o error
     if response_text is None:
-        response_text = (
-            "Hola, soy tu asistente de AgroConnect. Puedo ayudarte con: \n"
-            "- Cómo publicar o comprar productos.\n"
-            "- Estados de pedidos y pagos.\n"
-            "- Conceptos básicos agrícolas (rendimientos, épocas de siembra generales).\n"
-            "Cuéntame, ¿en qué te ayudo?"
-        )
-
-        if user_message:
-            if any(k in user_message for k in ["publicar", "venta", "vender", "anuncio", "producto"]):
-                response_text = (
-                    "Para publicar: ve a tu Dashboard de Productor > Cultivos y crea un nuevo cultivo. "
-                    "Luego, en Marketplace, publica la oferta indicando precio, cantidad y fotos."
-                )
-            elif any(k in user_message for k in ["comprar", "pedido", "orden", "carrito"]):
-                response_text = (
-                    "Para comprar: entra al Marketplace, agrega productos al carrito y continúa al pago. "
-                    "Podrás revisar el estado en tu Dashboard de Comprador."
-                )
-            elif any(k in user_message for k in ["pago", "epayco", "transaccion", "transacción"]):
-                response_text = (
-                    "Los pagos se procesan con ePayco. Si tu pago aparece pendiente, suele confirmarse en minutos. "
-                    "Si se cancela, verifica tu método de pago o inténtalo nuevamente."
-                )
-            elif any(k in user_message for k in ["papa", "maiz", "arroz", "siembra", "cosecha", "clima"]):
-                response_text = (
-                    "Consejo general: Ajusta fechas de siembra y riego según el clima local. "
-                    "Usa semillas certificadas cuando sea posible y rota cultivos para mejorar el suelo."
-                )
-            elif any(k in user_message for k in ["contacto", "soporte", "ayuda", "whatsapp", "email"]):
-                response_text = (
-                    "Soporte: contacto@agroconnect.com. Comparte tu problema y el ID del pedido si aplica."
-                )
-        used_model = 'fallback'
+        return JsonResponse({
+            'success': False, 
+            'error': 'No se pudo generar respuesta. Intenta de nuevo.',
+            'used_model': 'none'
+        })
 
     # Guardar timestamp de la solicitud atendida
     request.session['assistant_last_ts'] = str(now_ts)
