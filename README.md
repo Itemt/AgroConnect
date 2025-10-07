@@ -320,6 +320,43 @@ GOOGLE_API_KEY=tu_clave
 GEMINI_API_KEY=tu_clave
 ```
 
+### Asistente IA y Mini Chat Integrado
+
+- Burbuja flotante en todas las páginas con dos pestañas:
+  - "Asistente": respuestas breves (máx. 6 líneas) usando Gemini (`gemini-1.5-flash`) cuando `GOOGLE_API_KEY` está configurada; si no, fallback heurístico.
+  - "Chats": lista de conversaciones activas y un hilo compacto para seguir conversando sin salir del marketplace.
+- Ahorro de costo: entrada limitada, `max_output_tokens=150`, markdown ligero y sin historial largo.
+- Conversaciones activas y archivadas:
+  - La pestaña "Chats" muestra solo conversaciones con actividad en los últimos 15 días.
+  - Si hay conversaciones antiguas, se indica la cantidad como "archivadas" con link al panel completo (`/conversations/`).
+  - Al enviar un mensaje en una conversación antigua desde el panel completo, se re-activa y vuelve a aparecer como reciente.
+- Endpoints relevantes:
+  - `GET /api/conversations/` → conversaciones activas (≤15 días) + `archived_count`.
+  - `GET /conversation/<id>/messages/?since=<lastId>` → polling de nuevos mensajes.
+  - `POST /conversation/<id>/` (AJAX) → enviar mensaje.
+
+### Clave de Gemini en Producción (Coolify)
+
+1. En Coolify → tu aplicación → Settings → Environment Variables.
+2. Agrega `GOOGLE_API_KEY` con tu clave de Google AI Studio.
+3. Guarda y Deploy/Restart para reconstruir e inyectar la variable en el contenedor.
+4. Seguridad: no publiques tu clave en el repositorio ni en el README.
+
+## 📸 Capturas y GIFs del Asistente y Mini Chat
+
+Agrega estas imágenes/GIFs en `static/images/docs/` (crea la carpeta si no existe) y actualiza los nombres si lo prefieres. Luego se mostrarán aquí automáticamente.
+
+```markdown
+![Burbuja del Asistente](static/images/docs/assistant-bubble.png)
+![Pestaña Asistente (respuesta IA)](static/images/docs/assistant-tab-ai.gif)
+![Pestaña Chats (mini chat en cualquier página)](static/images/docs/assistant-tab-chats.gif)
+```
+
+Sugerencias para grabar GIFs
+- Windows: Xbox Game Bar (Win+G) para video + `ezgif.com` para convertir a GIF.
+- macOS: QuickTime para video + `gifcap.dev` o `Gifski`.
+- Linux: `peek` o `obs-studio` + conversión con `ffmpeg`/`ezgif`.
+
 #### 5. Aplicar Migraciones
 ```bash
 python manage.py migrate

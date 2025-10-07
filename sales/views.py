@@ -524,6 +524,42 @@ def conversation_list(request):
     }
     return render(request, 'sales/conversation_list.html', context)
 
+
+@login_required
+def conversations_list_api(request):
+    """JSON con últimas conversaciones del usuario para mini chat en el asistente."""
+    if request.method != 'GET':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
+    from datetime import timedelta
+    cutoff = timezone.now() - timedelta(days=15)
+    conversations = (
+        request.user.conversations
+        .filter(updated_at__gte=cutoff)
+        .prefetch_related('participants', 'messages__sender')
+        .order_by('-updated_at')[:20]
+    )
+
+    def other(uqs):
+        for u in uqs:
+            if u.id != request.user.id:
+                return u
+        return request.user
+
+    data = []
+    for c in conversations:
+        last_msg = c.messages.last()
+        ou = other(c.participants.all())
+        data.append({
+            'id': c.id,
+            'other_user': ou.get_full_name() or ou.username,
+            'last_message': (last_msg.content if last_msg else ''),
+            'updated_at': (c.updated_at.isoformat() if hasattr(c, 'updated_at') and c.updated_at else ''),
+        })
+
+    archived_count = request.user.conversations.filter(updated_at__lt=cutoff).count()
+    return JsonResponse({'success': True, 'conversations': data, 'archived_count': archived_count})
+
 @login_required
 def conversation_detail(request, conversation_id):
     conversation = get_object_or_404(Conversation.objects.prefetch_related('messages__sender'), pk=conversation_id)
@@ -551,7 +587,8 @@ def conversation_detail(request, conversation_id):
                         'sender_name': message.sender.get_full_name() or message.sender.username,
                         'content': message.content,
                         'created_at': message.created_at.isoformat(),
-                    }
+                    },
+                    'archived': False
                 })
             
             return redirect('conversation_detail', conversation_id=conversation.id)
@@ -593,7 +630,8 @@ def conversation_detail_simple(request, conversation_id):
                         'sender_name': message.sender.get_full_name() or message.sender.username,
                         'content': message.content,
                         'created_at': message.created_at.isoformat(),
-                    }
+                    },
+                    'archived': False
                 })
             
             return redirect('conversation_detail', conversation_id=conversation.id)
