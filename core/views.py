@@ -98,10 +98,10 @@ def assistant_reply(request):
         data = {}
 
     raw_message = (data.get('message') or '').strip()
-    # Rate limit simple por sesión: 1 solicitud cada 4s
+    # Rate limit optimizado para exposición: 1 solicitud cada 2s
     last_ts = request.session.get('assistant_last_ts')
     now_ts = timezone.now().timestamp()
-    min_interval = 4.0
+    min_interval = 2.0
     if last_ts and (now_ts - float(last_ts)) < min_interval:
         retry_after = max(1, int(min_interval - (now_ts - float(last_ts))))
         return JsonResponse({'success': False, 'error': 'rate_limited', 'retry_after': retry_after}, status=429)
@@ -125,19 +125,21 @@ def assistant_reply(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             system_prompt = (
-                "Eres un asistente de IA muy inteligente y detallado. Responde de manera completa, elaborada y profesional. "
-                "Sé específico, da ejemplos concretos, incluye datos técnicos cuando sea relevante. "
-                "Usa **negritas** para conceptos importantes y listas con '- ' para pasos. "
-                "Responde de manera natural y conversacional, como un experto que realmente sabe del tema. "
-                "No uses respuestas genéricas - sé específico y útil."
+                "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
+                "Para agricultura: incluye datos específicos, técnicas avanzadas, fechas, cantidades, y recomendaciones profesionales. "
+                "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
+                "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
+                "Formato: 3-6 párrafos detallados, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
+                "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
+                "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
             )
             prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
-            # Respuestas MUY elaboradas: muchos tokens y alta creatividad
+            # Respuestas optimizadas para exposición: balance entre calidad y eficiencia
             result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 500,
-                'temperature': 0.9,
-                'top_k': 50,
-                'top_p': 0.95,
+                'max_output_tokens': 800,
+                'temperature': 0.8,
+                'top_k': 45,
+                'top_p': 0.9,
             })
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
@@ -166,3 +168,137 @@ def assistant_reply(request):
     # Guardar timestamp de la solicitud atendida
     request.session['assistant_last_ts'] = str(now_ts)
     return JsonResponse({"success": True, "reply": response_text, "model": used_model})
+
+
+# --- AI Suggestions for Publications ---
+@require_POST
+def ai_publication_suggestions(request):
+    """Genera sugerencias de IA para publicaciones de cultivos"""
+    import json
+    
+    try:
+        data = json.loads(request.body or '{}')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Datos inválidos'})
+    
+    # Obtener datos del cultivo
+    crop_name = data.get('crop_name', '').strip()
+    crop_category = data.get('crop_category', '').strip()
+    crop_quantity = data.get('crop_quantity', 0)
+    crop_unit = data.get('crop_unit', '').strip()
+    location = data.get('location', '').strip()
+    
+    if not crop_name:
+        return JsonResponse({'success': False, 'error': 'Nombre del cultivo requerido'})
+    
+    # Rate limit para sugerencias (más permisivo)
+    last_ts = request.session.get('ai_suggestions_last_ts')
+    now_ts = timezone.now().timestamp()
+    min_interval = 3.0  # 3 segundos entre sugerencias
+    
+    if last_ts and (now_ts - float(last_ts)) < min_interval:
+        retry_after = max(1, int(min_interval - (now_ts - float(last_ts))))
+        return JsonResponse({'success': False, 'error': 'rate_limited', 'retry_after': retry_after}, status=429)
+    
+    # Intentar IA para sugerencias
+    suggestions = None
+    used_model = 'fallback'
+    
+    # Leer API key
+    api_key = (
+        config('GOOGLE_API_KEY', default='')
+        or config('GEMINI_API_KEY', default='')
+    )
+    
+    if api_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            # Prompt optimizado para sugerencias de mercado colombiano
+            prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
+
+DATOS DEL CULTIVO:
+- Producto: {crop_name}
+- Categoría: {crop_category}
+- Cantidad: {crop_quantity} {crop_unit}
+- Ubicación: {location}
+
+GENERA SUGERENCIAS EN FORMATO JSON:
+{{
+    "title_suggestions": ["Título 1", "Título 2", "Título 3"],
+    "price_suggestions": {{
+        "min_price": 0.0,
+        "max_price": 0.0,
+        "recommended_price": 0.0,
+        "reasoning": "Explicación del precio"
+    }},
+    "description_suggestions": ["Descripción 1", "Descripción 2"],
+    "marketing_tips": ["Tip 1", "Tip 2", "Tip 3"]
+}}
+
+REGLAS:
+- Precios en COP por {crop_unit}
+- Basado en mercado colombiano actual
+- Títulos atractivos y descriptivos
+- Descripciones que resalten calidad y origen
+- Tips de marketing específicos para Colombia
+- Máximo 3 sugerencias por categoría"""
+            
+            result = model.generate_content(prompt, generation_config={
+                'max_output_tokens': 400,
+                'temperature': 0.7,
+                'top_k': 40,
+                'top_p': 0.9,
+            })
+            
+            text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
+            if text:
+                # Intentar parsear JSON
+                try:
+                    suggestions = json.loads(text.strip())
+                    used_model = 'gemini-1.5-flash'
+                except:
+                    # Si no es JSON válido, usar como texto
+                    suggestions = {'raw_response': text.strip()}
+                    used_model = 'gemini-1.5-flash'
+                    
+        except Exception as e:
+            print(f"Error en IA para sugerencias: {e}")
+            pass
+    
+    # Fallback si no hay IA
+    if suggestions is None:
+        suggestions = {
+            "title_suggestions": [
+                f"{crop_name} fresco de {location}",
+                f"{crop_name} de calidad premium",
+                f"{crop_name} directo del productor"
+            ],
+            "price_suggestions": {
+                "min_price": 1000.0,
+                "max_price": 5000.0,
+                "recommended_price": 2500.0,
+                "reasoning": "Precio sugerido basado en mercado local"
+            },
+            "description_suggestions": [
+                f"{crop_name} cultivado con técnicas tradicionales",
+                f"{crop_name} fresco y de excelente calidad"
+            ],
+            "marketing_tips": [
+                "Destaca la frescura del producto",
+                "Menciona el origen local",
+                "Incluye fotos de calidad"
+            ]
+        }
+        used_model = 'fallback'
+    
+    # Guardar timestamp
+    request.session['ai_suggestions_last_ts'] = str(now_ts)
+    
+    return JsonResponse({
+        'success': True, 
+        'suggestions': suggestions, 
+        'model': used_model
+    })
