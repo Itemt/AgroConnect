@@ -389,10 +389,27 @@
                     <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
             </div>
+            <div class="border-b border-gray-200 flex">
+                <button id="tab-ai" class="flex-1 px-3 py-2 text-sm font-medium bg-white">Asistente</button>
+                <button id="tab-chat" class="flex-1 px-3 py-2 text-sm text-gray-600 bg-gray-100">Chats</button>
+            </div>
             <div id="assistant-messages" class="h-72 overflow-y-auto p-4 space-y-3 bg-gray-50">
                 <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
                     Hola, ¿en qué te ayudo hoy?
                 </div>
+            </div>
+            <div id="chat-pane" class="hidden h-72 bg-gray-50">
+                <div class="p-3 border-b bg-white">
+                    <input id="chat-search" type="text" placeholder="Buscar conversación..." class="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div id="chat-list" class="overflow-y-auto h-28 p-2 space-y-1"></div>
+                <div id="chat-thread" class="overflow-y-auto h-36 p-3 space-y-2"></div>
+                <form id="chat-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
+                    <input id="chat-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
+                    <button id="chat-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
             </div>
             <form id="assistant-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
                 <input id="assistant-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma o el campo..." required>
@@ -606,6 +623,17 @@
             const input = document.getElementById('assistant-input');
             const messages = document.getElementById('assistant-messages');
             const sendBtn = document.getElementById('assistant-send');
+            const tabAI = document.getElementById('tab-ai');
+            const tabChat = document.getElementById('tab-chat');
+            const chatPane = document.getElementById('chat-pane');
+            const chatList = document.getElementById('chat-list');
+            const chatThread = document.getElementById('chat-thread');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatSend = document.getElementById('chat-send');
+            let activeConversationId = null;
+            let lastMsgId = 0;
+            let polling = false;
 
             function appendMessage(text, from){
                 const div = document.createElement('div');
@@ -652,6 +680,29 @@
             toggle.addEventListener('click', ()=>{ panel.classList.toggle('hidden'); });
             closeBtn.addEventListener('click', ()=>{ panel.classList.add('hidden'); });
 
+            // Tabs
+            if (tabAI && tabChat){
+                tabAI.addEventListener('click', ()=>{
+                    tabAI.classList.remove('text-gray-600','bg-gray-100');
+                    tabAI.classList.add('font-medium','bg-white');
+                    tabChat.classList.remove('font-medium','bg-white');
+                    tabChat.classList.add('text-gray-600','bg-gray-100');
+                    messages.classList.remove('hidden');
+                    form.classList.remove('hidden');
+                    chatPane.classList.add('hidden');
+                });
+                tabChat.addEventListener('click', ()=>{
+                    tabChat.classList.remove('text-gray-600','bg-gray-100');
+                    tabChat.classList.add('font-medium','bg-white');
+                    tabAI.classList.remove('font-medium','bg-white');
+                    tabAI.classList.add('text-gray-600','bg-gray-100');
+                    messages.classList.add('hidden');
+                    form.classList.add('hidden');
+                    chatPane.classList.remove('hidden');
+                    loadConversations();
+                });
+            }
+
             form.addEventListener('submit', function(e){
                 e.preventDefault();
                 const text = input.value.trim();
@@ -676,6 +727,85 @@
                 }).finally(()=>{
                     sendBtn.disabled = false;
                 });
+            });
+
+            // Mini chat helpers
+            function renderConvList(items){
+                chatList.innerHTML = '';
+                (items || []).forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-primary-50';
+                    btn.innerHTML = `<div class="font-medium">${c.other_user}</div><div class="text-xs text-gray-600 truncate">${c.last_message || ''}</div>`;
+                    btn.addEventListener('click', ()=>{
+                        activeConversationId = c.id;
+                        chatThread.innerHTML = '';
+                        lastMsgId = 0;
+                        pollMessages();
+                    });
+                    chatList.appendChild(btn);
+                });
+            }
+
+            function loadConversations(){
+                fetch('/api/conversations/', { credentials: 'same-origin' })
+                  .then(r=>r.json()).then(res=>{
+                    if (res && res.success){
+                        renderConvList(res.conversations);
+                        // Mostrar aviso si hay archivadas
+                        if ((res.archived_count||0) > 0){
+                            const note = document.createElement('div');
+                            note.className = 'text-xs text-gray-600 px-3 py-2';
+                            note.innerHTML = `Tienes ${res.archived_count} conversaciones archivadas (&gt;30 días). <a href="/conversations/" class="text-primary-700 underline">Ver panel</a>`;
+                            chatList.prepend(note);
+                        }
+                    }
+                  }).catch(()=>{});
+            }
+
+            function pollMessages(){
+                if (!activeConversationId || polling) return;
+                polling = true;
+                fetch(`/conversation/${activeConversationId}/messages/?since=${lastMsgId}`, { credentials: 'same-origin' })
+                  .then(r=>r.json()).then(data=>{
+                    (data.messages||[]).forEach(m=>{
+                        const div = document.createElement('div');
+                        const own = Number('{{ user.id|default:0 }}') === m.sender_id;
+                        div.className = `text-sm rounded-xl p-2 ${own ? 'bg-primary-600 text-white ml-10' : 'bg-white text-gray-800 mr-10'}`;
+                        div.textContent = m.content;
+                        chatThread.appendChild(div);
+                        lastMsgId = Math.max(lastMsgId, m.id);
+                        chatThread.scrollTop = chatThread.scrollHeight;
+                    });
+                    polling = false;
+                  }).catch(()=>{ polling = false; });
+            }
+
+            setInterval(()=>{ if (chatPane && !chatPane.classList.contains('hidden')) pollMessages(); }, 500);
+
+            chatForm.addEventListener('submit', function(e){
+                e.preventDefault();
+                if (!activeConversationId) return;
+                const text = chatInput.value.trim();
+                if (!text) return;
+                const fd = new FormData();
+                fd.append('content', text);
+                fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                fetch(`/conversation/${activeConversationId}/`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                  .then(r=>r.json()).then(res=>{
+                    if (res && res.success){
+                        const div = document.createElement('div');
+                        div.className = 'text-sm rounded-xl p-2 bg-primary-600 text-white ml-10';
+                        div.textContent = res.message.content;
+                        chatThread.appendChild(div);
+                        lastMsgId = Math.max(lastMsgId, res.message.id);
+                        chatInput.value = '';
+                        chatThread.scrollTop = chatThread.scrollHeight;
+                    } else if (res && res.archived){
+                        // Si la conversación está archivada, redirigir al panel completo
+                        window.location.href = '/conversations/';
+                    }
+                  }).catch(()=>{});
             });
         })();
     </script>
