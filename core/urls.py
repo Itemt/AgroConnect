@@ -19,6 +19,9 @@ urlpatterns = [
     path('farms/<int:pk>/edit/', views_farm.farm_edit, name='farm_edit'),
     path('farms/<int:pk>/delete/', views_farm.farm_delete, name='farm_delete'),
     path('farms/get-ciudades/', views_farm.get_ciudades, name='get_ciudades'),
+
+    # Assistant
+    path('assistant/reply/', views.assistant_reply, name='assistant_reply'),
 ]
 
 

@@ -47,3 +47,4 @@ tzdata==2025.2
 urllib3==2.5.0
 whitenoise==6.7.0
 zope.interface==8.0.1
+google-generativeai==0.7.2

@@ -313,6 +313,11 @@ EPAYCO_PRIVATE_KEY=tu_private_key
 EPAYCO_TEST_MODE=True
 EPAYCO_RESPONSE_URL=http://127.0.0.1:8000/payments/success/
 EPAYCO_CONFIRMATION_URL=http://127.0.0.1:8000/payments/confirmation/
+
+# Gemini (opcional, para el asistente)
+GOOGLE_API_KEY=tu_clave
+# o
+GEMINI_API_KEY=tu_clave
 ```
 
 #### 5. Aplicar Migraciones
