@@ -127,7 +127,7 @@ class MercadoPagoService:
         if not self.sdk:
             return {
                 'success': False,
-                'error': 'MercadoPago no configurado'
+                'error': 'MercadoPago no configurado. Verifica que MERCADOPAGO_ACCESS_TOKEN esté configurado en las variables de entorno.'
             }
         
         try:
@@ -173,7 +173,7 @@ class MercadoPagoService:
         if not self.sdk:
             return {
                 'success': False,
-                'error': 'MercadoPago no configurado'
+                'error': 'MercadoPago no configurado. Verifica que MERCADOPAGO_ACCESS_TOKEN esté configurado en las variables de entorno.'
             }
         
         try:
