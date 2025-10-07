@@ -139,7 +139,7 @@ class MercadoPagoService:
         try:
             reference = self.create_payment_reference(order)
             
-            # Datos simplificados para prueba
+            # Datos completos para MercadoPago
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
@@ -149,7 +149,18 @@ class MercadoPagoService:
                     "name": user.get_full_name() or "Usuario"
                 },
                 "external_reference": reference,
-                "notification_url": "https://agroconnect.itemt.tech/payments/notification/"
+                "notification_url": "https://agroconnect.itemt.tech/payments/notification/",
+                "items": [
+                    {
+                        "id": str(order.publicacion.id),
+                        "title": order.publicacion.cultivo.nombre,
+                        "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
+                        "quantity": float(order.cantidad_acordada),
+                        "unit_price": float(order.publicacion.precio_por_unidad),
+                        "category_id": "food",
+                        "currency_id": "COP"
+                    }
+                ]
             }
             
             print(f"=== DEBUG PREFERENCE DATA ===")
