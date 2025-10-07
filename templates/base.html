@@ -719,8 +719,17 @@
                     body: JSON.stringify({ message: text })
                 }).then(r=>r.json()).then(res=>{
                     setTyping(false);
-                    if (res && res.success){ appendMessage(res.reply, 'bot'); }
-                    else { appendMessage('Lo siento, hubo un problema. Intenta de nuevo.', 'bot'); }
+                    if (res && res.error === 'rate_limited'){
+                        appendMessage(`Espera ${res.retry_after}s antes de enviar otra pregunta.`, 'bot');
+                    } else if (res && res.success){
+                        appendMessage(res.reply + (res.model && res.model !== 'fallback' ? `\n\n` : ''), 'bot');
+                        if (res.model && res.model !== 'fallback'){
+                            const modelTag = document.createElement('div');
+                            modelTag.className = 'text-[10px] text-gray-500 mt-1 mr-10 text-right';
+                            modelTag.textContent = `Respuesta IA: ${res.model}`;
+                            messages.appendChild(modelTag);
+                        }
+                    } else { appendMessage('Lo siento, hubo un problema. Intenta de nuevo.', 'bot'); }
                 }).catch(()=>{
                     setTyping(false);
                     appendMessage('No pude conectar con el asistente.', 'bot');
