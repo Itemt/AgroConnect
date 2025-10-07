@@ -125,21 +125,21 @@ def assistant_reply(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             system_prompt = (
-                "Eres Asistente IA de AgroConnect. Responde en español latino claro, práctico y empático. "
-                "Si la pregunta es sobre la plataforma o temas agrícolas, prioriza pasos accionables para ese contexto. "
-                "Si la pregunta es GENERAL (cualquier tema), también responde de forma concisa y útil. "
-                "Formato: ≤6 líneas, 1-3 viñetas con '- ' y **negritas** para lo clave; añade una alerta corta si aplica. "
-                "Dominios principales: publicar/comprar/pagos ePayco/pedidos y nociones agrícolas (clima, suelo, plagas, rendimientos). "
-                "Cierra con 1 mini repregunta para continuar."
+                "Eres un Asistente IA experto y versátil de AgroConnect. Responde en español latino con conocimiento profundo y detallado. "
+                "Para temas agrícolas: da consejos específicos, técnicas avanzadas, datos concretos y recomendaciones profesionales. "
+                "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
+                "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
+                "Formato: 4-8 líneas detalladas, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
+                "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
+                "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
             )
-            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (≤6 líneas, markdown simple, 1-3 viñetas máx.):"
-            # Ajuste dinámico: si el usuario pide más detalle, permitimos un poco más de tokens
-            wants_detail = any(k in user_message for k in ["detalle", "explica", "paso a paso", "profundo", "ampliar"])
+            prompt = f"{system_prompt}\n\nUsuario: {raw_message}\nAsistente (respuesta detallada y profesional):"
+            # Respuestas más elaboradas: más tokens y mayor creatividad
             result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 180 if wants_detail else 120,
-                'temperature': 0.55,
-                'top_k': 1,
-                'top_p': 0.85,
+                'max_output_tokens': 300,
+                'temperature': 0.7,
+                'top_k': 40,
+                'top_p': 0.9,
             })
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
