@@ -22,6 +22,8 @@ urlpatterns = [
 
     # Assistant
     path('assistant/reply/', views.assistant_reply, name='assistant_reply'),
+    # AI Suggestions para publicaciones
+    path('ai/suggestions/', views.ai_publication_suggestions, name='ai_publication_suggestions'),
 ]
 
 
