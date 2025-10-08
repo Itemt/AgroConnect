@@ -384,6 +384,7 @@ def payment_pending_view(request):
         return redirect('order_history')
 
 
+@csrf_exempt
 def payment_notification_webhook(request):
     """
     Webhook para notificaciones de MercadoPago
