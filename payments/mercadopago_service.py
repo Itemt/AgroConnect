@@ -169,9 +169,14 @@ class MercadoPagoService:
                 payer_surname = "University"
             else:
                 # Para credenciales de producción de cuenta de prueba
+                # Usar datos completos para evitar botón gris
                 test_email = user.email or "test@example.com"
-                payer_name = user.get_full_name() or user.username
-                payer_surname = user.last_name or ""
+                payer_name = user.get_full_name() or user.username or "Usuario"
+                payer_surname = user.last_name or "Prueba"
+                
+                # Asegurar que el email sea válido
+                if not test_email or "@" not in test_email:
+                    test_email = "test@agroconnect.com"
             
             # Forzar modo sandbox para proyecto universitario
             if is_sandbox:
@@ -193,10 +198,14 @@ class MercadoPagoService:
                         "failure": f"{base_url}/payments/failure/",
                         "pending": f"{base_url}/payments/pending/"
                     },
-                    # Configuración específica para sandbox
-                    "statement_descriptor": "AGROCONNECT",
-                    "binary_mode": False,
-                    "expires": False,
+                # Configuración específica para sandbox
+                "statement_descriptor": "AGROCONNECT",
+                "binary_mode": False,
+                "expires": False,
+                # Configuración para evitar botón gris
+                "differential_pricing_id": None,
+                "marketplace": "NONE",
+                "processing_mode": "aggregator",
                     "metadata": {
                         "test": True,
                         "platform": "agroconnect",
@@ -261,7 +270,23 @@ class MercadoPagoService:
                 "payer": {
                     "email": test_email,
                     "name": payer_name,
-                    "surname": payer_surname
+                    "surname": payer_surname,
+                    "identification": {
+                        "type": "CC",
+                        "number": "12345678"
+                    },
+                    "phone": {
+                        "area_code": "57",
+                        "number": "3000000000"
+                    },
+                    "address": {
+                        "zip_code": "110111",
+                        "street_name": "Calle 123",
+                        "street_number": 123,
+                        "neighborhood": "Centro",
+                        "city": "Bogotá",
+                        "federal_unit": "Cundinamarca"
+                    }
                 },
                 "external_reference": reference,
                 "notification_url": f"{base_url}/payments/notification/",
