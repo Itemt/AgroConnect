@@ -544,6 +544,8 @@
         {% if user.is_authenticated %}
         // WebSocket para notificaciones
         (function(){
+            let pollingInterval = null;
+            
             function updateBadge(count){
                 const badge = document.getElementById('notifications-badge');
                 if (!badge) return;
@@ -552,6 +554,32 @@
                     badge.classList.remove('hidden');
                 } else {
                     badge.classList.add('hidden');
+                }
+            }
+            
+            function fetchNotifications() {
+                fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.success) {
+                            const unreadCount = res.notifications.filter(n => !n.is_read).length;
+                            updateBadge(unreadCount);
+                        }
+                    })
+                    .catch(() => {
+                        // Silently fail for polling
+                    });
+            }
+            
+            function startPolling() {
+                if (pollingInterval) return; // Already polling
+                pollingInterval = setInterval(fetchNotifications, 500); // Poll every 0.5 seconds
+            }
+            
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
                 }
             }
 
@@ -623,6 +651,16 @@
             // Initialize
             document.addEventListener('DOMContentLoaded', function(){
                 updateBadge(0);
+                startPolling(); // Start polling for notifications
+                
+                // Stop polling when page is hidden (performance optimization)
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        stopPolling();
+                    } else {
+                        startPolling();
+                    }
+                });
                 // Load on dropdown open
                 const btn = document.getElementById('notifications-button');
                 const markAllBtn = document.getElementById('mark-all-read');
@@ -630,7 +668,11 @@
                     btn.addEventListener('click', function(){
                         fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
                           .then(r => r.json()).then(res => {
-                              if (res && res.success){ renderNotifications(res.notifications); }
+                              if (res && res.success){ 
+                                  renderNotifications(res.notifications);
+                                  const unreadCount = res.notifications.filter(n => !n.is_read).length;
+                                  updateBadge(unreadCount);
+                              }
                               else { toggleEmptyState(); }
                           }).catch(()=>{ toggleEmptyState(); });
                     });

@@ -261,15 +261,6 @@ def mark_order_shipped_view(request, order_id):
                 else:
                     order.notas_vendedor = f"[Envío] {notas}"
             
-            # Agregar fecha de entrega estimada
-            fecha_entrega = form.cleaned_data.get('fecha_entrega_estimada')
-            if fecha_entrega:
-                # Convertir date a datetime (medianoche del día)
-                from datetime import datetime
-                order.fecha_entrega_estimada = timezone.make_aware(
-                    datetime.combine(fecha_entrega, datetime.min.time())
-                )
-            
             order.save()
             # Notificar al comprador que el pedido fue enviado
             create_notification(

@@ -508,7 +508,10 @@
                     <span class="sidebar-text ml-3">Mensajes</span>
                 </a>
                 <a href="{% url 'core:notifications_page' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                    <i class="fas fa-bell w-5"></i>
+                    <div class="relative">
+                        <i class="fas fa-bell w-5"></i>
+                        <span id="sidebar-notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-4 min-w-[1rem] px-1 flex items-center justify-center shadow-lg"></span>
+                    </div>
                     <span class="sidebar-text ml-3">Notificaciones</span>
                 </a>
             </div>
@@ -844,6 +847,63 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 });
+
+// Polling para notificaciones del sidebar
+(function() {
+    let pollingInterval = null;
+    
+    function updateSidebarBadge(count) {
+        const badge = document.getElementById('sidebar-notifications-badge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    
+    function fetchSidebarNotifications() {
+        fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.success) {
+                    const unreadCount = res.notifications.filter(n => !n.is_read).length;
+                    updateSidebarBadge(unreadCount);
+                }
+            })
+            .catch(() => {
+                // Silently fail for polling
+            });
+    }
+    
+    function startSidebarPolling() {
+        if (pollingInterval) return; // Already polling
+        pollingInterval = setInterval(fetchSidebarNotifications, 500); // Poll every 0.5 seconds
+    }
+    
+    function stopSidebarPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+    
+    // Start polling when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSidebarBadge(0);
+        startSidebarPolling();
+    });
+    
+    // Stop polling when page is hidden (performance optimization)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopSidebarPolling();
+        } else {
+            startSidebarPolling();
+        }
+    });
+})();
 </script>
 
 </body>

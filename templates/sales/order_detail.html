@@ -247,17 +247,17 @@
 
                 <!-- Timeline del Pedido -->
                 <div class="card">
-                    <div class="card-body p-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
-                            <i class="fas fa-history text-primary-600 mr-2 text-sm"></i>
+                    <div class="card-body p-3">
+                        <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center">
+                            <i class="fas fa-history text-primary-600 mr-2 text-xs"></i>
                             Historial del Pedido
                         </h4>
                         <div class="relative">
-                            <div class="border-l-2 border-primary-200 absolute h-full top-0 left-3"></div>
-                            <div class="space-y-1">
+                            <div class="border-l-2 border-primary-200 absolute h-full top-0 left-2"></div>
+                            <div class="space-y-0.5">
                                 <!-- Pedido Creado -->
-                                <div class="flex items-center relative py-0.5">
-                                    <div class="bg-green-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative">
+                                    <div class="bg-green-500 rounded-full h-2 w-2 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
@@ -268,8 +268,8 @@
                                 
                                 {% if order.fecha_confirmacion %}
                                 <!-- Pedido Confirmado -->
-                                <div class="flex items-center relative py-0.5">
-                                    <div class="bg-green-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative">
+                                    <div class="bg-green-500 rounded-full h-2 w-2 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check-double text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
@@ -281,8 +281,8 @@
                                 
                                 {% if order.fecha_envio %}
                                 <!-- Enviado -->
-                                <div class="flex items-center relative py-0.5">
-                                    <div class="bg-blue-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative">
+                                    <div class="bg-blue-500 rounded-full h-2 w-2 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-truck text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
@@ -294,8 +294,8 @@
                                 
                                 {% if order.fecha_entrega %}
                                 <!-- Entregado -->
-                                <div class="flex items-center relative py-0.5">
-                                    <div class="bg-purple-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative">
+                                    <div class="bg-purple-500 rounded-full h-2 w-2 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-home text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
