@@ -91,10 +91,12 @@ def profile_edit_view(request):
         if request.user.role == 'Productor':
             # Usar formulario extendido para productores
             try:
-                producer_profile = request.user.producerprofile
+                producer_profile = request.user.producer_profile
                 form = ProducerProfileEditForm(request.POST, instance=producer_profile, user=request.user)
-            except ProducerProfile.DoesNotExist:
-                form = ProducerProfileEditForm(request.POST, user=request.user)
+            except AttributeError:
+                # Si no tiene producer_profile, crear uno
+                producer_profile = ProducerProfile.objects.create(user=request.user)
+                form = ProducerProfileEditForm(request.POST, instance=producer_profile, user=request.user)
             
             if form.is_valid():
                 form.save()
@@ -111,10 +113,12 @@ def profile_edit_view(request):
     else:
         if request.user.role == 'Productor':
             try:
-                producer_profile = request.user.producerprofile
+                producer_profile = request.user.producer_profile
                 form = ProducerProfileEditForm(instance=producer_profile, user=request.user)
-            except ProducerProfile.DoesNotExist:
-                form = ProducerProfileEditForm(user=request.user)
+            except AttributeError:
+                # Si no tiene producer_profile, crear uno
+                producer_profile = ProducerProfile.objects.create(user=request.user)
+                form = ProducerProfileEditForm(instance=producer_profile, user=request.user)
         else:
             form = BuyerEditForm(instance=request.user)
 

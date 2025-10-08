@@ -63,8 +63,7 @@ class Crop(BaseModel):
     # imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
 
     # Información adicional
-    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
-                           help_text="Información adicional, observaciones o comentarios sobre el cultivo")
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales")
 
     class Meta:
         verbose_name = "Cultivo"
