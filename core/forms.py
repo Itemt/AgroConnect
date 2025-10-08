@@ -95,12 +95,22 @@ class FarmForm(forms.ModelForm):
         else:
             # Si estamos creando, no hay ciudades disponibles hasta seleccionar departamento
             self.fields['ciudad'].choices = [('', 'Primero seleccione un departamento')]
+            self.fields['ciudad'].widget.attrs['disabled'] = True
     
     def clean(self):
         cleaned_data = super().clean()
         area_total = cleaned_data.get('area_total')
         area_cultivable = cleaned_data.get('area_cultivable')
+        departamento = cleaned_data.get('departamento')
+        ciudad = cleaned_data.get('ciudad')
         
+        # Validar que si se selecciona una ciudad, también se haya seleccionado un departamento
+        if ciudad and not departamento:
+            raise forms.ValidationError(
+                'Debe seleccionar un departamento antes de seleccionar una ciudad.'
+            )
+        
+        # Validar que el área cultivable no sea mayor que el área total
         if area_total and area_cultivable:
             if area_cultivable > area_total:
                 raise forms.ValidationError(

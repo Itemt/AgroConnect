@@ -226,39 +226,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const departamentoSelect = document.getElementById('id_departamento');
     const ciudadSelect = document.getElementById('id_ciudad');
     
-    departamentoSelect.addEventListener('change', function() {
-        const departamento = this.value;
-        
-        // Limpiar opciones de ciudad
-        ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
-        
-        if (departamento) {
-            fetch('{% url "core:get_ciudades" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: 'departamento=' + encodeURIComponent(departamento)
-            })
-            .then(response => response.json())
-            .then(data => {
-                ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                data.ciudades.forEach(ciudad => {
-                    const option = document.createElement('option');
-                    option.value = ciudad.value;
-                    option.textContent = ciudad.text;
-                    ciudadSelect.appendChild(option);
+    console.log('Farm form JavaScript loaded');
+    console.log('Departamento select:', departamentoSelect);
+    console.log('Ciudad select:', ciudadSelect);
+    
+    if (departamentoSelect && ciudadSelect) {
+        departamentoSelect.addEventListener('change', function() {
+            const departamento = this.value;
+            console.log('Departamento changed to:', departamento);
+            
+            // Limpiar opciones de ciudad
+            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+            ciudadSelect.disabled = true;
+            
+            if (departamento) {
+                const url = '{% url "core:get_ciudades" %}';
+                console.log('Fetching cities from:', url);
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: 'departamento=' + encodeURIComponent(departamento)
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Cities data received:', data);
+                    ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                    
+                    if (data.ciudades && data.ciudades.length > 0) {
+                        data.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad.value;
+                            option.textContent = ciudad.text;
+                            ciudadSelect.appendChild(option);
+                        });
+                        ciudadSelect.disabled = false;
+                    } else {
+                        ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading cities:', error);
+                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    ciudadSelect.disabled = true;
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
-            });
-        } else {
+            } else {
+                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+                ciudadSelect.disabled = true;
+            }
+        });
+        
+        // Initialize city select state
+        if (!departamentoSelect.value) {
             ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            ciudadSelect.disabled = true;
         }
-    });
+    } else {
+        console.error('Required form elements not found');
+    }
 });
 </script>
 {% endblock %}
