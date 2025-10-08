@@ -511,13 +511,50 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class BuyerEditForm(forms.ModelForm):
-    """Formulario de edición para compradores (sin campos de finca)"""
+    """Formulario completo de edición de perfil para compradores"""
+    
+    # Campos de usuario
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        label="Nombre de Usuario",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tu nombre de usuario único'
+        })
+    )
+    email = forms.EmailField(
+        required=True,
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'tu@email.com'
+        })
+    )
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        label="Nombres",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tus nombres'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        label="Apellidos",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tus apellidos'
+        })
+    )
     cedula = forms.CharField(
-        max_length=20, 
-        required=True, 
+        max_length=20,
+        required=True,
         label="Cédula",
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
             'placeholder': 'Ej: 12345678',
             'type': 'number',
             'pattern': '[0-9]+',
@@ -527,73 +564,194 @@ class BuyerEditForm(forms.ModelForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15, 
-        required=False, 
+        max_length=15,
+        required=False,
         label="Teléfono",
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
             'placeholder': 'Ej: 3001234567',
             'type': 'tel',
             'pattern': '[0-9]+',
             'title': 'Solo se permiten números',
             'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
         }),
-        help_text="Número de teléfono de contacto"
+        help_text="Número de teléfono de contacto (opcional)"
+    )
+    profile_image = forms.ImageField(
+        required=False,
+        label="Foto de Perfil",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'accept': 'image/*'
+        }),
+        help_text="Sube una foto para tu perfil (opcional)"
     )
     
-    # Campos de ubicación
+    # Campos de ubicación del comprador
     departamento = forms.ChoiceField(
         choices=[('', 'Selecciona un departamento')] + get_departments(),
         widget=forms.Select(attrs={
-            'class': 'form-select',
-            'data-cities-url': '/ajax/cities/'
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_departamento'
         }),
         label="Departamento",
-        required=False
+        required=True
     )
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
         widget=forms.Select(attrs={
-            'class': 'form-select',
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_ciudad'
         }),
         label="Ciudad/Municipio",
-        required=False
+        required=True
     )
     
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad']
+    # Campos de contraseña
+    current_password = forms.CharField(
+        required=False,
+        label="Contraseña Actual",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ingresa tu contraseña actual'
+        }),
+        help_text="Requerida solo si quieres cambiar tu contraseña"
+    )
+    new_password = forms.CharField(
+        required=False,
+        label="Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Mínimo 8 caracteres'
+        }),
+        help_text="Mínimo 8 caracteres"
+    )
+    confirm_password = forms.CharField(
+        required=False,
+        label="Confirmar Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Confirma tu nueva contraseña'
+        })
+    )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Pre-cargar datos si existen perfiles
+        # Cargar datos iniciales del usuario
         if self.instance.pk:
-            # Cargar datos de BuyerProfile si existe
-            try:
-                buyer_profile = self.instance.buyer_profile
-                self.fields['departamento'].initial = buyer_profile.departamento
-                self.fields['ciudad'].initial = buyer_profile.ciudad
-                
-                # Cargar ciudades del departamento
-                if buyer_profile.departamento:
-                    from core.colombia_locations import get_cities_by_department
-                    ciudades = get_cities_by_department(buyer_profile.departamento)
-                    self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
-            except BuyerProfile.DoesNotExist:
-                pass
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
+            self.fields['first_name'].initial = self.instance.first_name
+            self.fields['last_name'].initial = self.instance.last_name
+            self.fields['cedula'].initial = self.instance.cedula
+            self.fields['telefono'].initial = self.instance.telefono
+            self.fields['departamento'].initial = self.instance.departamento
+            self.fields['ciudad'].initial = self.instance.ciudad
+            
+            # Cargar ciudades del departamento actual
+            if self.instance.departamento:
+                from core.colombia_locations import get_cities_by_department
+                ciudades = get_cities_by_department(self.instance.departamento)
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+        
+        # Si hay datos POST, cargar ciudades del departamento seleccionado
+        if self.data and 'departamento' in self.data:
+            departamento = self.data.get('departamento')
+            if departamento:
+                from core.colombia_locations import get_cities_by_department
+                ciudades = get_cities_by_department(departamento)
+                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and self.instance.pk:
+            # Verificar que el username no esté en uso por otro usuario
+            if User.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+                raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and self.instance.pk:
+            # Verificar que el email no esté en uso por otro usuario
+            if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+                raise forms.ValidationError('Este correo electrónico ya está en uso.')
+        return email
+    
+    def clean_cedula(self):
+        cedula = self.cleaned_data.get('cedula')
+        if cedula and self.instance.pk:
+            # Verificar que la cédula no esté en uso por otro usuario
+            if User.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
+                raise forms.ValidationError('Esta cédula ya está registrada por otro usuario.')
+        return cedula
+    
+    def clean_current_password(self):
+        current_password = self.cleaned_data.get('current_password')
+        new_password = self.cleaned_data.get('new_password')
+        
+        # Si se proporciona nueva contraseña, la contraseña actual es requerida
+        if new_password and not current_password:
+            raise forms.ValidationError('Debes ingresar tu contraseña actual para cambiarla.')
+        
+        # Si se proporciona contraseña actual, verificar que sea correcta
+        if current_password and self.instance.pk:
+            if not self.instance.check_password(current_password):
+                raise forms.ValidationError('La contraseña actual es incorrecta.')
+        
+        return current_password
+    
+    def clean_confirm_password(self):
+        new_password = self.cleaned_data.get('new_password')
+        confirm_password = self.cleaned_data.get('confirm_password')
+        
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                raise forms.ValidationError('Las contraseñas no coinciden.')
+        
+        return confirm_password
+    
+    def clean_new_password(self):
+        new_password = self.cleaned_data.get('new_password')
+        if new_password and len(new_password) < 8:
+            raise forms.ValidationError('La nueva contraseña debe tener al menos 8 caracteres.')
+        return new_password
     
     def save(self, commit=True):
-        user = super().save(commit=False)
+        # Actualizar datos del usuario
+        self.instance.username = self.cleaned_data.get('username')
+        self.instance.email = self.cleaned_data.get('email')
+        self.instance.first_name = self.cleaned_data.get('first_name')
+        self.instance.last_name = self.cleaned_data.get('last_name')
+        self.instance.cedula = self.cleaned_data.get('cedula')
+        self.instance.telefono = self.cleaned_data.get('telefono')
+        self.instance.departamento = self.cleaned_data.get('departamento')
+        self.instance.ciudad = self.cleaned_data.get('ciudad')
+        
+        # Actualizar foto de perfil si se proporciona
+        if self.cleaned_data.get('profile_image'):
+            self.instance.profile_image = self.cleaned_data.get('profile_image')
+        
+        # Cambiar contraseña si se proporciona
+        new_password = self.cleaned_data.get('new_password')
+        if new_password:
+            self.instance.set_password(new_password)
+        
         if commit:
-            user.save()
+            self.instance.save()
             
             # Actualizar BuyerProfile
-            buyer_profile, created = BuyerProfile.objects.get_or_create(user=user)
+            buyer_profile, created = BuyerProfile.objects.get_or_create(user=self.instance)
             buyer_profile.departamento = self.cleaned_data.get('departamento')
             buyer_profile.ciudad = self.cleaned_data.get('ciudad')
             buyer_profile.save()
-        return user
+        
+        return self.instance
+    
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'profile_image']
 
 class UserEditForm(forms.ModelForm):
     cedula = forms.CharField(
@@ -852,6 +1010,266 @@ class ProducerProfileForm(forms.ModelForm):
             # For existing instances, populate cities based on the saved department
             cities = COLOMBIA_LOCATIONS.get(self.instance.departamento, [])
             self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+
+
+class ProducerProfileEditForm(forms.ModelForm):
+    """Formulario completo de edición de perfil para productores"""
+    
+    # Campos de usuario
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        label="Nombre de Usuario",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tu nombre de usuario único'
+        })
+    )
+    email = forms.EmailField(
+        required=True,
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'tu@email.com'
+        })
+    )
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        label="Nombres",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tus nombres'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        label="Apellidos",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Tus apellidos'
+        })
+    )
+    cedula = forms.CharField(
+        max_length=20,
+        required=True,
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ej: 12345678',
+            'type': 'number',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de cédula de identidad"
+    )
+    telefono = forms.CharField(
+        max_length=15,
+        required=False,
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ej: 3001234567',
+            'type': 'tel',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de teléfono de contacto (opcional)"
+    )
+    profile_image = forms.ImageField(
+        required=False,
+        label="Foto de Perfil",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'accept': 'image/*'
+        }),
+        help_text="Sube una foto para tu perfil (opcional)"
+    )
+    
+    # Campos de ubicación del vendedor
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_departamento'
+        }),
+        label="Departamento",
+        required=True
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_ciudad'
+        }),
+        label="Ciudad/Municipio",
+        required=True
+    )
+    
+    # Campos de contraseña
+    current_password = forms.CharField(
+        required=False,
+        label="Contraseña Actual",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ingresa tu contraseña actual'
+        }),
+        help_text="Requerida solo si quieres cambiar tu contraseña"
+    )
+    new_password = forms.CharField(
+        required=False,
+        label="Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Mínimo 8 caracteres'
+        }),
+        help_text="Mínimo 8 caracteres"
+    )
+    confirm_password = forms.CharField(
+        required=False,
+        label="Confirmar Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Confirma tu nueva contraseña'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Cargar datos iniciales del usuario
+        if self.user:
+            self.fields['username'].initial = self.user.username
+            self.fields['email'].initial = self.user.email
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            self.fields['cedula'].initial = self.user.cedula
+            self.fields['telefono'].initial = self.user.telefono
+            self.fields['departamento'].initial = self.user.departamento
+            self.fields['ciudad'].initial = self.user.ciudad
+            
+            # Cargar ciudades del departamento actual
+            if self.user.departamento:
+                from core.colombia_locations import get_cities_by_department
+                ciudades = get_cities_by_department(self.user.departamento)
+                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+        
+        # Si hay datos POST, cargar ciudades del departamento seleccionado
+        if self.data and 'departamento' in self.data:
+            departamento = self.data.get('departamento')
+            if departamento:
+                from core.colombia_locations import get_cities_by_department
+                ciudades = get_cities_by_department(departamento)
+                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and self.user:
+            # Verificar que el username no esté en uso por otro usuario
+            if User.objects.filter(username=username).exclude(pk=self.user.pk).exists():
+                raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and self.user:
+            # Verificar que el email no esté en uso por otro usuario
+            if User.objects.filter(email=email).exclude(pk=self.user.pk).exists():
+                raise forms.ValidationError('Este correo electrónico ya está en uso.')
+        return email
+    
+    def clean_cedula(self):
+        cedula = self.cleaned_data.get('cedula')
+        if cedula and self.user:
+            # Verificar que la cédula no esté en uso por otro usuario
+            if User.objects.filter(cedula=cedula).exclude(pk=self.user.pk).exists():
+                raise forms.ValidationError('Esta cédula ya está registrada por otro usuario.')
+        return cedula
+    
+    def clean_current_password(self):
+        current_password = self.cleaned_data.get('current_password')
+        new_password = self.cleaned_data.get('new_password')
+        
+        # Si se proporciona nueva contraseña, la contraseña actual es requerida
+        if new_password and not current_password:
+            raise forms.ValidationError('Debes ingresar tu contraseña actual para cambiarla.')
+        
+        # Si se proporciona contraseña actual, verificar que sea correcta
+        if current_password and self.user:
+            if not self.user.check_password(current_password):
+                raise forms.ValidationError('La contraseña actual es incorrecta.')
+        
+        return current_password
+    
+    def clean_confirm_password(self):
+        new_password = self.cleaned_data.get('new_password')
+        confirm_password = self.cleaned_data.get('confirm_password')
+        
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                raise forms.ValidationError('Las contraseñas no coinciden.')
+        
+        return confirm_password
+    
+    def clean_new_password(self):
+        new_password = self.cleaned_data.get('new_password')
+        if new_password and len(new_password) < 8:
+            raise forms.ValidationError('La nueva contraseña debe tener al menos 8 caracteres.')
+        return new_password
+    
+    def save(self, commit=True):
+        # Actualizar datos del usuario
+        if self.user:
+            self.user.username = self.cleaned_data.get('username')
+            self.user.email = self.cleaned_data.get('email')
+            self.user.first_name = self.cleaned_data.get('first_name')
+            self.user.last_name = self.cleaned_data.get('last_name')
+            self.user.cedula = self.cleaned_data.get('cedula')
+            self.user.telefono = self.cleaned_data.get('telefono')
+            self.user.departamento = self.cleaned_data.get('departamento')
+            self.user.ciudad = self.cleaned_data.get('ciudad')
+            
+            # Actualizar foto de perfil si se proporciona
+            if self.cleaned_data.get('profile_image'):
+                self.user.profile_image = self.cleaned_data.get('profile_image')
+            
+            # Cambiar contraseña si se proporciona
+            new_password = self.cleaned_data.get('new_password')
+            if new_password:
+                self.user.set_password(new_password)
+            
+            if commit:
+                self.user.save()
+        
+        return self.user
+    
+    class Meta:
+        model = ProducerProfile
+        fields = ['direccion', 'farm_description', 'main_crops']
+        widgets = {
+            'direccion': forms.TextInput(attrs={
+                'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
+            }),
+            'farm_description': forms.Textarea(attrs={
+                'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'rows': 4,
+                'placeholder': 'Describe tu finca: tamaño, tipo de cultivos, métodos utilizados, etc.'
+            }),
+            'main_crops': forms.TextInput(attrs={
+                'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'placeholder': 'Ej: Café, Plátano, Aguacate'
+            })
+        }
+        labels = {
+            'direccion': 'Dirección de la Finca',
+            'farm_description': 'Descripción de la Finca',
+            'main_crops': 'Cultivos Principales'
+        }
 
 
 class BuyerProfileForm(forms.ModelForm):
