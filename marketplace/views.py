@@ -231,7 +231,7 @@ def select_crop_for_publication_view(request):
         productor=request.user,
         estado='listo_para_cosechar'
     ).exclude(
-        publication__estado='Activa'
+        publicaciones__estado='Activa'
     ).select_related('finca').order_by('-created_at')
     
     context = {
