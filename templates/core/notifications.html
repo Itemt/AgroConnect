@@ -80,12 +80,12 @@
             {% if page_obj %}
                 <div class="divide-y divide-gray-200">
                     {% for notification in page_obj %}
-                        {% if notification.category == 'order' and notification.related_order_id %}
-                            <a href="{% url 'order_detail' notification.related_order_id %}" class="block">
-                        {% elif notification.category == 'payment' and notification.related_order_id %}
-                            <a href="{% url 'order_detail' notification.related_order_id %}" class="block">
-                        {% elif notification.category == 'message' and notification.related_conversation_id %}
-                            <a href="{% url 'conversation_detail' notification.related_conversation_id %}" class="block">
+                        {% if notification.category == 'order' and notification.order_id %}
+                            <a href="{% url 'order_detail' notification.order_id %}" class="block">
+                        {% elif notification.category == 'payment' and notification.order_id %}
+                            <a href="{% url 'order_detail' notification.order_id %}" class="block">
+                        {% elif notification.category == 'message' and notification.order_id %}
+                            <a href="{% url 'conversation_detail' notification.order_id %}" class="block">
                         {% else %}
                             <div class="block">
                         {% endif %}
@@ -134,11 +134,11 @@
                                 </div>
                             </div>
                         </div>
-                        {% if notification.category == 'order' and notification.related_order_id %}
+                        {% if notification.category == 'order' and notification.order_id %}
                             </a>
-                        {% elif notification.category == 'payment' and notification.related_order_id %}
+                        {% elif notification.category == 'payment' and notification.order_id %}
                             </a>
-                        {% elif notification.category == 'message' and notification.related_conversation_id %}
+                        {% elif notification.category == 'message' and notification.order_id %}
                             </a>
                         {% else %}
                             </div>
