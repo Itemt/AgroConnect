@@ -136,7 +136,7 @@ def assistant_reply(request):
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-pro')
         
         system_prompt = (
             "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
@@ -163,7 +163,7 @@ def assistant_reply(request):
             return JsonResponse({
                 "success": True, 
                 "reply": text.strip(), 
-                "model": "gemini-1.5-flash"
+                "model": "gemini-1.5-pro"
             })
         else:
             return JsonResponse({
@@ -219,7 +219,7 @@ def ai_publication_suggestions(request):
         try:
             import google.generativeai as genai
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-1.5-pro')
             
             # Prompt optimizado para sugerencias de mercado colombiano
             prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
