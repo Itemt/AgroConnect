@@ -122,6 +122,11 @@ class BuyerRegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.role = 'Comprador'  # Siempre comprador
+        
+        # Guardar ubicación en el usuario también
+        user.departamento = self.cleaned_data.get('departamento')
+        user.ciudad = self.cleaned_data.get('ciudad')
+        
         if commit:
             user.save()
             
