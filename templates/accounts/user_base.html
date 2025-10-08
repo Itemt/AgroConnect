@@ -407,12 +407,12 @@
     <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out min-h-screen flex-shrink-0">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
-            <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
-                <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+            <div class="flex items-center sidebar-text group flex-1">
+                <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
                     <i class="fas fa-cog text-white text-xl"></i>
                 </div>
                 <span class="sidebar-text text-lg font-bold text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
-            </a>
+            </div>
             <button type="button" onclick="document.getElementById('sidebar-toggle-checkbox').click()" class="w-10 h-10 flex items-center justify-center text-white hover:text-accent-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-opacity-50 rounded-xl hover:bg-white/10 transition-all duration-300 border border-accent-400/30 hover:border-accent-300 cursor-pointer">
                 <i class="fas fa-bars text-lg"></i>
             </button>
@@ -420,15 +420,15 @@
 
         <!-- User Welcome Card -->
         <div class="user-welcome mb-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg">
+            <a href="{% url 'profile_edit' %}" class="flex items-center p-2 rounded-lg hover:bg-white/10 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                     <i class="fas fa-user text-white text-lg"></i>
                 </div>
                 <div class="ml-3 sidebar-text">
-                    <h3 class="font-semibold text-gray-800 text-sm">{{ user.first_name|default:user.username }}</h3>
-                    <p class="text-primary-600 text-xs font-medium">{{ user.role }}</p>
+                    <h3 class="font-semibold text-gray-800 text-sm group-hover:text-white transition-colors duration-200">{{ user.first_name|default:user.username }}</h3>
+                    <p class="text-primary-600 text-xs font-medium group-hover:text-accent-200 transition-colors duration-200">{{ user.role }}</p>
                 </div>
-            </div>
+            </a>
         </div>
 
         <nav class="text-white sidebar-nav">
@@ -662,5 +662,183 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% block extra_js %}{% endblock %}
+
+<!-- Floating AI Assistant Bubble -->
+<div id="assistant-bubble" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40">
+    <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
+        <i class="fas fa-robot text-lg md:text-xl"></i>
+    </button>
+    
+    <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-3 md:p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-robot mr-2 md:mr-3 text-sm md:text-base"></i>
+                <span class="font-semibold text-sm md:text-base">Asistente IA</span>
+            </div>
+            <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
+        </div>
+        
+        <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
+        <div id="assistant-messages" class="h-48 md:h-64 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50">
+            <div class="flex items-start space-x-2 md:space-x-3">
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-xs md:text-sm text-gray-800">¡Hola! Soy tu asistente de IA de AgroConnect. ¿En qué puedo ayudarte hoy?</p>
+                </div>
+            </div>
+        </div>
+        
+        <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
+            <input id="assistant-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma..." required>
+            <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                <i class="fas fa-paper-plane text-xs md:text-sm"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Assistant Bubble Logic -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bubble = document.getElementById('assistant-bubble');
+    const panel = document.getElementById('assistant-panel');
+    const toggle = document.getElementById('assistant-toggle');
+    const closeBtn = document.getElementById('assistant-close');
+    const form = document.getElementById('assistant-form');
+    const input = document.getElementById('assistant-input');
+    const messages = document.getElementById('assistant-messages');
+    const aiTitle = document.getElementById('assistant-title');
+    const sendBtn = document.getElementById('assistant-send');
+    
+    let isOpen = false;
+    let conversationId = null;
+    
+    // Toggle panel
+    toggle.addEventListener('click', function() {
+        isOpen = !isOpen;
+        panel.classList.toggle('hidden', !isOpen);
+        if (isOpen) {
+            input.focus();
+        }
+    });
+    
+    // Close panel
+    closeBtn.addEventListener('click', function() {
+        isOpen = false;
+        panel.classList.add('hidden');
+    });
+    
+    // Send message
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        input.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Send to backend
+        fetch('{% url "core:assistant_reply" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTypingIndicator();
+            if (data.success) {
+                addMessage(data.reply, 'assistant');
+            } else {
+                addMessage('Lo siento, hubo un error al procesar tu mensaje.', 'assistant');
+            }
+        })
+        .catch(error => {
+            hideTypingIndicator();
+            addMessage('Lo siento, hubo un error de conexión.', 'assistant');
+        });
+    });
+    
+    function addMessage(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-2 md:space-x-3';
+        
+        if (sender === 'user') {
+            messageDiv.innerHTML = `
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-blue-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-blue-500 text-white rounded-lg p-2 md:p-3 shadow-sm max-w-[85%]">
+                    <p class="text-xs md:text-sm">${content}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-xs md:text-sm text-gray-800">${content}</p>
+                </div>
+            `;
+        }
+        
+        messages.appendChild(messageDiv);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    
+    function showTypingIndicator() {
+        let el = document.getElementById('assistant-typing');
+        if (el) el.remove();
+        
+        el = document.createElement('div');
+        el.className = 'flex items-start space-x-2 md:space-x-3';
+        el.id = 'assistant-typing';
+        el.innerHTML = `
+            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+            </div>
+            <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+        `;
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    
+    function hideTypingIndicator() {
+        const el = document.getElementById('assistant-typing');
+        if (el) el.remove();
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
 </body>
 </html>
