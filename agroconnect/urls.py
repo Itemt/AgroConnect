@@ -126,6 +126,9 @@ urlpatterns = [
 
     # Core (AJAX)
     path('core/', include(('core.urls', 'core'), namespace='core')),
+    
+    # AI Suggestions
+    path('ai/suggestions/', core_views.ai_publication_suggestions, name='ai_publication_suggestions'),
 ]
 
 # Servir archivos media en desarrollo y producción

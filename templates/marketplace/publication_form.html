@@ -65,7 +65,15 @@
                 <div class="space-y-6">
                     {% for field in form %}
                     <div class="field-wrapper">
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                        <div class="flex items-center justify-between">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                            {% if field.name == 'precio_por_unidad' or field.name == 'descripcion' %}
+                            <button type="button" onclick="getAiSuggestion('{{ field.name }}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-1 rounded-lg transition-colors duration-200 flex items-center">
+                                <i class="fas fa-magic mr-1"></i>
+                                IA
+                            </button>
+                            {% endif %}
+                        </div>
                         <div class="mt-1">
                             {{ field }}
                         </div>
@@ -216,6 +224,92 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form fields
     const precioField = document.querySelector('input[name="precio_por_unidad"]');
     const descripcionField = document.querySelector('textarea[name="descripcion"]');
+    
+    // Función global para obtener sugerencias individuales
+    window.getAiSuggestion = function(fieldName) {
+        console.log('getAiSuggestion called with fieldName:', fieldName);
+        
+        const cropName = '{{ crop.nombre }}';
+        const cropCategory = '{{ crop.categoria }}';
+        const cropQuantity = {{ crop.cantidad_estimada }};
+        const cropUnit = '{{ crop.unidad_medida }}';
+        const location = '{{ crop.finca.ciudad|default:"" }}, {{ crop.finca.departamento|default:"" }}';
+        
+        console.log('Data being sent:', {
+            crop_name: cropName,
+            crop_category: cropCategory,
+            crop_quantity: cropQuantity,
+            crop_unit: cropUnit,
+            location: location,
+            field_type: fieldName
+        });
+        
+        // Mostrar loading en el botón
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cargando...';
+        button.disabled = true;
+        
+        fetch('/ai/suggestions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                crop_name: cropName,
+                crop_category: cropCategory,
+                crop_quantity: cropQuantity,
+                crop_unit: cropUnit,
+                location: location,
+                field_type: fieldName
+            })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                applySuggestion(fieldName, data.suggestions);
+            } else {
+                alert('Error al obtener sugerencias: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    };
+    
+    function applySuggestion(fieldName, suggestions) {
+        console.log('applySuggestion called with:', fieldName, suggestions);
+        
+        if (fieldName === 'precio_por_unidad' && suggestions.price_suggestions) {
+            const price = suggestions.price_suggestions.recommended_price;
+            console.log('Setting price to:', price);
+            if (price && precioField) {
+                precioField.value = price;
+                precioField.focus();
+                console.log('Price field updated');
+            }
+        } else if (fieldName === 'descripcion' && suggestions.description_suggestions) {
+            const description = suggestions.description_suggestions[0];
+            console.log('Setting description to:', description);
+            if (description && descripcionField) {
+                descripcionField.value = description;
+                descripcionField.focus();
+                console.log('Description field updated');
+            }
+        } else {
+            console.log('No matching field or suggestions found');
+        }
+    }
     
     aiSuggestionsBtn.addEventListener('click', function() {
         showAiModal();

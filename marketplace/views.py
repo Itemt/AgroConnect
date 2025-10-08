@@ -156,18 +156,21 @@ def publication_create_view(request, crop_id):
         return redirect('publication_edit', pk=existing_publication.pk)
 
     if request.method == 'POST':
-        form = PublicationForm(request.POST, request.FILES, user=request.user)
+        form = PublicationForm(request.POST, request.FILES, user=request.user, crop=crop)
         if form.is_valid():
             publication = form.save(commit=False)
             publication.cultivo = crop
+            # Establecer ubicación automáticamente desde la finca
+            if crop.finca:
+                publication.departamento = crop.finca.departamento
+                publication.ciudad = crop.finca.ciudad
             publication.save()
             messages.success(request, 'Publicación creada exitosamente.')
             return redirect('producer_dashboard')
     else:
-        form = PublicationForm(user=request.user, initial={
+        form = PublicationForm(user=request.user, crop=crop, initial={
             'cantidad_disponible': crop.cantidad_estimada,
             'categoria': crop.categoria,
-            'ciudad': request.user.producer_profile.ciudad if hasattr(request.user, 'producer_profile') else ''
         })
 
     context = {
