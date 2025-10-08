@@ -450,3 +450,54 @@ def become_seller(request):
         'farm_form': farm_form,
     }
     return render(request, 'accounts/become_seller.html', context)
+    
+    if request.method == 'POST':
+        print("Processing POST request...")
+        # Procesar formulario de finca
+        farm_form = FarmForm(request.POST)
+        
+        if farm_form.is_valid():
+            # Crear perfil de productor
+            producer_profile, created = ProducerProfile.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    'telefono': request.user.telefono,
+                    'direccion': request.user.direccion,
+                    'ciudad': request.user.ciudad,
+                    'departamento': request.user.departamento,
+                }
+            )
+            
+            # Cambiar rol del usuario
+            request.user.role = 'Productor'
+            request.user.save()
+            
+            # Crear la finca
+            finca = farm_form.save(commit=False)
+            finca.propietario = request.user
+            finca.save()
+            
+            messages.success(request, f'¡Felicidades! Ahora eres un vendedor. Tu finca "{finca.nombre}" ha sido creada exitosamente.')
+            return redirect('core:farm_detail', pk=finca.pk)
+        else:
+            # Si hay errores, mostrar el formulario con errores
+            context = {
+                'title': 'Convertirse en Vendedor',
+                'user': request.user,
+                'farm_form': farm_form,
+            }
+            return render(request, 'accounts/become_seller.html', context)
+    
+    # Crear formulario de finca para el primer paso
+    print("Creating FarmForm...")
+    farm_form = FarmForm()
+    print("FarmForm created successfully")
+    print(f"Departamento choices: {len(farm_form.fields['departamento'].choices)}")
+    
+    context = {
+        'title': 'Convertirse en Vendedor',
+        'user': request.user,
+        'farm_form': farm_form,
+    }
+    print("Rendering template...")
+    return render(request, 'accounts/become_seller.html', context)
