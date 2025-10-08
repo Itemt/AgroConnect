@@ -140,28 +140,37 @@ class MercadoPagoService:
         try:
             reference = self.create_payment_reference(order)
             
-            # Datos para MercadoPago - configuración compatible con ambos tipos de cuenta
+            # Obtener la URL base dinámicamente
+            try:
+                from django.contrib.sites.models import Site
+                current_site = Site.objects.get_current()
+                base_url = f"https://{current_site.domain}" if not settings.DEBUG else "http://localhost:8000"
+            except:
+                # Fallback si Site no está disponible
+                base_url = "https://agroconnect.itemt.tech" if not settings.DEBUG else "http://localhost:8000"
+            
+            # Datos para MercadoPago - configuración corregida
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
                 "description": f"Compra orden #{order.id}",
                 "payer": {
-                    "email": user.email or "test@example.com"
+                    "email": user.email or "test@example.com",
+                    "name": user.get_full_name() or user.username,
+                    "surname": user.last_name or ""
                 },
                 "external_reference": reference,
-                "notification_url": "https://agroconnect.itemt.tech/payments/notification/",
+                "notification_url": f"{base_url}/payments/notification/",
                 "auto_return": "approved",
                 "back_urls": {
-                    "success": "https://agroconnect.itemt.tech/payments/success/",
-                    "failure": "https://agroconnect.itemt.tech/payments/failure/",
-                    "pending": "https://agroconnect.itemt.tech/payments/pending/"
+                    "success": f"{base_url}/payments/success/",
+                    "failure": f"{base_url}/payments/failure/",
+                    "pending": f"{base_url}/payments/pending/"
                 },
-                # Configuración optimizada para pruebas
+                # Configuración simplificada para evitar errores
                 "binary_mode": False,
-                "expires": True,
-                "expiration_date_from": None,
-                "expiration_date_to": None,
-                # Configuración adicional para compatibilidad
+                "expires": False,  # Cambiado a False para evitar problemas de expiración
+                # Configuración de métodos de pago simplificada
                 "payment_methods": {
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
@@ -170,8 +179,8 @@ class MercadoPagoService:
                 "items": [
                     {
                         "id": str(order.publicacion.id),
-                        "title": order.publicacion.cultivo.nombre,
-                        "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
+                        "title": order.publicacion.cultivo.nombre[:50],  # Limitar longitud
+                        "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}"[:100],
                         "quantity": float(order.cantidad_acordada),
                         "unit_price": float(order.publicacion.precio_por_unidad),
                         "category_id": "food",
@@ -180,11 +189,25 @@ class MercadoPagoService:
                 ]
             }
             
+            # Validar datos antes de enviar
+            if payment_data['transaction_amount'] <= 0:
+                return {
+                    'success': False,
+                    'error': 'El monto de la transacción debe ser mayor a 0'
+                }
+            
+            if not payment_data['payer']['email']:
+                return {
+                    'success': False,
+                    'error': 'El email del pagador es requerido'
+                }
+            
             print(f"=== DEBUG PREFERENCE DATA ===")
             print(f"Transaction amount: {payment_data['transaction_amount']}")
             print(f"Currency: {payment_data['currency_id']}")
             print(f"Description: {payment_data['description']}")
             print(f"External reference: {payment_data['external_reference']}")
+            print(f"Base URL: {base_url}")
             print("=============================")
             
             # Crear preferencia
@@ -195,19 +218,36 @@ class MercadoPagoService:
             print(f"Response keys: {list(preference_response.keys())}")
             if 'response' in preference_response:
                 print(f"Response ID: {preference_response['response'].get('id')}")
+                print(f"Init Point: {preference_response['response'].get('init_point')}")
+            if 'error' in preference_response:
+                print(f"Error: {preference_response['error']}")
             print("================================")
             
-            if preference_response["status"] == 201:
-                return {
-                    'success': True,
-                    'preference_id': preference_response["response"]["id"],
-                    'init_point': preference_response["response"]["init_point"],
-                    'reference': reference
-                }
+            if preference_response.get("status") == 201 and "response" in preference_response:
+                response_data = preference_response["response"]
+                if "id" in response_data and "init_point" in response_data:
+                    return {
+                        'success': True,
+                        'preference_id': response_data["id"],
+                        'init_point': response_data["init_point"],
+                        'reference': reference
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': "Respuesta de MercadoPago incompleta - faltan campos requeridos",
+                        'response': preference_response
+                    }
             else:
+                error_message = "Error desconocido"
+                if "error" in preference_response:
+                    error_message = preference_response["error"]
+                elif "message" in preference_response:
+                    error_message = preference_response["message"]
+                
                 return {
                     'success': False,
-                    'error': f"Error al crear preferencia. Status: {preference_response.get('status')}",
+                    'error': f"Error al crear preferencia. Status: {preference_response.get('status')}. {error_message}",
                     'response': preference_response
                 }
                 
