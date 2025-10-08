@@ -219,10 +219,11 @@ def producer_sales_view(request):
     ).order_by('-total_ingresos')[:5]
     
     # Estadísticas por mes (últimos 6 meses)
-    from datetime import datetime, timedelta
+    from datetime import timedelta
+    from django.utils import timezone
     from django.db.models.functions import TruncMonth
     
-    six_months_ago = datetime.now() - timedelta(days=180)
+    six_months_ago = timezone.now() - timedelta(days=180)
     monthly_stats = orders.filter(
         created_at__gte=six_months_ago,
         estado='completado'
