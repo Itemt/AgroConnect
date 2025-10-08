@@ -870,10 +870,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (res && res.success) {
                     const unreadCount = res.notifications.filter(n => !n.is_read).length;
                     updateSidebarBadge(unreadCount);
+                    console.log('Sidebar notifications polled:', unreadCount, 'unread');
                 }
             })
-            .catch(() => {
-                // Silently fail for polling
+            .catch((error) => {
+                console.log('Sidebar polling error:', error);
             });
     }
     
@@ -892,7 +893,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start polling when page loads
     document.addEventListener('DOMContentLoaded', function() {
         updateSidebarBadge(0);
+        // Fetch notifications immediately
+        fetchSidebarNotifications();
+        // Start polling for notifications
         startSidebarPolling();
+        console.log('Sidebar notifications polling started');
     });
     
     // Stop polling when page is hidden (performance optimization)
