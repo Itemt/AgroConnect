@@ -17,7 +17,7 @@ class MercadoPagoService:
         # Fallback temporal para desarrollo
         if not self.access_token:
             # Token de producción actualizado
-            self.access_token = 'APP_USR-556738036241163-100800-274b8aac5e1bff0d9609efceaaaf736b-2911063518'
+            self.access_token = 'YOUR_MERCADOPAGO_ACCESS_TOKEN_HERE'
             print("INFO: Usando credenciales de producción actualizadas")
             print("INFO: Modo producción activado")
         
