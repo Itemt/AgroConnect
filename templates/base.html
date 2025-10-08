@@ -375,53 +375,53 @@
     <script src="{% static 'js/enhanced-ui.js' %}"></script>
     
     <!-- Floating AI Assistant Bubble -->
-    <div id="assistant-bubble" class="fixed bottom-6 right-6 z-40">
-        <button id="assistant-toggle" class="w-14 h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
-            <i class="fas fa-robot text-xl"></i>
+    <div id="assistant-bubble" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40">
+        <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
+            <i class="fas fa-robot text-lg md:text-xl"></i>
         </button>
-        <div id="assistant-panel" class="hidden mt-3 w-[28rem] md:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
-            <div class="px-4 py-3 bg-primary-600 text-white">
+        <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
+            <div class="px-3 py-2 md:px-4 md:py-3 bg-primary-600 text-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <i class="fas fa-robot"></i>
-                        <span class="font-semibold">Asistente IA · AgroConnect</span>
+                        <i class="fas fa-robot text-sm md:text-base"></i>
+                        <span class="font-semibold text-sm md:text-base">Asistente IA · AgroConnect</span>
                     </div>
-                    <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times"></i></button>
+                    <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
                 </div>
             </div>
             <div class="border-b border-gray-200 flex">
-                <button id="tab-ai" class="flex-1 px-3 py-2 text-sm font-medium bg-white">Asistente</button>
-                <button id="tab-chat" class="flex-1 px-3 py-2 text-sm text-gray-600 bg-gray-100">Chats</button>
+                <button id="tab-ai" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm font-medium bg-white">Asistente</button>
+                <button id="tab-chat" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm text-gray-600 bg-gray-100">Chats</button>
             </div>
-            <div id="assistant-title" class="px-4 py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
-            <div id="assistant-messages" class="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
+            <div id="assistant-messages" class="h-48 md:h-64 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50">
                 <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
                     Hola, ¿en qué te ayudo hoy?
                 </div>
             </div>
-            <div id="chat-pane" class="hidden h-[28rem] bg-gray-50 flex">
+            <div id="chat-pane" class="hidden h-[20rem] md:h-[28rem] bg-gray-50 flex">
                 <!-- Left: conversations list -->
-                <div class="w-44 md:w-56 border-r bg-white flex flex-col">
-                    <div class="p-3 border-b bg-white">
-                        <input id="chat-search" type="text" placeholder="Buscar conversación..." class="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <div class="w-32 sm:w-44 md:w-56 border-r bg-white flex flex-col">
+                    <div class="p-2 md:p-3 border-b bg-white">
+                        <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
-                    <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+                    <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1"></div>
                 </div>
                 <!-- Right: thread + input -->
                 <div class="flex-1 flex flex-col">
-                    <div id="chat-thread" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
-                    <form id="chat-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
-                        <input id="chat-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
-                        <button id="chat-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-                            <i class="fas fa-paper-plane"></i>
+                    <div id="chat-thread" class="flex-1 overflow-y-auto p-2 md:p-3 space-y-1 md:space-y-2"></div>
+                    <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
+                        <input id="chat-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
+                        <button id="chat-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                            <i class="fas fa-paper-plane text-xs md:text-sm"></i>
                         </button>
                     </form>
                 </div>
             </div>
-            <form id="assistant-form" class="flex items-center p-3 border-t border-gray-200 bg-white">
-                <input id="assistant-input" type="text" class="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma o el campo..." required>
-                <button id="assistant-send" class="ml-3 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-                    <i class="fas fa-paper-plane"></i>
+            <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
+                <input id="assistant-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma..." required>
+                <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                    <i class="fas fa-paper-plane text-xs md:text-sm"></i>
                 </button>
             </form>
         </div>
