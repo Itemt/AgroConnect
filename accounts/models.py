@@ -13,6 +13,10 @@ class User(AbstractUser):
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name="Teléfono", help_text="Número de teléfono de contacto")
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
     
+    # Ubicación
+    departamento = models.CharField(max_length=100, blank=True, null=True, verbose_name="Departamento")
+    ciudad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Ciudad/Municipio")
+    
     # Nuevo campo para sistema unificado
     can_sell = models.BooleanField(default=False, verbose_name="¿Puede vender?", help_text="Indica si el usuario puede crear publicaciones y vender productos")
 
