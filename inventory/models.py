@@ -60,7 +60,7 @@ class Crop(BaseModel):
                             verbose_name="Estado del Cultivo")
     fecha_disponibilidad = models.DateField(null=True, blank=True, verbose_name="Disponible Desde")
 
-    imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
+    # imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
 
     # Información adicional
     notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
