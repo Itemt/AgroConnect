@@ -64,7 +64,7 @@ def checkout_view(request, order_id):
     preference_result = mercadopago_service.create_preference(order, request.user)
     
     if not preference_result['success']:
-        # Para proyecto universitario, procesar automáticamente si falla MercadoPago
+        # Si falla MercadoPago, procesar automáticamente para demo
         messages.info(request, 'Procesando pago automáticamente para demo...')
         
         # Simular pago automático
@@ -98,7 +98,6 @@ def checkout_view(request, order_id):
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
         return redirect('order_detail', order_id=order.id)
     
-    
     # Crear o actualizar el registro de pago
     if existing_payment:
         payment = existing_payment
@@ -128,6 +127,7 @@ def checkout_view(request, order_id):
     }
     
     return render(request, 'payments/checkout_mercadopago.html', context)
+    
 
 
 @login_required

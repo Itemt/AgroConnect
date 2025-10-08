@@ -16,10 +16,10 @@ class MercadoPagoService:
         
         # Fallback temporal para desarrollo
         if not self.access_token:
-            # Token de prueba válido para desarrollo - Colombia
-            self.access_token = 'TEST-5324556232394388-100723-47df62be3976419a60566e0545849c89-308635696'
-            print("WARNING: Usando token de prueba temporal - Configura MERCADOPAGO_ACCESS_TOKEN en produccion")
-            print("INFO: Modo sandbox activado para pruebas")
+            # Token de producción de cuenta de prueba
+            self.access_token = 'APP_USR-4299288384525842-100800-8a2deb2f16b23d1ff7b21860cd65191a-2911063518'
+            print("INFO: Usando credenciales de producción de cuenta de prueba")
+            print("INFO: Modo producción activado")
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
