@@ -518,17 +518,12 @@
             </div>
             
             <!-- Panel de Administración (solo para staff) -->
-            <div class="border-t border-primary-700 my-4"></div>
             {% if user.is_staff %}
+            <div class="border-t border-primary-700 my-4"></div>
             <a href="{% url 'admin_dashboard' %}" class="{% if 'admin' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-cog"></i>
                 <span class="sidebar-text">Panel Admin</span>
             </a>
-            {% else %}
-            <div class="flex items-center px-3 py-2 text-gray-400 cursor-not-allowed">
-                <i class="fas fa-cog w-5"></i>
-                <span class="sidebar-text ml-3">Panel Admin</span>
-            </div>
             {% endif %}
             
             <!-- Divider -->
