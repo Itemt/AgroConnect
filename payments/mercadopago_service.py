@@ -17,14 +17,12 @@ class MercadoPagoService:
         # Fallback temporal para desarrollo
         if not self.access_token:
             # Token de prueba válido para desarrollo - Colombia
-            self.access_token = 'TEST-1261412824198770-100718-66491d0e1f1b1381978604366ca01034-308635696'
+            self.access_token = 'TEST-5324556232394388-100723-47df62be3976419a60566e0545849c89-308635696'
             print("WARNING: Usando token de prueba temporal - Configura MERCADOPAGO_ACCESS_TOKEN en produccion")
             print("INFO: Modo sandbox activado para pruebas")
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
-            print(f"DEBUG: Token configurado: {bool(self.access_token)}")
-            print(f"DEBUG: Es sandbox: {self.access_token.startswith('TEST-')}")
         else:
             self.sdk = None
     

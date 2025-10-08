@@ -70,7 +70,21 @@ def checkout_view(request, order_id):
         # Simular pago automático
         simulated_result = mercadopago_service.simulate_automatic_payment(order, request.user)
         
-        # Actualizar el pago
+        # Crear o actualizar el pago
+        if existing_payment:
+            payment = existing_payment
+        else:
+            payment = Payment.objects.create(
+                order=order,
+                user=request.user,
+                amount=order.precio_total,
+                currency='COP',
+                payment_method='pse',
+                description=f"Pago orden #{order.id}",
+                status='pending'
+            )
+        
+        # Actualizar el pago con datos simulados
         payment.mercadopago_id = simulated_result['payment_id']
         payment.status = 'approved'
         payment.response_data = simulated_result['raw_data']
@@ -84,12 +98,6 @@ def checkout_view(request, order_id):
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
         return redirect('order_detail', order_id=order.id)
     
-    # Debug temporal - imprimir datos que se envían a MercadoPago
-    print("=== DEBUG MERCADOPAGO ===")
-    print(f"Access Token: {config('MERCADOPAGO_ACCESS_TOKEN', default='')[:10]}...")
-    print(f"Preference ID: {preference_result['preference_id']}")
-    print(f"Init Point: {preference_result['init_point']}")
-    print("========================")
     
     # Crear o actualizar el registro de pago
     if existing_payment:
