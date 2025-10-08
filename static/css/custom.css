@@ -71,11 +71,6 @@ html, body {
   height: 100%;
 }
 
-main {
-  background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
-  min-height: calc(100vh - 80px);
-}
-
 /* Typography improvements */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
@@ -338,6 +333,20 @@ h6 { font-size: 1rem; }
   position: relative;
   overflow: hidden;
   min-height: 100vh;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Ensure hero extends to footer without white bar */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
+  z-index: -1;
 }
 
 .hero::before {
