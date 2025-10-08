@@ -36,7 +36,7 @@ class Crop(BaseModel):
     # Información del productor y finca
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
                                 related_name='cultivos', verbose_name="Productor", null=True)
-    finca = models.ForeignKey('core.Farm', on_delete=models.SET_NULL, 
+    finca = models.ForeignKey('core.Farm', on_delete=models.CASCADE, 
                              related_name='cultivos', verbose_name="Finca", null=True, blank=True,
                              help_text="Finca donde se cultiva este producto")
     

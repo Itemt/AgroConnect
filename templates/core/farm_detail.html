@@ -245,6 +245,11 @@
                                 <i class="fas fa-list mr-2 group-hover:scale-110 transition-transform duration-300"></i>
                                 <span class="truncate">Ver Todas las Fincas</span>
                             </a>
+                            <button onclick="showDeleteModal({{ finca.pk }}, '{{ finca.nombre }}', {{ finca.cultivos.count }})" 
+                                    class="w-full bg-red-100 text-red-600 px-4 py-3 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-200 group flex items-center justify-center text-center">
+                                <i class="fas fa-trash mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                <span class="truncate">Eliminar Finca</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -252,4 +257,140 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de confirmación de eliminación -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                </div>
+                <h3 class="ml-4 text-xl font-bold text-white">¿Eliminar Finca?</h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-6">
+            <p class="text-gray-700 text-lg mb-4">
+                Estás a punto de eliminar permanentemente la finca <strong id="farmName" class="text-gray-900"></strong>.
+            </p>
+            
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            <strong>Se eliminarán también:</strong><br>
+                            • <span id="cropsCount"></span> cultivo(s) asociado(s)<br>
+                            • Todas las publicaciones de esta finca<br>
+                            • Historial completo de la finca
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-yellow-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <strong>Esta acción es irreversible.</strong> No podrás recuperar los datos eliminados.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 border border-gray-200 rounded p-4 mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="confirmDeleteCheckbox" class="form-checkbox h-5 w-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="ml-3 text-sm font-medium text-gray-700">
+                        Entiendo que esta acción eliminará permanentemente la finca y todos sus datos asociados.
+                    </span>
+                </label>
+            </div>
+
+            <!-- Formulario de eliminación -->
+            <form id="deleteForm" method="post" action="">
+                {% csrf_token %}
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeDeleteModal()" 
+                            class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="confirmDeleteButton" 
+                            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
+                        Eliminar Finca
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(farmId, farmName, cropsCount) {
+        // Actualizar contenido del modal
+        document.getElementById('farmName').textContent = farmName;
+        document.getElementById('cropsCount').textContent = cropsCount;
+        
+        // Resetear el checkbox
+        document.getElementById('confirmDeleteCheckbox').checked = false;
+        document.getElementById('confirmDeleteButton').disabled = true;
+        
+        // Actualizar action del formulario
+        document.getElementById('deleteForm').action = '/core/farms/' + farmId + '/delete/';
+        
+        // Mostrar modal con animación
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // Habilitar/deshabilitar botón de confirmación según el checkbox
+    document.getElementById('confirmDeleteCheckbox').addEventListener('change', function() {
+        document.getElementById('confirmDeleteButton').disabled = !this.checked;
+    });
+
+    // Cerrar modal al hacer click fuera de él
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Confirmación adicional antes de enviar
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción eliminará permanentemente la finca y todos sus datos asociados.')) {
+            this.submit();
+        }
+    });
+</script>
 {% endblock %}

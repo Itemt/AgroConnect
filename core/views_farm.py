@@ -92,7 +92,7 @@ def farm_edit(request, pk):
 
 @login_required
 def farm_delete(request, pk):
-    """Eliminar finca"""
+    """Eliminar finca con eliminación en cascada"""
     if request.user.role != 'Productor':
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
@@ -100,9 +100,19 @@ def farm_delete(request, pk):
     finca = get_object_or_404(Farm, pk=pk, propietario=request.user)
     
     if request.method == 'POST':
+        # Obtener información antes de eliminar para el mensaje
         nombre_finca = finca.nombre
+        cultivos_count = finca.cultivos.count()
+        
+        # Eliminar la finca (esto eliminará automáticamente los cultivos por CASCADE)
         finca.delete()
-        messages.success(request, f'Finca "{nombre_finca}" eliminada exitosamente.')
+        
+        # Mensaje de confirmación con detalles
+        if cultivos_count > 0:
+            messages.success(request, f'Finca "{nombre_finca}" y sus {cultivos_count} cultivo(s) eliminados exitosamente.')
+        else:
+            messages.success(request, f'Finca "{nombre_finca}" eliminada exitosamente.')
+        
         return redirect('core:farm_list')
     
     context = {
