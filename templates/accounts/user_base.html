@@ -454,6 +454,12 @@
                     <i class="fas fa-tachometer-alt w-5"></i>
                     <span class="sidebar-text ml-3">Dashboard</span>
                 </a>
+                
+                <!-- Mis Fincas - Primera opción para productores -->
+                <a href="{% url 'core:farm_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tractor w-5"></i>
+                    <span class="sidebar-text ml-3">🏡 Mis Fincas</span>
+                </a>
                 {% elif user.role == 'Comprador' %}
                 <a href="{% url 'buyer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-tachometer-alt w-5"></i>
@@ -470,11 +476,7 @@
             <!-- Funcionalidades Específicas por Rol -->
             {% if user.role == 'Productor' %}
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Ventas</h4>
-                <a href="{% url 'core:farm_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                    <i class="fas fa-tractor w-5"></i>
-                    <span class="sidebar-text ml-3">Mis Fincas</span>
-                </a>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">🌱 Gestión de Productos</h4>
                 <a href="{% url 'my_publications' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-bullhorn w-5"></i>
                     <span class="sidebar-text ml-3">Mis Publicaciones</span>
