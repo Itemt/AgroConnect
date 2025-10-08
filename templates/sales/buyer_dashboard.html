@@ -99,17 +99,17 @@
                         <h2 class="text-3xl font-bold text-gray-800">Acciones Rápidas</h2>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a href="{% url 'marketplace' %}" class="btn-primary group">
+                        <a href="{% url 'marketplace' %}" class="btn-primary group flex items-center justify-center text-center">
                             <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Explorar Marketplace
+                            <span class="truncate">Explorar Marketplace</span>
                         </a>
-                        <a href="{% url 'order_history' %}" class="btn-secondary group">
+                        <a href="{% url 'order_history' %}" class="btn-secondary group flex items-center justify-center text-center">
                             <i class="fas fa-history mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Ver Mis Pedidos
+                            <span class="truncate">Ver Mis Pedidos</span>
                         </a>
-                        <a href="{% url 'conversation_list' %}" class="btn-outline group">
+                        <a href="{% url 'conversation_list' %}" class="btn-outline group flex items-center justify-center text-center">
                             <i class="fas fa-comments mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Mis Conversaciones ({{ active_conversations }})
+                            <span class="truncate">Mis Conversaciones ({{ active_conversations }})</span>
                         </a>
                     </div>
                 </div>

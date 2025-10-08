@@ -233,17 +233,17 @@
                     <div class="card-body p-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h3>
                         <div class="space-y-3">
-                            <a href="{% url 'crop_add' %}?finca={{ finca.pk }}" class="w-full btn-primary group">
+                            <a href="{% url 'crop_add' %}?finca={{ finca.pk }}" class="w-full btn-primary group flex items-center justify-center text-center">
                                 <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
-                                Agregar Cultivo
+                                <span class="truncate">Agregar Cultivo</span>
                             </a>
-                            <a href="{% url 'core:farm_edit' finca.pk %}" class="w-full btn-outline group">
+                            <a href="{% url 'core:farm_edit' finca.pk %}" class="w-full btn-outline group flex items-center justify-center text-center">
                                 <i class="fas fa-edit mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                                Editar Finca
+                                <span class="truncate">Editar Finca</span>
                             </a>
-                            <a href="{% url 'core:farm_list' %}" class="w-full btn-secondary group">
+                            <a href="{% url 'core:farm_list' %}" class="w-full btn-secondary group flex items-center justify-center text-center">
                                 <i class="fas fa-list mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                                Ver Todas las Fincas
+                                <span class="truncate">Ver Todas las Fincas</span>
                             </a>
                         </div>
                     </div>
