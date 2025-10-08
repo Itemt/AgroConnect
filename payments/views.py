@@ -179,19 +179,55 @@ def payment_success_view(request):
     """
     payment_id = request.GET.get('payment_id')
     preference_id = request.GET.get('preference_id')
+    external_reference = request.GET.get('external_reference')
     
-    if not payment_id and not preference_id:
+    print(f"=== DEBUG PAYMENT SUCCESS ===")
+    print(f"Payment ID: {payment_id}")
+    print(f"Preference ID: {preference_id}")
+    print(f"External Reference: {external_reference}")
+    print(f"All GET params: {dict(request.GET)}")
+    
+    if not payment_id and not preference_id and not external_reference:
         messages.error(request, 'No se encontró la información del pago.')
         return redirect('order_history')
     
     try:
+        payment = None
+        
+        # Buscar el pago por diferentes métodos
         if payment_id:
-            payment = Payment.objects.get(mercadopago_id=payment_id)
-        else:
-            payment = Payment.objects.get(preference_id=preference_id)
+            try:
+                payment = Payment.objects.get(mercadopago_id=payment_id)
+                print(f"Encontrado por payment_id: {payment.id}")
+            except Payment.DoesNotExist:
+                pass
+        
+        if not payment and preference_id:
+            try:
+                payment = Payment.objects.get(preference_id=preference_id)
+                print(f"Encontrado por preference_id: {payment.id}")
+            except Payment.DoesNotExist:
+                pass
+        
+        if not payment and external_reference:
+            try:
+                payment = Payment.objects.get(external_reference=external_reference)
+                print(f"Encontrado por external_reference: {payment.id}")
+            except Payment.DoesNotExist:
+                pass
+        
+        # Si no se encuentra por ningún método, buscar el último pago del usuario
+        if not payment:
+            payment = Payment.objects.filter(user=request.user).order_by('-created_at').first()
+            print(f"Usando último pago del usuario: {payment.id if payment else 'None'}")
+        
+        if not payment:
+            messages.error(request, 'No se encontró el pago.')
+            return redirect('order_history')
         
         # Procesar automáticamente el pago para proyecto universitario
         if payment.status == 'pending':
+            print(f"Procesando pago automáticamente...")
             mercadopago_service = MercadoPagoService()
             simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
             
@@ -208,6 +244,7 @@ def payment_success_view(request):
             order.save()
             
             messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
+            print(f"Pago procesado exitosamente: {payment.id}")
         
         order = payment.order
         
@@ -219,8 +256,9 @@ def payment_success_view(request):
         
         return render(request, 'payments/payment_success.html', context)
     
-    except Payment.DoesNotExist:
-        messages.error(request, 'No se encontró el pago.')
+    except Exception as e:
+        print(f"Error en payment_success_view: {str(e)}")
+        messages.error(request, f'Error al procesar el pago: {str(e)}')
         return redirect('order_history')
 
 
