@@ -1,162 +1,246 @@
 {% extends 'accounts/user_base.html' %}
 
-{% block title %}{% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %} - AgroConnect{% endblock %}
 
 {% block user_content %}
-<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-lg shadow-lg">
-        <div class="px-6 py-8">
-            <h1 class="text-3xl font-bold text-gray-900">{% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}</h1>
-            <p class="mt-2 text-sm text-gray-600">{% if form.instance.pk %}Actualiza los detalles de tu cultivo.{% else %}Rellena el formulario para añadir un nuevo cultivo a tu inventario.{% endif %}</p>
+<div class="min-h-screen">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                            <i class="fas fa-seedling text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-5xl font-bold text-gradient">
+                                {% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}
+                            </h1>
+                            <p class="text-gray-600 mt-2 text-xl">
+                                {% if form.instance.pk %}Actualiza los detalles de tu cultivo{% else %}Rellena el formulario para añadir un nuevo cultivo{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{% url 'crop_list' %}" class="btn-secondary group">
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform duration-300"></i>
+                        Volver a Cultivos
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div class="border-t border-gray-200 px-6 py-8">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="space-y-6">
-                    <!-- Finca y Nombre -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Formulario -->
+        <div class="card">
+            <div class="card-body p-8">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Información Básica -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                            Información Básica
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Finca -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.finca.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tractor text-green-600 mr-2"></i>{{ form.finca.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.finca }}
+                                </div>
+                                {% if form.finca.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.finca.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.finca.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Nombre -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.nombre.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.nombre }}
+                                </div>
+                                {% if form.nombre.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.nombre.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.nombre.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características del Cultivo -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-leaf text-blue-600 mr-3"></i>
+                            Características del Cultivo
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Categoría -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tag text-blue-600 mr-2"></i>{{ form.categoria.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.categoria }}
+                                </div>
+                                {% if form.categoria.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.categoria.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.categoria.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Área Ocupada -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.area_ocupada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-ruler text-blue-600 mr-2"></i>{{ form.area_ocupada.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.area_ocupada }}
+                                </div>
+                                {% if form.area_ocupada.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.area_ocupada.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.area_ocupada.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad y Medida -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-weight text-purple-600 mr-3"></i>
+                            Cantidad y Medida
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Cantidad Estimada -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-calculator text-purple-600 mr-2"></i>{{ form.cantidad_estimada.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.cantidad_estimada }}
+                                </div>
+                                {% if form.cantidad_estimada.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.cantidad_estimada.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.cantidad_estimada.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Unidad de Medida -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-balance-scale text-purple-600 mr-2"></i>{{ form.unidad_medida.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.unidad_medida }}
+                                </div>
+                                {% if form.unidad_medida.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.unidad_medida.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.unidad_medida.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado y Fechas -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-calendar text-orange-600 mr-3"></i>
+                            Estado y Fechas
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Estado -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-info-circle text-orange-600 mr-2"></i>{{ form.estado.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.estado }}
+                                </div>
+                                {% if form.estado.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.estado.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.estado.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Fecha de Disponibilidad -->
+                            <div class="field-wrapper">
+                                <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-calendar text-orange-600 mr-2"></i>{{ form.fecha_disponibilidad.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.fecha_disponibilidad }}
+                                </div>
+                                {% if form.fecha_disponibilidad.help_text %}
+                                <p class="mt-2 text-sm text-gray-500">{{ form.fecha_disponibilidad.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.fecha_disponibilidad.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notas Adicionales -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-sticky-note text-yellow-600 mr-3"></i>
+                            Notas Adicionales
+                        </h3>
+                        
                         <div class="field-wrapper">
-                            <label for="{{ form.finca.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-tractor text-green-600 mr-2"></i>{{ form.finca.label }}
+                            <label for="{{ form.notas.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-comment text-yellow-600 mr-2"></i>{{ form.notas.label }}
                             </label>
                             <div class="mt-1">
-                                {{ form.finca }}
+                                {{ form.notas }}
                             </div>
-                            {% if form.finca.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.finca.help_text }}</p>
+                            {% if form.notas.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ form.notas.help_text }}</p>
                             {% endif %}
-                            {% for error in form.finca.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-seedling text-green-600 mr-2"></i>{{ form.nombre.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.nombre }}
-                            </div>
-                            {% if form.nombre.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.nombre.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.nombre.errors %}
+                            {% for error in form.notas.errors %}
                             <p class="mt-2 text-sm text-red-600">{{ error }}</p>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <!-- Categoria y Area Ocupada -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-tags text-blue-600 mr-2"></i>{{ form.categoria.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.categoria }}
-                            </div>
-                            {% for error in form.categoria.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.area_ocupada.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-ruler text-orange-600 mr-2"></i>{{ form.area_ocupada.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.area_ocupada }}
-                            </div>
-                            {% if form.area_ocupada.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ form.area_ocupada.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.area_ocupada.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
+                    <!-- Botones de Acción -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                        <a href="{% url 'crop_list' %}" class="flex-1 btn-secondary text-center group">
+                            <i class="fas fa-times mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="flex-1 btn-primary group">
+                            <i class="fas fa-save mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            {% if form.instance.pk %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}
+                        </button>
                     </div>
-
-                    <!-- Quantity and Unit -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-weight text-orange-600 mr-2"></i>{{ form.cantidad_estimada.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.cantidad_estimada }}
-                            </div>
-                            {% for error in form.cantidad_estimada.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-balance-scale text-purple-600 mr-2"></i>{{ form.unidad_medida.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.unidad_medida }}
-                            </div>
-                            {% for error in form.unidad_medida.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Status and Date -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>{{ form.estado.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.estado }}
-                            </div>
-                            {% for error in form.estado.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-calendar text-green-600 mr-2"></i>{{ form.fecha_disponibilidad.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.fecha_disponibilidad }}
-                            </div>
-                            {% for error in form.fecha_disponibilidad.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Notes -->
-                    <div class="field-wrapper">
-                        <label for="{{ form.notas.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-sticky-note text-yellow-600 mr-2"></i>{{ form.notas.label }}
-                        </label>
-                        <div class="mt-1">
-                            {{ form.notas }}
-                        </div>
-                        {% if form.notas.help_text %}
-                        <p class="mt-2 text-sm text-gray-500">{{ form.notas.help_text }}</p>
-                        {% endif %}
-                        {% for error in form.notas.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
-                    <a href="{% url 'crop_list' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
-                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
-                        {% if form.instance.pk %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
-

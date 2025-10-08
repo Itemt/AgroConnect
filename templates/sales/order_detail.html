@@ -3,395 +3,302 @@
 {% block title %}Pedido #{{ order.id }}{% endblock %}
 
 {% block user_content %}
-<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <!-- Header con gradiente -->
-    <div class="card mb-6 overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600 px-6 py-8 relative">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-            <div class="relative flex justify-between items-start">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-3 py-1">
-                            <i class="fas fa-receipt text-white text-xl"></i>
+<div class="min-h-screen">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8">
+            <div class="card-body p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                            <i class="fas fa-receipt text-white text-2xl"></i>
                         </div>
-                        <h1 class="text-3xl font-bold text-white">Pedido #{{ order.id }}</h1>
+                        <div>
+                            <h1 class="text-5xl font-bold text-gradient">Pedido #{{ order.id }}</h1>
+                            <p class="text-gray-600 mt-2 text-xl">Realizado el: {{ order.created_at|date:"d M Y" }}</p>
+                        </div>
                     </div>
-                    <p class="text-primary-100">Realizado el: {{ order.created_at|date:"d M Y" }}</p>
+                    <div class="flex items-center space-x-4">
+                        {% with status=order.get_estado_display|lower|slugify %}
+                        <div class="px-4 py-2 text-sm font-bold rounded-xl shadow-lg
+                            {% if status == 'pendiente' %}bg-blue-500 text-white
+                            {% elif status == 'acordado' %}bg-blue-600 text-white
+                            {% elif status == 'en-transito' or status == 'en-tránsito' %}bg-yellow-500 text-white
+                            {% elif status == 'entregado' %}bg-green-500 text-white
+                            {% elif status == 'recibido' %}bg-purple-500 text-white
+                            {% elif status == 'completado' %}bg-green-600 text-white
+                            {% elif status == 'cancelado' %}bg-red-500 text-white
+                            {% else %}bg-gray-500 text-white{% endif %}">
+                            <i class="fas fa-circle mr-2 text-xs"></i>{{ order.get_estado_display }}
+                        </div>
+                        {% endwith %}
+                        
+                        {% if order.is_paid %}
+                        <div class="px-4 py-2 text-sm font-bold rounded-xl shadow-lg bg-green-500 text-white">
+                            <i class="fas fa-check-circle mr-2"></i>Pagado
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% with status=order.get_estado_display|lower|slugify %}
-                <div class="px-4 py-2 text-sm font-bold rounded-xl shadow-lg
-                    {% if status == 'pendiente' %}bg-blue-500 text-white
-                    {% elif status == 'acordado' %}bg-blue-600 text-white
-                    {% elif status == 'en-transito' or status == 'en-tránsito' %}bg-yellow-500 text-white
-                    {% elif status == 'entregado' %}bg-green-500 text-white
-                    {% elif status == 'recibido' %}bg-purple-500 text-white
-                    {% elif status == 'completado' %}bg-green-600 text-white
-                    {% elif status == 'cancelado' %}bg-red-500 text-white
-                    {% else %}bg-gray-500 text-white{% endif %}">
-                    <i class="fas fa-circle mr-2 text-xs"></i>{{ order.get_estado_display }}
-                </div>
-                {% endwith %}
             </div>
         </div>
-    </div>
 
-    <!-- Actions -->
-    <div class="card mb-6">
-        <div class="px-6 py-5">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-tasks text-primary-600 mr-2"></i>
-                Acciones Disponibles
-            </h2>
-            <div class="flex flex-wrap items-center gap-3">
-                {% if user_role == 'Comprador' and order.estado == 'pendiente' %}
-                    {% if order.payment %}
-                        {% if order.payment.is_approved %}
-                            <span class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 shadow-md flex items-center">
-                                <i class="fas fa-check-circle mr-2"></i>Pagado
-                            </span>
+        <!-- Acciones Disponibles -->
+        <div class="card mb-8">
+            <div class="card-body p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-tasks text-primary-600 mr-3"></i>
+                    Acciones Disponibles
+                </h3>
+                <div class="flex flex-wrap items-center gap-3">
+                    {% if user_role == 'Comprador' and order.estado == 'pendiente' %}
+                        {% if order.payment %}
+                            {% if order.payment.is_approved %}
+                                <span class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-green-500 shadow-md flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>Pagado
+                                </span>
+                            {% else %}
+                                <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-purple-500 hover:bg-purple-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                    <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
+                                </a>
+                            {% endif %}
                         {% else %}
-                            <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                            <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-purple-500 hover:bg-purple-600 shadow-md hover:shadow-lg transition-all flex items-center">
                                 <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
                             </a>
                         {% endif %}
-                    {% else %}
-                        <a href="{% url 'payments:checkout' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-credit-card mr-2"></i>Pagar Ahora
-                        </a>
                     {% endif %}
-                {% endif %}
-                {% for action_key, action_label, action_class in order.available_actions %}
-                    {% if action_key == 'confirm_receipt' %}
-                        <a href="{% url 'confirm_order_receipt' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
-                        </a>
-                    {% elif action_key == 'rate_seller' or action_key == 'edit_rating_seller' %}
-                        <button onclick="openRateSellerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-star mr-2"></i>{{ action_label }}
-                        </button>
-                    {% elif action_key == 'rate_buyer' or action_key == 'edit_rating_buyer' %}
-                        <button onclick="openRateBuyerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-star mr-2"></i>{{ action_label }}
-                        </button>
-                    {% elif action_key == 'update_status' %}
-                        <a href="{% url 'update_order_status' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}
-                        </a>
-                    {% elif action_key == 'cancel' %}
-                        <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-times-circle mr-2"></i>{{ action_label }}
-                        </button>
-                    {% elif action_key == 'contact' %}
-                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 shadow-md hover:shadow-lg transition-all flex items-center">
-                            <i class="fas fa-comments mr-2"></i>{{ action_label }}
-                        </a>
-                    {% endif %}
-                {% endfor %}
-                <a href="{% url 'order_history' %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-gray-700 bg-gray-100 hover:bg-gray-200 shadow-sm hover:shadow transition-all flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>Volver al Historial
-                </a>
+                    
+                    {% for action_key, action_label, action_class in order.available_actions %}
+                        {% if action_key == 'confirm_receipt' %}
+                            <a href="{% url 'confirm_order_receipt' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-green-500 hover:bg-green-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-check-circle mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'rate_seller' or action_key == 'edit_rating_seller' %}
+                            <button onclick="openRateSellerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-yellow-500 hover:bg-yellow-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-star mr-2"></i>{{ action_label }}
+                            </button>
+                        {% elif action_key == 'rate_buyer' or action_key == 'edit_rating_buyer' %}
+                            <button onclick="openRateBuyerModal()" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-yellow-500 hover:bg-yellow-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-star mr-2"></i>{{ action_label }}
+                            </button>
+                        {% elif action_key == 'update_status' %}
+                            <a href="{% url 'update_order_status' order.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-pencil-alt mr-2"></i>{{ action_label }}
+                            </a>
+                        {% elif action_key == 'cancel' %}
+                            <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-red-500 hover:bg-red-600 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-times-circle mr-2"></i>{{ action_label }}
+                            </button>
+                        {% elif action_key == 'contact' %}
+                            <a href="{% url 'start_conversation' order.publicacion.id %}" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gray-600 hover:bg-gray-700 shadow-md hover:shadow-lg transition-all flex items-center">
+                                <i class="fas fa-comments mr-2"></i>{{ action_label }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Order Details -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Detalles del Producto -->
-        <div class="lg:col-span-2 card">
-            <div class="px-6 py-5">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-box text-primary-600 mr-2"></i>
-                    Detalles del Producto
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200">
-                        <div class="flex items-start">
-                            <div class="bg-green-500 rounded-lg p-2 mr-3">
-                                <i class="fas fa-seedling text-white"></i>
+        <!-- Detalles del Pedido -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Detalles del Producto -->
+            <div class="lg:col-span-2">
+                <div class="card mb-6">
+                    <div class="card-body p-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-box text-primary-600 mr-3"></i>
+                            Detalles del Producto
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Información del Producto -->
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                                <div class="flex items-start">
+                                    <div class="bg-green-500 rounded-lg p-3 mr-4">
+                                        <i class="fas fa-seedling text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Producto</h4>
+                                        <p class="text-gray-600">{{ order.publicacion.cultivo.nombre }}</p>
+                                        <p class="text-sm text-gray-500 mt-1">{{ order.publicacion.cultivo.get_categoria_display }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-xs text-green-600 font-medium mb-1">Producto</p>
-                                <p class="font-bold text-gray-800">{{ order.publicacion.cultivo.nombre }}</p>
+                            
+                            <!-- Cantidad -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-500 rounded-lg p-3 mr-4">
+                                        <i class="fas fa-weight text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Cantidad</h4>
+                                        <p class="text-gray-600">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Precio Unitario -->
+                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                                <div class="flex items-start">
+                                    <div class="bg-purple-500 rounded-lg p-3 mr-4">
+                                        <i class="fas fa-tag text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Precio Unitario</h4>
+                                        <p class="text-gray-600">${{ order.publicacion.precio_unitario|floatformat:0 }} COP</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Total -->
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                                <div class="flex items-start">
+                                    <div class="bg-amber-500 rounded-lg p-3 mr-4">
+                                        <i class="fas fa-dollar-sign text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Total</h4>
+                                        <p class="text-gray-600 text-xl font-bold">${{ order.precio_total|floatformat:0 }} COP</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200">
-                        <div class="flex items-start">
-                            <div class="bg-blue-500 rounded-lg p-2 mr-3">
-                                <i class="fas fa-weight text-white"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-blue-600 font-medium mb-1">Cantidad</p>
-                                <p class="font-bold text-gray-800">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200">
-                        <div class="flex items-start">
-                            <div class="bg-purple-500 rounded-lg p-2 mr-3">
-                                <i class="fas fa-tag text-white"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-purple-600 font-medium mb-1">Precio/Unidad</p>
-                                <p class="font-bold text-gray-800">${{ order.publicacion.precio_por_unidad|floatformat:0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border-2 border-amber-200">
-                        <div class="flex items-start">
-                            <div class="bg-amber-500 rounded-lg p-2 mr-3">
-                                <i class="fas fa-dollar-sign text-white"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-amber-600 font-medium mb-1">Total</p>
-                                <p class="font-bold text-gray-800 text-lg">${{ order.precio_total|floatformat:0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Estado del Pago -->
-                    <div class="col-span-2 md:col-span-4 bg-gradient-to-br from-{% if order.is_paid %}green{% else %}red{% endif %}-50 to-{% if order.is_paid %}green{% else %}red{% endif %}-100 rounded-xl p-4 border-2 border-{% if order.is_paid %}green{% else %}red{% endif %}-300">
-                        <div class="flex items-start">
-                            <div class="bg-{% if order.is_paid %}green{% else %}red{% endif %}-500 rounded-lg p-3 mr-3">
-                                <i class="fas fa-{% if order.is_paid %}check-circle{% else %}exclamation-circle{% endif %} text-white text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-{% if order.is_paid %}green{% else %}red{% endif %}-700 font-bold mb-1">ESTADO DEL PAGO</p>
-                                <p class="font-bold text-gray-900 text-lg">
-                                    {% if order.is_paid %}
-                                        ✓ PAGADO
-                                    {% elif order.payment %}
-                                        {{ order.payment.get_status_display|upper }}
-                                    {% else %}
-                                        SIN PAGAR
+                        
+                        <!-- Estado del Pago -->
+                        <div class="mt-6 {% if order.is_paid %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %} border rounded-xl p-6">
+                            <div class="flex items-center">
+                                <div class="{% if order.is_paid %}bg-green-500{% else %}bg-red-500{% endif %} rounded-lg p-3 mr-4">
+                                    <i class="fas fa-{% if order.is_paid %}check-circle{% else %}exclamation-circle{% endif %} text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-1">Estado del Pago</h4>
+                                    <p class="{% if order.is_paid %}text-green-700{% else %}text-red-700{% endif %} font-medium">
+                                        {% if order.is_paid %}Pago Confirmado{% else %}Pendiente de Pago{% endif %}
+                                    </p>
+                                    {% if order.payment %}
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            ID de Transacción: {{ order.payment.transaction_id }}
+                                        </p>
                                     {% endif %}
-                                </p>
-                                {% if order.is_paid and order.payment.paid_at %}
-                                <p class="text-xs text-gray-600 mt-1">
-                                    <i class="fas fa-calendar mr-1"></i>{{ order.payment.paid_at|date:"d/m/Y H:i" }}
-                                </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Participantes -->
+                <div class="card mb-6">
+                    <div class="card-body p-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-users text-primary-600 mr-2"></i>
+                            Participantes
+                        </h4>
+                        <div class="space-y-4">
+                            <!-- Vendedor -->
+                            <div class="bg-primary-50 border border-primary-200 rounded-xl p-4">
+                                <div class="flex items-start">
+                                    <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                        <i class="fas fa-seedling text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Vendedor</h5>
+                                        <p class="text-gray-600">{{ order.vendedor.get_full_name }}</p>
+                                        <p class="text-sm text-gray-500">{{ order.vendedor.email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Comprador -->
+                            <div class="bg-accent-50 border border-accent-200 rounded-xl p-4">
+                                <div class="flex items-start">
+                                    <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                        <i class="fas fa-shopping-cart text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-800">Comprador</h5>
+                                        <p class="text-gray-600">{{ order.comprador.get_full_name }}</p>
+                                        <p class="text-sm text-gray-500">{{ order.comprador.email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline del Pedido -->
+                <div class="card">
+                    <div class="card-body p-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-history text-primary-600 mr-2"></i>
+                            Historial del Pedido
+                        </h4>
+                        <div class="relative">
+                            <div class="border-l-2 border-primary-200 absolute h-full top-0 left-4"></div>
+                            <div class="space-y-6">
+                                <!-- Pedido Creado -->
+                                <div class="flex items-start relative">
+                                    <div class="bg-green-500 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h5 class="font-semibold text-gray-800">Pedido Creado</h5>
+                                        <p class="text-sm text-gray-600">{{ order.created_at|date:"d M Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if order.fecha_confirmacion %}
+                                <!-- Pedido Confirmado -->
+                                <div class="flex items-start relative">
+                                    <div class="bg-green-500 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                        <i class="fas fa-check-double text-white"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h5 class="font-semibold text-gray-800">Pedido Confirmado</h5>
+                                        <p class="text-sm text-gray-600">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if order.fecha_envio %}
+                                <!-- Enviado -->
+                                <div class="flex items-start relative">
+                                    <div class="bg-blue-500 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                        <i class="fas fa-truck text-white"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h5 class="font-semibold text-gray-800">Enviado</h5>
+                                        <p class="text-sm text-gray-600">{{ order.fecha_envio|date:"d M Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if order.fecha_entrega %}
+                                <!-- Entregado -->
+                                <div class="flex items-start relative">
+                                    <div class="bg-purple-500 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
+                                        <i class="fas fa-home text-white"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h5 class="font-semibold text-gray-800">Entregado</h5>
+                                        <p class="text-sm text-gray-600">{{ order.fecha_entrega|date:"d M Y H:i" }}</p>
+                                    </div>
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-users text-accent-600 mr-2"></i>
-                        Participantes
-                    </h4>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 border-2 border-primary-200">
-                            <div class="flex items-start">
-                                <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                                    <i class="fas fa-seedling text-white"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-primary-600 font-medium mb-1">Vendedor</p>
-                                    <p class="font-bold text-gray-800">{{ order.vendedor.first_name }} {{ order.vendedor.last_name }}</p>
-                                    <p class="text-xs text-gray-600 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>{{ order.vendedor.producer_profile.location }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl p-4 border-2 border-accent-200">
-                            <div class="flex items-start">
-                                <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                                    <i class="fas fa-shopping-cart text-white"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-accent-600 font-medium mb-1">Comprador</p>
-                                    <p class="font-bold text-gray-800">{{ order.comprador.first_name }} {{ order.comprador.last_name }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cronología del Pedido -->
-        <div class="card">
-            <div class="px-6 py-5">
-                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                    <i class="fas fa-history text-primary-600 mr-2"></i>
-                    Cronología
-                </h3>
-                <div class="relative">
-                    <div class="border-l-2 border-primary-200 absolute h-full top-0 left-4"></div>
-                    <div class="space-y-6">
-                        <div class="flex items-start relative">
-                            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
-                                <i class="fas fa-check text-white"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="font-semibold text-gray-800">Pedido Creado</p>
-                                <p class="text-sm text-gray-600">{{ order.created_at|date:"d M Y" }}</p>
-                            </div>
-                        </div>
-                        {% if order.fecha_confirmacion %}
-                        <div class="flex items-start relative">
-                            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
-                                <i class="fas fa-check-double text-white"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="font-semibold text-gray-800">Confirmado</p>
-                                <p class="text-sm text-gray-600">{{ order.fecha_confirmacion|date:"d M Y" }}</p>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if order.fecha_envio %}
-                        <div class="flex items-start relative">
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
-                                <i class="fas fa-truck text-white"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="font-semibold text-gray-800">En Tránsito</p>
-                                <p class="text-sm text-gray-600">{{ order.fecha_envio|date:"d M Y, H:i" }}</p>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if order.fecha_recepcion %}
-                        <div class="flex items-start relative">
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-full h-10 w-10 flex items-center justify-center z-10 shadow-md">
-                                <i class="fas fa-home text-white"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="font-semibold text-gray-800">Recibido</p>
-                                <p class="text-sm text-gray-600">{{ order.fecha_recepcion|date:"d M Y" }}</p>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
-    <!-- Notes -->
-    {% if order.notas_comprador or order.notas_vendedor %}
-    <div class="card mb-6">
-        <div class="px-6 py-5">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-sticky-note text-primary-600 mr-2"></i>
-                Notas
-            </h3>
-            <div class="space-y-4">
-                {% if order.notas_comprador %}
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-l-4 border-blue-500">
-                    <p class="font-semibold text-blue-800 mb-2 flex items-center">
-                        <i class="fas fa-shopping-cart mr-2"></i>
-                        Notas del Comprador:
-                    </p>
-                    <p class="text-gray-700 italic">"{{ order.notas_comprador }}"</p>
-                </div>
-                {% endif %}
-                {% if order.notas_vendedor %}
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-l-4 border-green-500">
-                    <p class="font-semibold text-green-800 mb-2 flex items-center">
-                        <i class="fas fa-seedling mr-2"></i>
-                        Notas del Vendedor:
-                    </p>
-                    <p class="text-gray-700 italic">"{{ order.notas_vendedor }}"</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Calificaciones -->
-    {% if rating_from_buyer or rating_from_seller %}
-    <div class="card mb-6">
-        <div class="px-6 py-5">
-            <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>
-                Calificaciones del Pedido
-            </h3>
-            
-            <!-- Calificación del Comprador al Vendedor -->
-            {% if rating_from_buyer %}
-            <div class="mb-6 pb-6 {% if rating_from_seller %}border-b border-gray-200{% endif %}">
-                <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
-                    <i class="fas fa-user-tie text-primary-600 mr-2"></i>
-                    Calificación al Vendedor (por {{ order.comprador.first_name }})
-                </h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border-2 border-yellow-200 text-center">
-                        <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-yellow-600 font-medium mb-1">General</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_buyer.calificacion_general }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200 text-center">
-                        <i class="fas fa-comments text-blue-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-blue-600 font-medium mb-1">Comunicación</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_buyer.calificacion_comunicacion }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200 text-center">
-                        <i class="fas fa-clock text-purple-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-purple-600 font-medium mb-1">Puntualidad</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_buyer.calificacion_puntualidad }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200 text-center">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-green-600 font-medium mb-1">Calidad</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_buyer.calificacion_calidad }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                </div>
-                {% if rating_from_buyer.comentario %}
-                    <div class="mt-4 bg-gray-50 rounded-xl p-4 border-l-4 border-primary-300">
-                        <p class="text-gray-700 italic">"{{ rating_from_buyer.comentario }}"</p>
-                    </div>
-                {% endif %}
-            </div>
-            {% endif %}
-            
-            <!-- Calificación del Vendedor al Comprador -->
-            {% if rating_from_seller %}
-            <div>
-                <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
-                    <i class="fas fa-user text-accent-600 mr-2"></i>
-                    Calificación al Comprador (por {{ order.vendedor.first_name }})
-                </h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border-2 border-yellow-200 text-center">
-                        <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-yellow-600 font-medium mb-1">General</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_seller.calificacion_general }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-2 border-blue-200 text-center">
-                        <i class="fas fa-comments text-blue-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-blue-600 font-medium mb-1">Comunicación</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_seller.calificacion_comunicacion }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-2 border-purple-200 text-center">
-                        <i class="fas fa-clock text-purple-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-purple-600 font-medium mb-1">Puntualidad</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_seller.calificacion_puntualidad }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border-2 border-green-200 text-center">
-                        <i class="fas fa-handshake text-green-500 text-2xl mb-2"></i>
-                        <p class="text-xs text-green-600 font-medium mb-1">Profesionalismo</p>
-                        <p class="font-bold text-gray-800 text-xl">{{ rating_from_seller.calificacion_calidad }}<span class="text-sm text-gray-600">/5</span></p>
-                    </div>
-                </div>
-                {% if rating_from_seller.comentario %}
-                    <div class="mt-4 bg-gray-50 rounded-xl p-4 border-l-4 border-accent-300">
-                        <p class="text-gray-700 italic">"{{ rating_from_seller.comentario }}"</p>
-                    </div>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 
-<!-- Modal de confirmación de cancelación -->
+<!-- Modal de Cancelación -->
 <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
         <!-- Header -->
@@ -409,90 +316,36 @@
 
         <!-- Body -->
         <div class="px-6 py-6">
-            <div class="text-center mb-6">
-                <p class="text-gray-700 text-lg">
-                    Pedido de <strong id="cancelOrderName" class="text-gray-900"></strong>
-                </p>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Detalles del Pedido:</h4>
+                <p class="text-sm text-gray-600 mb-1"><strong>Producto:</strong> <span id="cancelProductName"></span></p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Cantidad:</strong> <span id="cancelQuantity"></span> <span id="cancelUnit"></span></p>
+                <p class="text-sm text-gray-600"><strong>Total:</strong> $<span id="cancelTotal"></span> COP</p>
             </div>
             
-            <!-- Información del pedido con iconos -->
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                    <div class="flex items-center">
-                        <div class="bg-blue-500 rounded-lg p-2 mr-3">
-                            <i class="fas fa-box text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-blue-600 font-medium">Cantidad</p>
-                            <p class="text-sm font-bold text-blue-900" id="cancelOrderQuantity"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                    <div class="flex items-center">
-                        <div class="bg-green-500 rounded-lg p-2 mr-3">
-                            <i class="fas fa-dollar-sign text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-green-600 font-medium">Total</p>
-                            <p class="text-sm font-bold text-green-900">$<span id="cancelOrderTotal"></span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 rounded-lg p-4 mb-4 shadow-sm">
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <div class="bg-yellow-400 rounded-full p-2">
-                            <i class="fas fa-exclamation-triangle text-white"></i>
-                        </div>
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-sm font-bold text-yellow-800 mb-2">Consecuencias de cancelar:</h4>
-                        <ul class="text-sm text-yellow-700 space-y-1.5">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-green-600 mr-2 mt-0.5"></i>
-                                <span>La cantidad será restaurada al inventario</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-credit-card text-blue-600 mr-2 mt-0.5"></i>
-                                <span>El pago será reembolsado (si aplica)</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-ban text-red-600 mr-2 mt-0.5"></i>
-                                <span>Esta acción no se puede deshacer</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-bell text-purple-600 mr-2 mt-0.5"></i>
-                                <span>La otra parte será notificada</span>
-                            </li>
-                        </ul>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <strong>Advertencia:</strong> Al cancelar este pedido, se notificará al vendedor y se liberará el stock.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
-                <label class="flex items-start cursor-pointer group">
-                    <input type="checkbox" id="confirmCancelCheckbox" class="mt-1 h-5 w-5 text-red-600 border-2 border-red-300 rounded focus:ring-2 focus:ring-red-500 cursor-pointer">
-                    <span class="ml-3 text-sm text-red-700 font-semibold group-hover:text-red-800 transition-colors">
-                        <i class="fas fa-shield-alt mr-1"></i>
-                        Confirmo que entiendo las consecuencias y deseo cancelar este pedido permanentemente.
-                    </span>
-                </label>
-            </div>
-
-            <!-- Botones -->
-            <div class="flex gap-3">
+            <div class="flex space-x-3">
                 <button onclick="closeCancelModal()" 
-                        class="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 font-semibold shadow-sm hover:shadow">
-                    <i class="fas fa-arrow-left mr-2"></i>Volver
+                        class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times mr-2"></i>No, mantener
                 </button>
                 <form id="cancelForm" method="post" class="flex-1">
                     {% csrf_token %}
-                    <button type="submit" id="confirmCancelButton" disabled
-                            class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md">
-                        <i class="fas fa-times-circle mr-2"></i>Confirmar Cancelación
+                    <button type="submit" 
+                            class="w-full bg-red-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
+                        <i class="fas fa-trash mr-2"></i>Sí, cancelar
                     </button>
                 </form>
             </div>
@@ -500,247 +353,13 @@
     </div>
 </div>
 
-<!-- Modal para Calificar Vendedor -->
-<div id="rateSellerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" style="backdrop-filter: blur(2px);">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateSellerModalContent">
-        <!-- Header -->
-        <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-600 px-4 py-3 rounded-t-2xl relative overflow-hidden sticky top-0 z-10">
-            <div class="absolute inset-0 bg-white opacity-10"></div>
-            <div class="relative flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full p-1.5 backdrop-blur-sm">
-                        <i class="fas fa-star text-white text-lg"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white ml-2.5">{% if my_rating and user_role == 'Comprador' %}Editar Calificación{% else %}Calificar Vendedor{% endif %}</h3>
-                </div>
-                <button onclick="closeRateSellerModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1.5 transition-all">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Body -->
-        <form method="post" action="{% url 'rate_seller' order.id %}" class="px-4 py-3">
-            {% csrf_token %}
-            <div class="space-y-3">
-                <!-- Calificación General -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        <i class="fas fa-star text-yellow-500 mr-1"></i> Calificación General
-                    </label>
-                    <select name="calificacion_general" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_general == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_general == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_general == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_general == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_general == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Comunicación -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        <i class="fas fa-comments text-blue-500 mr-1"></i> Comunicación
-                    </label>
-                    <select name="calificacion_comunicacion" required class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_comunicacion == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_comunicacion == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_comunicacion == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_comunicacion == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_comunicacion == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Puntualidad -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Entregas
-                    </label>
-                    <select name="calificacion_puntualidad" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_puntualidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_puntualidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_puntualidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_puntualidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_puntualidad == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Calidad -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-box-open text-purple-500 mr-1"></i> Calidad del Producto
-                    </label>
-                    <select name="calificacion_calidad" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_calidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_calidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_calidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_calidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_calidad == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Comentario -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        <i class="fas fa-comment-alt text-gray-500 mr-1"></i> Comentario (Opcional)
-                    </label>
-                    <textarea name="comentario" rows="2" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{% if my_rating %}{{ my_rating.comentario }}{% endif %}</textarea>
-                </div>
-
-                <!-- Recomendación -->
-                <div class="bg-gray-50 p-3 rounded-lg">
-                    <label class="flex items-start cursor-pointer">
-                        <input type="checkbox" name="recomendaria" value="true" {% if not my_rating or my_rating.recomendaria %}checked{% endif %} class="mt-0.5 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <span class="ml-2 text-sm font-medium text-gray-700">
-                            <i class="fas fa-thumbs-up text-green-600 mr-1"></i> ¿Recomendarías comprar a este vendedor?
-                        </span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-200">
-                <button type="button" onclick="closeRateSellerModal()" class="px-4 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold transition-all text-sm">
-                    Cancelar
-                </button>
-                <button type="submit" class="px-5 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all text-sm">
-                    <i class="fas fa-star mr-1"></i> {% if my_rating and user_role == 'Comprador' %}Actualizar{% else %}Enviar{% endif %}
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal para Calificar Comprador -->
-<div id="rateBuyerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" style="backdrop-filter: blur(2px);">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateBuyerModalContent">
-        <!-- Header -->
-        <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-600 px-4 py-3 rounded-t-2xl relative overflow-hidden sticky top-0 z-10">
-            <div class="absolute inset-0 bg-white opacity-10"></div>
-            <div class="relative flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full p-1.5 backdrop-blur-sm">
-                        <i class="fas fa-star text-white text-lg"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white ml-2.5">{% if my_rating and user_role == 'Productor' %}Editar Calificación{% else %}Calificar Comprador{% endif %}</h3>
-                </div>
-                <button onclick="closeRateBuyerModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1.5 transition-all">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Body -->
-        <form method="post" action="{% url 'rate_buyer' order.id %}" class="px-4 py-3">
-            {% csrf_token %}
-            
-            <div class="space-y-2.5">
-                <!-- Calificación General -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-star text-yellow-500 mr-1"></i> Calificación General
-                    </label>
-                    <select name="calificacion_general" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_general == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_general == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_general == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_general == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_general == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Comunicación -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-comments text-blue-500 mr-1"></i> Comunicación
-                    </label>
-                    <select name="calificacion_comunicacion" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_comunicacion == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_comunicacion == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_comunicacion == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_comunicacion == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_comunicacion == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Puntualidad -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-clock text-green-500 mr-1"></i> Puntualidad en Pagos
-                    </label>
-                    <select name="calificacion_puntualidad" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_puntualidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_puntualidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_puntualidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_puntualidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_puntualidad == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Calificación Profesionalismo -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-handshake text-purple-500 mr-1"></i> Profesionalismo
-                    </label>
-                    <select name="calificacion_calidad" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                        <option value="">Selecciona...</option>
-                        <option value="5" {% if my_rating and my_rating.calificacion_calidad == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ Excelente</option>
-                        <option value="4" {% if my_rating and my_rating.calificacion_calidad == 4 %}selected{% endif %}>⭐⭐⭐⭐ Muy Bueno</option>
-                        <option value="3" {% if my_rating and my_rating.calificacion_calidad == 3 %}selected{% endif %}>⭐⭐⭐ Bueno</option>
-                        <option value="2" {% if my_rating and my_rating.calificacion_calidad == 2 %}selected{% endif %}>⭐⭐ Regular</option>
-                        <option value="1" {% if my_rating and my_rating.calificacion_calidad == 1 %}selected{% endif %}>⭐ Malo</option>
-                    </select>
-                </div>
-
-                <!-- Comentario -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-comment-alt text-gray-500 mr-1"></i> Comentario (Opcional)
-                    </label>
-                    <textarea name="comentario" rows="2" class="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia...">{% if my_rating %}{{ my_rating.comentario }}{% endif %}</textarea>
-                </div>
-
-                <!-- Recomendación -->
-                <div class="bg-gray-50 p-2.5 rounded-lg">
-                    <label class="flex items-start cursor-pointer">
-                        <input type="checkbox" name="recomendaria" value="true" {% if not my_rating or my_rating.recomendaria %}checked{% endif %} class="mt-0.5 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <span class="ml-2 text-xs font-medium text-gray-700">
-                            <i class="fas fa-thumbs-up text-green-600 mr-1"></i> ¿Recomendarías hacer negocios con este comprador?
-                        </span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-200">
-                <button type="button" onclick="closeRateBuyerModal()" class="px-4 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold transition-all text-sm">
-                    Cancelar
-                </button>
-                <button type="submit" class="px-5 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-md hover:shadow-lg transition-all text-sm">
-                    <i class="fas fa-star mr-1"></i> {% if my_rating and user_role == 'Productor' %}Actualizar{% else %}Enviar{% endif %}
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
-    function showCancelModal(orderId, orderName, quantity, unit, total) {
+    function showCancelModal(orderId, productName, quantity, unit, total) {
         // Actualizar contenido del modal
-        document.getElementById('cancelOrderName').textContent = orderName;
-        document.getElementById('cancelOrderQuantity').textContent = quantity + ' ' + unit;
-        document.getElementById('cancelOrderTotal').textContent = total;
-        
-        // Resetear el checkbox
-        document.getElementById('confirmCancelCheckbox').checked = false;
-        document.getElementById('confirmCancelButton').disabled = true;
+        document.getElementById('cancelProductName').textContent = productName;
+        document.getElementById('cancelQuantity').textContent = quantity;
+        document.getElementById('cancelUnit').textContent = unit;
+        document.getElementById('cancelTotal').textContent = total;
         
         // Actualizar action del formulario
         document.getElementById('cancelForm').action = '/order/' + orderId + '/cancel/';
@@ -770,11 +389,6 @@
         }, 300);
     }
 
-    // Habilitar/deshabilitar botón de confirmación según el checkbox
-    document.getElementById('confirmCancelCheckbox').addEventListener('change', function() {
-        document.getElementById('confirmCancelButton').disabled = !this.checked;
-    });
-
     // Cerrar modal al hacer click fuera de él
     document.getElementById('cancelModal').addEventListener('click', function(e) {
         if (e.target === this) {
@@ -786,76 +400,6 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeCancelModal();
-            closeRateSellerModal();
-            closeRateBuyerModal();
-        }
-    });
-
-    // Funciones para el modal de calificar vendedor
-    function openRateSellerModal() {
-        const modal = document.getElementById('rateSellerModal');
-        const modalContent = document.getElementById('rateSellerModalContent');
-        
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-
-    function closeRateSellerModal() {
-        const modal = document.getElementById('rateSellerModal');
-        const modalContent = document.getElementById('rateSellerModalContent');
-        
-        modalContent.classList.remove('scale-100', 'opacity-100');
-        modalContent.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }, 300);
-    }
-
-    // Cerrar modal al hacer click fuera de él
-    document.getElementById('rateSellerModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeRateSellerModal();
-        }
-    });
-
-    // Funciones para el modal de calificar comprador
-    function openRateBuyerModal() {
-        const modal = document.getElementById('rateBuyerModal');
-        const modalContent = document.getElementById('rateBuyerModalContent');
-        
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-
-    function closeRateBuyerModal() {
-        const modal = document.getElementById('rateBuyerModal');
-        const modalContent = document.getElementById('rateBuyerModalContent');
-        
-        modalContent.classList.remove('scale-100', 'opacity-100');
-        modalContent.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }, 300);
-    }
-
-    // Cerrar modal al hacer click fuera de él
-    document.getElementById('rateBuyerModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeRateBuyerModal();
         }
     });
 </script>

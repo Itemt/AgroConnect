@@ -64,7 +64,7 @@ class Crop(BaseModel):
 
     # Información adicional
     notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
-                           help_text="Información adicional sobre el cultivo")
+                           help_text="Información adicional, observaciones o comentarios sobre el cultivo")
 
     class Meta:
         verbose_name = "Cultivo"
