@@ -1,9 +1,11 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import Order
+from .models import Order, Rating
 from core.models import create_notification
 from payments.models import Payment
+from accounts.models import ProducerProfile, BuyerProfile
+from django.db.models import Avg
 
 
 @receiver(post_save, sender=Order)
@@ -69,15 +71,6 @@ def order_status_notifications(sender, instance, created, **kwargs):
                 order_id=instance.id,
             )
             
-        elif instance.estado == 'entregado':
-            # Pedido entregado
-            create_notification(
-                recipient=instance.comprador,
-                title='Pedido entregado',
-                message=f'Tu pedido #{instance.id} ha sido entregado. Por favor confirma la recepción.',
-                category='order',
-                order_id=instance.id,
-            )
             
         elif instance.estado == 'recibido':
             # Pedido recibido por el comprador
@@ -183,3 +176,81 @@ def payment_status_notifications(sender, instance, created, **kwargs):
                 order_id=instance.order.id,
                 payment_id=instance.id,
             )
+
+
+@receiver(post_save, sender=Order)
+def update_seller_stats_on_completion(sender, instance, created, **kwargs):
+    """Actualiza estadísticas del vendedor cuando se completa un pedido"""
+    if not created and instance.estado == 'completado':
+        try:
+            # Obtener o crear perfil del vendedor
+            seller_profile, created = ProducerProfile.objects.get_or_create(
+                user=instance.vendedor,
+                defaults={
+                    'total_ventas': 0,
+                    'ingresos_totales': 0,
+                    'calificacion_promedio': 0,
+                    'total_calificaciones': 0,
+                }
+            )
+            
+            # Actualizar estadísticas
+            seller_profile.total_ventas += 1
+            seller_profile.ingresos_totales += instance.precio_total
+            
+            # Establecer fecha de primera venta si es la primera
+            if seller_profile.total_ventas == 1:
+                seller_profile.fecha_primera_venta = timezone.now()
+            
+            seller_profile.save()
+            
+        except Exception as e:
+            print(f"Error updating seller stats: {e}")
+
+
+@receiver(post_save, sender=Order)
+def update_buyer_stats_on_completion(sender, instance, created, **kwargs):
+    """Actualiza estadísticas del comprador cuando se completa un pedido"""
+    if not created and instance.estado == 'completado':
+        try:
+            # Obtener o crear perfil del comprador
+            buyer_profile, created = BuyerProfile.objects.get_or_create(
+                user=instance.comprador,
+                defaults={
+                    'total_compras': 0,
+                    'gastos_totales': 0,
+                }
+            )
+            
+            # Actualizar estadísticas
+            buyer_profile.total_compras += 1
+            buyer_profile.gastos_totales += instance.precio_total
+            buyer_profile.save()
+            
+        except Exception as e:
+            print(f"Error updating buyer stats: {e}")
+
+
+@receiver(post_save, sender=Rating)
+def update_rating_stats(sender, instance, created, **kwargs):
+    """Actualiza estadísticas de calificaciones cuando se crea una nueva calificación"""
+    if created:
+        try:
+            if instance.tipo == 'comprador_a_vendedor':
+                # Calificación de comprador a vendedor
+                seller_profile = ProducerProfile.objects.get(user=instance.calificado)
+                
+                # Recalcular promedio de calificaciones
+                ratings = Rating.objects.filter(
+                    pedido__vendedor=instance.calificado,
+                    tipo='comprador_a_vendedor'
+                )
+                
+                if ratings.exists():
+                    avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg']
+                    seller_profile.calificacion_promedio = round(avg_rating, 2)
+                    seller_profile.total_calificaciones = ratings.count()
+                    seller_profile.save()
+                    
+        except Exception as e:
+            print(f"Error updating rating stats: {e}")

@@ -32,7 +32,6 @@ class Order(BaseModel):
         ('en_preparacion', 'En Preparación'),
         ('enviado', 'Enviado'),
         ('en_transito', 'En Tránsito'),
-        ('entregado', 'Entregado'),
         ('recibido', 'Recibido por Comprador'),
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado'),
@@ -104,7 +103,7 @@ class Order(BaseModel):
 
     def can_be_received_by_buyer(self):
         """Verifica si el pedido puede ser marcado como recibido por el comprador"""
-        return self.estado in ['enviado', 'en_transito', 'entregado']
+        return self.estado in ['enviado', 'en_transito']
 
     def can_be_rated_by_buyer(self):
         """Verifica si el comprador puede calificar al vendedor"""
