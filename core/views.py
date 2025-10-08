@@ -136,7 +136,8 @@ def assistant_reply(request):
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        # Modelo económico y disponible según tu panel
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         system_prompt = (
             "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
@@ -150,12 +151,17 @@ def assistant_reply(request):
         
         prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
         
-        result = model.generate_content(prompt, generation_config={
-            'max_output_tokens': 800,
-            'temperature': 0.8,
-            'top_k': 45,
-            'top_p': 0.9,
-        })
+        result = model.generate_content(
+            prompt,
+            generation_config={
+                # 600–800 tokens por respuesta, configuramos 700 por defecto
+                'max_output_tokens': 700,
+                # Temperatura moderada para mantener respuestas enfocadas
+                'temperature': 0.6,
+                'top_k': 30,
+                'top_p': 0.85,
+            }
+        )
         
         text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
         
@@ -163,7 +169,7 @@ def assistant_reply(request):
             return JsonResponse({
                 "success": True, 
                 "reply": text.strip(), 
-                "model": "gemini-1.5-pro"
+                "model": "gemini-2.0-flash"
             })
         else:
             return JsonResponse({
@@ -219,7 +225,7 @@ def ai_publication_suggestions(request):
         try:
             import google.generativeai as genai
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-pro')
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             # Prompt optimizado para sugerencias de mercado colombiano
             prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
@@ -251,12 +257,15 @@ REGLAS:
 - Tips de marketing específicos para Colombia
 - Máximo 3 sugerencias por categoría"""
             
-            result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 400,
-                'temperature': 0.7,
-                'top_k': 40,
-                'top_p': 0.9,
-            })
+            result = model.generate_content(
+                prompt,
+                generation_config={
+                    'max_output_tokens': 400,
+                    'temperature': 0.6,
+                    'top_k': 30,
+                    'top_p': 0.85,
+                }
+            )
             
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
