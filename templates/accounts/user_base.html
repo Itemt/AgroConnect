@@ -135,10 +135,17 @@
         min-height: 100vh;
     }
     
-    /* Ensure sidebar has proper height and scroll */
+    /* Ensure sidebar is part of document flow */
     #sidebar {
         position: relative;
         z-index: 40;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    /* Remove any fixed positioning */
+    #sidebar.fixed {
+        position: relative !important;
     }
     
     #sidebar.w-20 .sidebar-text {
@@ -397,7 +404,7 @@
 
 <div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out h-screen overflow-y-auto flex-shrink-0">
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out min-h-screen flex-shrink-0">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
             <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
