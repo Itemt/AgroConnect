@@ -5,6 +5,22 @@ from .colombia_locations import get_departments, get_cities_by_department
 class FarmForm(forms.ModelForm):
     """Formulario para crear y editar fincas"""
     
+    # Redefinir los campos problemáticos como ChoiceField
+    departamento = forms.ChoiceField(
+        choices=[('', 'Seleccionar departamento')],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'id': 'id_departamento'
+        })
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Primero seleccione un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'id': 'id_ciudad'
+        })
+    )
+    
     class Meta:
         model = Farm
         fields = [
@@ -22,14 +38,6 @@ class FarmForm(forms.ModelForm):
                 'class': 'form-input',
                 'rows': 3,
                 'placeholder': 'Descripción de la finca'
-            }),
-            'departamento': forms.Select(attrs={
-                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-                'id': 'id_departamento'
-            }),
-            'ciudad': forms.Select(attrs={
-                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-                'id': 'id_ciudad'
             }),
             'direccion': forms.Textarea(attrs={
                 'class': 'form-input',
@@ -84,7 +92,7 @@ class FarmForm(forms.ModelForm):
         departments = get_departments()
         self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + departments
         
-        # Si hay datos POST, cargar las ciudades del departamento seleccionado
+        # Configurar ciudades basadas en el departamento seleccionado
         if self.data and 'departamento' in self.data:
             departamento = self.data.get('departamento')
             if departamento:
@@ -92,15 +100,11 @@ class FarmForm(forms.ModelForm):
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
                 self.fields['ciudad'].widget.attrs.pop('disabled', None)
         elif self.instance and self.instance.pk:
-            # Si estamos editando, cargar las ciudades del departamento actual
             departamento = self.instance.departamento
             if departamento:
                 ciudades = get_cities_by_department(departamento)
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
-            else:
-                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')]
         else:
-            # Si estamos creando, no hay ciudades disponibles hasta seleccionar departamento
             self.fields['ciudad'].choices = [('', 'Primero seleccione un departamento')]
             self.fields['ciudad'].widget.attrs['disabled'] = True
     

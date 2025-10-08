@@ -218,15 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const departamentoSelect = document.getElementById('id_departamento');
     const ciudadSelect = document.getElementById('id_ciudad');
     
-    console.log('=== BECOME SELLER FORM DEBUG ===');
-    console.log('Departamento select:', departamentoSelect);
-    console.log('Ciudad select:', ciudadSelect);
-    
     if (departamentoSelect && ciudadSelect) {
-        console.log('Adding event listener to departamento select');
         departamentoSelect.addEventListener('change', function() {
             const departamento = this.value;
-            console.log('Departamento changed to:', departamento);
             
             // Limpiar opciones de ciudad
             ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
@@ -234,7 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (departamento) {
                 const url = '{% url "core:get_ciudades" %}';
-                console.log('Fetching cities from:', url);
                 
                 fetch(url, {
                     method: 'POST',
@@ -244,14 +237,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: 'departamento=' + encodeURIComponent(departamento)
                 })
                 .then(response => {
-                    console.log('Response status:', response.status);
                     if (!response.ok) {
                         throw new Error('Network response was not ok: ' + response.status);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Cities data received:', data);
                     ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
                     
                     if (data.ciudades && data.ciudades.length > 0) {
@@ -267,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading cities:', error);
                     ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
                     ciudadSelect.disabled = true;
                 });
@@ -282,8 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
             ciudadSelect.disabled = true;
         }
-    } else {
-        console.error('Required form elements not found');
     }
 });
 </script>
