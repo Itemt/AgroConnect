@@ -114,13 +114,7 @@ def assistant_reply(request):
         data = {}
 
     raw_message = (data.get('message') or '').strip()
-    # Rate limit optimizado para exposición: 1 solicitud cada 2s
-    last_ts = request.session.get('assistant_last_ts')
-    now_ts = timezone.now().timestamp()
-    min_interval = 2.0
-    if last_ts and (now_ts - float(last_ts)) < min_interval:
-        retry_after = max(1, int(min_interval - (now_ts - float(last_ts))))
-        return JsonResponse({'success': False, 'error': 'rate_limited', 'retry_after': retry_after}, status=429)
+    # Rate limit removido - sin restricciones de tiempo
     # Limitar tamaño de entrada para controlar consumo (más estricto)
     if len(raw_message) > 800:
         raw_message = raw_message[:800]
@@ -208,14 +202,7 @@ def ai_publication_suggestions(request):
         return JsonResponse({'success': False, 'error': 'Nombre del cultivo requerido'})
     
     # Rate limit para sugerencias (más permisivo)
-    last_ts = request.session.get('ai_suggestions_last_ts')
-    now_ts = timezone.now().timestamp()
-    min_interval = 3.0  # 3 segundos entre sugerencias
-    
-    if last_ts and (now_ts - float(last_ts)) < min_interval:
-        retry_after = max(1, int(min_interval - (now_ts - float(last_ts))))
-        return JsonResponse({'success': False, 'error': 'rate_limited', 'retry_after': retry_after}, status=429)
-    
+    # Rate limit removido - sin restricciones de tiempo para sugerencias
     # Intentar IA para sugerencias
     suggestions = None
     used_model = 'fallback'
