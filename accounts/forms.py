@@ -379,6 +379,91 @@ class CustomUserCreationForm(UserCreationForm):
         return cleaned_data
 
 
+class BuyerEditForm(forms.ModelForm):
+    """Formulario de edición para compradores (sin campos de finca)"""
+    cedula = forms.CharField(
+        max_length=20, 
+        required=True, 
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 12345678',
+            'type': 'number',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de cédula de identidad"
+    )
+    telefono = forms.CharField(
+        max_length=15, 
+        required=False, 
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 3001234567',
+            'type': 'tel',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de teléfono de contacto"
+    )
+    
+    # Campos de ubicación
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'data-cities-url': '/ajax/cities/'
+        }),
+        label="Departamento",
+        required=False
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+        label="Ciudad/Municipio",
+        required=False
+    )
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Pre-cargar datos si existen perfiles
+        if self.instance.pk:
+            # Cargar datos de BuyerProfile si existe
+            try:
+                buyer_profile = self.instance.buyer_profile
+                self.fields['departamento'].initial = buyer_profile.departamento
+                self.fields['ciudad'].initial = buyer_profile.ciudad
+                
+                # Cargar ciudades del departamento
+                if buyer_profile.departamento:
+                    from core.colombia_locations import get_cities_by_department
+                    ciudades = get_cities_by_department(buyer_profile.departamento)
+                    self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+            except BuyerProfile.DoesNotExist:
+                pass
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            
+            # Actualizar BuyerProfile
+            buyer_profile, created = BuyerProfile.objects.get_or_create(user=user)
+            buyer_profile.departamento = self.cleaned_data.get('departamento')
+            buyer_profile.ciudad = self.cleaned_data.get('ciudad')
+            buyer_profile.save()
+        return user
+
 class UserEditForm(forms.ModelForm):
     cedula = forms.CharField(
         max_length=20, 
