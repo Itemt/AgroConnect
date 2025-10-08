@@ -833,3 +833,39 @@ h6 { font-size: 1rem; }
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+/* Notifications panel responsive optimizations */
+@media (max-width: 640px) {
+  #notifications-dropdown {
+    width: calc(100vw - 2rem) !important;
+    max-width: 20rem !important;
+    margin: 0.5rem !important;
+  }
+  
+  #notifications-dropdown .flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  #notifications-dropdown .flex > div {
+    margin-top: 0.5rem !important;
+  }
+  
+  #notifications-dropdown button {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 0.5rem !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  #notifications-dropdown {
+    width: 22rem !important;
+  }
+}
+
+@media (min-width: 769px) {
+  #notifications-dropdown {
+    width: 24rem !important;
+  }
+}
