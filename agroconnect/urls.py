@@ -38,6 +38,7 @@ urlpatterns = [
     path('accounts/logout/', accounts_views.custom_logout, name='logout'),
     path('accounts/profile/', accounts_views.profile_view, name='profile'),
     path('accounts/profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
+    path('accounts/become-seller/', accounts_views.become_seller, name='become_seller'),
     # Incluir otras URLs de auth si las necesitas (ej. password reset)
     path('accounts/', include('django.contrib.auth.urls')),
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserCreationForm, UserEditForm, ProducerProfileForm, BuyerProfileForm
+from .forms import CustomUserCreationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile, User
@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from sales.models import Order
 from core.models import Notification
+from core.forms import FarmForm
 
 # Create your views here.
 
@@ -140,21 +141,11 @@ def profile_edit_view(request):
                 messages.success(request, 'Perfil actualizado exitosamente.')
                 return redirect('profile')
         else:
-            # Usar formulario estándar para compradores
-            form = UserEditForm(request.POST, request.FILES, instance=request.user)
+            # Usar formulario específico para compradores (sin campos de finca)
+            form = BuyerEditForm(request.POST, request.FILES, instance=request.user)
             
             if form.is_valid():
-                user = form.save(commit=False)
-                user.can_sell = form.cleaned_data.get('can_sell', False)
-                user.role = 'Productor' if user.can_sell else 'Comprador'
-                user.save()
-                
-                # Actualizar BuyerProfile
-                buyer_profile, created = BuyerProfile.objects.get_or_create(user=user)
-                buyer_profile.departamento = form.cleaned_data.get('departamento')
-                buyer_profile.ciudad = form.cleaned_data.get('ciudad')
-                buyer_profile.save()
-                
+                form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
                 return redirect('profile')
     else:
@@ -165,7 +156,7 @@ def profile_edit_view(request):
             except ProducerProfile.DoesNotExist:
                 form = ProducerProfileEditForm(user=request.user)
         else:
-            form = UserEditForm(instance=request.user)
+            form = BuyerEditForm(instance=request.user)
 
     context = {
         'form': form,
@@ -446,3 +437,56 @@ def admin_publication_create(request):
         'title': 'Crear Publicación (Admin)'
     }
     return render(request, 'marketplace/publication_form.html', context)
+
+@login_required
+def become_seller(request):
+    """Vista para que un comprador se convierta en vendedor"""
+    if request.user.role != 'Comprador':
+        messages.error(request, 'Esta opción solo está disponible para compradores.')
+        return redirect('index')
+    
+    if request.method == 'POST':
+        # Procesar formulario de finca
+        farm_form = FarmForm(request.POST)
+        
+        if farm_form.is_valid():
+            # Crear perfil de productor
+            producer_profile, created = ProducerProfile.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    'telefono': request.user.telefono,
+                    'direccion': request.user.direccion,
+                    'ciudad': request.user.ciudad,
+                    'departamento': request.user.departamento,
+                }
+            )
+            
+            # Cambiar rol del usuario
+            request.user.role = 'Productor'
+            request.user.save()
+            
+            # Crear la finca
+            finca = farm_form.save(commit=False)
+            finca.propietario = request.user
+            finca.save()
+            
+            messages.success(request, f'¡Felicidades! Ahora eres un vendedor. Tu finca "{finca.nombre}" ha sido creada exitosamente.')
+            return redirect('core:farm_detail', pk=finca.pk)
+        else:
+            # Si hay errores, mostrar el formulario con errores
+            context = {
+                'title': 'Convertirse en Vendedor',
+                'user': request.user,
+                'farm_form': farm_form,
+            }
+            return render(request, 'accounts/become_seller.html', context)
+    
+    # Crear formulario de finca para el primer paso
+    farm_form = FarmForm()
+    
+    context = {
+        'title': 'Convertirse en Vendedor',
+        'user': request.user,
+        'farm_form': farm_form,
+    }
+    return render(request, 'accounts/become_seller.html', context)
