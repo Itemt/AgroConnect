@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Instrucciones de Prueba - MercadoPago Sandbox{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Instrucciones para Pruebas de Pago
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Modo Sandbox Activado</h5>
+                        <p class="mb-0">Estás en modo de pruebas. Para evitar el error "Una de las partes es de prueba", sigue estas instrucciones:</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-user"></i> Usuario de Prueba</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p><strong>Email:</strong> test_user_123456@testuser.com</p>
+                                    <p><strong>Contraseña:</strong> qatest1234</p>
+                                    <small class="text-muted">Usa estas credenciales para iniciar sesión en MercadoPago</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-credit-card"></i> Tarjetas de Prueba</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p><strong>Visa:</strong> 4013 5406 8274 6260</p>
+                                    <p><strong>Mastercard:</strong> 5254 1336 7440 3564</p>
+                                    <p><strong>CVV:</strong> 123</p>
+                                    <p><strong>Vencimiento:</strong> 11/30</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5><i class="fas fa-list-ol"></i> Pasos para Probar</h5>
+                        <ol>
+                            <li>Haz clic en "Pagar con MercadoPago"</li>
+                            <li>En la página de MercadoPago, inicia sesión con el usuario de prueba</li>
+                            <li>Usa una de las tarjetas de prueba proporcionadas</li>
+                            <li>Completa el proceso de pago</li>
+                        </ol>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Nota Importante</h6>
+                        <p class="mb-0">Si ves el error "Una de las partes es de prueba", asegúrate de estar usando el usuario de prueba correcto y las tarjetas de prueba proporcionadas.</p>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Pedido
+                        </a>
+                        <a href="{% url 'checkout' order.id %}" class="btn btn-primary">
+                            <i class="fas fa-credit-card"></i> Intentar Pago Nuevamente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

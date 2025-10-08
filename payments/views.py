@@ -462,3 +462,22 @@ def simulate_payment_processing(request, payment_id):
     except Exception as e:
         messages.error(request, f'Error al procesar el pago: {str(e)}')
         return redirect('order_history')
+
+
+@login_required
+def sandbox_instructions_view(request, order_id):
+    """
+    Vista para mostrar instrucciones de prueba de MercadoPago sandbox
+    """
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario sea el comprador de la orden
+    if request.user != order.comprador:
+        messages.error(request, 'No tienes permiso para ver esta información.')
+        return redirect('order_detail', order_id=order.id)
+    
+    context = {
+        'order': order,
+    }
+    
+    return render(request, 'payments/sandbox_instructions.html', context)
