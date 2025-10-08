@@ -415,7 +415,7 @@ def become_seller(request):
                 user=request.user,
                 defaults={
                     'telefono': request.user.telefono,
-                    'direccion': request.user.direccion,
+                    'direccion': '',  # Campo no disponible en User
                     'ciudad': request.user.ciudad,
                     'departamento': request.user.departamento,
                 }
