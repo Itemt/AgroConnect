@@ -425,72 +425,90 @@
         </div>
 
         <nav class="text-white sidebar-nav">
-            <!-- Botón Inicio -->
-            <a href="{% url 'index' %}" class="mb-4">
-                <i class="fas fa-home"></i>
-                <span class="sidebar-text">Inicio</span>
-            </a>
+            <!-- Navegación Principal -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Navegación</h4>
+                <a href="{% url 'index' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'index' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-home w-5"></i>
+                    <span class="sidebar-text ml-3">Inicio</span>
+                </a>
+                
+                <a href="{% url 'marketplace' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-store w-5"></i>
+                    <span class="sidebar-text ml-3">Marketplace</span>
+                </a>
+            </div>
             
-            <!-- Marketplace para todos los usuarios (el más importante después de Inicio) -->
-            <a href="{% url 'marketplace' %}" class="{% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %} mb-4">
-                <i class="fas fa-store"></i>
-                <span class="sidebar-text">Marketplace</span>
-            </a>
+            <!-- Dashboard y Perfil -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Mi Cuenta</h4>
+                {% if user.role == 'Productor' %}
+                <a href="{% url 'producer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span class="sidebar-text ml-3">Dashboard</span>
+                </a>
+                {% elif user.role == 'Comprador' %}
+                <a href="{% url 'buyer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span class="sidebar-text ml-3">Dashboard</span>
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'profile' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-user w-5"></i>
+                    <span class="sidebar-text ml-3">Mi Perfil</span>
+                </a>
+            </div>
             
-            <!-- Divider -->
-            <div class="border-t border-primary-700 my-4"></div>
-            
+            <!-- Funcionalidades Específicas por Rol -->
             {% if user.role == 'Productor' %}
-            <a href="{% url 'producer_dashboard' %}" class="{% if request.resolver_match.url_name == 'producer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-tachometer-alt"></i>
-                <span class="sidebar-text">Dashboard</span>
-            </a>
-            <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-user"></i>
-                <span class="sidebar-text">Perfil</span>
-            </a>
-            <a href="{% url 'core:farm_list' %}" class="{% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-tractor"></i>
-                <span class="sidebar-text">Mis Fincas</span>
-            </a>
-            <a href="{% url 'conversation_list' %}" class="{% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-comments"></i>
-                <span class="sidebar-text">Mensajes</span>
-            </a>
-            <a href="{% url 'my_publications' %}" class="{% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-bullhorn"></i>
-                <span class="sidebar-text">Mis Publicaciones</span>
-            </a>
-            <a href="{% url 'producer_sales' %}" class="{% if request.resolver_match.url_name == 'producer_sales' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-chart-line"></i>
-                <span class="sidebar-text">Ventas</span>
-            </a>
-            <a href="{% url 'order_history' %}" class="{% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="sidebar-text">Mis Compras</span>
-            </a>
-            {% elif user.role == 'Comprador' %}
-            <a href="{% url 'buyer_dashboard' %}" class="{% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-tachometer-alt"></i>
-                <span class="sidebar-text">Dashboard</span>
-            </a>
-            <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-user"></i>
-                <span class="sidebar-text">Perfil</span>
-            </a>
-            <a href="{% url 'conversation_list' %}" class="{% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-comments"></i>
-                <span class="sidebar-text">Mensajes</span>
-            </a>
-            <a href="{% url 'core:notifications_page' %}" class="{% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-bell"></i>
-                <span class="sidebar-text">Notificaciones</span>
-            </a>
-            <a href="{% url 'order_history' %}" class="{% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="sidebar-text">Pedidos</span>
-            </a>
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Ventas</h4>
+                <a href="{% url 'core:farm_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tractor w-5"></i>
+                    <span class="sidebar-text ml-3">Mis Fincas</span>
+                </a>
+                <a href="{% url 'my_publications' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-bullhorn w-5"></i>
+                    <span class="sidebar-text ml-3">Mis Publicaciones</span>
+                </a>
+                <a href="{% url 'producer_sales' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_sales' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="sidebar-text ml-3">Ventas</span>
+                </a>
+            </div>
             {% endif %}
+            
+            <!-- Comunicación y Pedidos -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Comunicación</h4>
+                <a href="{% url 'conversation_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-comments w-5"></i>
+                    <span class="sidebar-text ml-3">Mensajes</span>
+                </a>
+                <a href="{% url 'core:notifications_page' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-bell w-5"></i>
+                    <span class="sidebar-text ml-3">Notificaciones</span>
+                </a>
+            </div>
+            
+            <!-- Pedidos y Compras -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Pedidos</h4>
+                <a href="{% url 'order_history' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span class="sidebar-text ml-3">{% if user.role == 'Productor' %}Mis Compras{% else %}Mis Pedidos{% endif %}</span>
+                </a>
+            </div>
+            
+            <!-- Ayuda y Documentación -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Ayuda</h4>
+                <a href="{% url 'core:documentation' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'documentation' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-book w-5"></i>
+                    <span class="sidebar-text ml-3">Documentación</span>
+                </a>
+            </div>
             
             {% if user.is_staff %}
             <!-- Botones adicionales para administradores -->

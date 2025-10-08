@@ -244,45 +244,63 @@ function markAllAsUnread() {
     .catch(error => console.error('Error:', error));
 }
 
-function deleteReadNotifications() {
-    if (confirm('¿Estás seguro de que quieres borrar todas las notificaciones leídas?')) {
-        fetch('{% url "core:notifications_delete_read" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Se eliminaron ${data.deleted_count} notificaciones leídas.`);
-                location.reload();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-}
+        function deleteReadNotifications() {
+            showConfirmDialog(
+                '¿Estás seguro de que quieres borrar todas las notificaciones leídas?',
+                'Esta acción eliminará solo las notificaciones que ya has leído.',
+                'Borrar leídas',
+                'Cancelar',
+                function() {
+                    fetch('{% url "core:notifications_delete_read" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(`Se eliminaron ${data.deleted_count} notificaciones leídas.`, 'success');
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Error al eliminar notificaciones', 'error');
+                    });
+                }
+            );
+        }
 
-function deleteAllNotifications() {
-    if (confirm('¿Estás seguro de que quieres borrar TODAS las notificaciones? Esta acción no se puede deshacer.')) {
-        fetch('{% url "core:notifications_delete_all" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Se eliminaron ${data.deleted_count} notificaciones.`);
-                location.reload();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-}
+        function deleteAllNotifications() {
+            showConfirmDialog(
+                '¿Estás seguro de que quieres borrar TODAS las notificaciones?',
+                'Esta acción no se puede deshacer.',
+                'Borrar todas',
+                'Cancelar',
+                function() {
+                    fetch('{% url "core:notifications_delete_all" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(`Se eliminaron ${data.deleted_count} notificaciones.`, 'success');
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Error al eliminar notificaciones', 'error');
+                    });
+                }
+            );
+        }
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
