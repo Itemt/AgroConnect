@@ -24,11 +24,11 @@ class FarmForm(forms.ModelForm):
                 'placeholder': 'Descripción de la finca'
             }),
             'departamento': forms.Select(attrs={
-                'class': 'form-select',
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
                 'id': 'id_departamento'
             }),
             'ciudad': forms.Select(attrs={
-                'class': 'form-select',
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
                 'id': 'id_ciudad'
             }),
             'direccion': forms.Textarea(attrs={
@@ -80,18 +80,18 @@ class FarmForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Debug: verificar que get_departments funciona
-        departments = get_departments()
-        print(f"=== FARM FORM DEBUG ===")
-        print(f"Departments loaded: {len(departments)}")
-        print(f"First 3 departments: {departments[:3]}")
-        
         # Configurar opciones de departamentos
+        departments = get_departments()
         self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + departments
-        print(f"Departamento choices set: {len(self.fields['departamento'].choices)}")
         
-        # Configurar opciones de ciudades basadas en el departamento seleccionado
-        if self.instance and self.instance.pk:
+        # Si hay datos POST, cargar las ciudades del departamento seleccionado
+        if self.data and 'departamento' in self.data:
+            departamento = self.data.get('departamento')
+            if departamento:
+                ciudades = get_cities_by_department(departamento)
+                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
+                self.fields['ciudad'].widget.attrs.pop('disabled', None)
+        elif self.instance and self.instance.pk:
             # Si estamos editando, cargar las ciudades del departamento actual
             departamento = self.instance.departamento
             if departamento:
