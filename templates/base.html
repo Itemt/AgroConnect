@@ -564,10 +564,11 @@
                         if (res && res.success) {
                             const unreadCount = res.notifications.filter(n => !n.is_read).length;
                             updateBadge(unreadCount);
+                            console.log('Notifications polled:', unreadCount, 'unread');
                         }
                     })
-                    .catch(() => {
-                        // Silently fail for polling
+                    .catch((error) => {
+                        console.log('Polling error:', error);
                     });
             }
             
@@ -651,14 +652,20 @@
             // Initialize
             document.addEventListener('DOMContentLoaded', function(){
                 updateBadge(0);
-                startPolling(); // Start polling for notifications
+                // Fetch notifications immediately
+                fetchNotifications();
+                // Start polling for notifications
+                startPolling();
+                console.log('Notifications polling started');
                 
                 // Stop polling when page is hidden (performance optimization)
                 document.addEventListener('visibilitychange', function() {
                     if (document.hidden) {
                         stopPolling();
+                        console.log('Polling stopped (page hidden)');
                     } else {
                         startPolling();
+                        console.log('Polling started (page visible)');
                     }
                 });
                 // Load on dropdown open
