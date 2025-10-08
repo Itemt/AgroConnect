@@ -150,16 +150,23 @@ class MercadoPagoService:
                 # Fallback si Site no está disponible
                 base_url = "https://agroconnect.itemt.tech" if not settings.DEBUG else "http://localhost:8000"
             
+            # Para sandbox en producción, usar URLs más simples
+            if is_sandbox and not settings.DEBUG:
+                base_url = "https://agroconnect.itemt.tech"
+            
             # Configuración específica para modo sandbox
             is_sandbox = self.access_token.startswith('TEST-')
             
             # Datos para MercadoPago - configuración corregida para sandbox
+            # Usar email de prueba específico para sandbox
+            test_email = "test_user_123456@testuser.com" if is_sandbox else (user.email or "test@example.com")
+            
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
                 "description": f"Compra orden #{order.id}",
                 "payer": {
-                    "email": user.email or "test@example.com",
+                    "email": test_email,
                     "name": user.get_full_name() or user.username,
                     "surname": user.last_name or ""
                 },
@@ -171,6 +178,8 @@ class MercadoPagoService:
                     "failure": f"{base_url}/payments/failure/",
                     "pending": f"{base_url}/payments/pending/"
                 },
+                # Configuración específica para sandbox en producción
+                "statement_descriptor": "AGROCONNECT",
                 # Configuración optimizada para sandbox
                 "binary_mode": False,
                 "expires": False,
@@ -184,8 +193,12 @@ class MercadoPagoService:
                 "payment_methods": {
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
-                    "installments": 1
+                    "installments": 1,
+                    "default_installments": 1
                 },
+                # Configuración específica para tarjetas en sandbox
+                "card_token": None,
+                "capture": True,
                 "items": [
                     {
                         "id": str(order.publicacion.id),
@@ -202,14 +215,45 @@ class MercadoPagoService:
             # Configuración adicional para sandbox
             if is_sandbox:
                 payment_data["test_mode"] = True
+                # Agregar información específica del comprador para sandbox
+                payment_data["payer"]["identification"] = {
+                    "type": "CC",
+                    "number": "12345678"
+                }
+                
+                # Configuración específica para sandbox en producción
+                if not settings.DEBUG:
+                    # En producción con sandbox, usar configuración más permisiva para tarjetas
+                    payment_data["payment_methods"] = {
+                        "excluded_payment_methods": [],
+                        "excluded_payment_types": [],
+                        "installments": 1,
+                        "default_installments": 1,
+                        # Configuración específica para mejorar compatibilidad con tarjetas
+                        "default_payment_method_id": None,
+                        "excluded_payment_methods": [],
+                        "excluded_payment_types": []
+                    }
+                    # Agregar configuración de mercado específica para Colombia
+                    payment_data["marketplace"] = "NONE"
+                    payment_data["differential_pricing_id"] = None
+                    
+                    # Configuración adicional para mejorar compatibilidad con tarjetas
+                    payment_data["processing_mode"] = "aggregator"
+                    payment_data["merchant_account_id"] = None
+                
                 print("🧪 Configuración de sandbox aplicada")
-                print("📋 Para evitar el error 'Una de las partes es de prueba':")
+                if not settings.DEBUG:
+                    print("⚠️ Sandbox en producción - usando configuración especial")
+                print("📋 Para evitar el error 'Algo salió mal':")
                 print("   1. Usa un usuario de prueba de MercadoPago")
                 print("   2. Email de prueba: test_user_123456@testuser.com")
-                print("   3. Tarjetas de prueba:")
-                print("      - Visa: 4013 5406 8274 6260")
-                print("      - Mastercard: 5254 1336 7440 3564")
-                print("      - CVV: 123, Vencimiento: 11/30")
+                print("   3. Tarjetas de prueba que funcionan:")
+                print("      - Visa: 4509 9535 6623 3704")
+                print("      - Mastercard: 5031 7557 3453 0604")
+                print("      - CVV: 123, Vencimiento: 11/25, Nombre: APRO")
+                print("   4. Si no funciona, prueba con PSE o Efecty")
+                print("   5. En producción con sandbox, PSE y Efecty son más estables")
             
             # Validar datos antes de enviar
             if payment_data['transaction_amount'] <= 0:
