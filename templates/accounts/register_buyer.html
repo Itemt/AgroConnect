@@ -114,33 +114,27 @@
                                 </div>
                             </div>
 
-                            <!-- Ubicación -->
-                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-2 text-gray-600"></i>
-                                    Ubicación
-                                </h3>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="field-wrapper">
-                                        <label for="{{ form.departamento.id_for_label }}" class="form-label">
-                                            {{ form.departamento.label }}
-                                        </label>
-                                        {{ form.departamento }}
-                                        {% for error in form.departamento.errors %}
-                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="field-wrapper">
+                                    <label for="{{ form.departamento.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
+                                        {{ form.departamento.label }}
+                                    </label>
+                                    {{ form.departamento }}
+                                    {% for error in form.departamento.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
 
-                                    <div class="field-wrapper">
-                                        <label for="{{ form.ciudad.id_for_label }}" class="form-label">
-                                            {{ form.ciudad.label }}
-                                        </label>
-                                        {{ form.ciudad }}
-                                        {% for error in form.ciudad.errors %}
-                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
+                                <div class="field-wrapper">
+                                    <label for="{{ form.ciudad.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
+                                        {{ form.ciudad.label }}
+                                    </label>
+                                    {{ form.ciudad }}
+                                    {% for error in form.ciudad.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
                                 </div>
                             </div>
 
