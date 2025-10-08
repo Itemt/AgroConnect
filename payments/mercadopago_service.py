@@ -23,6 +23,8 @@ class MercadoPagoService:
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
+            print(f"DEBUG: Token configurado: {bool(self.access_token)}")
+            print(f"DEBUG: Es sandbox: {self.access_token.startswith('TEST-')}")
         else:
             self.sdk = None
     
@@ -161,14 +163,105 @@ class MercadoPagoService:
             # Usar email de prueba específico para sandbox
             test_email = "test_user_123456@testuser.com" if is_sandbox else (user.email or "test@example.com")
             
+            # Para proyecto universitario: usar datos específicos de sandbox
+            if is_sandbox:
+                # Usar las cuentas específicas de MercadoPago Sandbox
+                test_email = "TESTUSER8283595198251736383@testuser.com"  # Comprador
+                payer_name = "Test User"
+                payer_surname = "University"
+            else:
+                payer_name = user.get_full_name() or user.username
+                payer_surname = user.last_name or ""
+            
+            # Forzar modo sandbox para proyecto universitario
+            if is_sandbox:
+                # Configuración específica para forzar sandbox
+                payment_data = {
+                    "transaction_amount": float(order.precio_total),
+                    "currency_id": "COP",
+                    "description": f"Compra orden #{order.id} - Proyecto Universitario",
+                    "payer": {
+                        "email": test_email,
+                        "name": payer_name,
+                        "surname": payer_surname
+                    },
+                    "external_reference": reference,
+                    "notification_url": f"{base_url}/payments/notification/",
+                    "auto_return": "approved",
+                    "back_urls": {
+                        "success": f"{base_url}/payments/success/",
+                        "failure": f"{base_url}/payments/failure/",
+                        "pending": f"{base_url}/payments/pending/"
+                    },
+                    # Configuración específica para sandbox
+                    "statement_descriptor": "AGROCONNECT",
+                    "binary_mode": False,
+                    "expires": False,
+                    "metadata": {
+                        "test": True,
+                        "platform": "agroconnect",
+                        "version": "1.0",
+                        "university_project": True
+                    },
+                    # Configuración de métodos de pago para sandbox
+                    "payment_methods": {
+                        "excluded_payment_methods": [],
+                        "excluded_payment_types": [],
+                        "installments": 1,
+                        "default_installments": 1
+                    },
+                    "items": [
+                        {
+                            "id": str(order.publicacion.id),
+                            "title": order.publicacion.cultivo.nombre,
+                            "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
+                            "quantity": float(order.cantidad_acordada),
+                            "unit_price": float(order.publicacion.precio_por_unidad),
+                            "category_id": "food",
+                            "currency_id": "COP"
+                        }
+                    ]
+                }
+            else:
+                # Configuración normal para producción
+                payment_data = {
+                    "transaction_amount": float(order.precio_total),
+                    "currency_id": "COP",
+                    "description": f"Compra orden #{order.id}",
+                    "payer": {
+                        "email": test_email,
+                        "name": payer_name,
+                        "surname": payer_surname
+                    },
+                    "external_reference": reference,
+                    "notification_url": f"{base_url}/payments/notification/",
+                    "auto_return": "approved",
+                    "back_urls": {
+                        "success": f"{base_url}/payments/success/",
+                        "failure": f"{base_url}/payments/failure/",
+                        "pending": f"{base_url}/payments/pending/"
+                    },
+                    "items": [
+                        {
+                            "id": str(order.publicacion.id),
+                            "title": order.publicacion.cultivo.nombre,
+                            "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
+                            "quantity": float(order.cantidad_acordada),
+                            "unit_price": float(order.publicacion.precio_por_unidad),
+                            "category_id": "food",
+                            "currency_id": "COP"
+                        }
+                    ]
+                }
+            
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
                 "description": f"Compra orden #{order.id}",
                 "payer": {
                     "email": test_email,
-                    "name": user.get_full_name() or user.username,
-                    "surname": user.last_name or ""
+                    "name": payer_name,
+                    "surname": payer_surname
                 },
                 "external_reference": reference,
                 "notification_url": f"{base_url}/payments/notification/",
