@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from .models import Farm
 from .forms import FarmForm
 from .colombia_locations import get_departments
@@ -109,7 +110,7 @@ def farm_delete(request, pk):
     }
     return render(request, 'core/farm_confirm_delete.html', context)
 
-@require_POST
+@csrf_exempt
 def get_ciudades(request):
     """AJAX endpoint para obtener ciudades de un departamento"""
     try:

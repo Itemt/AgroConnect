@@ -7,25 +7,63 @@ def documentation_view(request):
         'title': 'Documentación y Ayuda',
         'sections': [
             {
-                'title': '¿Cómo Vender en AgroConnect?',
-                'icon': 'fas fa-store',
+                'title': '🏡 Las Fincas: El Centro de Todo',
+                'icon': 'fas fa-home',
                 'color': 'green',
                 'content': [
                     {
-                        'question': '¿Cómo me registro como vendedor?',
-                        'answer': 'Al registrarte, marca la opción "Quiero vender productos" en el formulario de registro. Esto te dará acceso a las herramientas de venta.'
+                        'question': '¿Por qué las fincas son tan importantes?',
+                        'answer': 'Las fincas son el corazón de AgroConnect. Todo gira alrededor de ellas: cultivos, publicaciones, ubicación y trazabilidad. Sin finca, no puedes vender productos.'
                     },
                     {
                         'question': '¿Cómo creo mi primera finca?',
-                        'answer': 'Ve a "Mis Fincas" en el sidebar y haz clic en "Agregar Finca". Completa la información de ubicación, área y características de tu finca.'
+                        'answer': 'Ve a "Mis Fincas" en el sidebar (primera opción) y haz clic en "Agregar Finca". Completa la información de ubicación, área y características de tu finca.'
                     },
                     {
-                        'question': '¿Cómo publico mis productos?',
-                        'answer': 'Ve a "Mis Publicaciones" y haz clic en "Nueva Publicación". Selecciona la finca, el cultivo, cantidad disponible y precio.'
+                        'question': '¿Qué puedo hacer desde mis fincas?',
+                        'answer': 'Desde tus fincas puedes: agregar cultivos, crear publicaciones, ver la ubicación en el mapa, gestionar inventario y hacer seguimiento de ventas por finca.'
+                    },
+                    {
+                        'question': '¿Puedo tener múltiples fincas?',
+                        'answer': '¡Sí! Puedes registrar y gestionar múltiples fincas. Cada finca puede tener diferentes cultivos y ubicaciones. Esto es ideal si tienes terrenos en diferentes lugares.'
+                    }
+                ]
+            },
+            {
+                'title': '🌱 Gestión de Cultivos desde Fincas',
+                'icon': 'fas fa-seedling',
+                'color': 'green',
+                'content': [
+                    {
+                        'question': '¿Cómo agrego cultivos a mi finca?',
+                        'answer': 'Ve a "Mis Fincas", selecciona una finca y haz clic en "Agregar Cultivo". Los cultivos están directamente vinculados a la finca donde se producen.'
+                    },
+                    {
+                        'question': '¿Por qué los cultivos están vinculados a fincas?',
+                        'answer': 'Para garantizar trazabilidad y transparencia. Los compradores saben exactamente de qué finca viene cada producto, su ubicación y características del terreno.'
+                    },
+                    {
+                        'question': '¿Cómo gestiono mis cultivos?',
+                        'answer': 'Desde "Mis Fincas" puedes ver todos los cultivos de cada finca, editarlos, agregar nuevos y hacer seguimiento de su estado y producción.'
+                    }
+                ]
+            },
+            {
+                'title': '🛒 Publicaciones desde Fincas',
+                'icon': 'fas fa-store',
+                'color': 'blue',
+                'content': [
+                    {
+                        'question': '¿Cómo publico productos desde mi finca?',
+                        'answer': 'Ve a "Mis Publicaciones" y haz clic en "Nueva Publicación". Selecciona la finca, el cultivo de esa finca, cantidad disponible y precio.'
+                    },
+                    {
+                        'question': '¿Por qué debo seleccionar una finca al publicar?',
+                        'answer': 'Para mostrar a los compradores la ubicación exacta del producto. Esto genera confianza y permite que vean de dónde viene lo que compran.'
                     },
                     {
                         'question': '¿Cómo manejo mis ventas?',
-                        'answer': 'En "Ventas" puedes ver todas tus transacciones, confirmar pedidos y gestionar el estado de tus ventas.'
+                        'answer': 'En "Ventas" puedes ver todas tus transacciones, confirmar pedidos y gestionar el estado de tus ventas. Todo está organizado por finca.'
                     }
                 ]
             },
@@ -95,21 +133,48 @@ def documentation_view(request):
                 ]
             },
             {
-                'title': 'Gestión de Fincas',
-                'icon': 'fas fa-tractor',
+                'title': '📍 Información Detallada de Fincas',
+                'icon': 'fas fa-map-marker-alt',
                 'color': 'green',
                 'content': [
                     {
-                        'question': '¿Puedo tener múltiples fincas?',
-                        'answer': 'Sí, puedes registrar y gestionar múltiples fincas desde "Mis Fincas". Cada finca puede tener diferentes cultivos.'
+                        'question': '¿Qué información necesito para registrar una finca?',
+                        'answer': 'Necesitas: nombre de la finca, departamento, ciudad, dirección, área total, área cultivable, tipo de suelo y tipo de riego. Esta información es crucial para la trazabilidad.'
                     },
                     {
                         'question': '¿Cómo actualizo la información de mi finca?',
-                        'answer': 'Ve a "Mis Fincas", selecciona la finca que quieres editar y haz clic en "Editar". Puedes actualizar ubicación, área y cultivos.'
+                        'answer': 'Ve a "Mis Fincas", selecciona la finca que quieres editar y haz clic en "Editar". Puedes actualizar ubicación, área y cultivos en cualquier momento.'
                     },
                     {
-                        'question': '¿Qué información necesito para registrar una finca?',
-                        'answer': 'Necesitas: nombre de la finca, departamento, ciudad, dirección, área total, área cultivable, tipo de suelo y tipo de riego.'
+                        'question': '¿Por qué es importante la ubicación de la finca?',
+                        'answer': 'La ubicación permite a los compradores saber exactamente de dónde viene el producto, genera confianza y permite calcular costos de transporte.'
+                    },
+                    {
+                        'question': '¿Puedo tener múltiples fincas?',
+                        'answer': '¡Sí! Puedes registrar y gestionar múltiples fincas. Cada finca puede tener diferentes cultivos y ubicaciones. Esto es ideal si tienes terrenos en diferentes lugares.'
+                    }
+                ]
+            },
+            {
+                'title': '🔄 Flujo de Trabajo Centrado en Fincas',
+                'icon': 'fas fa-sync-alt',
+                'color': 'blue',
+                'content': [
+                    {
+                        'question': '¿Cuál es el flujo correcto para empezar a vender?',
+                        'answer': '1) Crear tu primera finca → 2) Agregar cultivos a la finca → 3) Crear publicaciones desde los cultivos → 4) Gestionar ventas. Todo comienza con la finca.'
+                    },
+                    {
+                        'question': '¿Por qué no puedo publicar sin finca?',
+                        'answer': 'Las fincas son obligatorias porque garantizan trazabilidad. Los compradores necesitan saber de dónde viene el producto para confiar en la calidad y frescura.'
+                    },
+                    {
+                        'question': '¿Cómo organizo mis productos por finca?',
+                        'answer': 'Cada finca tiene sus propios cultivos. Al crear publicaciones, seleccionas la finca y luego el cultivo específico de esa finca. Así mantienes todo organizado.'
+                    },
+                    {
+                        'question': '¿Qué pasa si tengo productos de diferentes fincas?',
+                        'answer': 'Perfecto. Puedes tener múltiples fincas y cada una puede tener diferentes cultivos. Al publicar, seleccionas de qué finca viene cada producto específico.'
                     }
                 ]
             },

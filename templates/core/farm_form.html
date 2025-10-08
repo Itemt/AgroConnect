@@ -229,11 +229,34 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Farm form JavaScript loaded');
     console.log('Departamento select:', departamentoSelect);
     console.log('Ciudad select:', ciudadSelect);
+    console.log('Departamento options:', departamentoSelect ? departamentoSelect.options.length : 'No select found');
+    console.log('Ciudad options:', ciudadSelect ? ciudadSelect.options.length : 'No select found');
+    
+    // Test if elements are found
+    if (!departamentoSelect) {
+        console.error('Departamento select not found!');
+        return;
+    }
+    if (!ciudadSelect) {
+        console.error('Ciudad select not found!');
+        return;
+    }
     
     if (departamentoSelect && ciudadSelect) {
+        console.log('Adding event listener to departamento select');
         departamentoSelect.addEventListener('change', function() {
             const departamento = this.value;
             console.log('Departamento changed to:', departamento);
+            
+            // Test simple first
+            if (departamento === 'Antioquia') {
+                console.log('Testing with Antioquia');
+                ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                ciudadSelect.innerHTML += '<option value="Medellín">Medellín</option>';
+                ciudadSelect.innerHTML += '<option value="Bello">Bello</option>';
+                ciudadSelect.disabled = false;
+                return;
+            }
             
             // Limpiar opciones de ciudad
             ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
@@ -246,8 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: 'departamento=' + encodeURIComponent(departamento)
                 })

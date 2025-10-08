@@ -417,22 +417,22 @@
                     Hola, ¿en qué te ayudo hoy?
                 </div>
             </div>
-            <div id="chat-pane" class="hidden h-48 md:h-64 bg-gray-50">
+            <div id="chat-pane" class="hidden h-48 md:h-64 bg-gray-50 flex flex-col">
                 <!-- View: conversations list only -->
                 <div id="chat-list-view" class="h-full flex flex-col">
-                    <div class="p-2 md:p-3 border-b bg-white">
+                    <div class="p-2 md:p-3 border-b bg-white flex-shrink-0">
                         <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
                     <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white"></div>
                 </div>
                 <!-- View: thread with back button -->
                 <div id="chat-thread-view" class="hidden h-full flex flex-col">
-                    <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b bg-white">
+                    <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b bg-white flex-shrink-0">
                         <button id="chat-back" class="text-primary-700 text-xs md:text-sm px-2 py-1 rounded hover:bg-primary-50"><i class="fas fa-arrow-left mr-1"></i>Atrás</button>
                         <div id="chat-thread-title" class="text-xs md:text-sm text-gray-700 truncate ml-2 flex-1"></div>
                     </div>
                     <div id="chat-thread" class="flex-1 overflow-y-auto p-2 md:p-3 space-y-1 md:space-y-2 bg-gray-50"></div>
-                    <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
+                    <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white flex-shrink-0">
                         <input id="chat-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
                         <button id="chat-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
                             <i class="fas fa-paper-plane text-xs md:text-sm"></i>
@@ -739,18 +739,16 @@
 
             function setTitleIfEmpty(fromText){
                 try{
-                    const stored = sessionStorage.getItem('assistant_title');
-                    if (!stored && fromText){
+                    if (fromText){
                         const t = fromText.trim().replace(/\s+/g,' ').slice(0,60);
                         aiTitle.textContent = t || 'Nueva conversación';
-                        sessionStorage.setItem('assistant_title', aiTitle.textContent);
-                    } else if (stored){
-                        aiTitle.textContent = stored;
+                    } else {
+                        aiTitle.textContent = 'Nueva conversación';
                     }
                 }catch(_){/* ignore */}
             }
 
-            // Restaurar título de conversación IA si existe
+            // Resetear título al cargar la página
             setTitleIfEmpty('');
 
             function getCookie(name){
