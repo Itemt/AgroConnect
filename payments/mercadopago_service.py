@@ -145,10 +145,10 @@ class MercadoPagoService:
             try:
                 from django.contrib.sites.models import Site
                 current_site = Site.objects.get_current()
-                base_url = f"https://{current_site.domain}" if not settings.DEBUG else "http://localhost:8000"
+                base_url = f"https://{current_site.domain}" if not settings.DEBUG else "https://agroconnect.itemt.tech"
             except:
                 # Fallback si Site no está disponible
-                base_url = "https://agroconnect.itemt.tech" if not settings.DEBUG else "http://localhost:8000"
+                base_url = "https://agroconnect.itemt.tech"
             
             # Configuración específica para modo sandbox
             is_sandbox = self.access_token.startswith('TEST-')
