@@ -168,6 +168,8 @@ class MercadoPagoService:
                 payer_name = "Test User"
                 payer_surname = "University"
             else:
+                # Para credenciales de producción de cuenta de prueba
+                test_email = user.email or "test@example.com"
                 payer_name = user.get_full_name() or user.username
                 payer_surname = user.last_name or ""
             
