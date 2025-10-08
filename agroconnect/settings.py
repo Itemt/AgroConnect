@@ -186,6 +186,8 @@ LOGOUT_REDIRECT_URL = '/'
 CSRF_TRUSTED_ORIGINS = [
     'https://agroconnect.itemt.tech',
     'http://agroconnect.itemt.tech',
+    'https://mercadopago.com.ar',
+    'https://api.mercadopago.com',
 ]
 
 # Security settings for production
