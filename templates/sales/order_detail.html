@@ -190,7 +190,7 @@
                                 <div>
                                     <h4 class="text-lg font-semibold text-gray-800 mb-1">Estado del Pago</h4>
                                     <p class="{% if order.is_paid %}text-green-700{% else %}text-red-700{% endif %} font-medium">
-                                        {% if order.is_paid %}Pago Confirmado{% else %}Pendiente de Pago{% endif %}
+                                        {% if order.is_paid %}Pago Confirmado{% else %}Pendiente de confirmación{% endif %}
                                     </p>
                                     {% if order.payment %}
                                         <p class="text-sm text-gray-600 mt-1">
@@ -247,60 +247,60 @@
 
                 <!-- Timeline del Pedido -->
                 <div class="card">
-                    <div class="card-body p-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-history text-primary-600 mr-2"></i>
+                    <div class="card-body p-4">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-history text-primary-600 mr-2 text-sm"></i>
                             Historial del Pedido
                         </h4>
                         <div class="relative">
                             <div class="border-l-2 border-primary-200 absolute h-full top-0 left-3"></div>
-                            <div class="space-y-2">
+                            <div class="space-y-1">
                                 <!-- Pedido Creado -->
-                                <div class="flex items-center relative py-1">
-                                    <div class="bg-green-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-0.5">
+                                    <div class="bg-green-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
                                         <span class="text-xs font-medium text-gray-800">Pedido Creado</span>
-                                        <span class="text-xs text-gray-500 ml-1">{{ order.created_at|date:"d M Y H:i" }}</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.created_at|date:"d M H:i" }}</span>
                                     </div>
                                 </div>
                                 
                                 {% if order.fecha_confirmacion %}
                                 <!-- Pedido Confirmado -->
-                                <div class="flex items-center relative py-1">
-                                    <div class="bg-green-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-0.5">
+                                    <div class="bg-green-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check-double text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
                                         <span class="text-xs font-medium text-gray-800">Pedido Confirmado</span>
-                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_confirmacion|date:"d M H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if order.fecha_envio %}
                                 <!-- Enviado -->
-                                <div class="flex items-center relative py-1">
-                                    <div class="bg-blue-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-0.5">
+                                    <div class="bg-blue-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-truck text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
                                         <span class="text-xs font-medium text-gray-800">Enviado</span>
-                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_envio|date:"d M Y H:i" }}</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_envio|date:"d M H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if order.fecha_entrega %}
                                 <!-- Entregado -->
-                                <div class="flex items-center relative py-1">
-                                    <div class="bg-purple-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-0.5">
+                                    <div class="bg-purple-500 rounded-full h-3 w-3 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-home text-white text-xs"></i>
                                     </div>
                                     <div class="ml-2 flex-1">
                                         <span class="text-xs font-medium text-gray-800">Entregado</span>
-                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_entrega|date:"d M Y H:i" }}</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_entrega|date:"d M H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
