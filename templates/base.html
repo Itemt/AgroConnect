@@ -617,28 +617,36 @@
                     });
                 }
 
-                // Delete all notifications button
-                const deleteAllBtn = document.getElementById('delete-all-notifications');
-                if (deleteAllBtn){
-                    deleteAllBtn.addEventListener('click', function(e){
-                        e.preventDefault();
-                        if (confirm('¿Estás seguro de que quieres borrar TODAS las notificaciones? Esta acción no se puede deshacer.')) {
-                            const csrftoken = getCookie('csrftoken');
-                            fetch('{% url "core:notifications_delete_all" %}', { 
-                                method: 'POST', 
-                                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }, 
-                                credentials: 'same-origin', 
-                                body: '{}' 
-                            }).then(r => r.json()).then(res => {
-                                if (res && res.success){ 
-                                    renderNotifications([]); 
-                                    updateBadge(0);
-                                    alert(`Se eliminaron ${res.deleted_count} notificaciones.`);
-                                }
-                            }).catch(()=>{});
-                        }
-                    });
-                }
+        // Delete all notifications button
+        const deleteAllBtn = document.getElementById('delete-all-notifications');
+        if (deleteAllBtn){
+            deleteAllBtn.addEventListener('click', function(e){
+                e.preventDefault();
+                showConfirmDialog(
+                    '¿Estás seguro de que quieres borrar TODAS las notificaciones?',
+                    'Esta acción no se puede deshacer.',
+                    'Borrar todas',
+                    'Cancelar',
+                    function() {
+                        const csrftoken = getCookie('csrftoken');
+                        fetch('{% url "core:notifications_delete_all" %}', { 
+                            method: 'POST', 
+                            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }, 
+                            credentials: 'same-origin', 
+                            body: '{}' 
+                        }).then(r => r.json()).then(res => {
+                            if (res && res.success){ 
+                                renderNotifications([]); 
+                                updateBadge(0);
+                                showToast(`Se eliminaron ${res.deleted_count} notificaciones.`, 'success');
+                            }
+                        }).catch(()=>{
+                            showToast('Error al eliminar notificaciones', 'error');
+                        });
+                    }
+                );
+            });
+        }
             });
         })();
         {% endif %}

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import views_farm
+from . import views_docs
 
 app_name = 'core'
 
@@ -13,6 +14,9 @@ urlpatterns = [
     path('notifications/delete-all/', views.notifications_delete_all, name='notifications_delete_all'),
     path('notifications/delete-read/', views.notifications_delete_read, name='notifications_delete_read'),
     path('notifications/', views.notifications_page, name='notifications_page'),
+    
+    # Documentation
+    path('documentation/', views_docs.documentation_view, name='documentation'),
     
     # Farms
     path('farms/', views_farm.farm_list, name='farm_list'),
