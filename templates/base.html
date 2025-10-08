@@ -307,7 +307,7 @@
     {% endif %}
 
     <!-- Main Content -->
-    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}pt-20{% endif %}" style="background: transparent;">
+    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}pt-20{% endif %}" style="background: transparent !important;">
         {% block content %}
         {% endblock %}
     </main>
