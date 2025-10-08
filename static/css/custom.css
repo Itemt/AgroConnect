@@ -341,12 +341,26 @@ h6 { font-size: 1rem; }
 .hero::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -100px;
   left: 0;
   right: 0;
-  height: 100px;
+  height: 200px;
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
   z-index: -1;
+}
+
+/* Remove any white background from main content */
+main {
+  background: transparent !important;
+}
+
+/* Specific fix for homepage gradient */
+body:has(.hero) {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%) !important;
+}
+
+body:has(.hero) main {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%) !important;
 }
 
 .hero::before {
