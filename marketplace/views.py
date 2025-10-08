@@ -229,10 +229,10 @@ def select_crop_for_publication_view(request):
     # Obtener todos los cultivos del usuario para debug
     all_crops = Crop.objects.filter(productor=request.user).select_related('finca')
     
-    # Obtener cultivos listos para cosechar que no tengan publicación activa
+    # Obtener cultivos cosechados que no tengan publicación activa
     crops = Crop.objects.filter(
         productor=request.user,
-        estado='listo_para_cosechar'
+        estado='cosechado'
     ).exclude(
         publicaciones__estado='Activa'
     ).select_related('finca').order_by('-created_at')
@@ -240,19 +240,19 @@ def select_crop_for_publication_view(request):
     # Debug: mostrar información en la consola
     print(f"Usuario: {request.user.username}")
     print(f"Total cultivos del usuario: {all_crops.count()}")
-    print(f"Cultivos listos para cosechar: {all_crops.filter(estado='listo_para_cosechar').count()}")
+    print(f"Cultivos cosechados: {all_crops.filter(estado='cosechado').count()}")
     print(f"Cultivos con publicaciones activas: {all_crops.filter(publicaciones__estado='Activa').count()}")
     print(f"Cultivos disponibles para publicación: {crops.count()}")
     
-    # Si no hay cultivos listos, mostrar todos los cultivos del usuario para que pueda ver qué tiene
+    # Si no hay cultivos cosechados, mostrar todos los cultivos del usuario para que pueda ver qué tiene
     if not crops.exists():
         # Mostrar todos los cultivos del usuario para que pueda ver el estado
         crops = all_crops.order_by('-created_at')
-        messages.info(request, 'No tienes cultivos listos para cosechar. Aquí están todos tus cultivos:')
+        messages.info(request, 'No tienes cultivos cosechados disponibles para publicar. Aquí están todos tus cultivos:')
     
     context = {
         'crops': crops,
-        'show_all_crops': not crops.filter(estado='listo_para_cosechar').exclude(publicaciones__estado='Activa').exists()
+        'show_all_crops': not crops.filter(estado='cosechado').exclude(publicaciones__estado='Activa').exists()
     }
     return render(request, 'marketplace/select_crop_for_publication.html', context)
 

@@ -31,7 +31,7 @@
                 <div>
                     <h3 class="text-sm font-bold text-yellow-800 mb-1">Información sobre tus cultivos</h3>
                     <p class="text-sm text-yellow-700">
-                        Para crear publicaciones, tus cultivos deben estar marcados como "Listo para cosechar" y no tener una publicación activa.
+                        Para crear publicaciones, tus cultivos deben estar marcados como "Cosechado" y no tener una publicación activa.
                     </p>
                 </div>
             </div>
@@ -105,7 +105,7 @@
                     </div>
                     
                     <!-- Botón de Acción -->
-                    {% if crop.estado == 'listo_para_cosechar' %}
+                    {% if crop.estado == 'cosechado' %}
                         <a href="{% url 'publication_create' crop.id %}" 
                            class="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-bold py-3 px-4 rounded-xl hover:from-primary-700 hover:to-accent-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
                             <i class="fas fa-plus mr-2"></i>
@@ -114,7 +114,7 @@
                     {% else %}
                         <div class="w-full bg-gray-100 text-gray-500 font-medium py-3 px-4 rounded-xl flex items-center justify-center">
                             <i class="fas fa-clock mr-2"></i>
-                            Marca como "Listo para cosechar" para publicar
+                            Marca como "Cosechado" para publicar
                         </div>
                         <a href="{% url 'crop_edit' crop.id %}" 
                            class="w-full mt-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
