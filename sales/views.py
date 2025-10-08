@@ -193,8 +193,8 @@ def quick_update_order_status_view(request, order_id):
             'pendiente': ['confirmado', 'cancelado'],
             'confirmado': ['en_preparacion', 'cancelado'],
             'en_preparacion': [],  # enviado debe ir por la página especial
-            'enviado': ['en_transito', 'entregado'],
-            'en_transito': ['entregado'],
+            'enviado': ['en_transito'],
+            'en_transito': [],
         }
         
         if nuevo_estado in estados_validos.get(order.estado, []):
@@ -213,11 +213,22 @@ def quick_update_order_status_view(request, order_id):
                 category='order',
                 order_id=order.id,
             )
-            messages.success(request, f'Estado actualizado a: {order.get_estado_display()}')
+            return JsonResponse({
+                'success': True,
+                'message': f'Estado actualizado a: {order.get_estado_display()}',
+                'new_status': order.estado,
+                'new_status_display': order.get_estado_display()
+            })
         else:
-            messages.error(request, 'Estado no válido para esta transición.')
+            return JsonResponse({
+                'success': False,
+                'error': 'Estado no válido para esta transición.'
+            })
     
-    return redirect('producer_sales')
+    return JsonResponse({
+        'success': False,
+        'error': 'Método no permitido.'
+    })
 
 
 @login_required
