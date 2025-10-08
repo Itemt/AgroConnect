@@ -414,7 +414,6 @@ def become_seller(request):
             producer_profile, created = ProducerProfile.objects.get_or_create(
                 user=request.user,
                 defaults={
-                    'telefono': request.user.telefono,
                     'direccion': '',  # Campo no disponible en User
                     'ciudad': request.user.ciudad,
                     'departamento': request.user.departamento,
