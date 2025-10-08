@@ -238,8 +238,10 @@
                             option.value = ciudad.value;
                             option.textContent = ciudad.text;
                             ciudadSelect.appendChild(option);
+                            console.log('Added city option:', ciudad.value, ciudad.text);
                         });
                         ciudadSelect.disabled = false;
+                        console.log('Total cities added:', data.ciudades.length);
                     } else {
                         ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles para este departamento</option>';
                         ciudadSelect.disabled = true;

@@ -90,12 +90,16 @@ class BuyerRegistrationForm(UserCreationForm):
         required=False
     )
     
-    class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'password1', 'password2')
-    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Si hay datos POST, cargar las ciudades del departamento seleccionado
+        if self.data and 'departamento' in self.data:
+            departamento = self.data.get('departamento')
+            if departamento:
+                from core.colombia_locations import get_cities_by_department
+                ciudades = get_cities_by_department(departamento)
+                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
         
         # Configurar widgets de contraseña
         self.fields['password1'].widget.attrs.update({
@@ -110,6 +114,10 @@ class BuyerRegistrationForm(UserCreationForm):
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Nombre de usuario único'
         })
+    
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'password1', 'password2')
     
     def save(self, commit=True):
         user = super().save(commit=False)
