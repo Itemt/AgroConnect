@@ -238,9 +238,10 @@ def payment_success_view(request):
             payment.paid_at = timezone.now()
             payment.save()
             
-            # Actualizar estado del pedido
+            # Actualizar estado del pedido - mantener como 'pendiente' para que el vendedor pueda confirmar
             order = payment.order
-            order.estado = 'pagado'
+            # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+            # order.estado = 'pendiente'  # Ya está en pendiente por defecto
             order.save()
             
             messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
@@ -509,10 +510,11 @@ def payment_notification_webhook(request):
                     payment.response_data = result['raw_data']
                     payment.save()
                     
-                    # Actualizar estado del pedido
+                    # Actualizar estado del pedido - mantener como 'pendiente' para que el vendedor pueda confirmar
                     if result['approved']:
                         order = payment.order
-                        order.estado = 'pagado'
+                        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+                        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
                         order.save()
                     
                     print(f"✅ Webhook procesado: Payment {payment.id} - Status: {payment.status}")
