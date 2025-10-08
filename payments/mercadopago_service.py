@@ -140,14 +140,13 @@ class MercadoPagoService:
         try:
             reference = self.create_payment_reference(order)
             
-            # Datos completos para MercadoPago con configuración de prueba
+            # Datos para MercadoPago - configuración compatible con ambos tipos de cuenta
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
                 "description": f"Compra orden #{order.id}",
                 "payer": {
-                    "email": user.email or "test@example.com",
-                    "name": user.get_full_name() or "Usuario"
+                    "email": user.email or "test@example.com"
                 },
                 "external_reference": reference,
                 "notification_url": "https://agroconnect.itemt.tech/payments/notification/",
@@ -157,11 +156,16 @@ class MercadoPagoService:
                     "failure": "https://agroconnect.itemt.tech/payments/failure/",
                     "pending": "https://agroconnect.itemt.tech/payments/pending/"
                 },
-                # Configuración específica para entorno de prueba
-                "metadata": {
-                    "test": True,
-                    "order_id": str(order.id),
-                    "user_id": str(user.id)
+                # Configuración optimizada para pruebas
+                "binary_mode": False,
+                "expires": True,
+                "expiration_date_from": None,
+                "expiration_date_to": None,
+                # Configuración adicional para compatibilidad
+                "payment_methods": {
+                    "excluded_payment_methods": [],
+                    "excluded_payment_types": [],
+                    "installments": 1
                 },
                 "items": [
                     {
