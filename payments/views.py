@@ -66,6 +66,7 @@ def checkout_view(request, order_id):
     if not preference_result['success']:
         # Si falla MercadoPago, procesar automáticamente para demo
         messages.info(request, 'Procesando pago automáticamente para demo...')
+        print(f"DEBUG: MercadoPago falló: {preference_result.get('error')}")
         
         # Simular pago automático
         simulated_result = mercadopago_service.simulate_automatic_payment(order, request.user)
