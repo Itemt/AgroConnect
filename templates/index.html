@@ -4,15 +4,33 @@
 
 {% block content %}
     <!-- Hero Section -->
-    <div class="hero py-20 relative">
+    <div class="hero py-20 relative min-h-screen flex items-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="hero-content text-center">
                 <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-8 fade-in">
                     Bienvenido a <span class="text-gradient">AgroConnect</span>
                 </h1>
-                <p class="text-2xl text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
+                <p class="text-2xl text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
                     Conectando productores y compradores directamente para un comercio más justo y sostenible.
                 </p>
+                <div class="flex flex-wrap justify-center gap-4 mb-12">
+                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                        <i class="fas fa-seedling text-primary-600 mr-2"></i>
+                        <span class="text-gray-700 font-medium">Productos Frescos</span>
+                    </div>
+                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                        <i class="fas fa-handshake text-blue-600 mr-2"></i>
+                        <span class="text-gray-700 font-medium">Comercio Directo</span>
+                    </div>
+                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                        <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                        <span class="text-gray-700 font-medium">Pagos Seguros</span>
+                    </div>
+                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                        <i class="fas fa-truck text-purple-600 mr-2"></i>
+                        <span class="text-gray-700 font-medium">Envío Rápido</span>
+                    </div>
+                </div>
                 
                 {% if user.is_authenticated %}
                     <div class="card max-w-5xl mx-auto slide-up">
@@ -55,7 +73,30 @@
                         <div class="card-body">
                             <div class="text-center mb-12">
                                 <h2 class="text-4xl font-bold text-gray-900 mb-4">¿Eres productor o comprador?</h2>
-                                <p class="text-xl text-gray-600">Elige tu rol y comienza a conectar con la comunidad agro</p>
+                                <p class="text-xl text-gray-600 mb-6">Elige tu rol y comienza a conectar con la comunidad agro</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                            <i class="fas fa-users text-white text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">+500 Productores</h3>
+                                        <p class="text-gray-600 text-sm">Conectados en toda Colombia</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                            <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">+2,000 Pedidos</h3>
+                                        <p class="text-gray-600 text-sm">Procesados exitosamente</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                            <i class="fas fa-star text-white text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">4.8/5 Estrellas</h3>
+                                        <p class="text-gray-600 text-sm">Calificación promedio</p>
+                                    </div>
+                                </div>
                             </div>
                             <div class="grid md:grid-cols-2 gap-8">
                                 <div class="card hover:scale-105 transition-all duration-300">

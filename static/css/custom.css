@@ -66,6 +66,16 @@ body {
   min-height: 100vh;
 }
 
+/* Ensure gradient extends to footer */
+html, body {
+  height: 100%;
+}
+
+main {
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
+  min-height: calc(100vh - 80px);
+}
+
 /* Typography improvements */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
@@ -327,6 +337,7 @@ h6 { font-size: 1rem; }
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
   position: relative;
   overflow: hidden;
+  min-height: 100vh;
 }
 
 .hero::before {
