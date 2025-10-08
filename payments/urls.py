@@ -22,5 +22,8 @@ urlpatterns = [
     # Simulación de pago en modo test
     path('<int:payment_id>/simulate-test/', views.simulate_test_payment_view, name='simulate_test_payment'),
     path('<int:payment_id>/simulate-processing/', views.simulate_payment_processing, name='simulate_payment_processing'),
+    
+    # Instrucciones de sandbox
+    path('sandbox-instructions/<int:order_id>/', views.sandbox_instructions_view, name='sandbox_instructions'),
 ]
 

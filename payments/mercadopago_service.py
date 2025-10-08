@@ -16,9 +16,10 @@ class MercadoPagoService:
         
         # Fallback temporal para desarrollo
         if not self.access_token:
-            # Token de prueba válido para desarrollo
+            # Token de prueba válido para desarrollo - Colombia
             self.access_token = 'TEST-1261412824198770-100718-66491d0e1f1b1381978604366ca01034-308635696'
             print("⚠️ Usando token de prueba temporal - Configura MERCADOPAGO_ACCESS_TOKEN en producción")
+            print("🔧 Modo sandbox activado para pruebas")
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
@@ -149,7 +150,10 @@ class MercadoPagoService:
                 # Fallback si Site no está disponible
                 base_url = "https://agroconnect.itemt.tech" if not settings.DEBUG else "http://localhost:8000"
             
-            # Datos para MercadoPago - configuración corregida
+            # Configuración específica para modo sandbox
+            is_sandbox = self.access_token.startswith('TEST-')
+            
+            # Datos para MercadoPago - configuración corregida para sandbox
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
@@ -167,10 +171,16 @@ class MercadoPagoService:
                     "failure": f"{base_url}/payments/failure/",
                     "pending": f"{base_url}/payments/pending/"
                 },
-                # Configuración simplificada para evitar errores
+                # Configuración optimizada para sandbox
                 "binary_mode": False,
-                "expires": False,  # Cambiado a False para evitar problemas de expiración
-                # Configuración de métodos de pago simplificada
+                "expires": False,
+                # Configuración específica para sandbox
+                "metadata": {
+                    "test": is_sandbox,
+                    "platform": "agroconnect",
+                    "version": "1.0"
+                },
+                # Configuración de métodos de pago para sandbox
                 "payment_methods": {
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
@@ -179,7 +189,7 @@ class MercadoPagoService:
                 "items": [
                     {
                         "id": str(order.publicacion.id),
-                        "title": order.publicacion.cultivo.nombre[:50],  # Limitar longitud
+                        "title": order.publicacion.cultivo.nombre[:50],
                         "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}"[:100],
                         "quantity": float(order.cantidad_acordada),
                         "unit_price": float(order.publicacion.precio_por_unidad),
@@ -188,6 +198,18 @@ class MercadoPagoService:
                     }
                 ]
             }
+            
+            # Configuración adicional para sandbox
+            if is_sandbox:
+                payment_data["test_mode"] = True
+                print("🧪 Configuración de sandbox aplicada")
+                print("📋 Para evitar el error 'Una de las partes es de prueba':")
+                print("   1. Usa un usuario de prueba de MercadoPago")
+                print("   2. Email de prueba: test_user_123456@testuser.com")
+                print("   3. Tarjetas de prueba:")
+                print("      - Visa: 4013 5406 8274 6260")
+                print("      - Mastercard: 5254 1336 7440 3564")
+                print("      - CVV: 123, Vencimiento: 11/30")
             
             # Validar datos antes de enviar
             if payment_data['transaction_amount'] <= 0:
