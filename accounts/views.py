@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserCreationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
+from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile, User
@@ -18,58 +18,18 @@ from core.forms import FarmForm
 # Create your views here.
 
 def register(request):
+    """Registro para compradores (sin campos de finca)"""
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = BuyerRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.can_sell = form.cleaned_data.get('can_sell', False)
-            user.role = 'Productor' if user.can_sell else 'Comprador'  # Mantener role para compatibilidad
-            user.save()
-
-            departamento = form.cleaned_data['departamento']
-            ciudad = form.cleaned_data['ciudad']
-
-            # Crear BuyerProfile para TODOS (todos pueden comprar)
-            BuyerProfile.objects.create(
-                user=user,
-                departamento=departamento,
-                ciudad=ciudad
-            )
-
-            # Crear ProducerProfile solo si quiere vender
-            if user.can_sell:
-                direccion = form.cleaned_data.get('direccion', '')
-                farm_description = form.cleaned_data.get('farm_description', '')
-                main_crops = form.cleaned_data.get('main_crops', '')
-                ProducerProfile.objects.create(
-                    user=user,
-                    departamento=departamento,
-                    ciudad=ciudad,
-                    direccion=direccion,
-                    farm_description=farm_description,
-                    main_crops=main_crops
-                )
-                
-                # Crear finca inicial
-                from core.models import Farm
-                Farm.objects.create(
-                    propietario=user,
-                    nombre=form.cleaned_data['finca_nombre'],
-                    departamento=form.cleaned_data['finca_departamento'],
-                    ciudad=form.cleaned_data['finca_ciudad'],
-                    direccion=form.cleaned_data['finca_direccion'],
-                    area_total=form.cleaned_data['finca_area_total'],
-                    area_cultivable=form.cleaned_data['finca_area_cultivable'],
-                    tipo_suelo=form.cleaned_data['finca_tipo_suelo'],
-                    tipo_riego=form.cleaned_data['finca_tipo_riego']
-                )
-
+            user = form.save()  # El formulario ya maneja la creación del perfil
             login(request, user)
-            messages.success(request, '¡Registro exitoso! Bienvenido a AgroConnect.')
+            messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
             return redirect('index')
     else:
-        form = CustomUserCreationForm()
-    return render(request, 'accounts/register.html', {'form': form})
+        form = BuyerRegistrationForm()
+    
+    return render(request, 'accounts/register_buyer.html', {'form': form})
 
 def register_producer(request):
     """Registro específico para productores con finca inicial"""
