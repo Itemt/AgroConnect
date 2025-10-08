@@ -24,7 +24,6 @@
                             {% if status == 'pendiente' %}bg-blue-500 text-white
                             {% elif status == 'acordado' %}bg-blue-600 text-white
                             {% elif status == 'en-transito' or status == 'en-tránsito' %}bg-yellow-500 text-white
-                            {% elif status == 'entregado' %}bg-green-500 text-white
                             {% elif status == 'recibido' %}bg-purple-500 text-white
                             {% elif status == 'completado' %}bg-green-600 text-white
                             {% elif status == 'cancelado' %}bg-red-500 text-white
@@ -255,53 +254,53 @@
                         </h4>
                         <div class="relative">
                             <div class="border-l-2 border-primary-200 absolute h-full top-0 left-3"></div>
-                            <div class="space-y-3">
+                            <div class="space-y-2">
                                 <!-- Pedido Creado -->
-                                <div class="flex items-center relative">
-                                    <div class="bg-green-500 rounded-full h-6 w-6 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-1">
+                                    <div class="bg-green-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check text-white text-xs"></i>
                                     </div>
-                                    <div class="ml-3 flex-1">
-                                        <span class="text-sm font-medium text-gray-800">Pedido Creado</span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ order.created_at|date:"d M Y H:i" }}</span>
+                                    <div class="ml-2 flex-1">
+                                        <span class="text-xs font-medium text-gray-800">Pedido Creado</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.created_at|date:"d M Y H:i" }}</span>
                                     </div>
                                 </div>
                                 
                                 {% if order.fecha_confirmacion %}
                                 <!-- Pedido Confirmado -->
-                                <div class="flex items-center relative">
-                                    <div class="bg-green-500 rounded-full h-6 w-6 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-1">
+                                    <div class="bg-green-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-check-double text-white text-xs"></i>
                                     </div>
-                                    <div class="ml-3 flex-1">
-                                        <span class="text-sm font-medium text-gray-800">Pedido Confirmado</span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</span>
+                                    <div class="ml-2 flex-1">
+                                        <span class="text-xs font-medium text-gray-800">Pedido Confirmado</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if order.fecha_envio %}
                                 <!-- Enviado -->
-                                <div class="flex items-center relative">
-                                    <div class="bg-blue-500 rounded-full h-6 w-6 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-1">
+                                    <div class="bg-blue-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-truck text-white text-xs"></i>
                                     </div>
-                                    <div class="ml-3 flex-1">
-                                        <span class="text-sm font-medium text-gray-800">Enviado</span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ order.fecha_envio|date:"d M Y H:i" }}</span>
+                                    <div class="ml-2 flex-1">
+                                        <span class="text-xs font-medium text-gray-800">Enviado</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_envio|date:"d M Y H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if order.fecha_entrega %}
                                 <!-- Entregado -->
-                                <div class="flex items-center relative">
-                                    <div class="bg-purple-500 rounded-full h-6 w-6 flex items-center justify-center z-10 shadow-sm">
+                                <div class="flex items-center relative py-1">
+                                    <div class="bg-purple-500 rounded-full h-4 w-4 flex items-center justify-center z-10 shadow-sm">
                                         <i class="fas fa-home text-white text-xs"></i>
                                     </div>
-                                    <div class="ml-3 flex-1">
-                                        <span class="text-sm font-medium text-gray-800">Entregado</span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ order.fecha_entrega|date:"d M Y H:i" }}</span>
+                                    <div class="ml-2 flex-1">
+                                        <span class="text-xs font-medium text-gray-800">Entregado</span>
+                                        <span class="text-xs text-gray-500 ml-1">{{ order.fecha_entrega|date:"d M Y H:i" }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -316,52 +315,52 @@
 
 <!-- Modal de Cancelación -->
 <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-lg w-full mx-4 max-h-[85vh] sm:max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
         <!-- Header -->
-        <div class="bg-gradient-to-br from-red-500 via-red-600 to-red-700 px-6 py-8 rounded-t-2xl relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
+        <div class="bg-gradient-to-br from-red-500 via-red-600 to-red-700 px-4 py-4 rounded-t-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
+            <div class="absolute bottom-0 left-0 w-16 h-16 bg-white opacity-5 rounded-full -ml-8 -mb-8"></div>
             <div class="relative flex items-center justify-center">
-                <div class="bg-white bg-opacity-20 rounded-full p-4 backdrop-blur-sm">
-                    <i class="fas fa-times-circle text-white text-4xl"></i>
+                <div class="bg-white bg-opacity-20 rounded-full p-2 backdrop-blur-sm">
+                    <i class="fas fa-times-circle text-white text-2xl"></i>
                 </div>
             </div>
-            <h3 class="relative text-center text-2xl font-bold text-white mt-4">¿Cancelar este pedido?</h3>
-            <p class="relative text-center text-red-100 mt-2 text-sm">Esta decisión es permanente</p>
+            <h3 class="relative text-center text-lg font-bold text-white mt-2">¿Cancelar este pedido?</h3>
+            <p class="relative text-center text-red-100 mt-1 text-xs">Esta decisión es permanente</p>
         </div>
 
         <!-- Body -->
-        <div class="px-6 py-6">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <h4 class="font-semibold text-gray-800 mb-2">Detalles del Pedido:</h4>
-                <p class="text-sm text-gray-600 mb-1"><strong>Producto:</strong> <span id="cancelProductName"></span></p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Cantidad:</strong> <span id="cancelQuantity"></span> <span id="cancelUnit"></span></p>
-                <p class="text-sm text-gray-600"><strong>Total:</strong> $<span id="cancelTotal"></span> COP</p>
+        <div class="px-3 py-3 sm:px-4 sm:py-4">
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+                <h4 class="font-semibold text-gray-800 mb-2 text-sm">Detalles del Pedido:</h4>
+                <p class="text-xs sm:text-sm text-gray-600 mb-1"><strong>Producto:</strong> <span id="cancelProductName"></span></p>
+                <p class="text-xs sm:text-sm text-gray-600 mb-1"><strong>Cantidad:</strong> <span id="cancelQuantity"></span> <span id="cancelUnit"></span></p>
+                <p class="text-xs sm:text-sm text-gray-600"><strong>Total:</strong> $<span id="cancelTotal"></span> COP</p>
             </div>
             
-            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-sm"></i>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-yellow-700">
+                    <div class="ml-2">
+                        <p class="text-xs sm:text-sm text-yellow-700">
                             <strong>Advertencia:</strong> Al cancelar este pedido, se notificará al vendedor y se liberará el stock.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex space-x-3">
+            <div class="flex space-x-2">
                 <button onclick="closeCancelModal()" 
-                        class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times mr-2"></i>No, mantener
+                        class="flex-1 bg-gray-100 text-gray-700 px-2 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200 text-xs sm:text-sm">
+                    <i class="fas fa-times mr-1"></i>No, mantener
                 </button>
                 <form id="cancelForm" method="post" class="flex-1">
                     {% csrf_token %}
                     <button type="submit" 
-                            class="w-full bg-red-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
-                        <i class="fas fa-trash mr-2"></i>Sí, cancelar
+                            class="w-full bg-red-600 text-white px-2 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 text-xs sm:text-sm">
+                        <i class="fas fa-trash mr-1"></i>Sí, cancelar
                     </button>
                 </form>
             </div>
@@ -476,49 +475,49 @@
         modal.style.backdropFilter = 'blur(4px)';
         
         modal.innerHTML = `
-            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="rateBuyerModalContent">
-                <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 px-6 py-8 rounded-t-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20"></div>
+            <div class="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-md w-full mx-4 max-h-[85vh] sm:max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="rateBuyerModalContent">
+                <div class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 px-4 py-4 rounded-t-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
                     <div class="relative flex items-center justify-center">
-                        <div class="bg-white bg-opacity-20 rounded-full p-4 backdrop-blur-sm">
-                            <i class="fas fa-star text-white text-4xl"></i>
+                        <div class="bg-white bg-opacity-20 rounded-full p-2 backdrop-blur-sm">
+                            <i class="fas fa-star text-white text-2xl"></i>
                         </div>
                     </div>
-                    <h3 class="relative text-center text-2xl font-bold text-white mt-4">Calificar Comprador</h3>
-                    <p class="relative text-center text-yellow-100 mt-2 text-sm">Evalúa la experiencia con este comprador</p>
+                    <h3 class="relative text-center text-lg font-bold text-white mt-2">Calificar Comprador</h3>
+                    <p class="relative text-center text-yellow-100 mt-1 text-xs">Evalúa la experiencia con este comprador</p>
                 </div>
                 
-                <div class="px-6 py-6">
+                <div class="px-3 py-3 sm:px-4 sm:py-4">
                     <form id="rateBuyerForm" method="post" action="{% url 'rate_seller' order.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="tipo" value="vendedor_a_comprador">
                         <input type="hidden" name="calificado" value="{{ order.comprador.id }}">
                         
-                        <div class="space-y-4">
+                        <div class="space-y-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Calificación General</label>
-                                <div class="flex space-x-1" id="rating-stars">
-                                    <i class="fas fa-star text-gray-300 text-2xl cursor-pointer hover:text-yellow-400" data-rating="1"></i>
-                                    <i class="fas fa-star text-gray-300 text-2xl cursor-pointer hover:text-yellow-400" data-rating="2"></i>
-                                    <i class="fas fa-star text-gray-300 text-2xl cursor-pointer hover:text-yellow-400" data-rating="3"></i>
-                                    <i class="fas fa-star text-gray-300 text-2xl cursor-pointer hover:text-yellow-400" data-rating="4"></i>
-                                    <i class="fas fa-star text-gray-300 text-2xl cursor-pointer hover:text-yellow-400" data-rating="5"></i>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Calificación General</label>
+                                <div class="flex space-x-1 justify-center" id="rating-stars">
+                                    <i class="fas fa-star text-gray-300 text-lg sm:text-xl cursor-pointer hover:text-yellow-400" data-rating="1"></i>
+                                    <i class="fas fa-star text-gray-300 text-lg sm:text-xl cursor-pointer hover:text-yellow-400" data-rating="2"></i>
+                                    <i class="fas fa-star text-gray-300 text-lg sm:text-xl cursor-pointer hover:text-yellow-400" data-rating="3"></i>
+                                    <i class="fas fa-star text-gray-300 text-lg sm:text-xl cursor-pointer hover:text-yellow-400" data-rating="4"></i>
+                                    <i class="fas fa-star text-gray-300 text-lg sm:text-xl cursor-pointer hover:text-yellow-400" data-rating="5"></i>
                                 </div>
                                 <input type="hidden" name="calificacion_general" id="rating-value" value="0">
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Comentarios (opcional)</label>
-                                <textarea name="comentarios" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Comparte tu experiencia con este comprador..."></textarea>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Comentarios (opcional)</label>
+                                <textarea name="comentarios" rows="2" class="w-full px-2 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 resize-none" placeholder="Comparte tu experiencia..."></textarea>
                             </div>
                         </div>
                         
-                        <div class="flex space-x-3 mt-6">
-                            <button type="button" onclick="closeRateBuyerModal()" class="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                        <div class="flex space-x-2 mt-3">
+                            <button type="button" onclick="closeRateBuyerModal()" class="flex-1 px-2 py-2 text-xs sm:text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
                                 Cancelar
                             </button>
-                            <button type="submit" class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-200">
-                                Enviar Calificación
+                            <button type="submit" class="flex-1 px-2 py-2 text-xs sm:text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-200">
+                                Enviar
                             </button>
                         </div>
                     </form>
