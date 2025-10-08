@@ -129,66 +129,49 @@ def assistant_reply(request):
         config('GOOGLE_API_KEY', default='')
         or config('GEMINI_API_KEY', default='')
     )
-    if api_key and raw_message:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            system_prompt = (
-                "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
-                "Para agricultura: incluye datos específicos, técnicas avanzadas, fechas, cantidades, y recomendaciones profesionales. "
-                "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
-                "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
-                "Formato: 3-6 párrafos detallados, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
-                "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
-                "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
-            )
-            prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
-            # Respuestas optimizadas para exposición: balance entre calidad y eficiencia
-            result = model.generate_content(prompt, generation_config={
-                'max_output_tokens': 800,
-                'temperature': 0.8,
-                'top_k': 45,
-                'top_p': 0.9,
-            })
-            text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
-            if text:
-                response_text = text.strip()
-                used_model = 'gemini-1.5-flash'
-        except Exception as e:
-            # Log del error para diagnóstico
-            print(f"Error en Gemini API: {e}")
-            # Continuar a fallback silenciosamente
-            pass
-
-    # Sistema de respuestas inteligentes cuando no hay API
-    if response_text is None:
-        # Respuestas contextuales y útiles
-        if any(word in user_message for word in ["aplicacion", "app", "agroconnect", "plataforma"]):
-            response_text = "**AgroConnect** es una plataforma innovadora que conecta productores agrícolas directamente con compradores, eliminando intermediarios y facilitando el comercio justo. \n\n**Características principales:**\n- Marketplace para productos agrícolas\n- Sistema de pagos seguro con MercadoPago\n- Chat directo entre productores y compradores\n- Gestión de pedidos y seguimiento\n- Dashboard para métricas de ventas\n\n¿Te gustaría conocer más sobre alguna funcionalidad específica?"
-        
-        elif any(word in user_message for word in ["papas", "papa", "solanum"]):
-            response_text = "**Cultivo de Papas** - Guía completa:\n\n**Preparación del suelo:** pH 5.5-6.5, suelo suelto y bien drenado\n**Época de siembra:** En Colombia, marzo-abril y septiembre-octubre\n**Distancia:** Surcos a 30cm, plantas a 25cm\n**Riego:** Moderado, evitar encharcamientos\n**Cosecha:** 3-4 meses después de la siembra\n\n**Variedades recomendadas:** Diacol Capiro, Parda Pastusa, Criolla Colombia\n\n¿Necesitas información sobre alguna etapa específica del cultivo?"
-        
-        elif any(word in user_message for word in ["tomate", "tomates", "lycopersicon"]):
-            response_text = "**Cultivo de Tomates** - Información técnica:\n\n**Clima:** Temperatura óptima 20-25°C\n**Suelo:** Rico en materia orgánica, pH 6.0-6.8\n**Siembra:** En semillero, trasplante a 40-50 días\n**Tutorado:** Necesario para variedades indeterminadas\n**Riego:** Regular, evitar mojar las hojas\n\n**Plagas comunes:** Mosca blanca, trips, nematodos\n**Enfermedades:** Mildiu, oídio, alternaria\n\n¿Quieres saber sobre manejo de plagas o fertilización?"
-        
-        elif any(word in user_message for word in ["maiz", "maíz", "zea"]):
-            response_text = "**Cultivo de Maíz** - Guía técnica:\n\n**Época de siembra:** Abril-mayo y octubre-noviembre\n**Densidad:** 60,000-70,000 plantas/hectárea\n**Fertilización:** NPK 120-60-60 kg/ha\n**Riego:** Crítico en floración y llenado\n**Cosecha:** 4-5 meses, humedad 14-16%\n\n**Variedades:** ICA V-109, ICA V-156, Híbridos\n**Manejo:** Control de malezas, tutorado si es necesario\n\n¿Necesitas información sobre fertilización o control de plagas?"
-        
-        elif any(word in user_message for word in ["venta", "vender", "comercializar", "precio"]):
-            response_text = "**Comercialización en AgroConnect:**\n\n**Para vender:**\n- Regístrate como productor\n- Crea tu perfil y fincas\n- Publica tus productos con precios\n- Gestiona pedidos desde tu dashboard\n\n**Para comprar:**\n- Explora el marketplace\n- Filtra por ubicación y productos\n- Contacta directamente al productor\n- Paga de forma segura\n\n**Ventajas:** Sin intermediarios, precios justos, comunicación directa\n\n¿Eres productor o comprador? Te puedo ayudar con el proceso específico."
-        
-        elif any(word in user_message for word in ["pago", "pagar", "mercadopago", "dinero"]):
-            response_text = "**Sistema de Pagos en AgroConnect:**\n\n**Métodos aceptados:**\n- Tarjetas de crédito y débito\n- Transferencias bancarias\n- Pago en efectivo (coordinado)\n\n**Proceso seguro:**\n- Pagos procesados por MercadoPago\n- Fondos liberados al confirmar recepción\n- Protección para compradores y vendedores\n\n**Ventajas:**\n- Transacciones seguras\n- Sin comisiones ocultas\n- Respaldo de MercadoPago\n\n¿Tienes alguna duda específica sobre pagos?"
-        
-        elif any(word in user_message for word in ["ayuda", "help", "soporte", "problema"]):
-            response_text = "**Centro de Ayuda AgroConnect:**\n\n**Funcionalidades principales:**\n- Marketplace de productos agrícolas\n- Sistema de mensajería directa\n- Gestión de pedidos y pagos\n- Dashboard de métricas\n\n**Soporte técnico:**\n- Chat en tiempo real\n- Documentación completa\n- Tutoriales paso a paso\n\n**Contacto:**\n- Email: contacto@agroconnect.com\n- Teléfono: +57 300 123 4567\n\n¿En qué específicamente necesitas ayuda?"
-        
+    
+    # SIEMPRE intentar usar IA si hay mensaje
+    if raw_message:
+        if api_key:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                system_prompt = (
+                    "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
+                    "Para agricultura: incluye datos específicos, técnicas avanzadas, fechas, cantidades, y recomendaciones profesionales. "
+                    "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
+                    "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
+                    "Formato: 3-6 párrafos detallados, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
+                    "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
+                    "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
+                )
+                prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
+                # Respuestas optimizadas para exposición: balance entre calidad y eficiencia
+                result = model.generate_content(prompt, generation_config={
+                    'max_output_tokens': 800,
+                    'temperature': 0.8,
+                    'top_k': 45,
+                    'top_p': 0.9,
+                })
+                text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
+                if text:
+                    response_text = text.strip()
+                    used_model = 'gemini-1.5-flash'
+            except Exception as e:
+                # Log del error para diagnóstico
+                print(f"Error en Gemini API: {e}")
+                # Continuar a fallback silenciosamente
+                pass
         else:
-            response_text = "**¡Hola! Soy el asistente de AgroConnect** 🌱\n\nPuedo ayudarte con:\n- **Información sobre cultivos** (papas, tomates, maíz, etc.)\n- **Uso de la plataforma** (vender, comprar, pagos)\n- **Técnicas agrícolas** (siembra, riego, fertilización)\n- **Soporte técnico** (problemas, dudas)\n\n**¿Sobre qué te gustaría saber?** Puedes preguntarme sobre cultivos, la plataforma, o cualquier tema agrícola."
-        
-        used_model = 'agroconnect-assistant'
+            # Si no hay API key, mostrar mensaje claro
+            response_text = "**Configuración requerida** 🔧\n\nPara usar el asistente de IA, necesitas configurar la API key de Gemini en el archivo `.env`.\n\n**Pasos:**\n1. Crea un archivo `.env` en la raíz del proyecto\n2. Agrega: `GOOGLE_API_KEY=tu_api_key_aqui`\n3. Reinicia el servidor\n\n**Sin la API key, el asistente no puede funcionar.**"
+            used_model = 'config-required'
+
+    # Solo usar IA - sin fallback
+    if response_text is None:
+        response_text = "**Error del Asistente** ⚠️\n\nNo pude procesar tu consulta. Esto puede deberse a:\n- Problemas de conectividad con la API de IA\n- Configuración incorrecta de la API key\n- Error temporal del servicio\n\n**Por favor intenta de nuevo en unos momentos.**"
+        used_model = 'error'
 
     # Rate limit removido - no se guarda timestamp
     return JsonResponse({"success": True, "reply": response_text, "model": used_model})
@@ -311,8 +294,7 @@ REGLAS:
         }
         used_model = 'fallback'
     
-    # Guardar timestamp
-    request.session['ai_suggestions_last_ts'] = str(now_ts)
+    # Rate limit removido - no se guarda timestamp
     
     return JsonResponse({
         'success': True, 
