@@ -175,8 +175,7 @@ def assistant_reply(request):
         
         used_model = 'fallback-temp'
 
-    # Guardar timestamp de la solicitud atendida
-    request.session['assistant_last_ts'] = str(now_ts)
+    # Rate limit removido - no se guarda timestamp
     return JsonResponse({"success": True, "reply": response_text, "model": used_model})
 
 
