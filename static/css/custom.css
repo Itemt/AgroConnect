@@ -363,6 +363,17 @@ body:has(.hero) main {
   background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%) !important;
 }
 
+/* Force gradient on homepage */
+.hero + * {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%) !important;
+}
+
+/* Remove any white backgrounds */
+.card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
 .hero::before {
   content: '';
   position: absolute;
