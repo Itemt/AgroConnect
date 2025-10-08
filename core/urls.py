@@ -10,6 +10,8 @@ urlpatterns = [
     path('notifications/mark-all-read/', views.notifications_mark_all_read, name='notifications_mark_all_read'),
     path('notifications/mark-all-unread/', views.notifications_mark_all_unread, name='notifications_mark_all_unread'),
     path('notifications/mark-read/', views.notifications_mark_read, name='notifications_mark_read'),
+    path('notifications/delete-all/', views.notifications_delete_all, name='notifications_delete_all'),
+    path('notifications/delete-read/', views.notifications_delete_read, name='notifications_delete_read'),
     path('notifications/', views.notifications_page, name='notifications_page'),
     
     # Farms

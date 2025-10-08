@@ -51,6 +51,22 @@ def notifications_mark_read(request):
         Notification.objects.filter(id=notification_id, recipient=request.user).update(is_read=True)
     return JsonResponse({'success': True})
 
+@login_required
+@require_POST
+def notifications_delete_all(request):
+    """Eliminar todas las notificaciones del usuario"""
+    deleted_count = Notification.objects.filter(recipient=request.user).count()
+    Notification.objects.filter(recipient=request.user).delete()
+    return JsonResponse({'success': True, 'deleted_count': deleted_count})
+
+@login_required
+@require_POST
+def notifications_delete_read(request):
+    """Eliminar solo las notificaciones leídas del usuario"""
+    deleted_count = Notification.objects.filter(recipient=request.user, is_read=True).count()
+    Notification.objects.filter(recipient=request.user, is_read=True).delete()
+    return JsonResponse({'success': True, 'deleted_count': deleted_count})
+
 from django.shortcuts import render
 
 # Create your views here.

@@ -1,123 +1,185 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.db.models import Sum, Count, Avg
-from .models import Order, Rating
-from accounts.models import ProducerProfile, BuyerProfile
+from django.utils import timezone
+from .models import Order
+from core.models import create_notification
+from payments.models import Payment
 
 
 @receiver(post_save, sender=Order)
-def update_user_statistics(sender, instance, created, **kwargs):
-    """
-    Actualiza las estadísticas de ventas y compras cuando una orden cambia de estado
-    """
-    # Solo actualizar estadísticas si la orden está completada
-    if instance.estado == 'completado':
-        # Actualizar estadísticas del VENDEDOR (ProducerProfile)
-        vendedor = instance.vendedor
-        if vendedor and hasattr(vendedor, 'producer_profile'):
-            producer_profile = vendedor.producer_profile
-            
-            # Obtener todas las órdenes completadas del vendedor
-            completed_sales = Order.objects.filter(
-                publicacion__cultivo__productor=vendedor,
-                estado='completado'
-            )
-            
-            # Actualizar total de ventas
-            producer_profile.total_ventas = completed_sales.count()
-            
-            # Actualizar ingresos totales
-            producer_profile.ingresos_totales = completed_sales.aggregate(
-                total=Sum('precio_total')
-            )['total'] or 0
-            
-            # Actualizar fecha de primera venta si no existe
-            if not producer_profile.fecha_primera_venta and producer_profile.total_ventas > 0:
-                primera_venta = completed_sales.order_by('created_at').first()
-                if primera_venta:
-                    producer_profile.fecha_primera_venta = primera_venta.created_at
-            
-            # Actualizar calificación promedio si hay ratings
-            ratings = vendedor.calificaciones_recibidas.filter(tipo='comprador_a_vendedor')
-            if ratings.exists():
-                producer_profile.calificacion_promedio = ratings.aggregate(
-                    avg=Avg('calificacion_general')
-                )['avg'] or 0
-                producer_profile.total_calificaciones = ratings.count()
-            
-            producer_profile.save()
+def order_status_notifications(sender, instance, created, **kwargs):
+    """Envía notificaciones cuando cambia el estado de un pedido"""
+    if created:
+        # Nuevo pedido creado - notificar al vendedor
+        create_notification(
+            recipient=instance.vendedor,
+            title='Nuevo pedido recibido',
+            message=f'Has recibido un nuevo pedido #{instance.id} de {instance.comprador.first_name} {instance.comprador.last_name} por {instance.cantidad_acordada} {instance.publicacion.cultivo.unidad_medida} de {instance.publicacion.cultivo.nombre}.',
+            category='order',
+            order_id=instance.id,
+        )
         
-        # Actualizar estadísticas del COMPRADOR (BuyerProfile)
-        comprador = instance.comprador
-        if comprador and hasattr(comprador, 'buyer_profile'):
-            buyer_profile = comprador.buyer_profile
-            
-            # Obtener todas las órdenes completadas del comprador
-            completed_purchases = Order.objects.filter(
-                comprador=comprador,
-                estado='completado'
+        # Notificar al comprador
+        create_notification(
+            recipient=instance.comprador,
+            title='Pedido creado',
+            message=f'Tu pedido #{instance.id} ha sido creado exitosamente. Esperando confirmación del vendedor.',
+            category='order',
+            order_id=instance.id,
+        )
+    else:
+        # Estado del pedido cambió - enviar notificaciones según el estado
+        if instance.estado == 'confirmado':
+            # Pedido confirmado por el vendedor
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido confirmado',
+                message=f'Tu pedido #{instance.id} ha sido confirmado por el vendedor. El vendedor comenzará a preparar tu pedido.',
+                category='order',
+                order_id=instance.id,
             )
             
-            # Actualizar total de compras
-            buyer_profile.total_compras = completed_purchases.count()
+        elif instance.estado == 'en_preparacion':
+            # Pedido en preparación
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido en preparación',
+                message=f'Tu pedido #{instance.id} está siendo preparado por el vendedor.',
+                category='order',
+                order_id=instance.id,
+            )
             
-            # Actualizar gastos totales
-            buyer_profile.gastos_totales = completed_purchases.aggregate(
-                total=Sum('precio_total')
-            )['total'] or 0
+        elif instance.estado == 'enviado':
+            # Pedido enviado
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido enviado',
+                message=f'Tu pedido #{instance.id} ha sido enviado. Pronto lo recibirás.',
+                category='order',
+                order_id=instance.id,
+            )
             
-            # Actualizar fecha de primera compra si no existe
-            if not buyer_profile.fecha_primera_compra and buyer_profile.total_compras > 0:
-                primera_compra = completed_purchases.order_by('created_at').first()
-                if primera_compra:
-                    buyer_profile.fecha_primera_compra = primera_compra.created_at
+        elif instance.estado == 'en_transito':
+            # Pedido en tránsito
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido en tránsito',
+                message=f'Tu pedido #{instance.id} está en camino hacia ti.',
+                category='order',
+                order_id=instance.id,
+            )
             
-            buyer_profile.save()
-    
-    # Si la orden se cancela, también recalcular estadísticas
-    elif instance.estado == 'cancelado':
-        # En caso de cancelación, recalcular sin incluir esta orden
-        # (Similar al código anterior pero excluyendo órdenes canceladas)
-        pass
+        elif instance.estado == 'entregado':
+            # Pedido entregado
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido entregado',
+                message=f'Tu pedido #{instance.id} ha sido entregado. Por favor confirma la recepción.',
+                category='order',
+                order_id=instance.id,
+            )
+            
+        elif instance.estado == 'recibido':
+            # Pedido recibido por el comprador
+            create_notification(
+                recipient=instance.vendedor,
+                title='Pedido recibido',
+                message=f'El comprador ha confirmado la recepción del pedido #{instance.id}.',
+                category='order',
+                order_id=instance.id,
+            )
+            
+        elif instance.estado == 'completado':
+            # Pedido completado
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido completado',
+                message=f'Tu pedido #{instance.id} ha sido completado exitosamente. ¡Gracias por tu compra!',
+                category='order',
+                order_id=instance.id,
+            )
+            
+            create_notification(
+                recipient=instance.vendedor,
+                title='Pedido completado',
+                message=f'El pedido #{instance.id} ha sido completado exitosamente. ¡Gracias por la venta!',
+                category='order',
+                order_id=instance.id,
+            )
+            
+        elif instance.estado == 'cancelado':
+            # Pedido cancelado
+            create_notification(
+                recipient=instance.comprador,
+                title='Pedido cancelado',
+                message=f'Tu pedido #{instance.id} ha sido cancelado.',
+                category='order',
+                order_id=instance.id,
+            )
+            
+            create_notification(
+                recipient=instance.vendedor,
+                title='Pedido cancelado',
+                message=f'El pedido #{instance.id} ha sido cancelado.',
+                category='order',
+                order_id=instance.id,
+            )
 
 
-@receiver(post_save, sender=Rating)
-def update_ratings_on_profiles(sender, instance, created, **kwargs):
-    """
-    Actualiza las calificaciones promedio en los perfiles cuando se crea/actualiza un rating
-    """
-    if instance.tipo == 'comprador_a_vendedor':
-        # Actualizar calificación del vendedor (ProducerProfile)
-        vendedor = instance.calificado
-        if vendedor and hasattr(vendedor, 'producer_profile'):
-            producer_profile = vendedor.producer_profile
+@receiver(post_save, sender=Payment)
+def payment_status_notifications(sender, instance, created, **kwargs):
+    """Envía notificaciones cuando cambia el estado de un pago"""
+    if created:
+        # Nuevo pago creado
+        create_notification(
+            recipient=instance.user,
+            title='Pago iniciado',
+            message=f'Se ha iniciado el proceso de pago para el pedido #{instance.order.id}.',
+            category='payment',
+            order_id=instance.order.id,
+            payment_id=instance.id,
+        )
+    else:
+        # Estado del pago cambió
+        if instance.status == 'approved':
+            # Pago aprobado
+            create_notification(
+                recipient=instance.user,
+                title='Pago aprobado',
+                message=f'Tu pago del pedido #{instance.order.id} ha sido aprobado exitosamente.',
+                category='payment',
+                order_id=instance.order.id,
+                payment_id=instance.id,
+            )
             
-            # Calcular calificación promedio de todas las calificaciones recibidas como vendedor
-            ratings = vendedor.calificaciones_recibidas.filter(tipo='comprador_a_vendedor')
-            if ratings.exists():
-                producer_profile.calificacion_promedio = ratings.aggregate(
-                    avg=Avg('calificacion_general')
-                )['avg'] or 0
-                producer_profile.total_calificaciones = ratings.count()
-                producer_profile.save()
-    
-    elif instance.tipo == 'vendedor_a_comprador':
-        # Actualizar calificación del comprador (BuyerProfile)
-        comprador = instance.calificado
-        if comprador and hasattr(comprador, 'buyer_profile'):
-            buyer_profile = comprador.buyer_profile
+            # Notificar al vendedor
+            create_notification(
+                recipient=instance.order.vendedor,
+                title='Pago recibido',
+                message=f'Has recibido el pago del pedido #{instance.order.id}. Puedes confirmar el pedido.',
+                category='payment',
+                order_id=instance.order.id,
+                payment_id=instance.id,
+            )
             
-            # Calcular calificación promedio de todas las calificaciones recibidas como comprador
-            ratings = comprador.calificaciones_recibidas.filter(tipo='vendedor_a_comprador')
-            if ratings.exists():
-                # BuyerProfile necesita campos para las calificaciones
-                avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg'] or 0
-                total_ratings = ratings.count()
-                
-                # Si BuyerProfile no tiene estos campos, los agregaremos después
-                if hasattr(buyer_profile, 'calificacion_promedio'):
-                    buyer_profile.calificacion_promedio = avg_rating
-                if hasattr(buyer_profile, 'total_calificaciones'):
-                    buyer_profile.total_calificaciones = total_ratings
-                
-                buyer_profile.save()
+        elif instance.status == 'rejected':
+            # Pago rechazado
+            create_notification(
+                recipient=instance.user,
+                title='Pago rechazado',
+                message=f'Tu pago del pedido #{instance.order.id} ha sido rechazado. Por favor, intenta nuevamente.',
+                category='payment',
+                order_id=instance.order.id,
+                payment_id=instance.id,
+            )
+            
+        elif instance.status == 'pending':
+            # Pago pendiente
+            create_notification(
+                recipient=instance.user,
+                title='Pago pendiente',
+                message=f'Tu pago del pedido #{instance.order.id} está pendiente de procesamiento.',
+                category='payment',
+                order_id=instance.order.id,
+                payment_id=instance.id,
+            )

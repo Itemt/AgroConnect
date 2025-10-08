@@ -102,6 +102,36 @@
         background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-900) 100%);
         box-shadow: var(--shadow-strong);
         border-right: 1px solid var(--primary-700);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+    
+    /* Custom scrollbar for sidebar */
+    #sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    #sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+    
+    #sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Smooth scrolling for sidebar */
+    #sidebar {
+        scroll-behavior: smooth;
+    }
+    
+    /* Ensure sidebar content doesn't get cut off */
+    #sidebar .sidebar-nav {
+        padding-bottom: 2rem;
     }
     
     #sidebar.w-20 .sidebar-text {
@@ -364,7 +394,7 @@
 
 <div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 text-white p-4 transition-all duration-300 ease-in-out fixed h-full z-50 top-0 left-0">
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out fixed h-full z-50 top-0 left-0 overflow-y-auto">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
             <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
