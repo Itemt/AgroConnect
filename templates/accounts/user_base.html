@@ -135,10 +135,9 @@
         min-height: 100vh;
     }
     
-    /* Ensure sidebar stays in place when scrolling */
+    /* Ensure sidebar has proper height and scroll */
     #sidebar {
-        position: sticky;
-        top: 0;
+        position: relative;
         z-index: 40;
     }
     
@@ -398,7 +397,7 @@
 
 <div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out sticky top-0 h-screen overflow-y-auto flex-shrink-0">
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out h-screen overflow-y-auto flex-shrink-0">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
             <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
