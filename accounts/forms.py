@@ -55,6 +55,20 @@ class CustomUserCreationForm(UserCreationForm):
         }),
         help_text="Número de cédula de identidad"
     )
+    telefono = forms.CharField(
+        max_length=15, 
+        required=True, 
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: 3001234567',
+            'type': 'tel',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de teléfono de contacto"
+    )
     
     # Ubicación básica
     departamento = forms.ChoiceField(
@@ -256,7 +270,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'can_sell', 'departamento', 'ciudad', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'can_sell', 'departamento', 'ciudad', 'direccion', 'farm_description', 'main_crops', 'password1', 'password2')
         labels = {
             'username': 'Nombre de Usuario',
             'first_name': 'Nombres',
@@ -379,6 +393,20 @@ class UserEditForm(forms.ModelForm):
             'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
         }),
         help_text="Número de cédula de identidad"
+    )
+    telefono = forms.CharField(
+        max_length=15, 
+        required=False, 
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 3001234567',
+            'type': 'tel',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de teléfono de contacto"
     )
     
     can_sell = forms.BooleanField(
