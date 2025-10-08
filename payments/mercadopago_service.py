@@ -150,12 +150,12 @@ class MercadoPagoService:
                 # Fallback si Site no está disponible
                 base_url = "https://agroconnect.itemt.tech" if not settings.DEBUG else "http://localhost:8000"
             
+            # Configuración específica para modo sandbox
+            is_sandbox = self.access_token.startswith('TEST-')
+            
             # Para sandbox en producción, usar URLs más simples
             if is_sandbox and not settings.DEBUG:
                 base_url = "https://agroconnect.itemt.tech"
-            
-            # Configuración específica para modo sandbox
-            is_sandbox = self.access_token.startswith('TEST-')
             
             # Datos para MercadoPago - configuración corregida para sandbox
             # Usar email de prueba específico para sandbox
