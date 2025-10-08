@@ -93,13 +93,8 @@
                                         <option value="cancelado">Cancelar Pedido</option>
                                     {% elif order.estado == 'en_preparacion' %}
                                         <option value="enviado">Marcar como Enviado</option>
-                                    {% elif order.estado == 'enviado' %}
-                                        <option value="en_transito">En Tránsito</option>
                                     {% endif %}
                                 </select>
-                                <div id="delivery-date-container" class="hidden">
-                                    <input type="datetime-local" id="delivery-date" class="px-3 py-2 text-sm rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-300" placeholder="Fecha de entrega">
-                                </div>
                             </div>
                         {% elif action_key == 'cancel' %}
                             <button onclick="showCancelModal({{ order.id }}, '{{ order.publicacion.cultivo.nombre|escapejs }}', '{{ order.cantidad_acordada }}', '{{ order.publicacion.cultivo.unidad_medida }}', '{{ order.precio_total }}')" class="px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-red-500 hover:bg-red-600 shadow-md hover:shadow-lg transition-all flex items-center">
@@ -279,27 +274,27 @@
                             {% endif %}
                             
                             {% if order.fecha_envio %}
-                            <!-- Enviado -->
+                            <!-- En Tránsito -->
                             <div class="flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
                                 <div class="bg-orange-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                     <i class="fas fa-truck text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">Enviado</div>
+                                    <div class="font-medium text-gray-800">En Tránsito</div>
                                     <div class="text-sm text-gray-600">{{ order.fecha_envio|date:"d M Y H:i" }}</div>
                                 </div>
                             </div>
                             {% endif %}
                             
-                            {% if order.fecha_entrega %}
-                            <!-- Entregado -->
-                            <div class="flex items-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                                <div class="bg-purple-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                                    <i class="fas fa-home text-white text-sm"></i>
+                            {% if order.estado == 'completado' %}
+                            <!-- Completado -->
+                            <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="bg-green-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                                    <i class="fas fa-check-circle text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">Entregado</div>
-                                    <div class="text-sm text-gray-600">{{ order.fecha_entrega|date:"d M Y H:i" }}</div>
+                                    <div class="font-medium text-gray-800">Completado</div>
+                                    <div class="text-sm text-gray-600">Pedido finalizado exitosamente</div>
                                 </div>
                             </div>
                             {% endif %}
@@ -420,26 +415,10 @@
     function updateOrderStatus(orderId, newStatus) {
         if (!newStatus) return;
         
-        const deliveryDateContainer = document.getElementById('delivery-date-container');
-        const deliveryDateInput = document.getElementById('delivery-date');
-        
-        // Mostrar campo de fecha de entrega solo si el estado es 'enviado'
-        if (newStatus === 'enviado') {
-            deliveryDateContainer.classList.remove('hidden');
-            deliveryDateInput.required = true;
-        } else {
-            deliveryDateContainer.classList.add('hidden');
-            deliveryDateInput.required = false;
-        }
-        
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('estado', newStatus);
         formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-        
-        if (newStatus === 'enviado' && deliveryDateInput.value) {
-            formData.append('fecha_entrega_estimada', deliveryDateInput.value);
-        }
         
         // Enviar actualización
         fetch(`/order/${orderId}/quick-update/`, {

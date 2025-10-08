@@ -258,7 +258,8 @@ def mark_order_shipped_view(request, order_id):
         from .forms import OrderShipmentForm
         form = OrderShipmentForm(request.POST)
         if form.is_valid():
-            order.estado = 'enviado'
+            # Cambiar automáticamente a 'en_transito' después de enviado
+            order.estado = 'en_transito'
             order.fecha_envio = timezone.now()
             
             # Agregar notas del vendedor si existen
@@ -270,11 +271,11 @@ def mark_order_shipped_view(request, order_id):
                     order.notas_vendedor = f"[Envío] {notas}"
             
             order.save()
-            # Notificar al comprador que el pedido fue enviado
+            # Notificar al comprador que el pedido está en tránsito
             create_notification(
                 recipient=order.comprador,
-                title='Pedido enviado',
-                message=f'Tu pedido #{order.id} fue enviado. Pronto recibirás más actualizaciones.',
+                title='Pedido en tránsito',
+                message=f'Tu pedido #{order.id} está en tránsito. Debería llegar en 3-5 días hábiles.',
                 category='order',
                 order_id=order.id,
             )
