@@ -220,6 +220,26 @@ def publication_delete_view(request, pk):
     return render(request, 'marketplace/publication_confirm_delete.html', context)
 
 @login_required
+def select_crop_for_publication_view(request):
+    """Seleccionar cultivo para crear publicación"""
+    if request.user.role != 'Productor':
+        messages.error(request, 'Acceso denegado. Solo para productores.')
+        return redirect('marketplace')
+    
+    # Obtener cultivos listos para cosechar que no tengan publicación activa
+    crops = Crop.objects.filter(
+        productor=request.user,
+        estado='listo_para_cosechar'
+    ).exclude(
+        publication__estado='Activa'
+    ).select_related('finca').order_by('-created_at')
+    
+    context = {
+        'crops': crops
+    }
+    return render(request, 'marketplace/select_crop_for_publication.html', context)
+
+@login_required
 def my_publications_view(request):
     """Lista de publicaciones del productor"""
     if request.user.role != 'Productor':

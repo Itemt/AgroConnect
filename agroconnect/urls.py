@@ -49,6 +49,7 @@ urlpatterns = [
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),
     path('publication/<int:publication_id>/', marketplace_views.publication_detail_view, name='publication_detail'),
+    path('publication/new/', marketplace_views.select_crop_for_publication_view, name='select_crop_for_publication'),
     path('publication/new/<int:crop_id>/', marketplace_views.publication_create_view, name='publication_create'),
     path('publication/<int:pk>/edit/', marketplace_views.publication_edit_view, name='publication_edit'),
     path('publication/<int:pk>/delete/', marketplace_views.publication_delete_view, name='publication_delete'),
