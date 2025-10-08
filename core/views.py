@@ -124,11 +124,21 @@ def assistant_reply(request):
     used_model = 'fallback'
     response_text = None
 
-    # Leer desde .env/variables de entorno
+    # Leer desde variables de entorno del sistema
+    import os
     api_key = (
-        config('GOOGLE_API_KEY', default='')
+        os.getenv('GOOGLE_API_KEY', '')
+        or os.getenv('GEMINI_API_KEY', '')
+        or config('GOOGLE_API_KEY', default='')
         or config('GEMINI_API_KEY', default='')
     )
+    
+    # Debug: verificar si la API key está disponible
+    print(f"=== DEBUG API KEY ===")
+    print(f"GOOGLE_API_KEY from os.getenv: {os.getenv('GOOGLE_API_KEY', 'NOT_SET')}")
+    print(f"GEMINI_API_KEY from os.getenv: {os.getenv('GEMINI_API_KEY', 'NOT_SET')}")
+    print(f"Final api_key: {api_key[:10] if api_key else 'EMPTY'}...")
+    print(f"===================")
     
     # SIEMPRE intentar usar IA si hay mensaje
     if raw_message:
