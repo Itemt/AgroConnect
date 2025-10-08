@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import Farm
 from .forms import FarmForm
+from .colombia_locations import get_departments
 from inventory.models import Crop
 
 @login_required
@@ -58,6 +59,7 @@ def farm_create(request):
     context = {
         'form': form,
         'title': 'Crear Nueva Finca',
+        'departments_list': [d[0] for d in get_departments()],
     }
     return render(request, 'core/farm_form.html', context)
 
@@ -83,6 +85,7 @@ def farm_edit(request, pk):
         'form': form,
         'finca': finca,
         'title': f'Editar Finca: {finca.nombre}',
+        'departments_list': [d[0] for d in get_departments()],
     }
     return render(request, 'core/farm_form.html', context)
 
@@ -106,7 +109,6 @@ def farm_delete(request, pk):
     }
     return render(request, 'core/farm_confirm_delete.html', context)
 
-@login_required
 @require_POST
 def get_ciudades(request):
     """AJAX endpoint para obtener ciudades de un departamento"""

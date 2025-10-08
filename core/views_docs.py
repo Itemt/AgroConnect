@@ -1,7 +1,5 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def documentation_view(request):
     """Vista para mostrar la documentación y FAQ de la plataforma"""
     
