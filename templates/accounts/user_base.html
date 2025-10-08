@@ -460,6 +460,12 @@
                     <i class="fas fa-tractor w-5"></i>
                     <span class="sidebar-text ml-3">🏡 Mis Fincas</span>
                 </a>
+                
+                <!-- Mis Cultivos - Segunda opción para productores -->
+                <a href="{% url 'crop_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'crop_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-seedling w-5"></i>
+                    <span class="sidebar-text ml-3">🌱 Mis Cultivos</span>
+                </a>
                 {% elif user.role == 'Comprador' %}
                 <a href="{% url 'buyer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-tachometer-alt w-5"></i>
