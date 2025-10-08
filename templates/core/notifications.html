@@ -80,7 +80,16 @@
             {% if page_obj %}
                 <div class="divide-y divide-gray-200">
                     {% for notification in page_obj %}
-                        <div class="p-8 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-300 {% if not notification.is_read %}bg-gradient-to-r from-blue-50 to-blue-100 border-l-8 border-blue-500{% endif %}">
+                        {% if notification.category == 'order' and notification.related_order_id %}
+                            <a href="{% url 'order_detail' notification.related_order_id %}" class="block">
+                        {% elif notification.category == 'payment' and notification.related_order_id %}
+                            <a href="{% url 'order_detail' notification.related_order_id %}" class="block">
+                        {% elif notification.category == 'message' and notification.related_conversation_id %}
+                            <a href="{% url 'conversation_detail' notification.related_conversation_id %}" class="block">
+                        {% else %}
+                            <div class="block">
+                        {% endif %}
+                        <div class="p-8 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-300 {% if not notification.is_read %}bg-gradient-to-r from-blue-50 to-blue-100 border-l-8 border-blue-500{% endif %} cursor-pointer">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-6">
@@ -125,6 +134,15 @@
                                 </div>
                             </div>
                         </div>
+                        {% if notification.category == 'order' and notification.related_order_id %}
+                            </a>
+                        {% elif notification.category == 'payment' and notification.related_order_id %}
+                            </a>
+                        {% elif notification.category == 'message' and notification.related_conversation_id %}
+                            </a>
+                        {% else %}
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 
