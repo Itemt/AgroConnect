@@ -72,17 +72,21 @@
                 </p>
             </div>
 
-            <!-- Fecha de Entrega Estimada -->
-            <div>
-                <label for="{{ form.fecha_entrega_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ form.fecha_entrega_estimada.label }}
-                    <span class="text-gray-500 font-normal">(Opcional)</span>
-                </label>
-                {{ form.fecha_entrega_estimada }}
-                <p class="mt-2 text-sm text-gray-500">
-                    <i class="fas fa-calendar-alt mr-1"></i>
-                    Ayuda al comprador a saber cuándo esperar el pedido.
-                </p>
+            <!-- Información de Tiempo de Entrega -->
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-truck text-green-400 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">
+                            Tiempo de Entrega Estimado
+                        </h3>
+                        <p class="mt-1 text-sm text-green-700">
+                            La entrega se realizará en un plazo de 2-5 días hábiles desde el envío.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Información Importante -->
