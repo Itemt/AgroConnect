@@ -98,6 +98,20 @@
                                 {% endfor %}
                             </div>
 
+                            <div class="field-wrapper">
+                                <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                    <i class="fas fa-phone mr-2 text-primary-600"></i>
+                                    {{ form.telefono.label }}
+                                </label>
+                                {{ form.telefono }}
+                                {% if form.telefono.help_text %}
+                                    <p class="mt-1 text-xs text-gray-500">{{ form.telefono.help_text }}</p>
+                                {% endif %}
+                                {% for error in form.telefono.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="field-wrapper">
                                     <label for="{{ form.departamento.id_for_label }}" class="form-label">

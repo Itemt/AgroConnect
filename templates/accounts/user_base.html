@@ -77,10 +77,6 @@
         width: 5rem !important;
     }
     
-    html.sidebar-collapsed #main-content {
-        margin-left: 5rem !important;
-    }
-    
     html.sidebar-collapsed #sidebar .sidebar-text {
         display: none !important;
     }
@@ -132,6 +128,18 @@
     /* Ensure sidebar content doesn't get cut off */
     #sidebar .sidebar-nav {
         padding-bottom: 2rem;
+    }
+    
+    /* Make sure the sidebar container takes full height */
+    .relative.flex {
+        min-height: 100vh;
+    }
+    
+    /* Ensure sidebar stays in place when scrolling */
+    #sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
     }
     
     #sidebar.w-20 .sidebar-text {
@@ -361,10 +369,6 @@
         width: 5rem; /* w-20 */
     }
     
-    #sidebar-toggle-checkbox:checked + .relative #main-content {
-        margin-left: 5rem; /* ml-20 */
-    }
-    
     #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-text {
         display: none !important;
     }
@@ -394,7 +398,7 @@
 
 <div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out fixed h-full z-50 top-0 left-0 overflow-y-auto">
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out sticky top-0 h-screen overflow-y-auto flex-shrink-0">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
             <a href="{% url 'index' %}" class="flex items-center sidebar-text group flex-1">
@@ -509,7 +513,7 @@
     </div>
 
     <!-- Main content -->
-    <div id="main-content" class="main-content flex-1 overflow-y-auto transition-all duration-300 ease-in-out ml-64">
+    <div id="main-content" class="main-content flex-1 transition-all duration-300 ease-in-out">
         <div class="p-8 lg:p-10">
             {% block user_content %}{% endblock %}
         </div>
