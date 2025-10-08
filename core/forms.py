@@ -80,8 +80,15 @@ class FarmForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        # Debug: verificar que get_departments funciona
+        departments = get_departments()
+        print(f"=== FARM FORM DEBUG ===")
+        print(f"Departments loaded: {len(departments)}")
+        print(f"First 3 departments: {departments[:3]}")
+        
         # Configurar opciones de departamentos
-        self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + get_departments()
+        self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + departments
+        print(f"Departamento choices set: {len(self.fields['departamento'].choices)}")
         
         # Configurar opciones de ciudades basadas en el departamento seleccionado
         if self.instance and self.instance.pk:
