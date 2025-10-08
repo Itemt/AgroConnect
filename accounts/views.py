@@ -89,21 +89,21 @@ def profile_view(request):
 def profile_edit_view(request):
     if request.method == 'POST':
         if request.user.role == 'Productor':
-            # Usar formulario extendido para productores
+            # Usar formulario completo para productores
             try:
                 producer_profile = request.user.producer_profile
-                form = ProducerProfileEditForm(request.POST, instance=producer_profile, user=request.user)
+                form = ProducerProfileEditForm(request.POST, request.FILES, instance=producer_profile, user=request.user)
             except AttributeError:
                 # Si no tiene producer_profile, crear uno
                 producer_profile = ProducerProfile.objects.create(user=request.user)
-                form = ProducerProfileEditForm(request.POST, instance=producer_profile, user=request.user)
+                form = ProducerProfileEditForm(request.POST, request.FILES, instance=producer_profile, user=request.user)
             
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
                 return redirect('profile')
         else:
-            # Usar formulario específico para compradores (sin campos de finca)
+            # Usar formulario completo para compradores
             form = BuyerEditForm(request.POST, request.FILES, instance=request.user)
             
             if form.is_valid():

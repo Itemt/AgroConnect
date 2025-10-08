@@ -186,7 +186,15 @@ def quick_update_order_status_view(request, order_id):
         
         # Si el nuevo estado es 'enviado', redirigir a la página especial
         if nuevo_estado == 'enviado':
-            return redirect('mark_order_shipped', order_id=order.id)
+            # Si es una petición AJAX, devolver JSON con redirección
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect': f'/order/{order.id}/mark-shipped/',
+                    'message': 'Redirigiendo a página de envío...'
+                })
+            else:
+                return redirect('mark_order_shipped', order_id=order.id)
         
         # Validar que el estado es válido y el vendedor puede cambiarlo
         estados_validos = {
