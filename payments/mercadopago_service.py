@@ -16,8 +16,9 @@ class MercadoPagoService:
         
         # Fallback temporal para desarrollo
         if not self.access_token:
+            # Token de prueba válido para desarrollo
             self.access_token = 'TEST-1261412824198770-100718-66491d0e1f1b1381978604366ca01034-308635696'
-            print("⚠️ Usando token de prueba temporal")
+            print("⚠️ Usando token de prueba temporal - Configura MERCADOPAGO_ACCESS_TOKEN en producción")
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
@@ -155,6 +156,12 @@ class MercadoPagoService:
                     "success": "https://agroconnect.itemt.tech/payments/success/",
                     "failure": "https://agroconnect.itemt.tech/payments/failure/",
                     "pending": "https://agroconnect.itemt.tech/payments/pending/"
+                },
+                # Configuración específica para entorno de prueba
+                "metadata": {
+                    "test": True,
+                    "order_id": str(order.id),
+                    "user_id": str(user.id)
                 },
                 "items": [
                     {
