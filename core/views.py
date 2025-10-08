@@ -107,18 +107,26 @@ def assistant_reply(request):
     a real LLM provider.
     """
     import json
+    
+    print(f"=== CHATBOT CALLED ===")
+    print(f"Request body: {request.body}")
 
     try:
         data = json.loads(request.body or '{}')
-    except Exception:
+        print(f"Parsed data: {data}")
+    except Exception as e:
+        print(f"JSON parse error: {e}")
         data = {}
 
     raw_message = (data.get('message') or '').strip()
+    print(f"Raw message: '{raw_message}'")
+    
     # Rate limit removido - sin restricciones de tiempo
     # Limitar tamaño de entrada para controlar consumo (más estricto)
     if len(raw_message) > 800:
         raw_message = raw_message[:800]
     user_message = raw_message.lower()
+    print(f"User message: '{user_message}'")
 
     # Intentar SIEMPRE IA primero si hay clave
     used_model = 'fallback'
