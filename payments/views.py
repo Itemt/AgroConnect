@@ -60,9 +60,14 @@ def checkout_view(request, order_id):
     # Crear servicio de MercadoPago
     mercadopago_service = MercadoPagoService()
     
-    # Para proyecto universitario: procesar automáticamente si no hay credenciales configuradas
+    # Para proyecto universitario: procesar automáticamente SIEMPRE en producción
     from decouple import config
-    if not config('MERCADOPAGO_ACCESS_TOKEN', default=''):
+    import os
+    
+    # Verificar si estamos en producción (Coolify)
+    is_production = not os.environ.get('DEBUG', 'False').lower() == 'true'
+    
+    if is_production or not config('MERCADOPAGO_ACCESS_TOKEN', default=''):
         messages.info(request, 'Procesando pago automáticamente para demo universitario...')
         
         # Simular pago automático
