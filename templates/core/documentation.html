@@ -11,7 +11,7 @@
             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
                 <i class="fas fa-book text-white text-2xl sm:text-3xl"></i>
             </div>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gradient mb-4">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gradient mb-4">
                 Documentación y Ayuda
             </h1>
             <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
@@ -28,7 +28,7 @@
                         <div class="w-12 h-12 bg-gradient-to-br from-{{ section.color }}-400 to-{{ section.color }}-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
                             <i class="{{ section.icon }} text-white text-xl"></i>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ section.title }}</h2>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800">{{ section.title }}</h2>
                     </div>
                 </div>
                 
@@ -36,7 +36,7 @@
                     <div class="space-y-6">
                         {% for item in section.content %}
                         <div class="border-l-4 border-{{ section.color }}-400 pl-3 sm:pl-4">
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2">
                                 {{ item.question }}
                             </h3>
                             <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
@@ -54,7 +54,7 @@
         <div class="mt-12">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Acciones Rápidas</h2>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-4">Acciones Rápidas</h2>
                 </div>
                 <div class="card-body">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -100,15 +100,15 @@
         <div class="mt-12 text-center">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">¿Necesitas más ayuda?</h2>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-4">¿Necesitas más ayuda?</h2>
                     <p class="text-sm sm:text-base text-gray-600 mb-6 px-4">
                         Si no encuentras la respuesta que buscas, nuestro equipo de soporte está aquí para ayudarte.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                        <a href="{% url 'conversation_list' %}" class="btn-primary">
+                        <button id="open-chatbot-btn" class="btn-primary">
                             <i class="fas fa-comments mr-2"></i>
                             Contactar Soporte
-                        </a>
+                        </button>
                         <a href="{% url 'index' %}" class="btn-secondary">
                             <i class="fas fa-home mr-2"></i>
                             Volver al Inicio
@@ -119,4 +119,23 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openChatbotBtn = document.getElementById('open-chatbot-btn');
+    if (openChatbotBtn) {
+        openChatbotBtn.addEventListener('click', function() {
+            // Buscar el botón del chatbot en la página
+            const chatbotToggle = document.getElementById('assistant-toggle');
+            if (chatbotToggle) {
+                // Hacer clic en el botón del chatbot para abrirlo
+                chatbotToggle.click();
+            } else {
+                // Si no se encuentra el botón, mostrar un mensaje
+                alert('El chatbot no está disponible en este momento. Por favor, intenta más tarde.');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
