@@ -161,12 +161,15 @@
                         <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
                             <div class="px-4 py-3 flex items-center justify-between">
                                 <span class="block text-sm font-semibold text-gray-900">Notificaciones</span>
-                                <button id="mark-all-read" class="text-xs text-primary-700 hover:underline">Marcar todo como leído</button>
+                                <div class="flex space-x-2">
+                                    <button id="mark-all-read" class="text-xs text-primary-700 hover:underline">Marcar todo como leído</button>
+                                    <button id="delete-all-notifications" class="text-xs text-red-600 hover:underline">Borrar todas</button>
+                                </div>
                             </div>
                             <div id="notifications-empty" class="py-6 text-center text-sm text-gray-600">No hay notificaciones</div>
                             <ul id="notifications-list" class="py-2 space-y-1 max-h-72 overflow-y-auto"></ul>
                             <div class="px-4 py-2 text-center">
-                                <a href="{% url 'buyer_dashboard' %}" class="text-sm text-primary-700 hover:underline">Ver panel</a>
+                                <a href="{% url 'core:notifications_page' %}" class="text-sm text-primary-700 hover:underline">Ver todas las notificaciones</a>
                             </div>
                         </div>
                     </div>
@@ -611,6 +614,29 @@
                                   updateBadge(0);
                               }
                           }).catch(()=>{});
+                    });
+                }
+
+                // Delete all notifications button
+                const deleteAllBtn = document.getElementById('delete-all-notifications');
+                if (deleteAllBtn){
+                    deleteAllBtn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        if (confirm('¿Estás seguro de que quieres borrar TODAS las notificaciones? Esta acción no se puede deshacer.')) {
+                            const csrftoken = getCookie('csrftoken');
+                            fetch('{% url "core:notifications_delete_all" %}', { 
+                                method: 'POST', 
+                                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }, 
+                                credentials: 'same-origin', 
+                                body: '{}' 
+                            }).then(r => r.json()).then(res => {
+                                if (res && res.success){ 
+                                    renderNotifications([]); 
+                                    updateBadge(0);
+                                    alert(`Se eliminaron ${res.deleted_count} notificaciones.`);
+                                }
+                            }).catch(()=>{});
+                        }
                     });
                 }
             });
