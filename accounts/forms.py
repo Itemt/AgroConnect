@@ -7,6 +7,124 @@ from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LO
 from core.models import Farm
 
 
+class BuyerRegistrationForm(UserCreationForm):
+    """Formulario de registro para compradores (sin campos de finca)"""
+    # Campos básicos
+    first_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Nombres",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus nombres',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Apellidos",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus apellidos',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
+        })
+    )
+    email = forms.EmailField(
+        required=True, 
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'tu@email.com'
+        })
+    )
+    cedula = forms.CharField(
+        max_length=20, 
+        required=True, 
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: 12345678',
+            'type': 'number',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de cédula de identidad"
+    )
+    telefono = forms.CharField(
+        max_length=15, 
+        required=False, 
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Ej: 3001234567',
+            'type': 'tel',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        }),
+        help_text="Número de teléfono de contacto (opcional)"
+    )
+    
+    # Campos de ubicación
+    departamento = forms.ChoiceField(
+        choices=[('', 'Selecciona un departamento')] + get_departments(),
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'data-cities-url': '/ajax/cities/'
+        }),
+        label="Departamento",
+        required=False
+    )
+    ciudad = forms.ChoiceField(
+        choices=[('', 'Selecciona primero un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+        }),
+        label="Ciudad/Municipio",
+        required=False
+    )
+    
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'password1', 'password2')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Configurar widgets de contraseña
+        self.fields['password1'].widget.attrs.update({
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Mínimo 8 caracteres'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Confirma tu contraseña'
+        })
+        self.fields['username'].widget.attrs.update({
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Nombre de usuario único'
+        })
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'Comprador'  # Siempre comprador
+        if commit:
+            user.save()
+            
+            # Crear BuyerProfile
+            buyer_profile = BuyerProfile.objects.create(
+                user=user,
+                departamento=self.cleaned_data.get('departamento'),
+                ciudad=self.cleaned_data.get('ciudad')
+            )
+        return user
+
 class CustomUserCreationForm(UserCreationForm):
     # Campos básicos
     first_name = forms.CharField(
