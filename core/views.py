@@ -100,13 +100,9 @@ def notifications_page(request):
 # --- Simple AI Assistant endpoint (stub) ---
 @require_POST
 def assistant_reply(request):
-    """Lightweight endpoint that returns an informative response for the assistant bubble.
-
-    For now, it uses simple heuristics to provide guidance about the platform and
-    agricultural context without external API calls. Later this can integrate with
-    a real LLM provider.
-    """
+    """Endpoint para el chatbot con IA"""
     import json
+    import os
     
     print(f"=== CHATBOT CALLED ===")
     print(f"Request body: {request.body}")
@@ -121,78 +117,69 @@ def assistant_reply(request):
     raw_message = (data.get('message') or '').strip()
     print(f"Raw message: '{raw_message}'")
     
-    # Rate limit removido - sin restricciones de tiempo
-    # Limitar tamaño de entrada para controlar consumo (más estricto)
-    if len(raw_message) > 800:
-        raw_message = raw_message[:800]
-    user_message = raw_message.lower()
-    print(f"User message: '{user_message}'")
-
-    # Intentar SIEMPRE IA primero si hay clave
-    used_model = 'fallback'
-    response_text = None
-
-    # Leer desde variables de entorno del sistema
-    import os
-    api_key = (
-        os.getenv('GOOGLE_API_KEY', '')
-        or os.getenv('GEMINI_API_KEY', '')
-        or config('GOOGLE_API_KEY', default='')
-        or config('GEMINI_API_KEY', default='')
-    )
+    if not raw_message:
+        return JsonResponse({"success": False, "error": "No message provided"})
     
-    # Debug: verificar si la API key está disponible
-    print(f"=== DEBUG API KEY ===")
-    print(f"GOOGLE_API_KEY from os.getenv: {os.getenv('GOOGLE_API_KEY', 'NOT_SET')}")
-    print(f"GEMINI_API_KEY from os.getenv: {os.getenv('GEMINI_API_KEY', 'NOT_SET')}")
-    print(f"Final api_key: {api_key[:10] if api_key else 'EMPTY'}...")
-    print(f"===================")
+    # Verificar API key
+    api_key = os.getenv('GOOGLE_API_KEY', '') or os.getenv('GEMINI_API_KEY', '')
+    print(f"API Key found: {bool(api_key)}")
+    print(f"API Key (first 10 chars): {api_key[:10] if api_key else 'NOT_SET'}")
     
-    # SIEMPRE intentar usar IA si hay mensaje
-    if raw_message:
-        if api_key:
-            try:
-                import google.generativeai as genai
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-1.5-flash')
-                system_prompt = (
-                    "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
-                    "Para agricultura: incluye datos específicos, técnicas avanzadas, fechas, cantidades, y recomendaciones profesionales. "
-                    "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
-                    "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
-                    "Formato: 3-6 párrafos detallados, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
-                    "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
-                    "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
-                )
-                prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
-                # Respuestas optimizadas para exposición: balance entre calidad y eficiencia
-                result = model.generate_content(prompt, generation_config={
-                    'max_output_tokens': 800,
-                    'temperature': 0.8,
-                    'top_k': 45,
-                    'top_p': 0.9,
-                })
-                text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
-                if text:
-                    response_text = text.strip()
-                    used_model = 'gemini-1.5-flash'
-            except Exception as e:
-                # Log del error para diagnóstico
-                print(f"Error en Gemini API: {e}")
-                # Continuar a fallback silenciosamente
-                pass
+    if not api_key:
+        return JsonResponse({
+            "success": True, 
+            "reply": "**Configuración requerida** 🔧\n\nPara usar el asistente de IA, necesitas configurar la API key de Gemini en las variables de entorno del servidor.\n\n**Variable requerida:** `GOOGLE_API_KEY`\n\n**Sin la API key, el asistente no puede funcionar.**",
+            "model": "config-required"
+        })
+    
+    # Usar Gemini API
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        system_prompt = (
+            "Eres un asistente de IA experto y profesional de AgroConnect. Responde de manera completa, detallada y técnica. "
+            "Para agricultura: incluye datos específicos, técnicas avanzadas, fechas, cantidades, y recomendaciones profesionales. "
+            "Para la plataforma: explica procesos paso a paso, soluciona problemas técnicos, da tips avanzados. "
+            "Para preguntas generales: responde con información completa, ejemplos prácticos y contexto relevante. "
+            "Formato: 3-6 párrafos detallados, usa **negritas** para conceptos clave, listas con '- ' para pasos, y ejemplos concretos. "
+            "Incluye datos específicos, fechas, cantidades, técnicas cuando sea relevante. "
+            "Termina con una pregunta que profundice en el tema o abra nuevas posibilidades."
+        )
+        
+        prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
+        
+        result = model.generate_content(prompt, generation_config={
+            'max_output_tokens': 800,
+            'temperature': 0.8,
+            'top_k': 45,
+            'top_p': 0.9,
+        })
+        
+        text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
+        
+        if text:
+            return JsonResponse({
+                "success": True, 
+                "reply": text.strip(), 
+                "model": "gemini-1.5-flash"
+            })
         else:
-            # Si no hay API key, mostrar mensaje claro
-            response_text = "**Configuración requerida** 🔧\n\nPara usar el asistente de IA, necesitas configurar la API key de Gemini en el archivo `.env`.\n\n**Pasos:**\n1. Crea un archivo `.env` en la raíz del proyecto\n2. Agrega: `GOOGLE_API_KEY=tu_api_key_aqui`\n3. Reinicia el servidor\n\n**Sin la API key, el asistente no puede funcionar.**"
-            used_model = 'config-required'
+            return JsonResponse({
+                "success": True, 
+                "reply": "**Error de procesamiento** ⚠️\n\nNo pude generar una respuesta. Por favor intenta de nuevo.",
+                "model": "error"
+            })
+            
+    except Exception as e:
+        print(f"Error en Gemini API: {e}")
+        return JsonResponse({
+            "success": True, 
+            "reply": f"**Error de API** ⚠️\n\nError: {str(e)}\n\nPor favor verifica la configuración de la API key.",
+            "model": "api-error"
+        })
 
-    # Solo usar IA - sin fallback
-    if response_text is None:
-        response_text = "**Error del Asistente** ⚠️\n\nNo pude procesar tu consulta. Esto puede deberse a:\n- Problemas de conectividad con la API de IA\n- Configuración incorrecta de la API key\n- Error temporal del servicio\n\n**Por favor intenta de nuevo en unos momentos.**"
-        used_model = 'error'
-
-    # Rate limit removido - no se guarda timestamp
-    return JsonResponse({"success": True, "reply": response_text, "model": used_model})
 
 
 # --- AI Suggestions for Publications ---
