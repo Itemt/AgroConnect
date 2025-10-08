@@ -501,33 +501,12 @@ REGLAS:
 
 @login_required
 @require_POST
-def notifications_delete_all(request):
-    """Elimina todas las notificaciones del usuario"""
-    try:
-        from .models import Notification
-        deleted_count = Notification.objects.filter(user=request.user).count()
-        Notification.objects.filter(user=request.user).delete()
-        
-        return JsonResponse({
-            'success': True,
-            'deleted_count': deleted_count,
-            'message': f'Se eliminaron {deleted_count} notificaciones'
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
-
-
-@login_required
-@require_POST
 def notifications_delete_read(request):
     """Elimina solo las notificaciones leídas del usuario"""
     try:
         from .models import Notification
-        deleted_count = Notification.objects.filter(user=request.user, is_read=True).count()
-        Notification.objects.filter(user=request.user, is_read=True).delete()
+        deleted_count = Notification.objects.filter(recipient=request.user, is_read=True).count()
+        Notification.objects.filter(recipient=request.user, is_read=True).delete()
         
         return JsonResponse({
             'success': True,
