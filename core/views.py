@@ -326,6 +326,7 @@ def ai_publication_suggestions(request):
     crop_quantity = data.get('crop_quantity', 0)
     crop_unit = data.get('crop_unit', '').strip()
     location = data.get('location', '').strip()
+    field_type = data.get('field_type', '')  # Nuevo parámetro para tipo de campo
     
     if not crop_name:
         return JsonResponse({'success': False, 'error': 'Nombre del cultivo requerido'})
@@ -348,8 +349,52 @@ def ai_publication_suggestions(request):
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-2.0-flash')
             
-            # Prompt optimizado para sugerencias de mercado colombiano
-            prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
+            # Prompt optimizado para sugerencias específicas por campo
+            if field_type == 'precio_por_unidad':
+                prompt = f"""Eres un experto en precios agrícolas colombianos. Genera un precio recomendado para:
+
+PRODUCTO: {crop_name}
+CATEGORÍA: {crop_category}
+CANTIDAD: {crop_quantity} {crop_unit}
+UBICACIÓN: {location}
+
+GENERA SOLO EL PRECIO EN FORMATO JSON:
+{{
+    "price_suggestions": {{
+        "min_price": 0.0,
+        "max_price": 0.0,
+        "recommended_price": 0.0,
+        "reasoning": "Explicación del precio basado en mercado colombiano"
+    }}
+}}
+
+REGLAS:
+- Precio en COP por {crop_unit}
+- Basado en precios actuales del mercado colombiano
+- Considera la ubicación y categoría del producto
+- Incluye rango de precios (mínimo, máximo, recomendado)"""
+            elif field_type == 'descripcion':
+                prompt = f"""Eres un experto en marketing agrícola colombiano. Genera una descripción atractiva para:
+
+PRODUCTO: {crop_name}
+CATEGORÍA: {crop_category}
+CANTIDAD: {crop_quantity} {crop_unit}
+UBICACIÓN: {location}
+
+GENERA SOLO LA DESCRIPCIÓN EN FORMATO JSON:
+{{
+    "description_suggestions": ["Descripción atractiva y detallada del producto"]
+}}
+
+REGLAS:
+- Destaca la calidad y frescura
+- Menciona el origen colombiano
+- Incluye beneficios del producto
+- Lenguaje comercial atractivo
+- Máximo 1 descripción sugerida"""
+            else:
+                # Prompt completo para el botón general
+                prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
 
 DATOS DEL CULTIVO:
 - Producto: {crop_name}
@@ -405,28 +450,44 @@ REGLAS:
     
     # Fallback si no hay IA
     if suggestions is None:
-        suggestions = {
-            "title_suggestions": [
-                f"{crop_name} fresco de {location}",
-                f"{crop_name} de calidad premium",
-                f"{crop_name} directo del productor"
-            ],
-            "price_suggestions": {
-                "min_price": 1000.0,
-                "max_price": 5000.0,
-                "recommended_price": 2500.0,
-                "reasoning": "Precio sugerido basado en mercado local"
-            },
-            "description_suggestions": [
-                f"{crop_name} cultivado con técnicas tradicionales",
-                f"{crop_name} fresco y de excelente calidad"
-            ],
-            "marketing_tips": [
-                "Destaca la frescura del producto",
-                "Menciona el origen local",
-                "Incluye fotos de calidad"
-            ]
-        }
+        if field_type == 'precio_por_unidad':
+            suggestions = {
+                "price_suggestions": {
+                    "min_price": 1000.0,
+                    "max_price": 5000.0,
+                    "recommended_price": 2500.0,
+                    "reasoning": f"Precio sugerido para {crop_name} basado en mercado colombiano"
+                }
+            }
+        elif field_type == 'descripcion':
+            suggestions = {
+                "description_suggestions": [
+                    f"{crop_name} fresco y de excelente calidad, cultivado en {location}. Producto directo del productor con técnicas tradicionales colombianas."
+                ]
+            }
+        else:
+            suggestions = {
+                "title_suggestions": [
+                    f"{crop_name} fresco de {location}",
+                    f"{crop_name} de calidad premium",
+                    f"{crop_name} directo del productor"
+                ],
+                "price_suggestions": {
+                    "min_price": 1000.0,
+                    "max_price": 5000.0,
+                    "recommended_price": 2500.0,
+                    "reasoning": "Precio sugerido basado en mercado local"
+                },
+                "description_suggestions": [
+                    f"{crop_name} cultivado con técnicas tradicionales",
+                    f"{crop_name} fresco y de excelente calidad"
+                ],
+                "marketing_tips": [
+                    "Destaca la frescura del producto",
+                    "Menciona el origen local",
+                    "Incluye fotos de calidad"
+                ]
+            }
         used_model = 'fallback'
     
     # Rate limit removido - no se guarda timestamp

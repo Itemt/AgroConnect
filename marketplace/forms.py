@@ -4,20 +4,20 @@ from core.colombia_locations import get_departments, COLOMBIA_LOCATIONS
 from core.models import Farm
 
 class PublicationForm(forms.ModelForm):
-    departamento = forms.ChoiceField(
-        choices=[('', 'Selecciona un departamento')] + get_departments(),
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white',
-            'data-cities-url': '/ajax/cities/'
+    # Campos de ubicación solo para mostrar (no editables)
+    departamento = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed',
+            'readonly': True
         }),
         label="Departamento de Origen",
         required=False
     )
     
-    ciudad = forms.ChoiceField(
-        choices=[('', 'Selecciona primero un departamento')],
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+    ciudad = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed',
+            'readonly': True
         }),
         label="Ciudad/Municipio de Origen",
         required=False
@@ -62,21 +62,18 @@ class PublicationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
+        crop = kwargs.pop('crop', None)
         super().__init__(*args, **kwargs)
+        
         if user:
             self.fields['cultivo'].queryset = user.cultivos.all()
             self.fields['finca'].queryset = Farm.objects.filter(propietario=user, activa=True)
             self.fields['finca'].empty_label = "Seleccionar finca (opcional)"
         
-        # Cargar ciudades dinámicamente según el departamento seleccionado
-        if 'departamento' in self.data:
-            try:
-                departamento = self.data.get('departamento')
-                cities = COLOMBIA_LOCATIONS.get(departamento, [])
-                self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
-            except (ValueError, TypeError):
-                pass
-        elif self.instance.pk and self.instance.departamento:
-            # Para instancias existentes, poblar ciudades basadas en el departamento guardado
-            cities = COLOMBIA_LOCATIONS.get(self.instance.departamento, [])
-            self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + [(city, city) for city in sorted(cities)]
+        # Si hay un cultivo específico, establecer la ubicación automáticamente
+        if crop and crop.finca:
+            self.fields['departamento'].initial = crop.finca.departamento
+            self.fields['ciudad'].initial = crop.finca.ciudad
+            # Establecer el cultivo y finca automáticamente
+            self.fields['cultivo'].initial = crop
+            self.fields['finca'].initial = crop.finca
