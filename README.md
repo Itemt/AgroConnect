@@ -368,6 +368,11 @@ GEMINI_API_KEY=tu_clave
   - La pestaña "Chats" muestra solo conversaciones con actividad en los últimos 15 días.
   - Si hay conversaciones antiguas, se indica la cantidad como "archivadas" con link al panel completo (`/conversations/`).
   - Al enviar un mensaje en una conversación antigua desde el panel completo, se re-activa y vuelve a aparecer como reciente.
+- **Diseño mejorado**:
+  - Ventana más grande y cómoda para mejor experiencia de usuario
+  - Layout de dos columnas: lista de conversaciones (izquierda) + chat activo (derecha)
+  - Búsqueda en tiempo real para filtrar conversaciones
+  - Título dinámico del chat seleccionado
 - **Endpoints relevantes**:
   - `GET /api/conversations/` → conversaciones activas (≤15 días) + `archived_count`.
   - `GET /conversation/<id>/messages/?since=<lastId>` → polling de nuevos mensajes.
@@ -391,6 +396,29 @@ GEMINI_API_KEY=tu_clave
   - Prompt optimizado para respuestas concisas pero útiles
   - Fallback robusto si la IA no está disponible
 - **Endpoint**: `POST /ai/suggestions/` → genera sugerencias basadas en datos del cultivo
+
+### 💳 Sistema de Pagos con MercadoPago
+
+- **Integración completa** con MercadoPago para procesamiento de pagos:
+  - **Múltiples métodos de pago**: PSE, tarjetas de crédito/débito, Efecty
+  - **Configuración automática** de datos del pagador para evitar botones deshabilitados
+  - **URLs de retorno** configuradas para flujo completo de pago
+  - **Webhooks** para confirmación automática de pagos
+- **Procesamiento inteligente**:
+  - **Modo sandbox** para desarrollo y pruebas
+  - **Procesamiento automático** para proyectos universitarios
+  - **Fallback robusto** si MercadoPago no está disponible
+  - **Debug logging** para identificar problemas de integración
+- **Configuración segura**:
+  - Variables de entorno para tokens de acceso
+  - Limpieza automática de información sensible
+  - Validación de datos del pagador
+  - Manejo de errores mejorado
+- **Endpoints de pago**:
+  - `POST /payments/checkout/` → crear preferencia de pago
+  - `GET /payments/success/` → confirmación de pago exitoso
+  - `POST /payments/notification/` → webhook de MercadoPago
+  - `GET /payments/failure/` → manejo de pagos fallidos
 
 ### Clave de Gemini en Producción (Coolify)
 
@@ -714,7 +742,7 @@ AgroConnect/
 5. **Añadir productos** al carrito con cantidades deseadas
 6. **Contactar productores** para negociar detalles
 7. **Realizar pedido** desde el carrito
-8. **Pagar con ePayco** usando tarjeta, PSE o efectivo
+8. **Pagar con MercadoPago** usando tarjeta, PSE o efectivo
 9. **Recibir notificaciones** de cambios de estado en tiempo real
 10. **Seguir el estado** del pedido y pago en tiempo real
 11. **Confirmar recepción** cuando el producto llegue
@@ -806,7 +834,10 @@ AgroConnect/
 ## 🚀 Funcionalidades Implementadas y Futuras
 
 ### ✅ Implementadas
-- [x] Sistema de pagos con MercadoPago (tarjetas, PSE, efectivo)
+- [x] **Sistema de pagos con MercadoPago** (tarjetas, PSE, efectivo) con procesamiento automático
+- [x] **Asistente IA integrado** con Gemini Pro para consultas generales y agrícolas
+- [x] **Mini chat flotante** con diseño de dos columnas y búsqueda en tiempo real
+- [x] **Sugerencias de IA** para optimizar publicaciones de cultivos
 - [x] Chat en tiempo real con WebSockets
 - [x] Sistema de calificaciones y rankings
 - [x] Gestión completa de inventario orientada a fincas
@@ -818,9 +849,6 @@ AgroConnect/
 - [x] Gestión completa de fincas
 - [x] Registro de productores con finca inicial
 - [x] Trazabilidad desde finca hasta comprador
-- [x] **Asistente IA integrado** con Gemini Pro para consultas generales
-- [x] **Mini chat flotante** para conversaciones activas
-- [x] **Sugerencias de IA** para optimizar publicaciones de cultivos
 - [x] **Sistema de rate limiting** para control de tokens
 - [x] **Fallback inteligente** cuando la IA no está disponible
 
@@ -828,11 +856,28 @@ AgroConnect/
 - [ ] Notificaciones push y por email
 - [ ] API REST con Django REST Framework
 - [ ] Aplicación móvil nativa (React Native / Flutter)
-- [ ] Sistema de logística y tracking GPS
-- [ ] Certificaciones de productos orgánicos
-- [ ] Marketplace de insumos agrícolas
-- [ ] Pronósticos de precios con Machine Learning
-- [ ] Sistema de subastas inversas
+
+## 🔒 Mejoras de Seguridad Implementadas
+
+### 🛡️ Protección de Información Sensible
+- **Limpieza completa** de tokens y API keys del repositorio
+- **Variables de entorno** para todas las credenciales sensibles
+- **Historial de Git** limpiado de información confidencial
+- **Archivos .env** agregados al .gitignore
+- **Placeholders seguros** en lugar de tokens reales
+
+### 🔐 Configuración Segura
+- **MercadoPago** configurado con variables de entorno
+- **Google Gemini** con API key protegida
+- **Cloudinary** con credenciales en variables de entorno
+- **Base de datos** con configuración segura
+- **Debug logging** sin exposición de datos sensibles
+
+### 🚫 Archivos Eliminados
+- Comandos de management con tokens hardcodeados
+- Archivos de prueba con credenciales reales
+- Referencias a servicios descontinuados (ePayco)
+- Logs y archivos temporales con información sensible
 - [ ] Integración con APIs climáticas
 - [ ] Programa de fidelización para compradores
 - [ ] Sistema de cupones y descuentos
