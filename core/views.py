@@ -139,9 +139,58 @@ def assistant_reply(request):
         # Modelo económico y disponible según tu panel
         model = genai.GenerativeModel('gemini-2.0-flash')
         
+        # Obtener contexto de la página actual
+        current_url = request.META.get('HTTP_REFERER', '')
+        user_context = ""
+        page_context = ""
+        
+        if request.user.is_authenticated:
+            user_role = getattr(request.user, 'role', 'No especificado')
+            user_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+            user_context = f"**USUARIO ACTUAL:**\n- Nombre: {user_name}\n- Rol: {user_role}\n- Email: {request.user.email}\n"
+            
+            if hasattr(request.user, 'departamento') and request.user.departamento:
+                user_context += f"- Ubicación: {request.user.ciudad or 'No especificada'}, {request.user.departamento}\n"
+            
+            # Contexto específico por rol
+            if user_role == 'Productor':
+                from core.models import Farm
+                farms_count = Farm.objects.filter(propietario=request.user, activa=True).count()
+                from inventory.models import Crop
+                crops_count = Crop.objects.filter(productor=request.user).count()
+                user_context += f"- Fincas activas: {farms_count}\n- Cultivos registrados: {crops_count}\n"
+            elif user_role == 'Comprador':
+                user_context += "- Puede explorar marketplace y hacer pedidos\n"
+                user_context += "- Opción disponible: '¿Quieres ser vendedor?'\n"
+        
+        # Determinar contexto de página basado en la URL
+        if '/dashboard/' in current_url or '/producer-dashboard/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Dashboard del productor - Gestión de cultivos, fincas y ventas"
+        elif '/marketplace/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Marketplace - Exploración y búsqueda de productos"
+        elif '/farms/' in current_url or '/fincas/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Gestión de fincas - Registro y administración de fincas"
+        elif '/crops/' in current_url or '/cultivos/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Gestión de cultivos - Inventario y seguimiento de cultivos"
+        elif '/publications/' in current_url or '/publicaciones/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Gestión de publicaciones - Creación y administración de ofertas"
+        elif '/orders/' in current_url or '/pedidos/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Gestión de pedidos - Seguimiento de compras y ventas"
+        elif '/profile/' in current_url or '/perfil/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Perfil de usuario - Configuración y datos personales"
+        elif '/become-seller/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Convertirse en vendedor - Proceso de transición de comprador a productor"
+        elif '/documentation/' in current_url:
+            page_context = "**CONTEXTO DE PÁGINA:** Documentación - Ayuda y guías de uso"
+        elif current_url:
+            page_context = f"**CONTEXTO DE PÁGINA:** Página actual: {current_url}"
+        
         system_prompt = (
             "Eres el asistente de IA oficial de AgroConnect, una plataforma de comercio agrícola que conecta productores y compradores en Colombia. "
             "Tienes conocimiento completo de la plataforma y sus funcionalidades.\n\n"
+            
+            f"{user_context}\n"
+            f"{page_context}\n\n"
             
             "**CONTEXTO DE AGROCONNECT:**\n"
             "- **Propósito**: Plataforma de comercio justo y directo entre productores y compradores agrícolas\n"
@@ -192,7 +241,8 @@ def assistant_reply(request):
             "- 3-6 párrafos detallados\n"
             "- Termina con pregunta que profundice el tema\n"
             "- Para agricultura: técnicas, fechas, cantidades, recomendaciones\n"
-            "- Para plataforma: procesos, soluciones técnicas, tips avanzados"
+            "- Para plataforma: procesos, soluciones técnicas, tips avanzados\n"
+            "- **IMPORTANTE**: Adapta tu respuesta al contexto de la página actual y el rol del usuario"
         )
         
         prompt = f"{system_prompt}\n\nPregunta: {raw_message}\n\nResponde de manera detallada y específica:"
