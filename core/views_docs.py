@@ -7,7 +7,7 @@ def documentation_view(request):
         'title': 'Documentación y Ayuda',
         'sections': [
             {
-                'title': '🛒 Para Compradores',
+                'title': 'Para Compradores',
                 'icon': 'fas fa-shopping-cart',
                 'color': 'blue',
                 'content': [
@@ -34,13 +34,13 @@ def documentation_view(request):
                 ]
             },
             {
-                'title': '🌱 Para Vendedores',
+                'title': 'Para Vendedores',
                 'icon': 'fas fa-store',
                 'color': 'green',
                 'content': [
                     {
                         'question': '¿Cómo me convierto en vendedor?',
-                        'answer': 'Si eres comprador, ve al sidebar y haz clic en "🌱 ¿Quieres ser vendedor?". Completa el formulario de tu primera finca y automáticamente te convertirás en vendedor.'
+                        'answer': 'Si eres comprador, ve al sidebar y haz clic en "¿Quieres ser vendedor?". Completa el formulario de tu primera finca y automáticamente te convertirás en vendedor.'
                     },
                     {
                         'question': '¿Por qué necesito fincas para vender?',
@@ -48,7 +48,7 @@ def documentation_view(request):
                     },
                     {
                         'question': '¿Cómo gestiono mis fincas?',
-                        'answer': 'Ve a "🏡 Mis Fincas" en el sidebar (primera opción). Desde ahí puedes: agregar nuevas fincas, editar información, agregar cultivos y ver estadísticas por finca.'
+                        'answer': 'Ve a "Mis Fincas" en el sidebar (primera opción). Desde ahí puedes: agregar nuevas fincas, editar información, agregar cultivos y ver estadísticas por finca.'
                     },
                     {
                         'question': '¿Cómo publico mis productos?',
@@ -61,7 +61,7 @@ def documentation_view(request):
                 ]
             },
             {
-                'title': '🏡 Las Fincas: El Centro de Todo para Vendedores',
+                'title': 'Las Fincas: El Centro de Todo para Vendedores',
                 'icon': 'fas fa-home',
                 'color': 'green',
                 'content': [
@@ -71,7 +71,7 @@ def documentation_view(request):
                     },
                     {
                         'question': '¿Cómo creo mi primera finca?',
-                        'answer': 'Si eres comprador: ve a "🌱 ¿Quieres ser vendedor?" en el sidebar. Si ya eres vendedor: ve a "🏡 Mis Fincas" y haz clic en "Agregar Finca".'
+                        'answer': 'Si eres comprador: ve a "¿Quieres ser vendedor?" en el sidebar. Si ya eres vendedor: ve a "Mis Fincas" y haz clic en "Agregar Finca".'
                     },
                     {
                         'question': '¿Qué información necesito para una finca?',
@@ -79,7 +79,7 @@ def documentation_view(request):
                     },
                     {
                         'question': '¿Qué puedo hacer desde mis fincas?',
-                        'answer': 'Desde "🏡 Mis Fincas" puedes: agregar cultivos, crear publicaciones, ver la ubicación en el mapa, gestionar inventario, hacer seguimiento de ventas por finca y agregar más fincas.'
+                        'answer': 'Desde "Mis Fincas" puedes: agregar cultivos, crear publicaciones, ver la ubicación en el mapa, gestionar inventario, hacer seguimiento de ventas por finca y agregar más fincas.'
                     },
                     {
                         'question': '¿Puedo tener múltiples fincas?',
@@ -88,13 +88,13 @@ def documentation_view(request):
                 ]
             },
             {
-                'title': '🌱 Gestión de Cultivos desde Fincas',
+                'title': 'Gestión de Cultivos desde Fincas',
                 'icon': 'fas fa-seedling',
                 'color': 'green',
                 'content': [
                     {
                         'question': '¿Cómo agrego cultivos a mi finca?',
-                        'answer': 'Ve a "🏡 Mis Fincas", selecciona una finca y haz clic en "Agregar Cultivo". Los cultivos están directamente vinculados a la finca donde se producen.'
+                        'answer': 'Ve a "Mis Fincas", selecciona una finca y haz clic en "Agregar Cultivo". Los cultivos están directamente vinculados a la finca donde se producen.'
                     },
                     {
                         'question': '¿Por qué los cultivos están vinculados a fincas?',
@@ -102,7 +102,7 @@ def documentation_view(request):
                     },
                     {
                         'question': '¿Cómo gestiono mis cultivos?',
-                        'answer': 'Desde "🏡 Mis Fincas" puedes ver todos los cultivos de cada finca, editarlos, agregar nuevos y hacer seguimiento de su estado y producción.'
+                        'answer': 'Desde "Mis Fincas" puedes ver todos los cultivos de cada finca, editarlos, agregar nuevos y hacer seguimiento de su estado y producción.'
                     },
                     {
                         'question': '¿Puedo tener diferentes cultivos en cada finca?',
@@ -140,7 +140,7 @@ def documentation_view(request):
                 'content': [
                     {
                         'question': '¿Cuál es el flujo correcto para empezar a vender?',
-                        'answer': '1) Registrarse como comprador → 2) "🌱 ¿Quieres ser vendedor?" → 3) Crear primera finca → 4) Agregar cultivos → 5) Crear publicaciones → 6) Gestionar ventas'
+                        'answer': '1) Registrarse como comprador → 2) "¿Quieres ser vendedor?" → 3) Crear primera finca → 4) Agregar cultivos → 5) Crear publicaciones → 6) Gestionar ventas'
                     },
                     {
                         'question': '¿Cuál es el flujo para comprar?',
