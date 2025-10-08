@@ -63,7 +63,22 @@ class CropForm(forms.ModelForm):
         
         # Filtrar solo las fincas activas del usuario
         if user:
-            self.fields['finca'].queryset = Farm.objects.filter(propietario=user, activa=True)
+            farms = Farm.objects.filter(propietario=user, activa=True)
+            self.fields['finca'].queryset = farms
             self.fields['finca'].empty_label = "Selecciona una finca (opcional)"
+            # Hacer el campo finca opcional
+            self.fields['finca'].required = False
         else:
             self.fields['finca'].queryset = Farm.objects.none()
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        finca = cleaned_data.get('finca')
+        user = getattr(self, 'user', None)
+        
+        # Si se selecciona una finca, verificar que pertenezca al usuario
+        if finca and user:
+            if finca.propietario != user:
+                raise forms.ValidationError("La finca seleccionada no pertenece al usuario actual.")
+        
+        return cleaned_data

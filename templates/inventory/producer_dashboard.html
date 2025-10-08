@@ -157,25 +157,25 @@
                         <h2 class="text-3xl font-bold text-gray-800">Acciones Rápidas</h2>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <a href="{% url 'crop_add' %}" class="btn-primary group">
+                        <a href="{% url 'crop_add' %}" class="btn-primary group flex items-center justify-center text-center">
                             <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
-                            Agregar Cultivo
+                            <span class="truncate">Agregar Cultivo</span>
                         </a>
-                        <a href="{% url 'core:farm_list' %}" class="btn-secondary group">
+                        <a href="{% url 'core:farm_list' %}" class="btn-secondary group flex items-center justify-center text-center">
                             <i class="fas fa-tractor mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Mis Fincas
+                            <span class="truncate">Mis Fincas</span>
                         </a>
-                        <a href="{% url 'my_publications' %}" class="btn-outline group">
+                        <a href="{% url 'my_publications' %}" class="btn-outline group flex items-center justify-center text-center">
                             <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Publicaciones
+                            <span class="truncate">Publicaciones</span>
                         </a>
-                        <a href="{% url 'producer_sales' %}" class="btn-primary group">
+                        <a href="{% url 'producer_sales' %}" class="btn-primary group flex items-center justify-center text-center">
                             <i class="fas fa-chart-line mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Ver Ventas
+                            <span class="truncate">Ver Ventas</span>
                         </a>
-                        <a href="{% url 'order_history' %}" class="btn-secondary group">
+                        <a href="{% url 'order_history' %}" class="btn-secondary group flex items-center justify-center text-center">
                             <i class="fas fa-shopping-bag mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Ver Compras
+                            <span class="truncate">Ver Compras</span>
                         </a>
                     </div>
                 </div>
