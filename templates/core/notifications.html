@@ -283,6 +283,12 @@ function markAllAsUnread() {
             );
         }
 
+        function showConfirmDialog(title, message, confirmText, cancelText, onConfirm) {
+            if (confirm(title + '\n\n' + message)) {
+                onConfirm();
+            }
+        }
+
         function deleteAllNotifications() {
             showConfirmDialog(
                 '¿Estás seguro de que quieres borrar TODAS las notificaciones?',

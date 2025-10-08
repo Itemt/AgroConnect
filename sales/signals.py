@@ -1,8 +1,8 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import Order, Rating
-from core.models import create_notification
+from core.models import create_notification, Notification
 from payments.models import Payment
 from accounts.models import ProducerProfile, BuyerProfile
 from django.db.models import Avg
@@ -238,19 +238,34 @@ def update_rating_stats(sender, instance, created, **kwargs):
         try:
             if instance.tipo == 'comprador_a_vendedor':
                 # Calificación de comprador a vendedor
-                seller_profile = ProducerProfile.objects.get(user=instance.calificado)
-                
-                # Recalcular promedio de calificaciones
-                ratings = Rating.objects.filter(
-                    pedido__vendedor=instance.calificado,
-                    tipo='comprador_a_vendedor'
-                )
-                
-                if ratings.exists():
-                    avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg']
-                    seller_profile.calificacion_promedio = round(avg_rating, 2)
-                    seller_profile.total_calificaciones = ratings.count()
-                    seller_profile.save()
+                try:
+                    seller_profile = ProducerProfile.objects.get(user=instance.calificado)
                     
+                    # Recalcular promedio de calificaciones
+                    ratings = Rating.objects.filter(
+                        pedido__vendedor=instance.calificado,
+                        tipo='comprador_a_vendedor'
+                    )
+                    
+                    if ratings.exists():
+                        avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg']
+                        seller_profile.calificacion_promedio = round(avg_rating, 2)
+                        seller_profile.total_calificaciones = ratings.count()
+                        seller_profile.save()
+                        
+                except Exception as e:
+                    print(f"Error updating rating stats: {e}")
         except Exception as e:
-            print(f"Error updating rating stats: {e}")
+            print(f"Error in update_rating_stats: {e}")
+
+
+@receiver(pre_delete, sender=Order)
+def delete_order_notifications(sender, instance, **kwargs):
+    """Elimina todas las notificaciones relacionadas con un pedido cuando se borra"""
+    try:
+        # Eliminar notificaciones que referencian este pedido
+        deleted_count = Notification.objects.filter(order_id=instance.id).count()
+        Notification.objects.filter(order_id=instance.id).delete()
+        print(f"Deleted {deleted_count} notifications for order {instance.id}")
+    except Exception as e:
+        print(f"Error deleting notifications for order {instance.id}: {e}")
