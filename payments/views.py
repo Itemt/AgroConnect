@@ -95,7 +95,8 @@ def checkout_view(request, order_id):
         payment.save()
         
         # Actualizar estado del pedido
-        order.estado = 'pagado'
+        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
         order.save()
         
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
@@ -134,7 +135,8 @@ def checkout_view(request, order_id):
         payment.save()
         
         # Actualizar estado del pedido
-        order.estado = 'pagado'
+        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
         order.save()
         
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
@@ -443,7 +445,8 @@ def payment_failure_view(request):
         
         # Actualizar estado del pedido
         order = payment.order
-        order.estado = 'pagado'
+        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
         order.save()
         
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
@@ -477,7 +480,8 @@ def payment_pending_view(request):
         
         # Actualizar estado del pedido
         order = payment.order
-        order.estado = 'pagado'
+        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
         order.save()
         
         messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
@@ -551,7 +555,8 @@ def simulate_payment_processing(request, payment_id):
         
         # Actualizar estado del pedido
         order = payment.order
-        order.estado = 'pagado'
+        # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
+        # order.estado = 'pendiente'  # Ya está en pendiente por defecto
         order.save()
         
         messages.success(
