@@ -1,0 +1,125 @@
+{% extends 'accounts/user_base.html' %}
+{% load static %}
+
+{% block title %}Mis Fincas{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-primary-50">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-4xl font-bold text-gradient mb-2">
+                    <i class="fas fa-home mr-3 text-primary-600"></i>
+                    Mis Fincas
+                </h1>
+                <p class="text-gray-600">Gestiona las fincas donde cultivas tus productos</p>
+            </div>
+            <a href="{% url 'farm_create' %}" class="btn-primary group">
+                <i class="fas fa-plus mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                Agregar Finca
+            </a>
+        </div>
+
+        {% if farms %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for farm in farms %}
+                <div class="card hover:shadow-strong transition-all duration-300 {% if not farm.activa %}opacity-75{% endif %}">
+                    <div class="card-body p-6">
+                        <!-- Estado de la finca -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ farm.nombre }}</h3>
+                                {% if farm.activa %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Activa
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                        <i class="fas fa-pause-circle mr-1"></i>
+                                        Inactiva
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="space-y-3 mb-4">
+                            <div class="flex items-start text-gray-700">
+                                <i class="fas fa-map-marker-alt text-primary-600 mr-3 mt-1"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium">{{ farm.ciudad }}, {{ farm.departamento }}</p>
+                                    {% if farm.direccion %}
+                                        <p class="text-sm text-gray-600">{{ farm.direccion }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if farm.area %}
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-ruler-combined text-primary-600 mr-3"></i>
+                                <span>{{ farm.area }} hectáreas</span>
+                            </div>
+                            {% endif %}
+
+                            {% if farm.cultivos_principales %}
+                            <div class="flex items-start text-gray-700">
+                                <i class="fas fa-seedling text-primary-600 mr-3 mt-1"></i>
+                                <span>{{ farm.cultivos_principales }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if farm.descripcion %}
+                        <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                            <p class="text-sm text-gray-600 line-clamp-2">{{ farm.descripcion }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Estadísticas -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200 mb-4">
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-primary-600">{{ farm.cultivos.count }}</p>
+                                <p class="text-xs text-gray-600">Cultivo{{ farm.cultivos.count|pluralize }}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Creada</p>
+                                <p class="text-sm font-medium text-gray-700">{{ farm.created_at|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="flex gap-2">
+                            <a href="{% url 'farm_edit' farm.id %}" class="flex-1 btn-secondary text-center text-sm py-2">
+                                <i class="fas fa-edit mr-1"></i>
+                                Editar
+                            </a>
+                            <a href="{% url 'farm_delete' farm.id %}" class="flex-1 btn-outline text-center text-sm py-2 text-red-600 border-red-300 hover:bg-red-50">
+                                <i class="fas fa-trash mr-1"></i>
+                                Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Estado vacío -->
+            <div class="card text-center py-16">
+                <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-home text-primary-600 text-5xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">No tienes fincas registradas</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                    Agrega tu primera finca para comenzar a organizar tus cultivos y publicaciones por ubicación.
+                </p>
+                <a href="{% url 'farm_create' %}" class="btn-primary inline-flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Agregar Mi Primera Finca
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

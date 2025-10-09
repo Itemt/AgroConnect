@@ -7,16 +7,16 @@ from marketplace.models import Publication
 # Create your models here.
 
 class Conversation(BaseModel):
-    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='conversations')
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='conversations', null=True)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='conversations')
 
     def __str__(self):
-        return f"Conversation about {self.publication.pk}"
+        return f"Conversation about {self.publication.pk if self.publication else 'N/A'}"
 
 class Message(BaseModel):
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
-    content = models.TextField()
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages', null=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages', null=True)
+    content = models.TextField(default='')
 
     class Meta:
         ordering = ['created_at']
@@ -32,7 +32,6 @@ class Order(BaseModel):
         ('en_preparacion', 'En Preparación'),
         ('enviado', 'Enviado'),
         ('en_transito', 'En Tránsito'),
-        ('entregado', 'Entregado'),
         ('recibido', 'Recibido por Comprador'),
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado'),
@@ -40,14 +39,14 @@ class Order(BaseModel):
     
     # Relaciones
     publicacion = models.ForeignKey(Publication, on_delete=models.CASCADE, 
-                                  related_name='pedidos', verbose_name="Publicación")
+                                  related_name='pedidos', verbose_name="Publicación", null=True)
     comprador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                related_name='pedidos_como_comprador', verbose_name="Comprador")
+                                related_name='pedidos_como_comprador', verbose_name="Comprador", null=True)
     
     # Información del pedido
-    cantidad_acordada = models.DecimalField(max_digits=10, decimal_places=2, 
+    cantidad_acordada = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                           verbose_name="Cantidad Acordada")
-    precio_total = models.DecimalField(max_digits=10, decimal_places=2, 
+    precio_total = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                      verbose_name="Precio Total")
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
                             default='pendiente', verbose_name="Estado del Pedido")
@@ -57,7 +56,7 @@ class Order(BaseModel):
                                      verbose_name="Notas del Comprador")
     notas_vendedor = models.TextField(blank=True, null=True, 
                                     verbose_name="Notas del Vendedor")
-    direccion_entrega = models.TextField(verbose_name="Dirección de Entrega")
+    direccion_entrega = models.TextField(verbose_name="Dirección de Entrega", blank=True)
     
     # Fechas de seguimiento
     fecha_confirmacion = models.DateTimeField(null=True, blank=True, 
@@ -75,16 +74,28 @@ class Order(BaseModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'Pedido #{self.id} - {self.publicacion.cultivo.nombre_producto}'
+        return f'Pedido #{self.id} - {self.publicacion.cultivo.nombre}'
 
     @property
     def vendedor(self):
         """Propiedad para obtener el vendedor del pedido"""
         return self.publicacion.cultivo.productor
+    
+    @property
+    def is_paid(self):
+        """Verifica si el pedido tiene un pago aprobado"""
+        return hasattr(self, 'payment') and self.payment.is_approved
+    
+    @property
+    def payment_status_display(self):
+        """Muestra el estado del pago de forma legible"""
+        if not hasattr(self, 'payment'):
+            return "Sin pago registrado"
+        return self.payment.get_status_display()
 
     def can_be_confirmed_by_seller(self):
-        """Verifica si el pedido puede ser confirmado por el vendedor"""
-        return self.estado == 'pendiente'
+        """Verifica si el pedido puede ser confirmado por el vendedor - debe estar pagado"""
+        return self.estado == 'pendiente' and self.is_paid
 
     def can_be_marked_as_shipped(self):
         """Verifica si el pedido puede ser marcado como enviado"""
@@ -92,11 +103,21 @@ class Order(BaseModel):
 
     def can_be_received_by_buyer(self):
         """Verifica si el pedido puede ser marcado como recibido por el comprador"""
-        return self.estado in ['enviado', 'en_transito', 'entregado']
+        return self.estado in ['enviado', 'en_transito']
 
-    def can_be_rated(self):
-        """Verifica si el pedido puede ser calificado"""
-        return self.estado == 'completado' and not hasattr(self, 'calificacion')
+    def can_be_rated_by_buyer(self):
+        """Verifica si el comprador puede calificar al vendedor"""
+        if self.estado != 'completado':
+            return False
+        # Verificar si el comprador ya calificó
+        return not self.calificaciones.filter(calificador=self.comprador, tipo='comprador_a_vendedor').exists()
+    
+    def can_be_rated_by_seller(self):
+        """Verifica si el vendedor puede calificar al comprador"""
+        if self.estado != 'completado':
+            return False
+        # Verificar si el vendedor ya calificó
+        return not self.calificaciones.filter(calificador=self.vendedor, tipo='vendedor_a_comprador').exists()
 
     def can_be_cancelled(self):
         """Verifica si el pedido puede ser cancelado"""
@@ -118,8 +139,16 @@ class Order(BaseModel):
             # Acciones para el comprador
             if self.can_be_received_by_buyer():
                 actions.append(('confirm_receipt', 'Confirmar Recepción', 'success'))
-            if self.can_be_rated():
-                actions.append(('rate', 'Calificar Vendedor', 'warning'))
+            if self.can_be_rated_by_buyer():
+                actions.append(('rate_seller', 'Calificar Vendedor', 'warning'))
+            # Verificar si ya calificó al vendedor (para editar)
+            elif self.estado == 'completado':
+                existing_rating = self.calificaciones.filter(
+                    calificador=user, 
+                    tipo='comprador_a_vendedor'
+                ).first()
+                if existing_rating:
+                    actions.append(('edit_rating_seller', 'Editar Calificación', 'warning'))
             if self.can_be_cancelled_by_buyer():
                 actions.append(('cancel', 'Cancelar Pedido', 'danger'))
                 
@@ -127,6 +156,16 @@ class Order(BaseModel):
             # Acciones para el vendedor
             if self.can_be_confirmed_by_seller() or self.can_be_marked_as_shipped():
                 actions.append(('update_status', 'Actualizar Estado', 'primary'))
+            if self.can_be_rated_by_seller():
+                actions.append(('rate_buyer', 'Calificar Comprador', 'warning'))
+            # Verificar si ya calificó al comprador (para editar)
+            elif self.estado == 'completado':
+                existing_rating = self.calificaciones.filter(
+                    calificador=user, 
+                    tipo='vendedor_a_comprador'
+                ).first()
+                if existing_rating:
+                    actions.append(('edit_rating_buyer', 'Editar Calificación', 'warning'))
             if self.can_be_cancelled_by_seller():
                 actions.append(('cancel', 'Cancelar Pedido', 'danger'))
         
@@ -143,31 +182,31 @@ class Rating(BaseModel):
         ('vendedor_a_comprador', 'Vendedor califica a Comprador'),
     )
     
-    pedido = models.OneToOneField(Order, on_delete=models.CASCADE, 
-                                related_name='calificacion', verbose_name="Pedido")
+    pedido = models.ForeignKey(Order, on_delete=models.CASCADE, 
+                                related_name='calificaciones', verbose_name="Pedido", null=True)
     calificador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                  related_name='calificaciones_dadas', verbose_name="Calificador")
+                                  related_name='calificaciones_dadas', verbose_name="Calificador", null=True)
     calificado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                 related_name='calificaciones_recibidas', verbose_name="Calificado")
+                                 related_name='calificaciones_recibidas', verbose_name="Calificado", null=True)
     
-    tipo = models.CharField(max_length=25, choices=TIPO_CALIFICACION_CHOICES, 
+    tipo = models.CharField(max_length=25, choices=TIPO_CALIFICACION_CHOICES, default='comprador_a_vendedor',
                           verbose_name="Tipo de Calificación")
     
     # Calificaciones (1-5 estrellas)
     calificacion_general = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Calificación General"
     )
     calificacion_comunicacion = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Comunicación"
     )
     calificacion_puntualidad = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Puntualidad"
     )
     calificacion_calidad = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0,
         verbose_name="Calidad del Producto/Servicio"
     )
     
@@ -193,110 +232,3 @@ class Rating(BaseModel):
         """Calcula el promedio de todas las calificaciones"""
         return (self.calificacion_general + self.calificacion_comunicacion + 
                 self.calificacion_puntualidad + self.calificacion_calidad) / 4
-
-
-class UserProfile(BaseModel):
-    """Perfil extendido para estadísticas de usuario"""
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                              related_name='profile_stats', verbose_name="Usuario")
-    
-    # Estadísticas de ventas (para productores)
-    total_ventas = models.IntegerField(default=0, verbose_name="Total de Ventas")
-    ingresos_totales = models.DecimalField(max_digits=12, decimal_places=2, default=0, 
-                                         verbose_name="Ingresos Totales")
-    
-    # Estadísticas de compras (para compradores)
-    total_compras = models.IntegerField(default=0, verbose_name="Total de Compras")
-    gastos_totales = models.DecimalField(max_digits=12, decimal_places=2, default=0, 
-                                       verbose_name="Gastos Totales")
-    
-    # Calificaciones promedio
-    calificacion_promedio_como_vendedor = models.DecimalField(
-        max_digits=3, decimal_places=2, default=0, 
-        verbose_name="Calificación Promedio como Vendedor"
-    )
-    calificacion_promedio_como_comprador = models.DecimalField(
-        max_digits=3, decimal_places=2, default=0, 
-        verbose_name="Calificación Promedio como Comprador"
-    )
-    
-    # Contadores de calificaciones
-    total_calificaciones_como_vendedor = models.IntegerField(default=0)
-    total_calificaciones_como_comprador = models.IntegerField(default=0)
-    
-    # Fechas importantes
-    fecha_primera_venta = models.DateTimeField(null=True, blank=True)
-    fecha_primera_compra = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "Perfil de Usuario"
-        verbose_name_plural = "Perfiles de Usuario"
-
-    def __str__(self):
-        return f'Perfil de {self.user.first_name} {self.user.last_name}'
-
-    def actualizar_estadisticas_vendedor(self):
-        """Actualiza las estadísticas como vendedor"""
-        from django.db.models import Count, Sum, Avg
-        
-        # Pedidos completados como vendedor
-        pedidos_vendedor = Order.objects.filter(
-            publicacion__cultivo__productor=self.user,
-            estado='completado'
-        )
-        
-        self.total_ventas = pedidos_vendedor.count()
-        self.ingresos_totales = pedidos_vendedor.aggregate(
-            total=Sum('precio_total')
-        )['total'] or 0
-        
-        # Calificación promedio como vendedor
-        calificaciones = Rating.objects.filter(
-            calificado=self.user,
-            tipo='comprador_a_vendedor'
-        )
-        
-        if calificaciones.exists():
-            self.calificacion_promedio_como_vendedor = calificaciones.aggregate(
-                promedio=Avg('calificacion_general')
-            )['promedio'] or 0
-            self.total_calificaciones_como_vendedor = calificaciones.count()
-        
-        # Fecha de primera venta
-        if not self.fecha_primera_venta and pedidos_vendedor.exists():
-            self.fecha_primera_venta = pedidos_vendedor.order_by('created_at').first().created_at
-        
-        self.save()
-
-    def actualizar_estadisticas_comprador(self):
-        """Actualiza las estadísticas como comprador"""
-        from django.db.models import Count, Sum, Avg
-        
-        # Pedidos completados como comprador
-        pedidos_comprador = Order.objects.filter(
-            comprador=self.user,
-            estado='completado'
-        )
-        
-        self.total_compras = pedidos_comprador.count()
-        self.gastos_totales = pedidos_comprador.aggregate(
-            total=Sum('precio_total')
-        )['total'] or 0
-        
-        # Calificación promedio como comprador
-        calificaciones = Rating.objects.filter(
-            calificado=self.user,
-            tipo='vendedor_a_comprador'
-        )
-        
-        if calificaciones.exists():
-            self.calificacion_promedio_como_comprador = calificaciones.aggregate(
-                promedio=Avg('calificacion_general')
-            )['promedio'] or 0
-            self.total_calificaciones_como_comprador = calificaciones.count()
-        
-        # Fecha de primera compra
-        if not self.fecha_primera_compra and pedidos_comprador.exists():
-            self.fecha_primera_compra = pedidos_comprador.order_by('created_at').first().created_at
-        
-        self.save()

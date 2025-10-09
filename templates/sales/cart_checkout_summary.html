@@ -1,0 +1,130 @@
+{% extends 'accounts/user_base.html' %}
+{% load static %}
+
+{% block title %}Resumen de Pago - Carrito{% endblock %}
+
+{% block user_content %}
+<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="card mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600 px-6 py-6 relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+            <div class="relative text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full mb-3">
+                    <i class="fas fa-shopping-cart text-white text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-1">Resumen de Pago</h1>
+                <p class="text-primary-100 text-sm">Revisa y completa el pago de tus pedidos</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Lista de Pedidos -->
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in orders_with_checkout %}
+            <div class="card">
+                <div class="bg-primary-600 px-6 py-4 rounded-t-xl">
+                    <h3 class="font-bold text-white flex items-center">
+                        <i class="fas fa-box mr-2"></i>
+                        Pedido #{{ item.order.id }}
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start space-x-4">
+                        {% if item.order.publicacion.imagen %}
+                        <div class="flex-shrink-0">
+                            <img src="{{ item.order.publicacion.imagen.url }}" 
+                                 alt="{{ item.order.publicacion.cultivo.nombre }}"
+                                 class="w-20 h-20 object-cover rounded-lg border-2 border-gray-200">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex-1">
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">{{ item.order.publicacion.cultivo.nombre }}</h4>
+                            <p class="text-gray-600 mb-3">{{ item.order.publicacion.descripcion|truncatewords:15 }}</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 font-medium mb-1">Cantidad</p>
+                                    <p class="font-bold text-gray-800">{{ item.order.cantidad_acordada }} {{ item.order.publicacion.cultivo.unidad_medida }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 font-medium mb-1">Precio Unit.</p>
+                                    <p class="font-bold text-gray-800">${{ item.order.publicacion.precio_por_unidad|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border-l-4 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-blue-800">Total del Pedido</p>
+                                        <p class="text-2xl font-bold text-blue-900">${{ item.order.precio_total|floatformat:0 }} COP</p>
+                                    </div>
+                                    <div class="bg-blue-500 rounded-full w-12 h-12 flex items-center justify-center">
+                                        <i class="fas fa-calculator text-white text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botón de Pago MercadoPago -->
+                            <div class="mt-4">
+                                {% if item.error %}
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                            <div>
+                                                <p class="text-red-800 font-semibold">Error al crear el pago</p>
+                                                <p class="text-red-600 text-sm">{{ item.error }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <a href="{{ item.preference_data.init_point }}" 
+                                       class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center no-underline">
+                                        <i class="fas fa-credit-card mr-2"></i>
+                                        Pagar con MercadoPago
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Resumen Total -->
+        <div class="lg:col-span-1">
+            <div class="card sticky top-6">
+                <div class="bg-primary-600 px-6 py-4 rounded-t-xl">
+                    <h3 class="font-bold text-white flex items-center">
+                        <i class="fas fa-calculator mr-2"></i>
+                        Resumen Total
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Pedidos:</span>
+                            <span class="font-semibold">{{ orders_with_checkout|length }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Total:</span>
+                            <span class="text-2xl font-bold text-primary-600">${{ total|floatformat:0 }} COP</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                        <p class="text-sm text-green-800 flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Pago seguro procesado por MercadoPago.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

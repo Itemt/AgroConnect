@@ -1,0 +1,129 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}Confirmar Eliminación de Finca{% endblock %}
+
+{% block user_content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-4 sm:py-12">
+    <div class="max-w-sm sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Card principal -->
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+            <!-- Header con gradiente rojo -->
+            <div class="bg-gradient-to-br from-red-500 via-red-600 to-red-700 px-4 py-4 sm:px-8 sm:py-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 sm:w-40 sm:h-40 bg-white opacity-5 rounded-full -mr-10 -mt-10 sm:-mr-20 sm:-mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-16 h-16 sm:w-32 sm:h-32 bg-white opacity-5 rounded-full -ml-8 -mb-8 sm:-ml-16 sm:-mb-16"></div>
+                <div class="relative flex items-center justify-center">
+                    <div class="bg-white bg-opacity-20 rounded-full p-3 sm:p-6 backdrop-blur-sm">
+                        <i class="fas fa-exclamation-triangle text-white text-3xl sm:text-5xl"></i>
+                    </div>
+                </div>
+                <h1 class="relative text-center text-xl sm:text-3xl font-bold text-white mt-3 sm:mt-6">¿Eliminar Finca?</h1>
+                <p class="relative text-center text-red-100 mt-1 sm:mt-3 text-sm sm:text-lg">Esta acción es irreversible</p>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="px-4 py-4 sm:px-8 sm:py-8">
+                <!-- Información de la finca -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 sm:p-6 mb-4 sm:mb-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-home text-blue-600 text-xl sm:text-2xl"></i>
+                        </div>
+                        <div class="ml-3 sm:ml-4">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2">{{ finca.nombre }}</h3>
+                            <div class="space-y-1 text-xs sm:text-sm text-gray-600">
+                                <p><strong>Ubicación:</strong> {{ finca.ciudad }}, {{ finca.departamento }}</p>
+                                <p><strong>Área Total:</strong> {{ finca.area_total }} ha</p>
+                                <p><strong>Área Cultivable:</strong> {{ finca.area_cultivable }} ha</p>
+                                <p><strong>Estado:</strong> 
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if finca.activa %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if finca.activa %}Activa{% else %}Inactiva{% endif %}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advertencia sobre datos que se eliminarán -->
+                <div class="bg-red-50 border-l-4 border-red-500 p-3 sm:p-6 rounded-lg mb-4 sm:mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-lg sm:text-xl"></i>
+                        </div>
+                        <div class="ml-2 sm:ml-3">
+                            <h4 class="text-base sm:text-lg font-semibold text-red-800 mb-2">¡ATENCIÓN!</h4>
+                            <p class="text-red-700 mb-3 text-sm sm:text-base">
+                                Al eliminar esta finca, se eliminarán <strong>permanentemente</strong> todos los datos asociados:
+                            </p>
+                            <ul class="list-disc list-inside text-red-700 space-y-1 text-xs sm:text-sm">
+                                <li><strong>{{ finca.cultivos.count }} cultivo(s)</strong> registrados en esta finca</li>
+                                <li><strong>Todas las publicaciones</strong> de productos de esta finca</li>
+                                <li><strong>Todos los pedidos</strong> relacionados con esta finca</li>
+                                <li><strong>Historial completo</strong> de la finca</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de confirmación -->
+                <form method="post" id="deleteForm">
+                    {% csrf_token %}
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-shield-alt text-yellow-600 text-sm sm:text-base"></i>
+                            </div>
+                            <div class="ml-2 sm:ml-3">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" id="confirmDeleteCheckbox" class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                                    <span class="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-yellow-800">
+                                        Entiendo que esta acción es <strong>irreversible</strong> y eliminará todos los datos asociados a esta finca.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                        <a href="{% url 'core:farm_detail' finca.pk %}" 
+                           class="flex-1 bg-gray-100 text-gray-700 px-3 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-center hover:bg-gray-200 transition-colors duration-200 text-sm sm:text-base">
+                            <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Cancelar
+                        </a>
+                        <button type="submit" id="confirmDeleteButton" 
+                                class="flex-1 bg-red-600 text-white px-3 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                                disabled>
+                            <i class="fas fa-trash mr-1 sm:mr-2"></i>Eliminar Finca
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Habilitar/deshabilitar botón de confirmación según el checkbox
+    document.getElementById('confirmDeleteCheckbox').addEventListener('change', function() {
+        const button = document.getElementById('confirmDeleteButton');
+        button.disabled = !this.checked;
+        
+        if (this.checked) {
+            button.classList.remove('opacity-50', 'cursor-not-allowed');
+            button.classList.add('hover:bg-red-700');
+        } else {
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+            button.classList.remove('hover:bg-red-700');
+        }
+    });
+
+    // Confirmación adicional antes de enviar
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción eliminará permanentemente la finca y todos sus datos asociados.')) {
+            this.submit();
+        }
+    });
+</script>
+{% endblock %}

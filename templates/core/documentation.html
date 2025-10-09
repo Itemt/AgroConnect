@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Documentación y Ayuda - AgroConnect{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
+                <i class="fas fa-book text-white text-2xl sm:text-3xl"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gradient mb-4">
+                Documentación y Ayuda
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+                Todo lo que necesitas saber para usar AgroConnect de manera efectiva
+            </p>
+        </div>
+
+        <!-- Documentation Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {% for section in sections %}
+            <div class="card">
+                <div class="card-header">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-{{ section.color }}-400 to-{{ section.color }}-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
+                            <i class="{{ section.icon }} text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800">{{ section.title }}</h2>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="space-y-6">
+                        {% for item in section.content %}
+                        <div class="border-l-4 border-{{ section.color }}-400 pl-3 sm:pl-4">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2">
+                                {{ item.question }}
+                            </h3>
+                            <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
+                                {{ item.answer }}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-4">Acciones Rápidas</h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        <a href="{% url 'marketplace' %}" class="flex items-center p-3 sm:p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-store text-xl sm:text-2xl mr-3 sm:mr-4"></i>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white">Ir al Marketplace</h3>
+                                <p class="text-xs sm:text-sm opacity-90 text-white">Explorar productos</p>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'profile' %}" class="flex items-center p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-user text-xl sm:text-2xl mr-3 sm:mr-4"></i>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white">Mi Perfil</h3>
+                                <p class="text-xs sm:text-sm opacity-90 text-white">Gestionar cuenta</p>
+                            </div>
+                        </a>
+                        
+                        {% if user.role == 'Productor' %}
+                        <a href="{% url 'core:farm_list' %}" class="flex items-center p-3 sm:p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-tractor text-xl sm:text-2xl mr-3 sm:mr-4"></i>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white">Mis Fincas</h3>
+                                <p class="text-xs sm:text-sm opacity-90 text-white">Gestionar fincas</p>
+                            </div>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'order_history' %}" class="flex items-center p-3 sm:p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-shopping-cart text-xl sm:text-2xl mr-3 sm:mr-4"></i>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white">Mis Pedidos</h3>
+                                <p class="text-xs sm:text-sm opacity-90 text-white">Ver compras</p>
+                            </div>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="mt-12 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-4">¿Necesitas más ayuda?</h2>
+                    <p class="text-sm sm:text-base text-gray-600 mb-6 px-4">
+                        Si no encuentras la respuesta que buscas, nuestro equipo de soporte está aquí para ayudarte.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                        <button id="open-chatbot-btn" class="btn-primary">
+                            <i class="fas fa-comments mr-2"></i>
+                            Contactar Soporte
+                        </button>
+                        <a href="{% url 'index' %}" class="btn-secondary">
+                            <i class="fas fa-home mr-2"></i>
+                            Volver al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openChatbotBtn = document.getElementById('open-chatbot-btn');
+    if (openChatbotBtn) {
+        openChatbotBtn.addEventListener('click', function() {
+            // Buscar el botón del chatbot en la página
+            const chatbotToggle = document.getElementById('assistant-toggle');
+            if (chatbotToggle) {
+                // Hacer clic en el botón del chatbot para abrirlo
+                chatbotToggle.click();
+            } else {
+                // Si no se encuentra el botón, mostrar un mensaje
+                alert('El chatbot no está disponible en este momento. Por favor, intenta más tarde.');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

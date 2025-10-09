@@ -1,92 +1,220 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Marketplace{% endblock %}
 
 {% block content %}
-    <div class="bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-gradient-to-br from-gray-50 to-white min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">Marketplace de Productos Frescos</h1>
-                <p class="text-xl text-gray-600">Descubre los productos ofrecidos directamente por los agricultores</p>
+            <div class="text-center mb-12">
+                <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-store text-white text-3xl"></i>
+                </div>
+                <h1 class="text-5xl font-bold text-gray-900 mb-6">Marketplace de Productos Frescos</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Descubre los productos ofrecidos directamente por los agricultores locales y conecta con la comunidad agro</p>
             </div>
             
-            <!-- Search Bar -->
-            <div class="max-w-2xl mx-auto mb-8">
-                <form method="get" class="flex gap-2">
-                    <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-gray-400"></i>
+            <!-- Advanced Search and Filters -->
+            <div class="max-w-6xl mx-auto mb-12">
+                <form method="get" class="card">
+                    <div class="card-body">
+                        <!-- Search Bar and Filter Toggle -->
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="relative flex-grow">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400 text-lg"></i>
+                                </div>
+                                <input type="text" 
+                                       name="search" 
+                                       placeholder="Buscar productos, productores, descripciones..." 
+                                       value="{{ search_query }}" 
+                                       class="form-input pl-12 text-lg">
+                            </div>
+                            <button type="button" id="toggle-filters-btn" class="btn-primary p-4 h-full">
+                                <i class="fas fa-filter mr-2"></i>Filtros
+                            </button>
                         </div>
-                        <input type="text" 
-                               name="search" 
-                               placeholder="Buscar productos, productores..." 
-                               value="{{ search_query }}" 
-                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    
+                        <div id="filters-container" class="hidden">
+                            <!-- Filters Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <!-- Category Filter -->
+                            <div>
+                                <label class="form-label">
+                                    <i class="fas fa-tags text-primary-600 mr-2"></i>Categoría
+                                </label>
+                                <select name="categoria" class="form-input">
+                                    <option value="">Todas las categorías</option>
+                                    {% for value, label in categorias %}
+                                        <option value="{{ value }}" {% if categoria_filter == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Price Range -->
+                            <div>
+                                <label class="form-label">
+                                    <i class="fas fa-dollar-sign text-primary-600 mr-2"></i>Precio Mínimo
+                                </label>
+                                <input type="number" 
+                                       name="precio_min" 
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       value="{{ precio_min }}"
+                                       class="form-input">
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">
+                                    <i class="fas fa-dollar-sign text-primary-600 mr-2"></i>Precio Máximo
+                                </label>
+                                <input type="number" 
+                                       name="precio_max" 
+                                       placeholder="999.99"
+                                       step="0.01"
+                                       value="{{ precio_max }}"
+                                       class="form-input">
+                            </div>
+                            
+                            <!-- Location Filter -->
+                            <div>
+                                <label class="form-label">
+                                    <i class="fas fa-map-marker-alt text-primary-600 mr-2"></i>Ubicación
+                                </label>
+                                <input type="text" 
+                                       name="ubicacion" 
+                                       placeholder="Ciudad, región..."
+                                       value="{{ ubicacion_filter }}"
+                                       class="form-input">
+                            </div>
+                        </div>
+                    
+                            <!-- Sort and Actions -->
+                            <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+                                <div class="flex items-center gap-4">
+                                    <label class="form-label mb-0">
+                                        <i class="fas fa-sort text-primary-600 mr-2"></i>Ordenar por:
+                                    </label>
+                                    <select name="orden" class="form-input w-auto">
+                                        <option value="-created_at" {% if orden == "-created_at" %}selected{% endif %}>Más Reciente</option>
+                                        <option value="precio_por_unidad" {% if orden == "precio_por_unidad" %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                        <option value="-precio_por_unidad" {% if orden == "-precio_por_unidad" %}selected{% endif %}>Precio: Mayor a Menor</option>
+                                        <option value="cultivo__nombre" {% if orden == "cultivo__nombre" %}selected{% endif %}>Nombre A-Z</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex gap-3">
+                                    <a href="{% url 'marketplace' %}" 
+                                       class="btn-secondary">
+                                        <i class="fas fa-times mr-2"></i>Limpiar Filtros
+                                    </a>
+                                    <button type="submit" 
+                                            class="btn-primary">
+                                        <i class="fas fa-filter mr-2"></i>Aplicar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" 
-                            class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium">
-                        <i class="fas fa-search mr-2"></i>Buscar
-                    </button>
                 </form>
             </div>
             
-            {% if search_query %}
-                <div class="text-center mb-6">
-                    <p class="text-gray-600">
-                        Resultados para: "<span class="font-semibold text-gray-900">{{ search_query }}</span>" 
-                        ({{ publications.count }} encontrado{{ publications.count|pluralize }})
-                    </p>
+
+
+            <!-- Results Summary -->
+            {% if search_query or categoria_filter or precio_min or precio_max or ubicacion_filter %}
+            <div class="max-w-7xl mx-auto mb-6">
+                <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center">
+                        <div class="text-primary-800 font-medium">
+                            <i class="fas fa-filter mr-2"></i>
+                            Mostrando {{ total_productos }} producto{{ total_productos|pluralize }} filtrado{{ total_productos|pluralize }}
+                            {% if search_query %}
+                                para "<span class="font-semibold">{{ search_query }}</span>"
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-sm text-primary-600 mt-2 sm:mt-0">
+                            <span class="flex flex-wrap gap-2">
+                                {% if categoria_filter %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">
+                                        {% for value, label in categorias %}
+                                            {% if value == categoria_filter %}{{ label }}{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                {% endif %}
+                                {% if precio_min %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">Min: ${{ precio_min }}</span>
+                                {% endif %}
+                                {% if precio_max %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">Max: ${{ precio_max }}</span>
+                                {% endif %}
+                                {% if ubicacion_filter %}
+                                    <span class="bg-primary-100 px-2 py-1 rounded">{{ ubicacion_filter }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
                 </div>
+            </div>
             {% endif %}
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {% for pub in publications %}
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                        <div class="p-6">
-                            <div class="flex justify-between items-start mb-4">
-                                <h3 class="text-xl font-bold text-gray-900">{{ pub.cultivo.nombre_producto }}</h3>
-                                <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    Producto
-                                </span>
-                            </div>
-                            
-                            <div class="space-y-3 mb-6">
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-user text-gray-400 mr-2"></i>
-                                    <span class="text-sm">{{ pub.cultivo.productor.first_name }} {{ pub.cultivo.productor.last_name }}</span>
-                                </div>
-                                
-                                {% if pub.cultivo.productor.producer_profile.location %}
-                                    <div class="flex items-center text-gray-600">
-                                        <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
-                                        <span class="text-sm">{{ pub.cultivo.productor.producer_profile.location }}</span>
+                    <div class="product-card group">
+                        <a href="{% url 'publication_detail' pub.id %}" class="block">
+                            <!-- Product Image -->
+                            <div class="product-image">
+                                {% if pub.imagen %}
+                                    <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                                        <i class="fas fa-seedling text-white text-5xl opacity-80"></i>
                                     </div>
                                 {% endif %}
-                                
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-box text-gray-400 mr-2"></i>
-                                    <span class="text-sm">{{ pub.cantidad_disponible }} {{ pub.cultivo.unidad_medida }} disponibles</span>
+                                <!-- Category Badge -->
+                                <div class="product-category">
+                                    {% if pub.categoria_display %}
+                                        {{ pub.categoria_display }}
+                                    {% endif %}
                                 </div>
-                                
+                                <!-- Price Badge -->
+                                <div class="product-badge">
+                                    ${{ pub.precio_por_unidad }}
+                                </div>
+                            </div>
+                        </a>
+                        <div class="product-content">
+                            <a href="{% url 'publication_detail' pub.id %}" class="block mb-4">
+                                <h3 class="product-title group-hover:text-primary-600 transition-colors">
+                                    {{ pub.cultivo.nombre }}
+                                </h3>
+                            </a>
+                            <div class="space-y-4 mb-6">
                                 <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-dollar-sign text-gray-400 mr-2"></i>
-                                    <span class="text-sm font-semibold text-gray-900">${{ pub.precio_por_unidad }} por {{ pub.cultivo.unidad_medida }}</span>
+                                    <i class="fas fa-dollar-sign text-primary-500 mr-3 w-5"></i>
+                                    <span class="text-sm">
+                                        <span class="product-price">${{ pub.precio_por_unidad }}</span> 
+                                        <span class="product-unit">/ {{ pub.cultivo.unidad_medida }}</span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-boxes text-blue-500 mr-3 w-5"></i>
+                                    <span class="text-sm">
+                                        <span class="font-semibold text-green-600">{{ pub.cantidad_disponible }}</span> 
+                                        {{ pub.cultivo.unidad_medida }} disponibles
+                                    </span>
                                 </div>
                             </div>
                             
-                            <div class="flex gap-2">
-                                <a href="{% url 'publication_detail' pub.id %}" 
-                                   class="flex-1 bg-primary-600 text-white text-center py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                            <div class="mt-auto">
+                                <a href="{% url 'publication_detail' pub.id %}" class="btn-primary w-full inline-block text-center">
                                     <i class="fas fa-eye mr-2"></i>Ver Detalles
                                 </a>
-                                {% if user.is_authenticated and user.role == 'Comprador' %}
-                                    <a href="{% url 'start_conversation' pub.id %}" 
-                                       class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
-                                        <i class="fas fa-comment mr-2"></i>Contactar
-                                    </a>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -118,4 +246,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/marketplace.js' %}"></script>
 {% endblock %}

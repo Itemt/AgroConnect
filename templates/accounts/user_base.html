@@ -1,70 +1,915 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgroConnect{% endblock %} | Panel de Administración</title>
+    
+    {% load static %}
+    
+    <!-- Meta Description -->
+    <meta name="description" content="{% block description %}AgroConnect - Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="AgroConnect">
+    <meta property="og:locale" content="es_CO">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
+                        400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
+                        800: '#166534', 900: '#14532d'
+                    },
+                    accent: {
+                        50: '#fef3c7', 100: '#fde68a', 200: '#fcd34d', 300: '#fbbf24',
+                        400: '#f59e0b', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                        800: '#9a3412', 900: '#7c2d12'
+                    }
+                }
+            }
+        }
+    }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%2322c55e;stop-opacity:1' /><stop offset='100%25' style='stop-color:%2315803d;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white'>🌱</text></svg>">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
-{% block content %}
-<div class="flex h-screen">
+{% block extra_head %}
+<!-- Script para evitar parpadeo - se ejecuta ANTES del render -->
+<script>
+(function() {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        document.documentElement.classList.add('sidebar-collapsed');
+    }
+})();
+</script>
+
+<style>
+    /* Clase que se aplica al HTML cuando el sidebar está colapsado */
+    html.sidebar-collapsed #sidebar {
+        width: 5rem !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-text {
+        display: none !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .user-welcome {
+        display: none !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-header {
+        justify-content: center !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-nav a {
+        justify-content: center !important;
+    }
+
+    /* Sidebar styles */
+    #sidebar {
+        background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-900) 100%);
+        box-shadow: var(--shadow-strong);
+        border-right: 1px solid var(--primary-700);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+    
+    /* Custom scrollbar for sidebar */
+    #sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    #sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+    
+    #sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Smooth scrolling for sidebar */
+    #sidebar {
+        scroll-behavior: smooth;
+    }
+    
+    /* Ensure sidebar content doesn't get cut off */
+    #sidebar .sidebar-nav {
+        padding-bottom: 2rem;
+    }
+    
+    /* Make sure the sidebar container takes full height */
+    .relative.flex {
+        min-height: 100vh;
+    }
+    
+    /* Ensure sidebar is part of document flow */
+    #sidebar {
+        position: relative;
+        z-index: 40;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    /* Remove any fixed positioning */
+    #sidebar.fixed {
+        position: relative !important;
+    }
+    
+    #sidebar.w-20 .sidebar-text {
+        display: none !important;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+    
+    #sidebar.w-20 .sidebar-nav a {
+        justify-content: center;
+        padding: 0.75rem;
+        min-height: 2.5rem;
+    }
+    
+    #sidebar.w-20 .sidebar-nav a.bg-gradient-to-r {
+        background: transparent;
+        border: none;
+    }
+    
+    #sidebar.w-20 .sidebar-nav a.bg-gradient-to-r i {
+        filter: brightness(1.5);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    #sidebar.w-20 .user-welcome {
+        display: none;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+    
+    #sidebar.w-20 .sidebar-header {
+        justify-content: center;
+        padding: 0 0.5rem;
+    }
+    
+    #sidebar.w-20 .sidebar-header .group {
+        flex: none;
+    }
+    
+    /* Smooth transitions for text visibility */
+    .sidebar-text {
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .user-welcome {
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    #sidebar-toggle {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    #sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .sidebar-nav a {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .sidebar-nav a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.5s;
+    }
+    
+    .sidebar-nav a:hover::before {
+        left: 100%;
+    }
+    
+    .sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+    }
+    
+    .sidebar-nav a.bg-primary-600 {
+        background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .sidebar-nav a.bg-primary-600:hover {
+        background: linear-gradient(135deg, var(--accent-600) 0%, var(--accent-700) 100%);
+        transform: translateX(4px) scale(1.02);
+    }
+    
+    .main-content {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+        min-height: 100vh;
+    }
+    
+    .user-welcome {
+        background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--primary-200);
+    }
+    
+    #sidebar-toggle {
+        cursor: pointer !important;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+    
+    #sidebar-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(251, 191, 36, 0.6) !important;
+        transform: scale(1.05);
+    }
+    
+    #sidebar-toggle:active {
+        transform: scale(0.95);
+    }
+    
+    .sidebar-nav a {
+        border-radius: 0.75rem;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3rem;
+        background: transparent;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .sidebar-nav a:hover {
+        transform: none;
+    }
+    
+    .sidebar-nav a.bg-gradient-to-r {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Icon and text spacing */
+    .sidebar-nav a {
+        gap: 0.75rem;
+    }
+    
+    .sidebar-nav a i {
+        font-size: 1.25rem;
+        transition: filter 0.3s ease;
+        filter: brightness(0.7);
+        flex-shrink: 0;
+        opacity: 1;
+        transform: none;
+        position: static;
+        width: 1.25rem;
+        height: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #sidebar.w-20 .sidebar-nav a i {
+        opacity: 1;
+        transform: none;
+        position: static;
+        transition: filter 0.3s ease;
+    }
+    
+    .sidebar-nav a:hover i {
+        filter: brightness(1);
+    }
+    
+    .sidebar-nav a.bg-gradient-to-r i {
+        filter: brightness(1.5);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .sidebar-nav a .sidebar-text {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    /* Ensure all navigation links have consistent styling */
+    .sidebar-nav a {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .sidebar-nav a:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    /* Consistent button styles */
+    .sidebar-nav a,
+    label[for="sidebar-toggle-checkbox"] {
+        transition: all 0.3s ease;
+    }
+    
+    /* Simple sidebar toggle */
+    #sidebar-toggle-checkbox {
+        display: none;
+    }
+    
+    /* When checkbox is checked, collapse sidebar */
+    #sidebar-toggle-checkbox:checked + .relative #sidebar {
+        width: 5rem; /* w-20 */
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-text {
+        display: none !important;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome {
+        display: none;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-header {
+        justify-content: center;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-nav a {
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+</head>
+<body class="bg-gray-50">
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 pointer-events-none">
+    <!-- Los toasts aparecerán aquí dinámicamente -->
+</div>
+
+<!-- Sidebar Toggle with CSS only - no JavaScript -->
+<input type="checkbox" id="sidebar-toggle-checkbox" class="hidden">
+
+<div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div class="w-64 bg-primary-800 text-white p-6">
-        <div class="flex items-center mb-8">
-            <div class="w-12 h-12 rounded-full bg-primary-700 flex items-center justify-center mr-4">
-                <i class="fas fa-user text-2xl"></i>
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out min-h-screen flex-shrink-0">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header flex items-center justify-between mb-8 px-1">
+            <div class="flex items-center sidebar-text group flex-1">
+                <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-cog text-white text-xl"></i>
+                </div>
+                <span class="sidebar-text text-lg font-bold text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
             </div>
-            <div>
-                <p class="font-bold text-lg">{{ user.username }}</p>
-                <p class="text-sm text-primary-300">{{ user.email }}</p>
-            </div>
+            <button type="button" onclick="document.getElementById('sidebar-toggle-checkbox').click()" class="w-10 h-10 flex items-center justify-center text-white hover:text-accent-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-opacity-50 rounded-xl hover:bg-white/10 transition-all duration-300 border border-accent-400/30 hover:border-accent-300 cursor-pointer">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
         </div>
 
-        <nav class="text-primary-100 sidebar-nav">
+        <!-- User Welcome Card -->
+        <div class="user-welcome mb-6">
+            <a href="{% url 'profile_edit' %}" class="flex items-center p-2 rounded-lg hover:bg-white/10 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <i class="fas fa-user text-white text-lg"></i>
+                </div>
+                <div class="ml-3 sidebar-text">
+                    <h3 class="font-semibold text-gray-800 text-sm transition-colors duration-200">{{ user.first_name|default:user.username }}</h3>
+                    <p class="text-primary-600 text-xs font-medium transition-colors duration-200">{{ user.role }}</p>
+                </div>
+            </a>
+        </div>
+
+        <nav class="text-white sidebar-nav">
+            <!-- Navegación Principal -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Navegación</h4>
+                <a href="{% url 'index' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'index' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-home w-5"></i>
+                    <span class="sidebar-text ml-3">Inicio</span>
+                </a>
+                
+                <a href="{% url 'marketplace' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-store w-5"></i>
+                    <span class="sidebar-text ml-3">Marketplace</span>
+                </a>
+            </div>
+            
+            <!-- Dashboard y Perfil -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Mi Cuenta</h4>
+                {% if user.role == 'Productor' %}
+                <a href="{% url 'producer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span class="sidebar-text ml-3">Dashboard</span>
+                </a>
+                
+                <!-- Mis Fincas - Primera opción para productores -->
+                <a href="{% url 'core:farm_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tractor w-5"></i>
+                    <span class="sidebar-text ml-3">Mis Fincas</span>
+                </a>
+                
+                <!-- Mis Cultivos - Segunda opción para productores -->
+                <a href="{% url 'crop_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'crop_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-seedling w-5"></i>
+                    <span class="sidebar-text ml-3">Mis Cultivos</span>
+                </a>
+                {% elif user.role == 'Comprador' %}
+                <a href="{% url 'buyer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span class="sidebar-text ml-3">Dashboard</span>
+                </a>
+                
+                <!-- Opción para convertirse en vendedor - Solo para compradores -->
+                <a href="{% url 'become_seller' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'become_seller' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-store w-5"></i>
+                    <span class="sidebar-text ml-3">¿Quieres ser vendedor?</span>
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'profile' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-user w-5"></i>
+                    <span class="sidebar-text ml-3">Mi Perfil</span>
+                </a>
+            </div>
+            
+            <!-- Funcionalidades Específicas por Rol -->
             {% if user.role == 'Productor' %}
-            <a href="{% url 'producer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_dashboard' %}active{% endif %}">
-                <i class="fas fa-tachometer-alt w-5 mr-3"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                <i class="fas fa-user w-5 mr-3"></i>
-                <span>Perfil</span>
-            </a>
-            <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}active{% endif %}">
-                <i class="fas fa-comments w-5 mr-3"></i>
-                <span>Mensajes</span>
-            </a>
-            <a href="{% url 'crop_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'crop_list' %}active{% endif %}">
-                <i class="fas fa-seedling w-5 mr-3"></i>
-                <span>Cultivos</span>
-            </a>
-            <a href="{% url 'producer_sales' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'producer_sales' %}active{% endif %}">
-                <i class="fas fa-chart-line w-5 mr-3"></i>
-                <span>Ventas</span>
-            </a>
-            {% elif user.role == 'Comprador' %}
-            <a href="{% url 'buyer_dashboard' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'buyer_dashboard' %}active{% endif %}">
-                <i class="fas fa-tachometer-alt w-5 mr-3"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{% url 'profile' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                <i class="fas fa-user w-5 mr-3"></i>
-                <span>Perfil</span>
-            </a>
-            <a href="{% url 'conversation_list' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'conversation_list' %}active{% endif %}">
-                <i class="fas fa-comments w-5 mr-3"></i>
-                <span>Mensajes</span>
-            </a>
-            <a href="{% url 'order_history' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors {% if request.resolver_match.url_name == 'order_history' %}active{% endif %}">
-                <i class="fas fa-shopping-cart w-5 mr-3"></i>
-                <span>Pedidos</span>
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Gestión de Productos</h4>
+                <a href="{% url 'my_publications' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-bullhorn w-5"></i>
+                    <span class="sidebar-text ml-3">Mis Publicaciones</span>
+                </a>
+                <a href="{% url 'producer_sales' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_sales' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="sidebar-text ml-3">Ventas</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Comunicación y Pedidos -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Comunicación</h4>
+                <a href="{% url 'conversation_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-comments w-5"></i>
+                    <span class="sidebar-text ml-3">Mensajes</span>
+                </a>
+                <a href="{% url 'core:notifications_page' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <div class="relative">
+                        <i class="fas fa-bell w-5"></i>
+                        <span id="sidebar-notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-4 min-w-[1rem] px-1 flex items-center justify-center shadow-lg"></span>
+                    </div>
+                    <span class="sidebar-text ml-3">Notificaciones</span>
+                </a>
+            </div>
+            
+            <!-- Pedidos y Compras -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Pedidos</h4>
+                <a href="{% url 'order_history' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span class="sidebar-text ml-3">{% if user.role == 'Productor' %}Mis Compras{% else %}Mis Pedidos{% endif %}</span>
+                </a>
+            </div>
+            
+            <!-- Ayuda y Documentación -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Ayuda</h4>
+                <a href="{% url 'core:documentation' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'documentation' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                    <i class="fas fa-book w-5"></i>
+                    <span class="sidebar-text ml-3">Documentación</span>
+                </a>
+            </div>
+            
+            <!-- Panel de Administración (solo para staff) -->
+            {% if user.is_staff %}
+            <div class="border-t border-primary-700 my-4"></div>
+            <a href="{% url 'admin_dashboard' %}" class="{% if 'admin' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
+                <i class="fas fa-cog"></i>
+                <span class="sidebar-text">Panel Admin</span>
             </a>
             {% endif %}
-            <a href="{% url 'logout' %}" class="flex items-center py-3 px-4 rounded hover:bg-primary-700 transition-colors mt-8">
-                <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                <span>Cerrar Sesión</span>
+            
+            <!-- Divider -->
+            <div class="border-t border-primary-700 my-4"></div>
+            
+            <a href="{% url 'logout' %}" class="text-red-200 hover:text-red-100">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="sidebar-text">Cerrar Sesión</span>
             </a>
         </nav>
     </div>
 
     <!-- Main content -->
-    <div class="flex-1 p-10 overflow-y-auto">
-        {% block user_content %}{% endblock %}
+    <div id="main-content" class="main-content flex-1 transition-all duration-300 ease-in-out">
+        <div class="p-8 lg:p-10">
+            {% block user_content %}{% endblock %}
+        </div>
     </div>
 </div>
-{% endblock %}
+
+<!-- JavaScript mejorado para sidebar state persistence -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('sidebar-toggle-checkbox');
+    
+    // Sincronizar checkbox con el estado actual
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        checkbox.checked = true;
+    }
+    
+    // Manejar cambios del checkbox
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            document.documentElement.classList.add('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'true');
+        } else {
+            document.documentElement.classList.remove('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
+    });
+});
+</script>
+
+<!-- Custom JS -->
+<script src="{% static 'js/main.js' %}"></script>
+
+<!-- Toast Notification System -->
+<script>
+    // Sistema de notificaciones toast
+    window.showToast = function(message, type = 'success', duration = 3000) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        // Crear el elemento toast
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification pointer-events-auto transform transition-all duration-300 ease-out translate-x-96 opacity-0';
+        
+        // Definir colores e iconos según el tipo
+        const types = {
+            success: {
+                bg: 'bg-gradient-to-r from-green-500 to-green-600',
+                icon: 'fa-check-circle',
+                iconBg: 'bg-green-700'
+            },
+            error: {
+                bg: 'bg-gradient-to-r from-red-500 to-red-600',
+                icon: 'fa-times-circle',
+                iconBg: 'bg-red-700'
+            },
+            warning: {
+                bg: 'bg-gradient-to-r from-yellow-500 to-yellow-600',
+                icon: 'fa-exclamation-triangle',
+                iconBg: 'bg-yellow-700'
+            },
+            info: {
+                bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+                icon: 'fa-info-circle',
+                iconBg: 'bg-blue-700'
+            }
+        };
+        
+        const config = types[type] || types.success;
+        
+        toast.innerHTML = `
+            <div class="${config.bg} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 min-w-[320px] max-w-md">
+                <div class="${config.iconBg} rounded-lg p-2 flex items-center justify-center">
+                    <i class="fas ${config.icon} text-lg"></i>
+                </div>
+                <p class="flex-1 font-medium text-sm">${message}</p>
+                <button onclick="this.closest('.toast-notification').remove()" class="hover:bg-white/20 rounded-lg p-1.5 transition-colors">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+        `;
+        
+        // Agregar al contenedor
+        container.appendChild(toast);
+        
+        // Animar entrada
+        setTimeout(() => {
+            toast.classList.remove('translate-x-96', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+        }, 10);
+        
+        // Auto-remover después de la duración
+        setTimeout(() => {
+            toast.classList.remove('translate-x-0', 'opacity-100');
+            toast.classList.add('translate-x-96', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, duration);
+    };
+    
+    // Manejar mensajes de Django
+    {% if messages %}
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                showToast(
+                    '{{ message|escapejs }}',
+                    '{{ message.tags|default:"info" }}'.replace('error', 'error').replace('success', 'success').replace('warning', 'warning').replace('info', 'info'),
+                    4000
+                );
+            {% endfor %}
+        });
+    {% endif %}
+</script>
+
+{% block extra_js %}{% endblock %}
+
+<!-- Floating AI Assistant Bubble -->
+<div id="assistant-bubble" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40">
+    <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
+        <i class="fas fa-robot text-lg md:text-xl"></i>
+    </button>
+    
+    <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-3 md:p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-robot mr-2 md:mr-3 text-sm md:text-base"></i>
+                <span class="font-semibold text-sm md:text-base">Asistente IA</span>
+            </div>
+            <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
+        </div>
+        
+        <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
+        <div id="assistant-messages" class="h-48 md:h-64 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50">
+            <div class="flex items-start space-x-2 md:space-x-3">
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-xs md:text-sm text-gray-800">¡Hola! Soy tu asistente de IA de AgroConnect. ¿En qué puedo ayudarte hoy?</p>
+                </div>
+            </div>
+        </div>
+        
+        <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
+            <input id="assistant-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma..." required>
+            <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                <i class="fas fa-paper-plane text-xs md:text-sm"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Assistant Bubble Logic -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bubble = document.getElementById('assistant-bubble');
+    const panel = document.getElementById('assistant-panel');
+    const toggle = document.getElementById('assistant-toggle');
+    const closeBtn = document.getElementById('assistant-close');
+    const form = document.getElementById('assistant-form');
+    const input = document.getElementById('assistant-input');
+    const messages = document.getElementById('assistant-messages');
+    const aiTitle = document.getElementById('assistant-title');
+    const sendBtn = document.getElementById('assistant-send');
+    
+    let isOpen = false;
+    let conversationId = null;
+    
+    // Toggle panel
+    toggle.addEventListener('click', function() {
+        isOpen = !isOpen;
+        panel.classList.toggle('hidden', !isOpen);
+        if (isOpen) {
+            input.focus();
+        }
+    });
+    
+    // Close panel
+    closeBtn.addEventListener('click', function() {
+        isOpen = false;
+        panel.classList.add('hidden');
+    });
+    
+    // Send message
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        input.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Send to backend
+        fetch('{% url "core:assistant_reply" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTypingIndicator();
+            if (data.success) {
+                addMessage(data.reply, 'assistant');
+            } else {
+                addMessage('Lo siento, hubo un error al procesar tu mensaje.', 'assistant');
+            }
+        })
+        .catch(error => {
+            hideTypingIndicator();
+            addMessage('Lo siento, hubo un error de conexión.', 'assistant');
+        });
+    });
+    
+    function addMessage(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-2 md:space-x-3';
+        
+        if (sender === 'user') {
+            messageDiv.innerHTML = `
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-blue-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-blue-500 text-white rounded-lg p-2 md:p-3 shadow-sm max-w-[85%]">
+                    <p class="text-xs md:text-sm">${content}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+                </div>
+                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-xs md:text-sm text-gray-800">${content}</p>
+                </div>
+            `;
+        }
+        
+        messages.appendChild(messageDiv);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    
+    function showTypingIndicator() {
+        let el = document.getElementById('assistant-typing');
+        if (el) el.remove();
+        
+        el = document.createElement('div');
+        el.className = 'flex items-start space-x-2 md:space-x-3';
+        el.id = 'assistant-typing';
+        el.innerHTML = `
+            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
+            </div>
+            <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+        `;
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    
+    function hideTypingIndicator() {
+        const el = document.getElementById('assistant-typing');
+        if (el) el.remove();
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+// Polling para notificaciones del sidebar
+(function() {
+    let pollingInterval = null;
+    
+    function updateSidebarBadge(count) {
+        const badge = document.getElementById('sidebar-notifications-badge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    
+    function fetchSidebarNotifications() {
+        fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.success) {
+                    const unreadCount = res.notifications.filter(n => !n.is_read).length;
+                    updateSidebarBadge(unreadCount);
+                    console.log('Sidebar notifications polled:', unreadCount, 'unread');
+                }
+            })
+            .catch((error) => {
+                console.log('Sidebar polling error:', error);
+            });
+    }
+    
+    function startSidebarPolling() {
+        if (pollingInterval) return; // Already polling
+        pollingInterval = setInterval(fetchSidebarNotifications, 500); // Poll every 0.5 seconds
+    }
+    
+    function stopSidebarPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+    
+    // Start polling when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSidebarBadge(0);
+        // Fetch notifications immediately
+        fetchSidebarNotifications();
+        // Start polling for notifications
+        startSidebarPolling();
+        console.log('Sidebar notifications polling started');
+    });
+    
+    // Stop polling when page is hidden (performance optimization)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopSidebarPolling();
+        } else {
+            startSidebarPolling();
+        }
+    });
+})();
+</script>
+
+</body>
+</html>

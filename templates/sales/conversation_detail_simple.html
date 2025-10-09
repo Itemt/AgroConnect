@@ -1,0 +1,156 @@
+{% extends 'accounts/user_base.html' %}
+{% load custom_filters %}
+
+{% block title %}Conversación sobre {{ conversation.publication.cultivo.nombre }}{% endblock %}
+
+{% block user_content %}
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow-lg">
+        <div class="px-6 py-6 border-b border-gray-200">
+            {% with other_user=conversation.participants.all|get_other_user:user %}
+            <h1 class="text-2xl font-bold text-gray-900">Conversación con {{ other_user.first_name }} {{ other_user.last_name }}</h1>
+            <p class="text-sm text-gray-600 mt-1">Sobre el producto: <a href="{% url 'publication_detail' conversation.publication.id %}" class="font-semibold text-primary-600 hover:underline">{{ conversation.publication.cultivo.nombre }}</a></p>
+            {% endwith %}
+        </div>
+
+        <div class="p-6 h-96 overflow-y-auto bg-gray-50" id="message-list">
+            <div class="space-y-6" id="messages-container">
+                {% for message in conversation.messages.all %}
+                <div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="max-w-lg px-4 py-3 rounded-xl {% if message.sender == user %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-800{% endif %}">
+                        <p class="text-sm">{{ message.content }}</p>
+                        <small class="block text-xs {% if message.sender == user %}text-primary-200{% else %}text-gray-500{% endif %} mt-1 text-right">{{ message.created_at|date:"d M, P" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="px-6 py-4 bg-white border-t border-gray-200">
+            <form id="message-form" method="post" class="flex items-center">
+                {% csrf_token %}
+                <div class="flex-grow">
+                    <input type="text" id="message-input" name="content" placeholder="Escribe tu mensaje..." 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                           required>
+                </div>
+                <div class="ml-4">
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+                        <i class="fas fa-paper-plane mr-2"></i>Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageList = document.getElementById('message-list');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const messagesContainer = document.getElementById('messages-container');
+    
+    let lastMessageId = {{ conversation.messages.last.id|default:0 }};
+    let isPolling = false;
+    
+    // Función para obtener nuevos mensajes
+    function fetchNewMessages() {
+        if (isPolling) return;
+        isPolling = true;
+        
+        fetch(`/conversation/{{ conversation.id }}/messages/?since=${lastMessageId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(message => {
+                        addMessageToList(message);
+                        lastMessageId = Math.max(lastMessageId, message.id);
+                    });
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
+                isPolling = false;
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+                isPolling = false;
+            });
+    }
+    
+    // Polling cada 0.5 segundos para mensajes más instantáneos
+    setInterval(fetchNewMessages, 500);
+    
+    // Enviar mensaje
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = messageInput.value.trim();
+        if (content) {
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessageToList(data.message);
+                    // Asegurar que el próximo polling no duplique el mensaje propio
+                    lastMessageId = Math.max(lastMessageId, data.message.id);
+                    messageInput.value = '';
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                // Mantener en la misma página si falla
+            });
+        }
+    });
+    
+    function addMessageToList(message) {
+        // Evitar duplicados si ya existe en el DOM
+        if (messagesContainer.querySelector(`[data-message-id="${message.id}"]`)) {
+            return;
+        }
+        const messageDiv = document.createElement('div');
+        const isOwnMessage = message.sender_id === {{ user.id }};
+        
+        messageDiv.className = `flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
+        messageDiv.setAttribute('data-message-id', message.id);
+        messageDiv.innerHTML = `
+            <div class="max-w-lg px-4 py-3 rounded-xl ${isOwnMessage ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-800'}">
+                <p class="text-sm">${escapeHtml(message.content)}</p>
+                <small class="block text-xs ${isOwnMessage ? 'text-primary-200' : 'text-gray-500'} mt-1 text-right">
+                    ${formatDate(message.created_at)}
+                </small>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    // Scroll al final al cargar la página
+    messageList.scrollTop = messageList.scrollHeight;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}Editar Orden - Admin{% endblock %}
+
+{% block user_content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card mb-8">
+        <div class="card-body p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">Editar Orden #{{ order.id }}</h1>
+                <a href="{% url 'admin_order_list' %}" class="text-primary-600 hover:text-primary-800">&larr; Volver</a>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h3 class="font-semibold text-lg mb-4">Información de la Orden</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Producto:</span>
+                        <span class="text-gray-900">{{ order.publicacion.cultivo.nombre }}</span>
+                    </div>
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Comprador:</span>
+                        <span class="text-gray-900">{{ order.comprador.get_full_name }} ({{ order.comprador.username }})</span>
+                    </div>
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Vendedor:</span>
+                        <span class="text-gray-900">{{ order.publicacion.cultivo.productor.get_full_name }} ({{ order.publicacion.cultivo.productor.username }})</span>
+                    </div>
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Cantidad:</span>
+                        <span class="text-gray-900">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</span>
+                    </div>
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Precio Total:</span>
+                        <span class="text-gray-900 font-semibold">${{ order.precio_total|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex">
+                        <span class="font-medium text-gray-600 w-32">Fecha:</span>
+                        <span class="text-gray-900">{{ order.created_at|date:"d M Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
+                        Estado de la Orden
+                    </label>
+                    <select id="estado" name="estado" required
+                            class="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                        {% for value, label in estado_choices %}
+                            <option value="{{ value }}" {% if order.estado == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Selecciona el nuevo estado para esta orden.
+                    </p>
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-4 border-t">
+                    <a href="{% url 'admin_order_list' %}" 
+                       class="btn-outline">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

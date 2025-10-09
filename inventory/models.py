@@ -2,22 +2,20 @@ from django.db import models
 from django.conf import settings
 from core.models import BaseModel
 
-class Product(BaseModel):
-    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Producto")
-    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
-
-    class Meta:
-        verbose_name = "Producto"
-        verbose_name_plural = "Productos"
-
-    def __str__(self):
-        return self.nombre
-
 class Crop(BaseModel):
+    CATEGORIA_CHOICES = (
+        ('hortalizas', 'Hortalizas'),
+        ('frutas', 'Frutas'),
+        ('cereales_granos', 'Cereales y Granos'),
+        ('leguminosas', 'Leguminosas'),
+        ('tuberculos', 'Tubérculos'),
+        ('hierbas_aromaticas', 'Hierbas Aromáticas'),
+        ('otros', 'Otros'),
+    )
     ESTADO_CHOICES = (
         ('sembrado', 'Sembrado'),
         ('en_crecimiento', 'En Crecimiento'),
-        ('listo_cosecha', 'Listo para Cosecha'),
+        ('listo_para_cosechar', 'Listo para Cosecha'),
         ('cosechado', 'Cosechado'),
     )
     
@@ -32,27 +30,40 @@ class Crop(BaseModel):
     )
     
     # Información del producto
-    nombre_producto = models.CharField(max_length=100, verbose_name="Nombre del Producto", 
-                                     help_text="Ej: Tomate, Lechuga, Zanahoria, etc.")
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Cultivo")
+    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default='otros', verbose_name="Categoría")
     
-    # Información del productor
+    # Información del productor y finca
     productor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                related_name='cultivos', verbose_name="Productor")
+                                related_name='cultivos', verbose_name="Productor", null=True)
+    finca = models.ForeignKey('core.Farm', on_delete=models.CASCADE, 
+                             related_name='cultivos', verbose_name="Finca", null=True, blank=True,
+                             help_text="Finca donde se cultiva este producto")
+    
+    # Área ocupada en la finca
+    area_ocupada = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Área Ocupada (hectáreas)",
+        help_text="Área que ocupa este cultivo en la finca"
+    )
     
     # Información de cantidad y medida
-    cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, 
+    cantidad_estimada = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                           verbose_name="Cantidad Estimada")
-    unidad_medida = models.CharField(max_length=20, choices=UNIDAD_CHOICES, 
+    unidad_medida = models.CharField(max_length=20, choices=UNIDAD_CHOICES, default='kg',
                                    verbose_name="Unidad de Medida")
     
     # Estado y fechas
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, 
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='sembrado',
                             verbose_name="Estado del Cultivo")
-    fecha_disponibilidad = models.DateField(verbose_name="Fecha Estimada de Disponibilidad")
-    
+    fecha_disponibilidad = models.DateField(null=True, blank=True, verbose_name="Disponible Desde")
+
+    # imagen = models.ImageField(upload_to='crops/', blank=True, null=True, verbose_name="Imagen del Cultivo")
+
     # Información adicional
-    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales",
-                           help_text="Información adicional sobre el cultivo")
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales")
 
     class Meta:
         verbose_name = "Cultivo"
@@ -60,4 +71,9 @@ class Crop(BaseModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.nombre_producto} - {self.productor.first_name}'
+        return f'{self.cantidad_estimada} {self.unidad_medida} de {self.nombre} - {self.productor.first_name}'
+    
+    @property
+    def publicacion(self):
+        """Retorna la primera publicación activa de este cultivo"""
+        return self.publicaciones.filter(estado='Activa').first()

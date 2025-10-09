@@ -1,0 +1,28 @@
+{% extends 'accounts/user_base.html' %}
+
+{% block title %}Confirm Delete - Admin{% endblock %}
+
+{% block user_content %}
+<div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h1 class="text-xl font-bold text-gray-900">Delete User: {{ user_to_delete.username }}</h1>
+            <p class="mt-2 text-sm text-gray-600">
+                Are you sure you want to permanently delete the user <strong>{{ user_to_delete.username }}</strong>? 
+                This action cannot be undone. All data associated with this user will be removed.
+            </p>
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'admin_user_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

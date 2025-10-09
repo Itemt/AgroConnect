@@ -1,13 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Conversation, Message, Order, Rating, UserProfile
+from .models import Conversation, Message, Order, Rating
 
 # Inlines
 class MessageInline(admin.TabularInline):
     model = Message
-    extra = 0
-    readonly_fields = ('sender', 'created_at')
-    fields = ('sender', 'content', 'created_at')
+    extra = 1
+    readonly_fields = ('sender', 'content', 'created_at')
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('sender')
@@ -15,14 +14,14 @@ class MessageInline(admin.TabularInline):
 # Conversation Admin
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'publication_info', 'participants_list', 'created_at')
-    list_filter = ('created_at', 'publication__cultivo__nombre_producto')
-    search_fields = ('publicacion__cultivo__nombre_producto', 'participants__first_name', 'participants__last_name')
+    list_display = ('id', 'publication', 'created_at')
+    list_filter = ('publication',)
+    search_fields = ('publication__cultivo__nombre',)
     readonly_fields = ('created_at', 'updated_at')
     inlines = [MessageInline]
     
     def publication_info(self, obj):
-        return f"{obj.publication.cultivo.nombre_producto} - {obj.publication.cultivo.productor.first_name}"
+        return f"{obj.publication.cultivo.nombre} - {obj.publication.cultivo.productor.first_name}"
     publication_info.short_description = 'Publicación'
     
     def participants_list(self, obj):
@@ -31,14 +30,14 @@ class ConversationAdmin(admin.ModelAdmin):
     participants_list.short_description = 'Participantes'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publicacion__cultivo__productor').prefetch_related('participants', 'messages')
+        return super().get_queryset(request).select_related('publication__cultivo__productor', 'publication__cultivo').prefetch_related('participants', 'messages')
 
 # Message Admin
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'conversation_info', 'sender', 'content_preview', 'created_at')
-    list_filter = ('created_at', 'sender__role')
-    search_fields = ('content', 'sender__first_name', 'sender__last_name')
+    list_display = ('conversation', 'sender', 'content', 'created_at')
+    list_filter = ('conversation', 'sender')
+    search_fields = ('content',)
     readonly_fields = ('created_at',)
     
     def conversation_info(self, obj):
@@ -55,12 +54,13 @@ class MessageAdmin(admin.ModelAdmin):
 # Order Admin
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'publicacion_info', 'comprador_info', 'cantidad_acordada', 'precio_total', 'estado', 'estado_badge', 'created_at')
-    list_filter = ('estado', 'created_at', 'publicacion__cultivo__nombre_producto')
-    search_fields = ('publicacion__cultivo__nombre_producto', 'comprador__first_name', 'comprador__last_name')
-    readonly_fields = ('created_at', 'updated_at', 'fecha_confirmacion', 'fecha_envio', 'fecha_recepcion')
+    list_display = ('id', 'publicacion', 'comprador', 'estado', 'cantidad_acordada', 'precio_total', 'created_at')
+    list_filter = ('estado', 'comprador')
+    search_fields = ('publicacion__cultivo__nombre', 'comprador__username')
+    readonly_fields = ('precio_total',)
     list_editable = ('estado',)
     date_hierarchy = 'created_at'
+    raw_id_fields = ('publicacion', 'comprador')
     
     fieldsets = (
         ('Información del Pedido', {
@@ -83,7 +83,7 @@ class OrderAdmin(admin.ModelAdmin):
     )
     
     def publicacion_info(self, obj):
-        return f"{obj.publicacion.cultivo.nombre_producto} - {obj.publicacion.cultivo.productor.first_name}"
+        return f"{obj.publicacion.cultivo.nombre} - {obj.publicacion.cultivo.productor.first_name}"
     publicacion_info.short_description = 'Publicación'
     
     def comprador_info(self, obj):
@@ -110,14 +110,14 @@ class OrderAdmin(admin.ModelAdmin):
     estado_badge.short_description = 'Estado Visual'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'comprador')
+        return super().get_queryset(request).select_related('publicacion__cultivo__productor', 'publicacion__cultivo', 'comprador')
 
 # Rating Admin
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'pedido_info', 'calificador', 'calificado', 'calificacion_general', 'promedio_display', 'recomendaria', 'created_at')
-    list_filter = ('calificacion_general', 'recomendaria', 'tipo', 'created_at')
-    search_fields = ('calificador__first_name', 'calificado__first_name', 'comentario')
+    list_display = ('pedido', 'calificador', 'calificado', 'calificacion_general', 'created_at')
+    list_filter = ('calificacion_general', 'calificador', 'calificado')
+    search_fields = ('comentario', 'calificador__username', 'calificado__username')
     readonly_fields = ('created_at', 'updated_at', 'promedio_calificacion')
     
     fieldsets = (
@@ -137,7 +137,7 @@ class RatingAdmin(admin.ModelAdmin):
     )
     
     def pedido_info(self, obj):
-        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.nombre_producto}"
+        return f"Pedido #{obj.pedido.id} - {obj.pedido.publicacion.cultivo.nombre}"
     pedido_info.short_description = 'Pedido'
     
     def promedio_display(self, obj):
@@ -145,47 +145,7 @@ class RatingAdmin(admin.ModelAdmin):
     promedio_display.short_description = 'Promedio'
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('pedido__publicacion__cultivo', 'calificador', 'calificado')
-
-# UserProfile Admin
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'user_role', 'total_ventas', 'total_compras', 'calificacion_vendedor_display', 'calificacion_comprador_display')
-    list_filter = ('user__role', 'calificacion_promedio_como_vendedor', 'calificacion_promedio_como_comprador')
-    search_fields = ('user__first_name', 'user__last_name', 'user__email')
-    readonly_fields = ('created_at', 'updated_at')
-    
-    fieldsets = (
-        ('Usuario', {
-            'fields': ('user',)
-        }),
-        ('Estadísticas de Ventas', {
-            'fields': ('total_ventas', 'ingresos_totales', 'calificacion_promedio_como_vendedor', 'total_calificaciones_como_vendedor', 'fecha_primera_venta')
-        }),
-        ('Estadísticas de Compras', {
-            'fields': ('total_compras', 'gastos_totales', 'calificacion_promedio_como_comprador', 'total_calificaciones_como_comprador', 'fecha_primera_compra')
-        }),
-        ('Fechas', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    def user_role(self, obj):
-        return obj.user.role
-    user_role.short_description = 'Rol'
-    
-    def calificacion_vendedor_display(self, obj):
-        if obj.calificacion_promedio_como_vendedor > 0:
-            return f"⭐ {obj.calificacion_promedio_como_vendedor:.1f} ({obj.total_calificaciones_como_vendedor})"
-        return "Sin calificar"
-    calificacion_vendedor_display.short_description = 'Calificación Vendedor'
-    
-    def calificacion_comprador_display(self, obj):
-        if obj.calificacion_promedio_como_comprador > 0:
-            return f"⭐ {obj.calificacion_promedio_como_comprador:.1f} ({obj.total_calificaciones_como_comprador})"
-        return "Sin calificar"
-    calificacion_comprador_display.short_description = 'Calificación Comprador'
+        return super().get_queryset(request).select_related('pedido__publicacion__cultivo__productor', 'pedido__publicacion__cultivo', 'calificador', 'calificado')
 
 # Acciones personalizadas para Order
 @admin.action(description='Confirmar pedidos seleccionados')

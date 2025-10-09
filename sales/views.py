@@ -5,9 +5,14 @@ from django.db.models import Q, Sum, Avg, Count
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Conversation, Message, Order, Rating, UserProfile
+from .models import Conversation, Message, Order, Rating
 from marketplace.models import Publication
 from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderConfirmReceiptForm, OrderSearchForm
+from accounts.models import ProducerProfile, BuyerProfile
+from django.views.decorators.http import require_POST
+from cart.models import Cart
+from core.models import create_notification
+from core.models import Notification
 
 # Create your views here.
 
@@ -15,8 +20,9 @@ from .forms import MessageForm, OrderForm, OrderUpdateForm, RatingForm, OrderCon
 def create_order_view(request, publication_id):
     publication = get_object_or_404(Publication, pk=publication_id)
 
-    if request.user.role != 'Comprador' or request.user == publication.cultivo.productor:
-        # Redirigir si no es un comprador o si es el dueño de la publicación
+    if request.user == publication.cultivo.productor:
+        # Redirigir si es el dueño de la publicación (no puede comprarse a sí mismo)
+        messages.error(request, 'No puedes comprar tu propio producto.')
         return redirect('publication_detail', publication_id=publication.id)
 
     if request.method == 'POST':
@@ -38,9 +44,17 @@ def create_order_view(request, publication_id):
                 publication.cantidad_disponible -= order.cantidad_acordada
                 publication.save()
                 
-                order.save()
-                messages.success(request, 'Pedido creado exitosamente. El vendedor será notificado.')
-                return redirect('order_detail', order_id=order.id)
+            order.save()
+            # Notificar al vendedor que hay un nuevo pedido
+            create_notification(
+                recipient=publication.cultivo.productor,
+                title='Nuevo pedido recibido',
+                message=f'El comprador {request.user.first_name} ha creado el pedido #{order.id} de {order.cantidad_acordada} unidades.',
+                category='order',
+                order_id=order.id,
+            )
+            messages.success(request, 'Pedido creado exitosamente. El vendedor será notificado.')
+            return redirect('order_detail', order_id=order.id)
     else:
         form = OrderForm()
 
@@ -59,7 +73,8 @@ def order_history_view(request):
     if request.user.role == 'Comprador':
         orders = Order.objects.filter(comprador=request.user)
     elif request.user.role == 'Productor':
-        orders = Order.objects.filter(publicacion__cultivo__productor=request.user)
+        # Los productores también pueden ser compradores, mostrar sus compras
+        orders = Order.objects.filter(comprador=request.user)
     else:
         orders = Order.objects.none()
 
@@ -121,34 +136,175 @@ def order_detail_view(request, order_id):
         messages.error(request, 'No tienes acceso a este pedido.')
         return redirect('order_history')
     
-    # Verificar si el pedido puede ser calificado
-    can_rate = order.can_be_rated() and request.user == order.comprador
-    existing_rating = None
+    # Obtener calificaciones existentes
+    rating_from_buyer = order.calificaciones.filter(tipo='comprador_a_vendedor').first()
+    rating_from_seller = order.calificaciones.filter(tipo='vendedor_a_comprador').first()
     
-    if hasattr(order, 'calificacion'):
-        existing_rating = order.calificacion
+    # Obtener la calificación del usuario actual si existe (para editar)
+    my_rating = None
+    if request.user == order.vendedor:
+        my_rating = rating_from_seller
+    elif request.user == order.comprador:
+        my_rating = rating_from_buyer
     
     # Agregar acciones disponibles
     order.available_actions = order.get_available_actions_for_user(request.user)
     
+    # Importar settings para verificar modo test
+    from django.conf import settings
+    
+    # Obtener el payment asociado al order
+    payment = None
+    try:
+        payment = order.payment
+    except:
+        pass
+    
     context = {
         'order': order,
-        'can_rate': can_rate,
-        'existing_rating': existing_rating,
-        'user_role': request.user.role
+        'payment': payment,
+        'rating_from_buyer': rating_from_buyer,
+        'rating_from_seller': rating_from_seller,
+        'my_rating': my_rating,
+        'user_role': request.user.role,
     }
     return render(request, 'sales/order_detail.html', context)
 
 
 @login_required
+def quick_update_order_status_view(request, order_id):
+    """Vista para actualización rápida de estado (inline desde el historial)"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Solo el vendedor puede actualizar el estado
+    if request.user != order.vendedor:
+        messages.error(request, 'No tienes permisos para actualizar este pedido.')
+        return redirect('producer_sales')
+    
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        
+        # Si el nuevo estado es 'enviado', redirigir a la página especial
+        if nuevo_estado == 'enviado':
+            # Si es una petición AJAX, devolver JSON con redirección
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect': f'/order/{order.id}/mark-shipped/',
+                    'message': 'Redirigiendo a página de envío...'
+                })
+            else:
+                return redirect('mark_order_shipped', order_id=order.id)
+        
+        # Validar que el estado es válido y el vendedor puede cambiarlo
+        estados_validos = {
+            'pendiente': ['confirmado', 'cancelado'],
+            'confirmado': ['en_preparacion', 'cancelado'],
+            'en_preparacion': [],  # enviado debe ir por la página especial
+            'enviado': ['en_transito'],
+            'en_transito': [],
+        }
+        
+        if nuevo_estado in estados_validos.get(order.estado, []):
+            order.estado = nuevo_estado
+            
+            # Actualizar fechas según el estado
+            if nuevo_estado == 'confirmado' and not order.fecha_confirmacion:
+                order.fecha_confirmacion = timezone.now()
+            
+            order.save()
+            # Notificar al comprador sobre el cambio de estado
+            create_notification(
+                recipient=order.comprador,
+                title='Estado de pedido actualizado',
+                message=f'Tu pedido #{order.id} ahora está: {order.get_estado_display()}.',
+                category='order',
+                order_id=order.id,
+            )
+            return JsonResponse({
+                'success': True,
+                'message': f'Estado actualizado a: {order.get_estado_display()}',
+                'new_status': order.estado,
+                'new_status_display': order.get_estado_display()
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Estado no válido para esta transición.'
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Método no permitido.'
+    })
+
+
+@login_required
+def mark_order_shipped_view(request, order_id):
+    """Vista especial para marcar pedido como enviado con notas y fecha de entrega"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Solo el vendedor puede marcar como enviado
+    if request.user != order.vendedor:
+        messages.error(request, 'No tienes permisos para actualizar este pedido.')
+        return redirect('producer_sales')
+    
+    # Verificar que el pedido puede ser marcado como enviado
+    if order.estado not in ['confirmado', 'en_preparacion']:
+        messages.error(request, 'Este pedido no puede ser marcado como enviado en su estado actual.')
+        return redirect('producer_sales')
+    
+    if request.method == 'POST':
+        from .forms import OrderShipmentForm
+        form = OrderShipmentForm(request.POST)
+        if form.is_valid():
+            # Cambiar automáticamente a 'en_transito' después de enviado
+            order.estado = 'en_transito'
+            order.fecha_envio = timezone.now()
+            
+            # Agregar notas del vendedor si existen
+            notas = form.cleaned_data.get('notas_vendedor')
+            if notas:
+                if order.notas_vendedor:
+                    order.notas_vendedor += f"\n\n[Envío] {notas}"
+                else:
+                    order.notas_vendedor = f"[Envío] {notas}"
+            
+            order.save()
+            # Notificar al comprador que el pedido está en tránsito
+            create_notification(
+                recipient=order.comprador,
+                title='Pedido en tránsito',
+                message=f'Tu pedido #{order.id} está en tránsito. Debería llegar en 3-5 días hábiles.',
+                category='order',
+                order_id=order.id,
+            )
+            messages.success(request, 'Pedido marcado como enviado exitosamente.')
+            return redirect('producer_sales')
+    else:
+        from .forms import OrderShipmentForm
+        form = OrderShipmentForm()
+    
+    context = {
+        'form': form,
+        'order': order
+    }
+    return render(request, 'sales/mark_shipped.html', context)
+
+
+@login_required
 def update_order_status_view(request, order_id):
-    """Vista para que el vendedor actualice el estado del pedido"""
+    """Vista para que el vendedor actualice el estado del pedido (legacy - mantener para compatibilidad)"""
     order = get_object_or_404(Order, pk=order_id)
     
     # Solo el vendedor puede actualizar el estado
     if request.user != order.vendedor:
         messages.error(request, 'No tienes permisos para actualizar este pedido.')
         return redirect('order_detail', order_id=order.id)
+    
+    # Si el estado actual permite marcar como enviado, redirigir a la vista especial
+    if order.estado in ['confirmado', 'en_preparacion']:
+        return redirect('mark_order_shipped', order_id=order.id)
     
     if request.method == 'POST':
         form = OrderUpdateForm(request.POST, instance=order, user=request.user)
@@ -162,6 +318,14 @@ def update_order_status_view(request, order_id):
                 updated_order.fecha_envio = timezone.now()
             
             updated_order.save()
+            # Notificar al comprador sobre el cambio de estado
+            create_notification(
+                recipient=updated_order.comprador,
+                title='Estado de pedido actualizado',
+                message=f'Tu pedido #{updated_order.id} ahora está: {updated_order.get_estado_display()}.',
+                category='order',
+                order_id=updated_order.id,
+            )
             messages.success(request, 'Estado del pedido actualizado exitosamente.')
             return redirect('order_detail', order_id=order.id)
     else:
@@ -176,7 +340,7 @@ def update_order_status_view(request, order_id):
 
 @login_required
 def confirm_order_receipt_view(request, order_id):
-    """Vista para que el comprador confirme la recepción del pedido"""
+    """Vista unificada para confirmar recepción y calificar el pedido"""
     order = get_object_or_404(Order, pk=order_id)
     
     # Solo el comprador puede confirmar la recepción
@@ -190,13 +354,16 @@ def confirm_order_receipt_view(request, order_id):
         return redirect('order_detail', order_id=order.id)
     
     if request.method == 'POST':
-        form = OrderConfirmReceiptForm(request.POST)
-        if form.is_valid():
+        receipt_form = OrderConfirmReceiptForm(request.POST)
+        rating_form = RatingForm(request.POST)
+        
+        if receipt_form.is_valid() and rating_form.is_valid():
+            # Confirmar recepción
             order.estado = 'completado'
             order.fecha_recepcion = timezone.now()
             
             # Agregar notas de recepción si las hay
-            notas_recepcion = form.cleaned_data.get('notas_recepcion')
+            notas_recepcion = receipt_form.cleaned_data.get('notas_recepcion')
             if notas_recepcion:
                 if order.notas_comprador:
                     order.notas_comprador += f"\n\nNotas de recepción: {notas_recepcion}"
@@ -204,66 +371,137 @@ def confirm_order_receipt_view(request, order_id):
                     order.notas_comprador = f"Notas de recepción: {notas_recepcion}"
             
             order.save()
+            # Notificar al vendedor que el comprador confirmó recepción y calificó
+            create_notification(
+                recipient=order.vendedor,
+                title='Pedido completado',
+                message=f'El comprador confirmó la recepción y calificó el pedido #{order.id}.',
+                category='order',
+                order_id=order.id,
+            )
             
-            # Actualizar estadísticas del vendedor
-            from sales.models import UserProfile
-            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
-            profile.actualizar_estadisticas_vendedor()
-            
-            messages.success(request, 'Pedido confirmado como completado. Ahora puedes calificar al vendedor.')
-            return redirect('rate_order', order_id=order.id)
-    else:
-        form = OrderConfirmReceiptForm()
-    
-    context = {
-        'form': form,
-        'order': order
-    }
-    return render(request, 'sales/confirm_receipt.html', context)
-
-
-@login_required
-def rate_order_view(request, order_id):
-    """Vista para calificar un pedido"""
-    order = get_object_or_404(Order, pk=order_id)
-    
-    # Verificar que el usuario puede calificar este pedido
-    if not order.can_be_rated() or request.user != order.comprador:
-        messages.error(request, 'No puedes calificar este pedido.')
-        return redirect('order_detail', order_id=order.id)
-    
-    if request.method == 'POST':
-        form = RatingForm(request.POST)
-        if form.is_valid():
-            rating = form.save(commit=False)
+            # Crear calificación
+            rating = rating_form.save(commit=False)
             rating.pedido = order
             rating.calificador = request.user
             rating.calificado = order.vendedor
             rating.tipo = 'comprador_a_vendedor'
             rating.save()
             
-            # Marcar el pedido como completado
-            order.estado = 'completado'
-            order.save()
-            
-            # Actualizar estadísticas del vendedor
-            profile, created = UserProfile.objects.get_or_create(user=order.vendedor)
-            profile.actualizar_estadisticas_vendedor()
-            
-            # Actualizar estadísticas del comprador
-            buyer_profile, created = UserProfile.objects.get_or_create(user=request.user)
-            buyer_profile.actualizar_estadisticas_comprador()
-            
-            messages.success(request, 'Calificación enviada exitosamente. ¡Gracias por tu feedback!')
+            messages.success(request, '¡Pedido confirmado y calificación enviada exitosamente!')
             return redirect('order_detail', order_id=order.id)
     else:
-        form = RatingForm()
+        receipt_form = OrderConfirmReceiptForm()
+        rating_form = RatingForm()
     
     context = {
-        'form': form,
+        'receipt_form': receipt_form,
+        'rating_form': rating_form,
         'order': order
     }
-    return render(request, 'sales/rate_order.html', context)
+    return render(request, 'sales/confirm_receipt.html', context)
+
+
+@login_required
+def rate_seller_view(request, order_id):
+    """Vista para que el comprador califique/edite calificación al vendedor (desde modal)"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario es el comprador
+    if request.user != order.comprador:
+        messages.error(request, 'No tienes permisos para calificar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Verificar que el pedido está completado
+    if order.estado != 'completado':
+        messages.error(request, 'El pedido debe estar completado para poder calificar.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        # Buscar si ya existe una calificación
+        existing_rating = order.calificaciones.filter(
+            calificador=request.user,
+            tipo='comprador_a_vendedor'
+        ).first()
+        
+        if existing_rating:
+            # Editar calificación existente
+            rating = existing_rating
+            action_text = 'actualizada'
+        else:
+            # Crear nueva calificación
+            rating = Rating()
+            rating.pedido = order
+            rating.calificador = request.user
+            rating.calificado = order.vendedor
+            rating.tipo = 'comprador_a_vendedor'
+            action_text = 'enviada'
+        
+        # Actualizar campos
+        rating.calificacion_general = int(request.POST.get('calificacion_general', 0))
+        rating.calificacion_comunicacion = int(request.POST.get('calificacion_comunicacion', 0))
+        rating.calificacion_puntualidad = int(request.POST.get('calificacion_puntualidad', 0))
+        rating.calificacion_calidad = int(request.POST.get('calificacion_calidad', 0))
+        rating.comentario = request.POST.get('comentario', '')
+        rating.recomendaria = request.POST.get('recomendaria') == 'true'
+        rating.save()
+        
+        messages.success(request, f'¡Calificación {action_text} exitosamente!')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Si no es POST, redirigir al detalle del pedido
+    return redirect('order_detail', order_id=order.id)
+
+
+@login_required
+def rate_buyer_view(request, order_id):
+    """Vista para que el vendedor califique/edite calificación al comprador (desde modal)"""
+    order = get_object_or_404(Order, pk=order_id)
+    
+    # Verificar que el usuario es el vendedor
+    if request.user != order.vendedor:
+        messages.error(request, 'No tienes permisos para calificar este pedido.')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Verificar que el pedido está completado
+    if order.estado != 'completado':
+        messages.error(request, 'El pedido debe estar completado para poder calificar.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        # Buscar si ya existe una calificación
+        existing_rating = order.calificaciones.filter(
+            calificador=request.user,
+            tipo='vendedor_a_comprador'
+        ).first()
+        
+        if existing_rating:
+            # Editar calificación existente
+            rating = existing_rating
+            action_text = 'actualizada'
+        else:
+            # Crear nueva calificación
+            rating = Rating()
+            rating.pedido = order
+            rating.calificador = request.user
+            rating.calificado = order.comprador
+            rating.tipo = 'vendedor_a_comprador'
+            action_text = 'enviada'
+        
+        # Actualizar campos
+        rating.calificacion_general = int(request.POST.get('calificacion_general', 0))
+        rating.calificacion_comunicacion = int(request.POST.get('calificacion_comunicacion', 0))
+        rating.calificacion_puntualidad = int(request.POST.get('calificacion_puntualidad', 0))
+        rating.calificacion_calidad = int(request.POST.get('calificacion_calidad', 0))
+        rating.comentario = request.POST.get('comentario', '')
+        rating.recomendaria = request.POST.get('recomendaria') == 'true'
+        rating.save()
+        
+        messages.success(request, f'¡Calificación {action_text} exitosamente!')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Si no es POST, redirigir al detalle del pedido
+    return redirect('order_detail', order_id=order.id)
 
 
 @login_required
@@ -296,6 +534,42 @@ def conversation_list(request):
     }
     return render(request, 'sales/conversation_list.html', context)
 
+
+@login_required
+def conversations_list_api(request):
+    """JSON con últimas conversaciones del usuario para mini chat en el asistente."""
+    if request.method != 'GET':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
+    from datetime import timedelta
+    cutoff = timezone.now() - timedelta(days=15)
+    conversations = (
+        request.user.conversations
+        .filter(updated_at__gte=cutoff)
+        .prefetch_related('participants', 'messages__sender')
+        .order_by('-updated_at')[:20]
+    )
+
+    def other(uqs):
+        for u in uqs:
+            if u.id != request.user.id:
+                return u
+        return request.user
+
+    data = []
+    for c in conversations:
+        last_msg = c.messages.last()
+        ou = other(c.participants.all())
+        data.append({
+            'id': c.id,
+            'other_user': ou.get_full_name() or ou.username,
+            'last_message': (last_msg.content if last_msg else ''),
+            'updated_at': (c.updated_at.isoformat() if hasattr(c, 'updated_at') and c.updated_at else ''),
+        })
+
+    archived_count = request.user.conversations.filter(updated_at__lt=cutoff).count()
+    return JsonResponse({'success': True, 'conversations': data, 'archived_count': archived_count})
+
 @login_required
 def conversation_detail(request, conversation_id):
     conversation = get_object_or_404(Conversation.objects.prefetch_related('messages__sender'), pk=conversation_id)
@@ -311,6 +585,22 @@ def conversation_detail(request, conversation_id):
             message.conversation = conversation
             message.sender = request.user
             message.save()
+            
+            # Si es una petición AJAX, devolver JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True,
+                    'message': {
+                        'id': message.id,
+                        'sender_id': message.sender.id,
+                        'sender_name': message.sender.get_full_name() or message.sender.username,
+                        'content': message.content,
+                        'created_at': message.created_at.isoformat(),
+                    },
+                    'archived': False
+                })
+            
             return redirect('conversation_detail', conversation_id=conversation.id)
     else:
         form = MessageForm()
@@ -321,6 +611,85 @@ def conversation_detail(request, conversation_id):
     }
     return render(request, 'sales/conversation_detail.html', context)
 
+
+@login_required
+def conversation_detail_simple(request, conversation_id):
+    """Vista simple con polling - NO necesita WebSockets ni Redis"""
+    conversation = get_object_or_404(Conversation.objects.prefetch_related('messages__sender'), pk=conversation_id)
+    
+    # Asegurarse que el usuario es parte de la conversación
+    if request.user not in conversation.participants.all():
+        return redirect('conversation_list')
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.conversation = conversation
+            message.sender = request.user
+            message.save()
+            
+            # Si es una petición AJAX, devolver JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True,
+                    'message': {
+                        'id': message.id,
+                        'sender_id': message.sender.id,
+                        'sender_name': message.sender.get_full_name() or message.sender.username,
+                        'content': message.content,
+                        'created_at': message.created_at.isoformat(),
+                    },
+                    'archived': False
+                })
+            
+            return redirect('conversation_detail', conversation_id=conversation.id)
+    else:
+        form = MessageForm()
+
+    context = {
+        'conversation': conversation,
+        'form': form
+    }
+    return render(request, 'sales/conversation_detail_simple.html', context)
+
+
+@login_required
+def get_new_messages(request, conversation_id):
+    """API endpoint para obtener nuevos mensajes (polling)"""
+    conversation = get_object_or_404(Conversation, pk=conversation_id)
+    
+    # Verificar que el usuario es parte de la conversación
+    if request.user not in conversation.participants.all():
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    since_id = request.GET.get('since', 0)
+    try:
+        since_id = int(since_id)
+    except ValueError:
+        since_id = 0
+    
+    # Obtener mensajes nuevos
+    new_messages = conversation.messages.filter(id__gt=since_id).order_by('created_at')
+    
+    messages_data = []
+    for message in new_messages:
+        messages_data.append({
+            'id': message.id,
+            'sender_id': message.sender.id,
+            'sender_name': message.sender.get_full_name() or message.sender.username,
+            'content': message.content,
+            'created_at': message.created_at.isoformat(),
+        })
+    
+    from django.http import JsonResponse
+    return JsonResponse({
+        'messages': messages_data,
+        'count': len(messages_data)
+    })
+
 @login_required
 def buyer_dashboard(request):
     """Dashboard mejorado para compradores"""
@@ -328,10 +697,8 @@ def buyer_dashboard(request):
         messages.error(request, 'Acceso denegado. Solo para compradores.')
         return redirect('index')
     
-    # Obtener o crear perfil de estadísticas
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    if not created:
-        profile.actualizar_estadisticas_comprador()
+    # Obtener o crear perfil de comprador
+    profile, created = BuyerProfile.objects.get_or_create(user=request.user)
     
     # Estadísticas del comprador
     total_orders = request.user.pedidos_como_comprador.count()
@@ -353,8 +720,11 @@ def buyer_dashboard(request):
     
     # Calificaciones pendientes
     orders_to_rate = request.user.pedidos_como_comprador.filter(
-        estado='recibido'
-    ).exclude(calificacion__isnull=False).count()
+        estado='completado'
+    ).exclude(
+        calificaciones__calificador=request.user,
+        calificaciones__tipo='comprador_a_vendedor'
+    ).count()
     
     context = {
         'total_orders': total_orders,
@@ -366,6 +736,7 @@ def buyer_dashboard(request):
         'recent_orders': recent_orders,
         'active_conversations': active_conversations,
         'profile': profile,
+        'recent_notifications': Notification.objects.filter(recipient=request.user).order_by('-created_at')[:10],
     }
     return render(request, 'sales/buyer_dashboard.html', context)
 
@@ -376,13 +747,14 @@ def user_profile_view(request, user_id):
     from accounts.models import User
     
     user = get_object_or_404(User, pk=user_id)
-    profile, created = UserProfile.objects.get_or_create(user=user)
     
-    # Actualizar estadísticas
     if user.role == 'Productor':
-        profile.actualizar_estadisticas_vendedor()
-    profile.actualizar_estadisticas_comprador()
-    
+        profile, created = ProducerProfile.objects.get_or_create(user=user)
+    elif user.role == 'Comprador':
+        profile, created = BuyerProfile.objects.get_or_create(user=user)
+    else:
+        profile = None
+
     # Obtener calificaciones recientes
     recent_ratings_received = Rating.objects.filter(
         calificado=user
@@ -449,25 +821,25 @@ def cancel_order_view(request, order_id):
 def rankings_view(request):
     """Vista de rankings de usuarios"""
     # Top vendedores
-    top_sellers = UserProfile.objects.filter(
+    top_sellers = ProducerProfile.objects.filter(
         user__role='Productor',
         total_ventas__gt=0
     ).select_related('user').order_by(
-        '-calificacion_promedio_como_vendedor',
+        '-calificacion_promedio',
         '-total_ventas'
     )[:10]
     
     # Top compradores
-    top_buyers = UserProfile.objects.filter(
+    top_buyers = BuyerProfile.objects.filter(
         user__role='Comprador',
         total_compras__gt=0
     ).select_related('user').order_by(
-        '-calificacion_promedio_como_comprador',
+        '-gastos_totales', # Ordenar por gastos puede ser más relevante
         '-total_compras'
     )[:10]
     
     # Vendedores más activos
-    most_active_sellers = UserProfile.objects.filter(
+    most_active_sellers = ProducerProfile.objects.filter(
         user__role='Productor'
     ).select_related('user').order_by('-total_ventas')[:10]
     
@@ -477,3 +849,137 @@ def rankings_view(request):
         'most_active_sellers': most_active_sellers,
     }
     return render(request, 'sales/rankings.html', context)
+
+@login_required
+@require_POST
+def create_order_from_cart(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart_items = cart.items.all()
+
+    if not cart_items:
+        messages.error(request, "Tu carrito está vacío.")
+        return redirect('cart:cart_detail')
+
+    created_orders = []
+    
+    for item in cart_items:
+        publication = item.publication
+        if item.quantity > publication.cantidad_disponible:
+            messages.error(request, f"La cantidad para {publication.cultivo.nombre} excede el stock disponible.")
+            return redirect('cart:cart_detail')
+
+        order = Order.objects.create(
+            publicacion=publication,
+            comprador=request.user,
+            cantidad_acordada=item.quantity,
+            precio_total=item.get_item_price,
+            estado='pendiente'
+        )
+        publication.cantidad_disponible -= item.quantity
+        publication.save()
+        created_orders.append(order)
+        # Notificar al vendedor sobre pedidos creados desde carrito
+        create_notification(
+            recipient=publication.cultivo.productor,
+            title='Nuevo pedido recibido',
+            message=f'Pedido #{order.id} creado por {request.user.first_name} desde el carrito.',
+            category='order',
+            order_id=order.id,
+        )
+
+    cart_items.delete()
+    
+    # Guardar los IDs de los pedidos en la sesión para mostrarlos
+    request.session['pending_payment_orders'] = [order.id for order in created_orders]
+    
+    messages.success(request, f"Se han creado {len(created_orders)} pedido(s) exitosamente. Ahora puedes proceder con el pago.")
+    return redirect('cart_checkout_summary')
+
+
+@login_required
+def cart_checkout_summary(request):
+    """Vista de resumen después de crear pedidos desde el carrito"""
+    from django.conf import settings
+    from payments.mercadopago_service import MercadoPagoService
+    from payments.models import Payment
+    
+    order_ids = request.session.get('pending_payment_orders', [])
+    
+    print(f"=== DEBUG CART CHECKOUT ===")
+    print(f"Order IDs from session: {order_ids}")
+    print(f"User: {request.user}")
+    print("===========================")
+    
+    if not order_ids:
+        messages.info(request, 'No hay pedidos pendientes de pago.')
+        return redirect('order_history')
+    
+    orders = Order.objects.filter(
+        id__in=order_ids,
+        comprador=request.user,
+        estado='pendiente'
+    ).select_related('publicacion__cultivo__productor')
+    
+    print(f"Orders found: {orders.count()}")
+    for order in orders:
+        print(f"Order {order.id}: {order.publicacion.cultivo.nombre} - ${order.precio_total}")
+    
+    # Calcular total
+    total = sum(order.precio_total for order in orders)
+    
+    # Crear datos de checkout para cada pedido
+    mercadopago_service = MercadoPagoService()
+    orders_with_checkout = []
+    
+    for order in orders:
+        # Crear o obtener pago
+        payment, created = Payment.objects.get_or_create(
+            order=order,
+            user=request.user,
+            defaults={
+                'amount': order.precio_total,
+                'currency': 'COP',
+                'payment_method': 'pse',
+                'description': f"Pago orden #{order.id}",
+                'status': 'pending'
+            }
+        )
+        
+        # Crear preferencia de MercadoPago
+        preference_result = mercadopago_service.create_preference(order, request.user)
+        
+        print(f"=== DEBUG PREFERENCE RESULT ===")
+        print(f"Order ID: {order.id}")
+        print(f"Success: {preference_result.get('success', False)}")
+        print(f"Error: {preference_result.get('error', 'No error')}")
+        print("================================")
+        
+        if preference_result['success']:
+            payment.mercadopago_id = preference_result['preference_id']
+            payment.preference_id = preference_result['preference_id']
+            payment.external_reference = preference_result['reference']
+            payment.save()
+            
+            orders_with_checkout.append({
+                'order': order,
+                'payment': payment,
+                'preference_data': preference_result
+            })
+        else:
+            # Agregar el pedido aunque falle la preferencia para mostrar el error
+            orders_with_checkout.append({
+                'order': order,
+                'payment': payment,
+                'preference_data': preference_result,
+                'error': preference_result.get('error', 'Error desconocido')
+            })
+    
+    # Limpiar sesión después de obtener los pedidos
+    if 'pending_payment_orders' in request.session:
+        del request.session['pending_payment_orders']
+    
+    context = {
+        'orders_with_checkout': orders_with_checkout,
+        'total': total,
+    }
+    return render(request, 'sales/cart_checkout_summary.html', context)

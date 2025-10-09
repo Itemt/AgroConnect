@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count, Q
-from .models import Crop, Product
+from .models import Crop
 from .forms import CropForm
 from marketplace.models import Publication
 from sales.models import Order
@@ -16,30 +16,50 @@ def producer_dashboard(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    # Estadísticas del productor
+    # Estadísticas de producción/ventas
     total_crops = request.user.cultivos.count()
-    active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='disponible').count()
-    total_orders = Order.objects.filter(publicacion__cultivo__productor=request.user).count()
-    total_revenue = Order.objects.filter(
-        publicacion__cultivo__productor=request.user,
-        estado='entregado'
-    ).aggregate(total=Sum('precio_total'))['total'] or 0
+    active_publications = Publication.objects.filter(cultivo__productor=request.user, estado='Activa').count()
+    
+    # Estadísticas de VENTAS (donde soy el vendedor)
+    sales_orders = Order.objects.filter(publicacion__cultivo__productor=request.user)
+    total_sales = sales_orders.count()
+    total_revenue = sales_orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
+    pending_sales = sales_orders.filter(estado='pendiente').count()
+    
+    # Estadísticas de COMPRAS (donde soy el comprador)
+    purchase_orders = Order.objects.filter(comprador=request.user)
+    total_purchases = purchase_orders.count()
+    total_spent = purchase_orders.filter(estado='entregado').aggregate(total=Sum('precio_total'))['total'] or 0
+    pending_purchases = purchase_orders.filter(estado='pendiente').count()
     
     # Cultivos recientes
     recent_crops = request.user.cultivos.order_by('-created_at')[:5]
     
-    # Pedidos recientes
-    recent_orders = Order.objects.filter(
-        publicacion__cultivo__productor=request.user
-    ).select_related('publicacion__cultivo', 'comprador').order_by('-created_at')[:5]
+    # Pedidos recientes de VENTAS
+    recent_sales = sales_orders.select_related('publicacion__cultivo', 'comprador').order_by('-created_at')[:5]
+    
+    # Pedidos recientes de COMPRAS
+    recent_purchases = purchase_orders.select_related('publicacion__cultivo__productor', 'publicacion__cultivo').order_by('-created_at')[:5]
     
     context = {
+        # Producción
         'total_crops': total_crops,
         'active_publications': active_publications,
-        'total_orders': total_orders,
+        
+        # Ventas
+        'total_sales': total_sales,
         'total_revenue': total_revenue,
+        'pending_sales': pending_sales,
+        'recent_sales': recent_sales,
+        
+        # Compras
+        'total_purchases': total_purchases,
+        'total_spent': total_spent,
+        'pending_purchases': pending_purchases,
+        'recent_purchases': recent_purchases,
+        
+        # Otros
         'recent_crops': recent_crops,
-        'recent_orders': recent_orders,
     }
     return render(request, 'inventory/producer_dashboard.html', context)
 
@@ -58,6 +78,16 @@ def crop_list_view(request):
     return render(request, 'inventory/crop_list.html', context)
 
 @login_required
+def crop_detail_view(request, pk):
+    """Ver detalles del cultivo"""
+    crop = get_object_or_404(Crop, pk=pk, productor=request.user)
+    
+    context = {
+        'crop': crop
+    }
+    return render(request, 'inventory/crop_detail.html', context)
+
+@login_required
 def crop_create_view(request):
     """Crear nuevo cultivo"""
     if request.user.role != 'Productor':
@@ -65,7 +95,7 @@ def crop_create_view(request):
         return redirect('index')
     
     if request.method == 'POST':
-        form = CropForm(request.POST)
+        form = CropForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             crop = form.save(commit=False)
             crop.productor = request.user
@@ -73,7 +103,7 @@ def crop_create_view(request):
             messages.success(request, 'Cultivo creado exitosamente.')
             return redirect('crop_list')
     else:
-        form = CropForm()
+        form = CropForm(user=request.user)
     
     context = {
         'form': form,
@@ -87,13 +117,13 @@ def crop_update_view(request, pk):
     crop = get_object_or_404(Crop, pk=pk, productor=request.user)
     
     if request.method == 'POST':
-        form = CropForm(request.POST, instance=crop)
+        form = CropForm(request.POST, request.FILES, instance=crop, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Cultivo actualizado exitosamente.')
             return redirect('crop_list')
     else:
-        form = CropForm(instance=crop)
+        form = CropForm(instance=crop, user=request.user)
     
     context = {
         'form': form,
@@ -124,11 +154,10 @@ def producer_sales_view(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    # Obtener o crear perfil de estadísticas
-    from sales.models import UserProfile
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    if not created:
-        profile.actualizar_estadisticas_vendedor()
+    # Obtener o crear perfil de productor
+    from accounts.models import ProducerProfile
+    profile, created = ProducerProfile.objects.get_or_create(user=request.user)
+    # TODO: Re-implementar la lógica para actualizar las estadísticas en el modelo ProducerProfile
     
     # Filtros de búsqueda
     from sales.forms import OrderSearchForm
@@ -148,7 +177,7 @@ def producer_sales_view(request):
         
         if search:
             orders = orders.filter(
-                Q(publicacion__cultivo__nombre_producto__icontains=search) |
+                Q(publicacion__cultivo__nombre__icontains=search) |
                 Q(comprador__first_name__icontains=search) |
                 Q(comprador__last_name__icontains=search)
             )
@@ -182,7 +211,7 @@ def producer_sales_view(request):
     
     # Estadísticas por producto
     product_stats = orders.filter(estado='completado').values(
-        'publicacion__cultivo__nombre_producto'
+        'publicacion__cultivo__nombre'
     ).annotate(
         total_vendido=Sum('cantidad_acordada'),
         total_ingresos=Sum('precio_total'),
@@ -190,10 +219,11 @@ def producer_sales_view(request):
     ).order_by('-total_ingresos')[:5]
     
     # Estadísticas por mes (últimos 6 meses)
-    from datetime import datetime, timedelta
+    from datetime import timedelta
+    from django.utils import timezone
     from django.db.models.functions import TruncMonth
     
-    six_months_ago = datetime.now() - timedelta(days=180)
+    six_months_ago = timezone.now() - timedelta(days=180)
     monthly_stats = orders.filter(
         created_at__gte=six_months_ago,
         estado='completado'

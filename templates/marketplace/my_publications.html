@@ -1,71 +1,301 @@
-{% extends 'base.html' %}
+{% extends 'accounts/user_base.html' %}
 
 {% block title %}Mis Publicaciones{% endblock %}
 
-{% block content %}
+{% block user_content %}
 <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Mis Publicaciones</h1>
-        <a href="{% url 'crop_add' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+        <a href="{% url 'select_crop_for_publication' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
             <i class="fas fa-plus mr-2"></i>Crear Publicación
         </a>
     </div>
 
     {% if publications %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for publication in publications %}
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ publication.cultivo.nombre_producto }}</h3>
-                            {% if publication.estado == 'disponible' %}
-                                <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Disponible</span>
-                            {% else %}
-                                <span class="px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">{{ publication.get_estado_display }}</span>
-                            {% endif %}
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4">Creada: {{ publication.created_at|date:"d M Y" }}</p>
-
-                        <div class="space-y-3 text-sm">
-                            <p><strong>Precio:</strong> ${{ publication.precio_por_unidad }} / {{ publication.cultivo.unidad_medida }}</p>
-                            <p><strong>Cantidad:</strong> {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
-                            <p><strong>Estado del cultivo:</strong> <span class="font-medium text-primary-700">{{ publication.cultivo.get_estado_display }}</span></p>
-                        </div>
-
-                        {% if publication.descripcion %}
-                            <p class="mt-4 text-sm text-gray-600">{{ publication.descripcion|truncatewords:20 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-4">
-                                <a href="{% url 'publication_detail' publication.id %}" class="text-sm font-medium text-primary-600 hover:text-primary-800">Ver Detalle</a>
-                                <a href="{% url 'publication_edit' publication.pk %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Editar</a>
-                            </div>
-                            
-                            <form action="{% url 'publication_delete' publication.pk %}" method="post" class="inline-block">
-                                {% csrf_token %}
-                                <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800" onclick="return confirm('¿Estás seguro de que quieres eliminar esta publicación?')">
-                                    Eliminar
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cultivo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad Disponible</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Cultivo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creada</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for publication in publications %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ publication.cultivo.nombre }}</div>
+                            <div class="text-sm text-gray-500">{{ publication.cultivo.get_categoria_display }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${{ publication.precio_por_unidad|floatformat:0 }} / {{ publication.cultivo.unidad_medida }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if publication.cultivo.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
+                                {% elif publication.cultivo.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
+                                {% elif publication.cultivo.estado == 'cosechado' %}bg-blue-100 text-blue-800
+                                {% endif %}">
+                                {{ publication.cultivo.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if publication.estado == 'Activa' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ publication.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ publication.created_at|date:"d M Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'publication_detail' publication.id %}" 
+                                   class="inline-flex items-center px-3 py-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-colors" title="Ver Detalle">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <span class="text-xs">Ver</span>
+                                </a>
+                                <a href="{% url 'publication_edit' publication.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    <span class="text-xs">Editar</span>
+                                </a>
+                                <button onclick="showDeleteModal({{ publication.pk }}, '{{ publication.cultivo.nombre|escapejs }}', '{{ publication.precio_por_unidad }}', '{{ publication.cantidad_disponible }}', '{{ publication.cultivo.unidad_medida }}')" 
+                                   class="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash mr-1"></i>
+                                    <span class="text-xs">Eliminar</span>
                                 </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
-        <div class="text-center py-16 border-4 border-dashed border-gray-200 rounded-lg">
-            <i class="fas fa-folder-open text-6xl text-gray-300"></i>
-            <h3 class="mt-4 text-xl font-semibold text-gray-800">No tienes publicaciones aún</h3>
-            <p class="mt-2 text-sm text-gray-600">Para crear publicaciones, primero necesitas tener cultivos listos para cosechar.</p>
-            <div class="mt-6">
-                <a href="{% url 'crop_add' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
-                    <i class="fas fa-plus mr-2"></i>Agregar Cultivo
-                </a>
+        <!-- Estado vacío mejorado -->
+        <div class="card overflow-hidden">
+            <div class="relative bg-gradient-to-br from-primary-50 via-white to-accent-50 px-6 py-16">
+                <!-- Elementos decorativos -->
+                <div class="absolute top-0 left-0 w-40 h-40 bg-primary-100 rounded-full opacity-20 -ml-20 -mt-20"></div>
+                <div class="absolute bottom-0 right-0 w-56 h-56 bg-accent-100 rounded-full opacity-20 -mr-28 -mb-28"></div>
+                
+                <div class="relative text-center">
+                    <!-- Icono principal con efecto -->
+                    <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mb-6 shadow-lg">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center">
+                            <i class="fas fa-store-slash text-5xl text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Título -->
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                        No tienes publicaciones activas
+                    </h3>
+                    
+                    <!-- Descripción -->
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                        Para crear publicaciones en el marketplace, primero necesitas tener cultivos listos para cosechar.
+                    </p>
+                    
+                    <!-- Pasos sugeridos -->
+                    <div class="max-w-2xl mx-auto mb-8">
+                        <div class="grid md:grid-cols-3 gap-4 text-left">
+                            <!-- Paso 1 -->
+                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-primary-100 hover:border-primary-300 transition-all">
+                                <div class="flex items-center mb-3">
+                                    <div class="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                        1
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800">Agregar Cultivo</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">Registra tu cultivo con detalles de cantidad y fecha de cosecha.</p>
+                            </div>
+                            
+                            <!-- Paso 2 -->
+                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-accent-100 hover:border-accent-300 transition-all">
+                                <div class="flex items-center mb-3">
+                                    <div class="bg-accent-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                        2
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800">Preparar Cultivo</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">Marca tu cultivo como "Listo para cosechar".</p>
+                            </div>
+                            
+                            <!-- Paso 3 -->
+                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-green-100 hover:border-green-300 transition-all">
+                                <div class="flex items-center mb-3">
+                                    <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                        3
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800">Publicar</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">Crea tu publicación con precio e imagen.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de acción -->
+                    <div class="flex justify-center gap-3">
+                        <a href="{% url 'crop_list' %}" 
+                           class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 font-semibold shadow-sm hover:shadow flex items-center">
+                            <i class="fas fa-list mr-2"></i>Ver Mis Cultivos
+                        </a>
+                        <a href="{% url 'crop_add' %}" 
+                           class="bg-gradient-to-r from-primary-600 to-accent-600 text-white px-6 py-3 rounded-xl hover:from-primary-700 hover:to-accent-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center">
+                            <i class="fas fa-plus mr-2"></i>Agregar Cultivo
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     {% endif %}
 </div>
+
+<!-- Modal de confirmación de eliminación -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                </div>
+                <h3 class="ml-4 text-xl font-bold text-white">¿Estás seguro?</h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-6">
+            <p class="text-gray-700 text-lg mb-4">
+                Estás a punto de eliminar permanentemente la publicación de <strong id="publicationName" class="text-gray-900"></strong>.
+            </p>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Precio:</strong> $<span id="publicationPrice"></span><br>
+                            <strong>Cantidad:</strong> <span id="publicationQuantity"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700 font-medium mb-2">
+                            Consecuencias:
+                        </p>
+                        <ul class="text-sm text-yellow-700 space-y-1">
+                            <li><i class="fas fa-times-circle mr-1"></i> La publicación será eliminada del marketplace</li>
+                            <li><i class="fas fa-check-circle mr-1"></i> El cultivo asociado se mantendrá en tu inventario</li>
+                            <li><i class="fas fa-ban mr-1"></i> Esta acción es irreversible</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+                <label class="flex items-start cursor-pointer">
+                    <input type="checkbox" id="confirmDeletePublicationCheckbox" class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="ml-2 text-sm text-red-700 font-medium">
+                        Confirmo que quiero eliminar esta publicación permanentemente.
+                    </span>
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" 
+                        class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <form id="deleteForm" method="post" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" id="confirmDeletePublicationButton" disabled
+                            class="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-trash-alt mr-2"></i>Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(publicationId, cropName, price, quantity, unit) {
+        // Actualizar contenido del modal
+        document.getElementById('publicationName').textContent = cropName;
+        document.getElementById('publicationPrice').textContent = price;
+        document.getElementById('publicationQuantity').textContent = quantity + ' ' + unit;
+        
+        // Resetear el checkbox
+        document.getElementById('confirmDeletePublicationCheckbox').checked = false;
+        document.getElementById('confirmDeletePublicationButton').disabled = true;
+        
+        // Actualizar action del formulario
+        document.getElementById('deleteForm').action = '/publication/' + publicationId + '/delete/';
+        
+        // Mostrar modal con animación
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const content = document.getElementById('deleteModalContent');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // Habilitar/deshabilitar botón de confirmación según el checkbox
+    document.getElementById('confirmDeletePublicationCheckbox').addEventListener('change', function() {
+        document.getElementById('confirmDeletePublicationButton').disabled = !this.checked;
+    });
+
+    // Cerrar modal al hacer click fuera de él
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
 {% endblock %}
