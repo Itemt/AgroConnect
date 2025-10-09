@@ -4,7 +4,7 @@
 
 {% block content %}
     <!-- Hero Section -->
-    <div class="hero py-20 relative flex items-center" style="background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%); padding-bottom: 100px;">
+    <div class="hero py-20 relative flex items-center" style="background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%); padding-bottom: 0;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="hero-content text-center">
                 <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-8 fade-in">
@@ -245,6 +245,8 @@
                 {% endif %}
             </div>
         </div>
+        <!-- Eliminar espacio extra antes del footer -->
+        <div class="h-0"></div>
     </div>
     
 {% endblock %}

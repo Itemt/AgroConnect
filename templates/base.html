@@ -327,7 +327,7 @@
 
     <!-- Footer -->
     {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
-    <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white mt-16 relative overflow-hidden">
+    <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white {% if request.resolver_match.url_name == 'index' %}mt-0{% else %}mt-16{% endif %} relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute inset-0" style="background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 100 100&quot;><defs><pattern id=&quot;footer-pattern&quot; width=&quot;40&quot; height=&quot;40&quot; patternUnits=&quot;userSpaceOnUse&quot;><circle cx=&quot;20&quot; cy=&quot;20&quot; r=&quot;1&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.3&quot;/><circle cx=&quot;0&quot; cy=&quot;0&quot; r=&quot;0.5&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.2&quot;/><circle cx=&quot;40&quot; cy=&quot;40&quot; r=&quot;0.5&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.2&quot;/></pattern></defs><rect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;url(%23footer-pattern)&quot;/></svg>');"></div>
