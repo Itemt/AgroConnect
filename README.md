@@ -127,7 +127,7 @@ AgroConnect es una plataforma web desarrollada con Django que conecta directamen
   - Referencias únicas por transacción
   - Historial completo de pagos
   - Estados de pago en tiempo real
-  - Validación de montos mínimos ($1,000 COP)
+  - Validación de montos mínimos
   - Modo de prueba para desarrollo
 - **Seguridad:**
   - No se almacenan datos sensibles de tarjetas
@@ -603,44 +603,43 @@ python manage.py collectstatic --noinput
 2. Verifica que el `Dockerfile` sea correcto
 3. Asegúrate que `requirements.txt` tenga todas las dependencias
 
-**Configurar webhook de ePayco (IMPORTANTE):**
-1. Ve al [dashboard de ePayco](https://dashboard.epayco.co/)
-2. Ve a "Configuración" → "URLs de Confirmación"
-3. Agrega tu URL de confirmación: `https://tu-dominio.com/payments/confirmation/`
-4. Esta URL debe ser accesible públicamente para que ePayco envíe las confirmaciones de pago
+**Configurar webhook de MercadoPago (IMPORTANTE):**
+1. Ve al [dashboard de MercadoPago](https://www.mercadopago.com.co/developers)
+2. Ve a "Configuración" → "Webhooks"
+3. Agrega tu URL de confirmación: `https://tu-dominio.com/payments/notification/`
+4. Esta URL debe ser accesible públicamente para que MercadoPago envíe las confirmaciones de pago
 5. Para probar localmente, puedes usar [ngrok](https://ngrok.com/) o [localtunnel](https://localtunnel.github.io/www/)
 
-## 💳 Configuración Detallada de ePayco
+## 💳 Configuración Detallada de MercadoPago
 
 ### Obtener Credenciales
 
-1. **Registrarse en ePayco:**
-   - Ve a [ePayco](https://www.epayco.co/) y crea una cuenta
+1. **Registrarse en MercadoPago:**
+   - Ve a [MercadoPago](https://www.mercadopago.com.co/) y crea una cuenta
    - Completa el proceso de verificación de tu negocio
 
 2. **Obtener llaves de API:**
-   - Accede al [dashboard de ePayco](https://dashboard.epayco.co/)
-   - Ve a "Integraciones" en el menú lateral
+   - Accede al [dashboard de MercadoPago](https://www.mercadopago.com.co/developers)
+   - Ve a "Credenciales" en el menú lateral
    - Encontrarás tus llaves:
-     - **Public Key (P_CUST_ID_XXXXXXXX)**: Llave pública para el frontend
-     - **Private Key**: Llave privada para el backend (¡NO la compartas!)
+     - **Access Token**: Token de acceso para el backend (¡NO la compartas!)
+     - **Public Key**: Llave pública para el frontend
 
 3. **Configurar URLs de confirmación:**
-   - En el dashboard, ve a "Configuración" → "URLs de Confirmación"
+   - En el dashboard, ve a "Configuración" → "Webhooks"
    - **URL de Respuesta:** `https://tu-dominio.com/payments/success/`
-   - **URL de Confirmación (Webhook):** `https://tu-dominio.com/payments/confirmation/`
+   - **URL de Webhook:** `https://tu-dominio.com/payments/notification/`
 
 ### Modo de Prueba
 
-Para desarrollo, ePayco ofrece un modo de prueba:
-- Usa tus credenciales normales
-- Activa `EPAYCO_TEST_MODE=True`
+Para desarrollo, MercadoPago ofrece un modo de prueba:
+- Usa tus credenciales de prueba
+- Activa el modo sandbox
 - Usa tarjetas de prueba:
-  - **Visa:** 4575623182290326
-  - **MasterCard:** 5254133511684471
+  - **Visa:** 4509 9535 6623 3704
+  - **MasterCard:** 5031 7557 3453 0604
   - **CVV:** 123
   - **Fecha:** Cualquier fecha futura
-  - **Cuotas:** 1
 
 ### Métodos de Pago Disponibles
 
@@ -650,7 +649,7 @@ Para desarrollo, ePayco ofrece un modo de prueba:
 
 ### Comisiones
 
-ePayco cobra comisiones por transacción. Consulta las tarifas actuales en su sitio web.
+MercadoPago cobra comisiones por transacción. Consulta las tarifas actuales en su sitio web.
 
 ## 🗂️ Estructura del Proyecto
 
@@ -685,10 +684,10 @@ AgroConnect/
 │   ├── views.py       # Flujo de pedidos, calificaciones
 │   ├── consumers.py   # WebSocket handlers para chat
 │   └── routing.py     # Rutas de WebSockets
-├── payments/          # Sistema de pagos con ePayco
+├── payments/          # Sistema de pagos con MercadoPago
 │   ├── models.py      # Payment
 │   ├── views.py       # Checkout, confirmaciones, webhooks
-│   ├── epayco_service.py  # Servicio de integración ePayco
+│   ├── mercadopago_service.py  # Servicio de integración MercadoPago
 │   └── README.md      # Documentación específica de pagos
 ├── templates/         # Plantillas HTML
 │   ├── base.html      # Template base con navegación mejorada
@@ -876,7 +875,7 @@ AgroConnect/
 ### 🚫 Archivos Eliminados
 - Comandos de management con tokens hardcodeados
 - Archivos de prueba con credenciales reales
-- Referencias a servicios descontinuados (ePayco)
+- Referencias a servicios descontinuados
 - Logs y archivos temporales con información sensible
 - [ ] Integración con APIs climáticas
 - [ ] Programa de fidelización para compradores
@@ -926,10 +925,10 @@ AgroConnect/
 
 ### Payment (Pago)
 - Relación con orden y usuario
-- Referencia única de ePayco
+- Referencia única de MercadoPago
 - Monto y método de pago
 - Estado: pending, approved, rejected, failed, cancelled
-- Datos de respuesta de ePayco (JSON)
+- Datos de respuesta de MercadoPago (JSON)
 
 ### Rating (Calificación)
 - Calificación general + 3 aspectos específicos
