@@ -29,7 +29,7 @@ def register(request):
     else:
         form = BuyerRegistrationForm()
     
-    return render(request, 'accounts/register_buyer.html', {'form': form})
+    return render(request, 'accounts/register.html', {'form': form})
 
 def register_producer(request):
     """Registro específico para productores con finca inicial"""
