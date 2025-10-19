@@ -53,38 +53,6 @@
             box-sizing: border-box;
         }
         
-        /* Eliminar espacio entre main y footer */
-        main {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        footer {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-        
-        /* Eliminar cualquier espacio en contenedores */
-        .container, .max-w-7xl, .max-w-6xl, .max-w-4xl {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* Eliminar espacio en todas las páginas */
-        .min-h-screen {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* Asegurar que no hay espacio antes del footer */
-        body > main + footer {
-            margin-top: 0 !important;
-        }
-        
-        /* Eliminar cualquier padding/margin en divs principales */
-        div[class*="py-"]:last-child {
-            padding-bottom: 0 !important;
-        }
     </style>
 
     <script>
@@ -369,14 +337,14 @@
                     </div>
 
     <!-- Main Content -->
-    <main class="pb-32" style="background: transparent !important;">
+    <main style="background: transparent !important;">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
       {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
-      <footer class="bg-green-900 text-white {% if request.resolver_match.url_name == 'index' %}mt-0{% else %}mt-16{% endif %} w-full">
+      <footer class="bg-green-900 text-white mt-0 w-full">
           <div class="w-full px-4 lg:px-8 py-12 lg:py-16">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- About Section -->
