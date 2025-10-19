@@ -4,249 +4,365 @@
 
 {% block content %}
     <!-- Hero Section -->
-    <div class="hero py-20 relative flex items-center" style="background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%); padding-bottom: 8rem;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="hero-content text-center">
-                <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-8 fade-in">
-                    Bienvenido a <span class="text-gradient">AgroConnect</span>
-                </h1>
-                <p class="text-2xl text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
-                    Conectando productores y compradores directamente para un comercio más justo y sostenible.
-                </p>
-                <div class="flex flex-wrap justify-center gap-4 mb-12">
-                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg hover:bg-white/90 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
-                        <i class="fas fa-seedling text-primary-600 mr-2 group-hover:text-primary-700 transition-colors duration-300"></i>
-                        <span class="text-gray-700 font-medium group-hover:text-gray-800 transition-colors duration-300">Productos Frescos</span>
-                    </div>
-                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg hover:bg-white/90 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
-                        <i class="fas fa-handshake text-blue-600 mr-2 group-hover:text-blue-700 transition-colors duration-300"></i>
-                        <span class="text-gray-700 font-medium group-hover:text-gray-800 transition-colors duration-300">Comercio Directo</span>
-                    </div>
-                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg hover:bg-white/90 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
-                        <i class="fas fa-shield-alt text-green-600 mr-2 group-hover:text-green-700 transition-colors duration-300"></i>
-                        <span class="text-gray-700 font-medium group-hover:text-gray-800 transition-colors duration-300">Pagos Seguros</span>
-                    </div>
-                    <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg hover:bg-white/90 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
-                        <i class="fas fa-truck text-purple-600 mr-2 group-hover:text-purple-700 transition-colors duration-300"></i>
-                        <span class="text-gray-700 font-medium group-hover:text-gray-800 transition-colors duration-300">Envío Rápido</span>
-                    </div>
+    <section class="hero relative overflow-hidden">
+        <div class="w-full px-4 lg:px-8 relative pt-8 pb-24 sm:pb-32 lg:pt-12 lg:pb-40" style="position: relative; z-index: 1;">
+            <div class="max-w-4xl mx-auto text-center">
+                <!-- Badge animado -->
+                <div class="inline-flex items-center mb-8 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                        <circle cx="4" cy="4" r="4" fill="#a7f3d0" class="animate-pulse"></circle>
+                    </svg>
+                    <span class="text-sm font-medium text-white/90">Tu conexión directa del campo a tu mesa</span>
                 </div>
                 
-                {% if user.is_authenticated %}
-                    <div class="card max-w-5xl mx-auto slide-up">
-                        <div class="card-body text-center">
-                            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                <i class="fas fa-user text-white text-3xl"></i>
-                            </div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-4">¡Hola, {{ user.first_name }}!</h2>
-                            {% if user.role == 'Productor' %}
-                                <p class="text-gray-600 mb-8 text-lg">Como productor, puedes gestionar tus cultivos y vender directamente a compradores.</p>
-                                <div class="flex flex-wrap gap-4 justify-center">
-                                    <a href="{% url 'producer_dashboard' %}" class="btn-primary">
-                                        <i class="fas fa-tachometer-alt mr-2"></i>Ir a Mi Dashboard
-                                    </a>
-                                    <a href="{% url 'producer_dashboard' %}" class="btn-secondary">
-                                        <i class="fas fa-leaf mr-2"></i>Ver Cultivos
-                                    </a>
-                                    <a href="{% url 'marketplace' %}" class="btn-outline">
-                                        <i class="fas fa-store mr-2"></i>Explorar Marketplace
+                <h1 class="font-heading text-5xl xs:text-6xl lg:text-7xl xl:text-8xl tracking-tight text-white mb-8 font-bold leading-tight">
+                    Del <span class="bg-gradient-to-r from-green-300 to-emerald-200 bg-clip-text text-transparent">Campo</span> a tu <span class="bg-gradient-to-r from-green-300 to-emerald-200 bg-clip-text text-transparent">Hogar</span>,<br class="hidden sm:block">
+                    Sin Intermediarios
+                </h1>
+                
+                <p class="max-w-2xl mx-auto text-xl lg:text-2xl text-white/90 mb-12 leading-relaxed">
+                    La plataforma que conecta productores agrícolas con compradores. Productos frescos directamente del campo, sin intermediarios.
+                </p>
+                
+                {% if not user.is_authenticated %}
+                <div class="flex flex-wrap justify-center gap-5">
+                    <a href="{% url 'register' %}" class="group inline-flex py-5 px-8 items-center justify-center text-lg font-semibold text-green-900 bg-gradient-to-r from-green-300 to-emerald-200 hover:from-green-200 hover:to-emerald-100 rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105">
+                        <i class="fas fa-user-plus mr-3"></i>Comenzar Ahora
+                        <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+                    <a href="{% url 'marketplace' %}" class="inline-flex py-5 px-8 items-center justify-center text-lg font-semibold text-white border-2 border-white/30 hover:border-white/60 hover:bg-white/10 rounded-full transition-all duration-300 backdrop-blur-sm">
+                        <i class="fas fa-store mr-3"></i>Ver Productos
                                     </a>
                                 </div>
+                {% else %}
+                <div class="flex flex-wrap justify-center gap-5">
+                    {% if user.role == 'Productor' %}
+                    <a href="{% url 'producer_dashboard' %}" class="group inline-flex py-5 px-8 items-center justify-center text-lg font-semibold text-green-900 bg-gradient-to-r from-green-300 to-emerald-200 hover:from-green-200 hover:to-emerald-100 rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Mi Dashboard
+                        <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
                             {% elif user.role == 'Comprador' %}
-                                <p class="text-gray-600 mb-8 text-lg">Como comprador, puedes encontrar productos frescos directamente de los productores.</p>
-                                <div class="flex flex-wrap gap-4 justify-center">
-                                    <a href="{% url 'buyer_dashboard' %}" class="btn-primary">
-                                        <i class="fas fa-tachometer-alt mr-2"></i>Ir a Mi Dashboard
-                                    </a>
-                                    <a href="{% url 'marketplace' %}" class="btn-secondary">
-                                        <i class="fas fa-store mr-2"></i>Explorar Productos
-                                    </a>
-                                    <a href="{% url 'order_history' %}" class="btn-outline">
-                                        <i class="fas fa-shopping-cart mr-2"></i>Mis Pedidos
+                    <a href="{% url 'buyer_dashboard' %}" class="group inline-flex py-5 px-8 items-center justify-center text-lg font-semibold text-green-900 bg-gradient-to-r from-green-300 to-emerald-200 hover:from-green-200 hover:to-emerald-100 rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Mi Dashboard
+                        <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'marketplace' %}" class="inline-flex py-5 px-8 items-center justify-center text-lg font-semibold text-white border-2 border-white/30 hover:border-white/60 hover:bg-white/10 rounded-full transition-all duration-300 backdrop-blur-sm">
+                        <i class="fas fa-store mr-3"></i>Explorar Marketplace
                                     </a>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
-                {% else %}
-                    <div class="card max-w-7xl mx-auto slide-up">
-                        <div class="card-body">
-                            <div class="text-center mb-12">
-                                <h2 class="text-4xl font-bold text-gray-900 mb-4">¿Eres productor o comprador?</h2>
-                                <p class="text-xl text-gray-600 mb-6">Elige tu rol y comienza a conectar con la comunidad agro</p>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                                    <div class="text-center">
-                                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-green-50 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="stats-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <circle cx="20" cy="20" r="1" fill="#15803d"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#stats-pattern)"/>
+            </svg>
+                                        </div>
+        
+        <div class="w-full px-4 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center mb-4 px-4 py-2 bg-green-100 rounded-full">
+                    <i class="fas fa-chart-line text-green-700 mr-2"></i>
+                    <span class="text-sm font-semibold text-green-700">Nuestro Impacto</span>
+                                    </div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Números que hablan por sí solos</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Conectamos a más personas cada día, creando una red de comercio justo y directo</p>
+                                        </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="stat-item group">
+                    <div class="bg-white rounded-2xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 text-center border border-gray-100">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                                             <i class="fas fa-users text-white text-2xl"></i>
                                         </div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-2">+500 Productores</h3>
-                                        <p class="text-gray-600 text-sm">Conectados en toda Colombia</p>
+                        <h5 class="text-4xl lg:text-5xl mb-3 font-bold text-green-900">+500</h5>
+                        <span class="text-base lg:text-lg text-gray-600 font-medium">Productores Activos</span>
+                        <div class="mt-4 h-1 bg-gradient-to-r from-green-500 to-green-700 rounded-full w-1/2 mx-auto"></div>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                                            <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                                </div>
+                
+                <div class="stat-item group">
+                    <div class="bg-white rounded-2xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 text-center border border-gray-100">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-shopping-bag text-white text-2xl"></i>
+                            </div>
+                        <h5 class="text-4xl lg:text-5xl mb-3 font-bold text-blue-900">+2,000</h5>
+                        <span class="text-base lg:text-lg text-gray-600 font-medium">Pedidos Completados</span>
+                        <div class="mt-4 h-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full w-1/2 mx-auto"></div>
                                         </div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-2">+2,000 Pedidos</h3>
-                                        <p class="text-gray-600 text-sm">Procesados exitosamente</p>
+                                                </div>
+                
+                <div class="stat-item group">
+                    <div class="bg-white rounded-2xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 text-center border border-gray-100">
+                        <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-weight text-white text-2xl"></i>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <h5 class="text-4xl lg:text-5xl mb-3 font-bold text-amber-900">+10K</h5>
+                        <span class="text-base lg:text-lg text-gray-600 font-medium">Kilos Vendidos</span>
+                        <div class="mt-4 h-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full w-1/2 mx-auto"></div>
+                                        </div>
+                                    </div>
+                                
+                <div class="stat-item group">
+                    <div class="bg-white rounded-2xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 text-center border border-gray-100">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                                             <i class="fas fa-star text-white text-2xl"></i>
                                         </div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-2">4.8/5 Estrellas</h3>
-                                        <p class="text-gray-600 text-sm">Calificación promedio</p>
+                        <h5 class="text-4xl lg:text-5xl mb-3 font-bold text-purple-900">4.8<span class="text-2xl">/5</span></h5>
+                        <span class="text-base lg:text-lg text-gray-600 font-medium">Calificación Media</span>
+                        <div class="mt-4 h-1 bg-gradient-to-r from-purple-500 to-purple-700 rounded-full w-1/2 mx-auto"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                                <div class="card hover:scale-105 transition-all duration-300">
-                                    <div class="card-body text-center">
-                                        <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                            <i class="fas fa-seedling text-white text-3xl"></i>
                                         </div>
-                                        <h3 class="text-3xl font-bold text-gray-900 mb-4">Soy Productor</h3>
-                                        <p class="text-gray-600 mb-8 text-lg">Vende tus productos directamente a compradores, gestiona tus cultivos y aumenta tus ingresos.</p>
-                                        <ul class="space-y-4 mb-8 text-left">
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+    </section>
+
+    <!-- Features Section -->
+    <section class="p-4 lg:p-8 bg-white">
+        <div class="pt-20 pb-28 px-6 xs:px-10 xl:px-16 bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 rounded-3xl shadow-2xl relative overflow-hidden">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="feature-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <circle cx="30" cy="30" r="2" fill="white"/>
+                            <circle cx="10" cy="10" r="1" fill="white"/>
+                            <circle cx="50" cy="50" r="1" fill="white"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#feature-pattern)"/>
+                </svg>
                                                 </div>
-                                                Publica productos y gestiona stock en tiempo real
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+            
+            <div class="w-full px-4 lg:px-8 relative z-10">
+                <div class="flex mb-6 items-center justify-center lg:justify-start">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" class="animate-pulse">
+                        <circle cx="5" cy="5" r="5" fill="white"></circle>
+                    </svg>
+                    <span class="inline-block ml-3 text-base font-semibold text-white/90 tracking-wide">CARACTERÍSTICAS</span>
                                                 </div>
-                                                Recibe notificaciones instantáneas de pagos y pedidos
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+                <div class="border-t border-white/25 pt-16">
+                    <h2 class="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl mb-6 text-white font-bold text-center lg:text-left leading-tight">¿Por qué elegir <br class="hidden lg:block">AgroConnect?</h2>
+                    <p class="text-xl text-white/90 mb-24 max-w-2xl text-center lg:text-left">Descubre todas las ventajas que te ofrecemos para hacer crecer tu negocio</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
+                        <!-- Card 1 - Productos Frescos -->
+                        <div class="group">
+                            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 hover:bg-white/100 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 border border-green-100">
+                                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md">
+                                    <i class="fas fa-leaf text-white text-2xl"></i>
                                                 </div>
-                                                Actualiza estados (confirmado, enviado, entregado)
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+                                <h5 class="text-2xl font-bold mb-4 text-green-900 group-hover:text-green-700 transition-colors">Productos Frescos</h5>
+                                <p class="text-gray-700 mb-6 leading-relaxed">Conecta directamente con productores locales y obtén productos frescos del campo a tu mesa, sin intermediarios.</p>
+                                <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'marketplace' %}">
+                                    Explorar
+                                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                    </svg>
+                                </a>
                                                 </div>
-                                                Conversa con compradores por chat integrado
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
                                                 </div>
-                                                Recibe calificaciones y construye tu reputación
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-primary-600 text-sm"></i>
+                        
+                        <!-- Card 2 - Pagos Seguros -->
+                        <div class="group">
+                            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 hover:bg-white/100 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 border border-green-100">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md">
+                                    <i class="fas fa-shield-alt text-white text-2xl"></i>
                                                 </div>
-                                                Dashboard de ventas y métricas clave
-                                            </li>
-                                        </ul>
-                                        
+                                <h5 class="text-2xl font-bold mb-4 text-green-900 group-hover:text-green-700 transition-colors">Pagos Seguros</h5>
+                                <p class="text-gray-700 mb-6 leading-relaxed">Transacciones seguras con MercadoPago. Tu dinero está protegido en cada compra que realizas.</p>
+                                <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'core:documentation' %}">
+                                    Más información
+                                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                    </svg>
+                                </a>
                                     </div>
                                 </div>
                                 
-                                <div class="card hover:scale-105 transition-all duration-300">
-                                    <div class="card-body text-center">
-                                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                            <i class="fas fa-shopping-cart text-white text-3xl"></i>
+                        <!-- Card 3 - Comercio Directo -->
+                        <div class="group">
+                            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 hover:bg-white/100 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 border border-green-100">
+                                <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md">
+                                    <i class="fas fa-handshake text-white text-2xl"></i>
                                         </div>
-                                        <h3 class="text-3xl font-bold text-gray-900 mb-4">Soy Comprador</h3>
-                                        <p class="text-gray-600 mb-8 text-lg">Encuentra productos frescos directamente de productores locales, sin intermediarios.</p>
-                                        <ul class="space-y-4 mb-8 text-left">
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Carrito y checkout seguro con MercadoPago
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Notificaciones en tiempo real del estado del pedido
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Seguimiento: enviado, en tránsito, entregado y recibido
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Mensajería directa con productores
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Califica a los vendedores y consulta tu historial
-                                            </li>
-                                            <li class="flex items-center text-gray-700">
-                                                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                    <i class="fas fa-check text-blue-600 text-sm"></i>
-                                                </div>
-                                                Dashboard de compras y métricas personales
-                                            </li>
-                                        </ul>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center mt-6">
-                                <a href="{% url 'register_producer' %}" class="btn-primary inline-flex items-center px-10 py-4 text-lg md:text-xl">
-                                    <i class="fas fa-user-plus mr-3"></i>Crear mi cuenta
+                                <h5 class="text-2xl font-bold mb-4 text-green-900 group-hover:text-green-700 transition-colors">Comercio Directo</h5>
+                                <p class="text-gray-700 mb-6 leading-relaxed">Elimina intermediarios y obtén mejores precios. Los productores reciben una ganancia justa por su trabajo.</p>
+                                <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'rankings' %}">
+                                    Ver rankings
+                                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                    </svg>
                                 </a>
+                                                </div>
+                                                </div>
+                        
+                        <!-- Card 4 - Gestión Completa -->
+                        <div class="group">
+                            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 hover:bg-white/100 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 border border-green-100">
+                                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md">
+                                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                                                </div>
+                                <h5 class="text-2xl font-bold mb-4 text-green-900 group-hover:text-green-700 transition-colors">Gestión Completa</h5>
+                                <p class="text-gray-700 mb-6 leading-relaxed">Dashboard intuitivo para productores y compradores. Gestiona tus cultivos, ventas y pedidos en un solo lugar.</p>
+                                {% if user.is_authenticated %}
+                                    {% if user.role == 'Productor' %}
+                                    <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'producer_dashboard' %}">
+                                        Ir al dashboard
+                                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                        </svg>
+                                    </a>
+                                    {% else %}
+                                    <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'buyer_dashboard' %}">
+                                        Ir al dashboard
+                                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a class="inline-flex items-center text-lg font-semibold text-green-700 hover:text-green-800 transition-all group-hover:translate-x-2" href="{% url 'register' %}">
+                                        Registrarse
+                                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                        </svg>
+                                    </a>
+                                {% endif %}
+                                                </div>
+                                                </div>
+                                                </div>
+                                    </div>
+                                </div>
+                            </div>
+    </section>
+
+    {% if not user.is_authenticated %}
+    <!-- CTA Section -->
+    <section class="py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-green-50 via-white to-emerald-50 relative">
+        <!-- Background Decoration -->
+        <div class="absolute top-0 left-0 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-0 left-1/2 w-96 h-96 bg-lime-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        
+        <div class="w-full px-4 lg:px-8 relative z-10">
+            <div class="max-w-5xl mx-auto mb-20 text-center">
+                <div class="inline-flex items-center mb-6 px-5 py-2.5 bg-green-100 rounded-full">
+                    <i class="fas fa-rocket text-green-700 mr-2"></i>
+                    <span class="text-sm font-bold text-green-700 tracking-wide">COMIENZA HOY</span>
+                </div>
+                <h2 class="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl tracking-tight mb-8 text-gray-900 font-bold leading-tight">
+                    Únete a la <span class="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Revolución Agrícola</span>
+                </h2>
+                <p class="text-xl lg:text-2xl text-gray-600 mb-14 max-w-3xl mx-auto leading-relaxed">
+                    Únete a cientos de productores y compradores que ya están transformando la forma de hacer negocios agrícolas.
+                </p>
+                <div class="flex flex-wrap justify-center gap-6 mb-20">
+                    <a href="{% url 'register' %}" class="group inline-flex py-5 px-10 items-center justify-center text-xl font-bold text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
+                        <i class="fas fa-user-plus mr-3"></i>Crear Cuenta Gratis
+                        <svg class="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+                    <a href="{% url 'marketplace' %}" class="inline-flex py-5 px-10 items-center justify-center text-xl font-bold text-green-900 border-2 border-green-900 hover:bg-green-900 hover:text-white rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                        <i class="fas fa-store mr-3"></i>Explorar Marketplace
+                    </a>
+                </div>
                             </div>
 
-                            <!-- Características principales bajo las tarjetas -->
-                            <div class="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div class="stat-card group">
-                                    <div class="stat-icon bg-gradient-to-br from-primary-100 to-primary-200 group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300">
-                                        <i class="fas fa-seedling text-primary-600"></i>
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-10 max-w-6xl mx-auto">
+                <!-- Productor Card -->
+                <div class="group bg-white rounded-3xl shadow-xl p-10 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-green-500 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div class="relative z-10">
+                        <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-seedling text-white text-3xl"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Directo del Campo</h3>
-                                    <p class="text-gray-600">Productos frescos sin intermediarios, directo de los productores.</p>
+                        <h3 class="text-3xl font-bold text-center text-gray-900 mb-3">Para Productores</h3>
+                        <p class="text-center text-gray-600 mb-8">Vende tus productos y gestiona tu negocio</p>
+                        <ul class="space-y-4 text-gray-700 text-lg">
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-green-600 text-sm"></i>
                                 </div>
-                                <div class="stat-card group">
-                                    <div class="stat-icon bg-gradient-to-br from-accent-100 to-accent-200 group-hover:from-accent-200 group-hover:to-accent-300 transition-all duration-300">
-                                        <i class="fas fa-dollar-sign text-accent-600"></i>
+                                <span>Publica productos y gestiona stock</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-green-600 text-sm"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Precios Justos</h3>
-                                    <p class="text-gray-600">Mejores precios para todos al eliminar intermediarios.</p>
+                                <span>Notificaciones de pagos y pedidos</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-green-600 text-sm"></i>
                                 </div>
-                                <div class="stat-card group">
-                                    <div class="stat-icon bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
-                                        <i class="fas fa-handshake text-blue-600"></i>
+                                <span>Chat integrado con compradores</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-green-600 text-sm"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Comunicación Directa</h3>
-                                    <p class="text-gray-600">Habla con productores para personalizar tus pedidos.</p>
-                                </div>
-                                <div class="stat-card group">
-                                    <div class="stat-icon bg-gradient-to-br from-purple-100 to-purple-200 group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-300">
-                                        <i class="fas fa-chart-bar text-purple-600"></i>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Gestión Completa</h3>
-                                    <p class="text-gray-600">Administra cultivos, ventas y pedidos en un solo lugar.</p>
+                                <span>Dashboard de ventas y métricas</span>
+                            </li>
+                        </ul>
                                 </div>
                             </div>
 
-                            <div class="text-center mt-12 pt-8 border-t border-gray-200">
-                                <p class="text-gray-600 text-lg">¿Ya tienes cuenta? 
-                                    <a href="{% url 'login' %}" class="text-primary-600 hover:text-primary-700 font-semibold text-lg">Inicia sesión aquí</a>
-                                </p>
+                <!-- Comprador Card -->
+                <div class="group bg-white rounded-3xl shadow-xl p-10 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div class="relative z-10">
+                        <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-shopping-cart text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold text-center text-gray-900 mb-3">Para Compradores</h3>
+                        <p class="text-center text-gray-600 mb-8">Compra productos frescos y de calidad</p>
+                        <ul class="space-y-4 text-gray-700 text-lg">
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span>Checkout seguro con MercadoPago</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span>Seguimiento en tiempo real</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span>Mensajería directa con productores</span>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span>Califica vendedores e historial</span>
+                            </li>
+                        </ul>
+                    </div>
                             </div>
                         </div>
                     </div>
+    </section>
                 {% endif %}
-            </div>
-        </div>
-        <!-- Espacio controlado antes del footer, manteniendo el mismo fondo del hero -->
-        <div class="h-30"></div>
-    </div>
-    
 {% endblock %}

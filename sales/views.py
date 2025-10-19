@@ -716,7 +716,7 @@ def buyer_dashboard(request):
     ).order_by('-created_at')[:5]
     
     # Conversaciones activas
-    active_conversations = request.user.conversations.count()
+    active_conversations = request.user.conversations.select_related('publication').order_by('-updated_at')[:5]
     
     # Calificaciones pendientes
     orders_to_rate = request.user.pedidos_como_comprador.filter(

@@ -4,42 +4,44 @@
 {% block title %}Registro de Usuario{% endblock %}
 
 {% block content %}
-    <div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12 px-4 sm:px-6 lg:px-8" style="padding-bottom: 8rem;">
+    <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 py-8 pb-16 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mx-auto mb-6">
-                    <i class="fas fa-user-plus text-white text-3xl"></i>
+            <div class="text-center mb-10 lg:mb-12">
+                <div class="flex mb-4 items-center justify-center">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
+                    </svg>
+                    <span class="inline-block ml-2 text-sm font-medium text-green-900">Registro</span>
                 </div>
-                <h1 class="text-5xl font-bold text-gradient mb-4">
-                    Registro de Usuario
+                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 mb-4">
+                    Crear Cuenta
                 </h1>
-                <p class="text-xl text-gray-600">
-                    Crea tu cuenta en AgroConnect
+                <p class="text-base lg:text-lg text-gray-700">
+                    Únete a la comunidad de AgroConnect
                 </p>
             </div>
             
             <!-- Registration Form -->
-            <div class="card">
-                <div class="card-body p-8">
-                    <form method="post">
-                        {% csrf_token %}
+            <div class="bg-white rounded-3xl shadow-md p-6 lg:p-10">
+                <form method="post">
+                    {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                                {% for error in form.non_field_errors %}
-                                    <p class="text-sm">{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6">
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-                        <div class="space-y-6">
-                            <!-- Campos básicos -->
-                            <div class="field-wrapper">
-                                <label for="{{ form.username.id_for_label }}" class="form-label">
-                                    <i class="fas fa-user mr-2 text-primary-600"></i>
-                                    {{ form.username.label }}
-                                </label>
+                    <div class="space-y-6">
+                        <!-- Campos básicos -->
+                        <div class="field-wrapper">
+                            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user mr-2 text-green-600"></i>
+                                {{ form.username.label }}
+                            </label>
                                 {{ form.username }}
                                 {% if form.username.help_text %}
                                     <p class="mt-1 text-xs text-gray-500">{{ form.username.help_text }}</p>
@@ -49,313 +51,312 @@
                                 {% endfor %}
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="field-wrapper">
-                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
-                                        <i class="fas fa-user mr-2 text-primary-600"></i>
-                                        {{ form.first_name.label }}
-                                    </label>
-                                    {{ form.first_name }}
-                                    {% for error in form.first_name.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-
-                                <div class="field-wrapper">
-                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                        <i class="fas fa-user mr-2 text-primary-600"></i>
-                                        {{ form.last_name.label }}
-                                    </label>
-                                    {{ form.last_name }}
-                                    {% for error in form.last_name.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="field-wrapper">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">
-                                    <i class="fas fa-envelope mr-2 text-primary-600"></i>
-                                    {{ form.email.label }}
+                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user mr-2 text-green-600"></i>
+                                    {{ form.first_name.label }}
                                 </label>
-                                {{ form.email }}
-                                {% for error in form.email.errors %}
+                                {{ form.first_name }}
+                                {% for error in form.first_name.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
 
                             <div class="field-wrapper">
-                                <label for="{{ form.cedula.id_for_label }}" class="form-label">
-                                    <i class="fas fa-id-card mr-2 text-primary-600"></i>
-                                    {{ form.cedula.label }}
+                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user mr-2 text-green-600"></i>
+                                    {{ form.last_name.label }}
                                 </label>
-                                {{ form.cedula }}
-                                {% if form.cedula.help_text %}
-                                    <p class="mt-1 text-xs text-gray-500">{{ form.cedula.help_text }}</p>
-                                {% endif %}
-                                {% for error in form.cedula.errors %}
+                                {{ form.last_name }}
+                                {% for error in form.last_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-envelope mr-2 text-green-600"></i>
+                                {{ form.email.label }}
+                            </label>
+                            {{ form.email }}
+                            {% for error in form.email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.cedula.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-card mr-2 text-green-600"></i>
+                                {{ form.cedula.label }}
+                            </label>
+                            {{ form.cedula }}
+                            {% if form.cedula.help_text %}
+                                <p class="mt-1 text-xs text-gray-500">{{ form.cedula.help_text }}</p>
+                            {% endif %}
+                            {% for error in form.cedula.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-phone mr-2 text-green-600"></i>
+                                {{ form.telefono.label }}
+                            </label>
+                            {{ form.telefono }}
+                            {% if form.telefono.help_text %}
+                                <p class="mt-1 text-xs text-gray-500">{{ form.telefono.help_text }}</p>
+                            {% endif %}
+                            {% for error in form.telefono.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                                    {{ form.departamento.label }}
+                                </label>
+                                {{ form.departamento }}
+                                {% for error in form.departamento.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
 
                             <div class="field-wrapper">
-                                <label for="{{ form.telefono.id_for_label }}" class="form-label">
-                                    <i class="fas fa-phone mr-2 text-primary-600"></i>
-                                    {{ form.telefono.label }}
+                                <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-city mr-2 text-green-600"></i>
+                                    {{ form.ciudad.label }}
                                 </label>
-                                {{ form.telefono }}
-                                {% if form.telefono.help_text %}
-                                    <p class="mt-1 text-xs text-gray-500">{{ form.telefono.help_text }}</p>
+                                {{ form.ciudad }}
+                                {% for error in form.ciudad.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="field-wrapper">
+                                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock mr-2 text-green-600"></i>
+                                    {{ form.password1.label }}
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.help_text %}
+                                    <p class="mt-1 text-xs text-gray-500">{{ form.password1.help_text }}</p>
                                 {% endif %}
-                                {% for error in form.telefono.errors %}
+                                {% for error in form.password1.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="field-wrapper">
-                                    <label for="{{ form.departamento.id_for_label }}" class="form-label">
-                                        <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
-                                        {{ form.departamento.label }}
-                                    </label>
-                                    {{ form.departamento }}
-                                    {% for error in form.departamento.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-
-                                <div class="field-wrapper">
-                                    <label for="{{ form.ciudad.id_for_label }}" class="form-label">
-                                        <i class="fas fa-city mr-2 text-primary-600"></i>
-                                        {{ form.ciudad.label }}
-                                    </label>
-                                    {{ form.ciudad }}
-                                    {% for error in form.ciudad.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="field-wrapper">
-                                    <label for="{{ form.password1.id_for_label }}" class="form-label">
-                                        <i class="fas fa-lock mr-2 text-primary-600"></i>
-                                        {{ form.password1.label }}
-                                    </label>
-                                    {{ form.password1 }}
-                                    {% if form.password1.help_text %}
-                                        <p class="mt-1 text-xs text-gray-500">{{ form.password1.help_text }}</p>
-                                    {% endif %}
-                                    {% for error in form.password1.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-
-                                <div class="field-wrapper">
-                                    <label for="{{ form.password2.id_for_label }}" class="form-label">
-                                        <i class="fas fa-lock mr-2 text-primary-600"></i>
-                                        {{ form.password2.label }}
-                                    </label>
-                                    {{ form.password2 }}
-                                    {% if form.password2.help_text %}
-                                        <p class="mt-1 text-xs text-gray-500">{{ form.password2.help_text }}</p>
-                                    {% endif %}
-                                    {% for error in form.password2.errors %}
-                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <!-- NUEVO: Checkbox para vender -->
-                            <div class="field-wrapper border-t border-gray-200 pt-6">
-                                <div class="flex items-center gap-3">
-                                    {{ form.can_sell }}
-                                    <label for="{{ form.can_sell.id_for_label }}" class="flex-1">
-                                        <span class="font-medium text-gray-700 cursor-pointer flex items-center">
-                                            <i class="fas fa-store mr-2 text-primary-600"></i>
-                                            {{ form.can_sell.label }}
-                                        </span>
-                                    </label>
-                                </div>
-                                {% if form.can_sell.help_text %}
-                                    <p class="mt-2 text-sm text-gray-500 ml-7">{{ form.can_sell.help_text }}</p>
+                            <div class="field-wrapper">
+                                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock mr-2 text-green-600"></i>
+                                    {{ form.password2.label }}
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.help_text %}
+                                    <p class="mt-1 text-xs text-gray-500">{{ form.password2.help_text }}</p>
                                 {% endif %}
-                                {% for error in form.can_sell.errors %}
+                                {% for error in form.password2.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
+                        </div>
 
-                            <!-- Campos de vendedor (solo visibles si marca el checkbox) -->
-                            <div id="seller-fields" class="space-y-6" style="display: none;">
-                                <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
-                                    <h3 class="text-lg font-semibold text-primary-800 mb-4">
-                                        <i class="fas fa-tractor mr-2"></i>
-                                        Información de tu Finca
-                                    </h3>
-                                    <p class="text-sm text-primary-700 mb-4">
-                                        <i class="fas fa-info-circle mr-2"></i>
-                                        Si quieres agregar más fincas, puedes hacerlo desde tu perfil después del registro.
-                                    </p>
+                        <!-- NUEVO: Checkbox para vender -->
+                        <div class="field-wrapper border-t border-gray-200 pt-6">
+                            <div class="flex items-center gap-3 bg-green-50 p-4 rounded-2xl">
+                                {{ form.can_sell }}
+                                <label for="{{ form.can_sell.id_for_label }}" class="flex-1">
+                                    <span class="font-medium text-gray-700 cursor-pointer flex items-center">
+                                        <i class="fas fa-store mr-2 text-green-600"></i>
+                                        {{ form.can_sell.label }}
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.can_sell.help_text %}
+                                <p class="mt-2 text-sm text-gray-600 ml-7">{{ form.can_sell.help_text }}</p>
+                            {% endif %}
+                            {% for error in form.can_sell.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
 
-                                    <div class="space-y-4">
+                        <!-- Campos de vendedor (solo visibles si marca el checkbox) -->
+                        <div id="seller-fields" class="space-y-6" style="display: none;">
+                            <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                                <h3 class="text-lg font-semibold text-green-900 mb-3">
+                                    <i class="fas fa-tractor mr-2"></i>
+                                    Información de tu Finca
+                                </h3>
+                                <p class="text-sm text-green-800 mb-6">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Si quieres agregar más fincas, puedes hacerlo desde tu perfil después del registro.
+                                </p>
+
+                                <div class="space-y-4">
+                                    <div class="field-wrapper">
+                                        <label for="{{ form.finca_nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-home mr-2 text-green-600"></i>
+                                            {{ form.finca_nombre.label }}
+                                        </label>
+                                        {{ form.finca_nombre }}
+                                        {% for error in form.finca_nombre.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="field-wrapper">
-                                            <label for="{{ form.finca_nombre.id_for_label }}" class="form-label">
-                                                <i class="fas fa-home mr-2 text-primary-600"></i>
-                                                {{ form.finca_nombre.label }}
+                                            <label for="{{ form.finca_departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                                                {{ form.finca_departamento.label }}
                                             </label>
-                                            {{ form.finca_nombre }}
-                                            {% for error in form.finca_nombre.errors %}
+                                            {{ form.finca_departamento }}
+                                            {% for error in form.finca_departamento.errors %}
                                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                             {% endfor %}
                                         </div>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_departamento.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
-                                                    {{ form.finca_departamento.label }}
-                                                </label>
-                                                {{ form.finca_departamento }}
-                                                {% for error in form.finca_departamento.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_ciudad.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-city mr-2 text-primary-600"></i>
-                                                    {{ form.finca_ciudad.label }}
-                                                </label>
-                                                {{ form.finca_ciudad }}
-                                                {% for error in form.finca_ciudad.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-
                                         <div class="field-wrapper">
-                                            <label for="{{ form.finca_direccion.id_for_label }}" class="form-label">
-                                                <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
-                                                {{ form.finca_direccion.label }}
+                                            <label for="{{ form.finca_ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-city mr-2 text-green-600"></i>
+                                                {{ form.finca_ciudad.label }}
                                             </label>
-                                            {{ form.finca_direccion }}
-                                            {% for error in form.finca_direccion.errors %}
+                                            {{ form.finca_ciudad }}
+                                            {% for error in form.finca_ciudad.errors %}
                                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                             {% endfor %}
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_area_total.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-ruler-combined mr-2 text-primary-600"></i>
-                                                    {{ form.finca_area_total.label }}
-                                                </label>
-                                                {{ form.finca_area_total }}
-                                                {% for error in form.finca_area_total.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_area_cultivable.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-seedling mr-2 text-primary-600"></i>
-                                                    {{ form.finca_area_cultivable.label }}
-                                                </label>
-                                                {{ form.finca_area_cultivable }}
-                                                {% for error in form.finca_area_cultivable.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_tipo_suelo.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-layer-group mr-2 text-primary-600"></i>
-                                                    {{ form.finca_tipo_suelo.label }}
-                                                </label>
-                                                {{ form.finca_tipo_suelo }}
-                                                {% for error in form.finca_tipo_suelo.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-
-                                            <div class="field-wrapper">
-                                                <label for="{{ form.finca_tipo_riego.id_for_label }}" class="form-label">
-                                                    <i class="fas fa-water mr-2 text-primary-600"></i>
-                                                    {{ form.finca_tipo_riego.label }}
-                                                </label>
-                                                {{ form.finca_tipo_riego }}
-                                                {% for error in form.finca_tipo_riego.errors %}
-                                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Información adicional del productor -->
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                                        <i class="fas fa-user mr-2"></i>
-                                        Información Adicional
-                                    </h3>
+                                    <div class="field-wrapper">
+                                        <label for="{{ form.finca_direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                                            {{ form.finca_direccion.label }}
+                                        </label>
+                                        {{ form.finca_direccion }}
+                                        {% for error in form.finca_direccion.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
 
-                                    <div class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="field-wrapper">
-                                            <label for="{{ form.direccion.id_for_label }}" class="form-label">
-                                                <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
-                                                {{ form.direccion.label }}
+                                            <label for="{{ form.finca_area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-ruler-combined mr-2 text-green-600"></i>
+                                                {{ form.finca_area_total.label }}
                                             </label>
-                                            {{ form.direccion }}
-                                            {% for error in form.direccion.errors %}
+                                            {{ form.finca_area_total }}
+                                            {% for error in form.finca_area_total.errors %}
                                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                             {% endfor %}
                                         </div>
 
                                         <div class="field-wrapper">
-                                            <label for="{{ form.farm_description.id_for_label }}" class="form-label">
-                                                <i class="fas fa-align-left mr-2 text-primary-600"></i>
-                                                {{ form.farm_description.label }}
+                                            <label for="{{ form.finca_area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-seedling mr-2 text-green-600"></i>
+                                                {{ form.finca_area_cultivable.label }}
                                             </label>
-                                            {{ form.farm_description }}
-                                            {% for error in form.farm_description.errors %}
+                                            {{ form.finca_area_cultivable }}
+                                            {% for error in form.finca_area_cultivable.errors %}
+                                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="field-wrapper">
+                                            <label for="{{ form.finca_tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-layer-group mr-2 text-green-600"></i>
+                                                {{ form.finca_tipo_suelo.label }}
+                                            </label>
+                                            {{ form.finca_tipo_suelo }}
+                                            {% for error in form.finca_tipo_suelo.errors %}
                                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                             {% endfor %}
                                         </div>
 
                                         <div class="field-wrapper">
-                                            <label for="{{ form.main_crops.id_for_label }}" class="form-label">
-                                                <i class="fas fa-seedling mr-2 text-primary-600"></i>
-                                                {{ form.main_crops.label }}
+                                            <label for="{{ form.finca_tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-water mr-2 text-green-600"></i>
+                                                {{ form.finca_tipo_riego.label }}
                                             </label>
-                                            {{ form.main_crops }}
-                                            {% for error in form.main_crops.errors %}
+                                            {{ form.finca_tipo_riego }}
+                                            {% for error in form.finca_tipo_riego.errors %}
                                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="pt-6">
-                            <button type="submit" class="btn-primary w-full group">
-                                <i class="fas fa-user-plus mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                                Registrarse
-                            </button>
-                        </div>
+                            <!-- Información adicional del productor -->
+                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <i class="fas fa-user mr-2"></i>
+                                    Información Adicional
+                                </h3>
 
-                        <div class="text-center pt-4">
-                            <p class="text-gray-600">
-                                ¿Ya tienes cuenta? 
-                                <a href="{% url 'login' %}" class="font-semibold text-primary-600 hover:text-primary-700 transition-colors duration-300">
-                                    Inicia sesión aquí
-                                </a>
-                            </p>
+                                <div class="space-y-4">
+                                    <div class="field-wrapper">
+                                        <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                                            {{ form.direccion.label }}
+                                        </label>
+                                        {{ form.direccion }}
+                                        {% for error in form.direccion.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="field-wrapper">
+                                        <label for="{{ form.farm_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-align-left mr-2 text-green-600"></i>
+                                            {{ form.farm_description.label }}
+                                        </label>
+                                        {{ form.farm_description }}
+                                        {% for error in form.farm_description.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="field-wrapper">
+                                        <label for="{{ form.main_crops.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-seedling mr-2 text-green-600"></i>
+                                            {{ form.main_crops.label }}
+                                        </label>
+                                        {{ form.main_crops }}
+                                        {% for error in form.main_crops.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <button type="submit" class="inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200 group">
+                            <i class="fas fa-user-plus mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                            Crear Mi Cuenta
+                        </button>
+                    </div>
+
+                    <div class="text-center border-t border-gray-200 pt-6 mt-6">
+                        <p class="text-gray-700">
+                            ¿Ya tienes cuenta? 
+                            <a href="{% url 'login' %}" class="font-medium text-green-700 hover:text-green-800 transition-colors duration-300">
+                                Inicia sesión aquí
+                            </a>
+                        </p>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

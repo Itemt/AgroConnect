@@ -13,7 +13,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
     <meta property="og:image:width" content="1200">
@@ -24,9 +24,14 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
+    
+    <!-- Google Fonts - Outfit (TailAdmin Font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,6 +39,9 @@
     tailwind.config = {
         theme: {
             extend: {
+                fontFamily: {
+                    'outfit': ['Outfit', 'sans-serif'],
+                },
                 colors: {
                     primary: {
                         50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
@@ -44,6 +52,11 @@
                         50: '#fef3c7', 100: '#fde68a', 200: '#fcd34d', 300: '#fbbf24',
                         400: '#f59e0b', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
                         800: '#9a3412', 900: '#7c2d12'
+                    },
+                    gray: {
+                        25: '#fcfcfd', 50: '#f9fafb', 100: '#f2f4f7', 200: '#e4e7ec', 
+                        300: '#d0d5dd', 400: '#98a2b3', 500: '#667085', 600: '#475467', 
+                        700: '#344054', 800: '#1d2939', 900: '#101828', 950: '#0c111d'
                     }
                 }
             }
@@ -53,6 +66,9 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%2322c55e;stop-opacity:1' /><stop offset='100%25' style='stop-color:%2315803d;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white'>🌱</text></svg>">
@@ -137,10 +153,12 @@
     
     /* Ensure sidebar is part of document flow */
     #sidebar {
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 40;
-        height: auto;
-        min-height: 100vh;
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
     }
     
     /* Remove any fixed positioning */
@@ -251,7 +269,6 @@
     }
     
     .main-content {
-        background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
         min-height: 100vh;
     }
     
@@ -390,10 +407,25 @@
     #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-nav a {
         justify-content: center;
     }
+    
+    /* Estilo específico para el botón de cerrar sesión */
+    .sidebar-nav a[href*="logout"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .sidebar-nav a[href*="logout"]:hover {
+        background: rgba(239, 68, 68, 0.2) !important;
+    }
+    
+    /* Smooth transitions for dropdowns */
+    [x-cloak] {
+        display: none !important;
+    }
 </style>
 {% endblock %}
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 font-outfit">
 <!-- Toast Container -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 pointer-events-none">
     <!-- Los toasts aparecerán aquí dinámicamente -->
@@ -404,14 +436,14 @@
 
 <div class="relative flex min-h-screen">
     <!-- Sidebar -->
-    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out min-h-screen flex-shrink-0">
+    <div id="sidebar" class="w-64 text-white p-4 pb-8 transition-all duration-300 ease-in-out min-h-screen max-h-screen overflow-y-auto overflow-x-hidden flex-shrink-0">
         <!-- Sidebar Header -->
         <div class="sidebar-header flex items-center justify-between mb-8 px-1">
             <div class="flex items-center sidebar-text group flex-1">
                 <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
                     <i class="fas fa-cog text-white text-xl"></i>
                 </div>
-                <span class="sidebar-text text-lg font-bold text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
+                <span class="sidebar-text text-lg font-normal text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
             </div>
             <button type="button" onclick="document.getElementById('sidebar-toggle-checkbox').click()" class="w-10 h-10 flex items-center justify-center text-white hover:text-accent-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-opacity-50 rounded-xl hover:bg-white/10 transition-all duration-300 border border-accent-400/30 hover:border-accent-300 cursor-pointer">
                 <i class="fas fa-bars text-lg"></i>
@@ -420,10 +452,14 @@
 
         <!-- User Welcome Card -->
         <div class="user-welcome mb-6">
-            <a href="{% url 'profile_edit' %}" class="flex items-center p-2 rounded-lg hover:bg-white/10 transition-all duration-200 group">
-                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                    <i class="fas fa-user text-white text-lg"></i>
-                </div>
+            <a href="{% url 'profile' %}" class="flex items-center p-2 rounded-lg hover:bg-white/10 transition-all duration-200 group">
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="w-12 h-12 rounded-full object-cover shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                {% else %}
+                    <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                        <i class="fas fa-user text-white text-lg"></i>
+                    </div>
+                {% endif %}
                 <div class="ml-3 sidebar-text">
                     <h3 class="font-semibold text-gray-800 text-sm transition-colors duration-200">{{ user.first_name|default:user.username }}</h3>
                     <p class="text-primary-600 text-xs font-medium transition-colors duration-200">{{ user.role }}</p>
@@ -431,7 +467,7 @@
             </a>
         </div>
 
-        <nav class="text-white sidebar-nav">
+        <nav class="text-white sidebar-nav px-0">
             <!-- Navegación Principal -->
             <div class="mb-6">
                 <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Navegación</h4>
@@ -478,11 +514,6 @@
                     <span class="sidebar-text ml-3">¿Quieres ser vendedor?</span>
                 </a>
                 {% endif %}
-                
-                <a href="{% url 'profile' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'profile' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
-                    <i class="fas fa-user w-5"></i>
-                    <span class="sidebar-text ml-3">Mi Perfil</span>
-                </a>
             </div>
             
             <!-- Funcionalidades Específicas por Rol -->
@@ -546,16 +577,17 @@
             <!-- Divider -->
             <div class="border-t border-primary-700 my-4"></div>
             
-            <a href="{% url 'logout' %}" class="text-red-200 hover:text-red-100">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="sidebar-text">Cerrar Sesión</span>
+            <a href="{% url 'logout' %}" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-500/20 transition-all duration-200 text-red-300 hover:text-white">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span class="sidebar-text ml-3">Cerrar Sesión</span>
             </a>
         </nav>
     </div>
 
     <!-- Main content -->
-    <div id="main-content" class="main-content flex-1 transition-all duration-300 ease-in-out">
-        <div class="p-8 lg:p-10">
+    <div id="main-content" class="flex-1 transition-all duration-300 ease-in-out bg-gray-50">
+        <!-- Content Area -->
+        <div class="p-4 mx-auto max-w-screen-2xl md:p-6 2xl:p-10">
             {% block user_content %}{% endblock %}
         </div>
     </div>
@@ -870,11 +902,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (res && res.success) {
                     const unreadCount = res.notifications.filter(n => !n.is_read).length;
                     updateSidebarBadge(unreadCount);
-                    console.log('Sidebar notifications polled:', unreadCount, 'unread');
+                    console.log('Notifications polled:', unreadCount, 'unread');
                 }
             })
             .catch((error) => {
-                console.log('Sidebar polling error:', error);
+                console.log('Polling error:', error);
             });
     }
     
@@ -897,7 +929,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchSidebarNotifications();
         // Start polling for notifications
         startSidebarPolling();
-        console.log('Sidebar notifications polling started');
+        console.log('Notifications polling started');
     });
     
     // Stop polling when page is hidden (performance optimization)

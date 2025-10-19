@@ -3,28 +3,42 @@
 
 {% block title %}Editar Perfil{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Ocultar el input file nativo */
+    input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-8">
-            <h1 class="text-3xl font-bold text-white flex items-center">
-                <i class="fas fa-user-edit mr-3"></i>
-                Editar Perfil
-            </h1>
-            <p class="mt-2 text-primary-100">Actualiza tu información personal y de perfil.</p>
-        </div>
+<div class="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 3rem !important;">
+    <div class="max-w-4xl mx-auto" style="margin-bottom: 2rem;">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-green-700 to-green-800 px-6 py-8">
+                <h1 class="text-3xl font-bold text-white flex items-center">
+                    <i class="fas fa-user-edit mr-3"></i>
+                    Editar Perfil
+                </h1>
+                <p class="mt-2 text-green-100">Actualiza tu información personal y de perfil.</p>
+            </div>
 
-        <div class="px-6 py-8">
-            <form method="post" enctype="multipart/form-data" class="space-y-8">
-                {% csrf_token %}
+            <div class="px-6 py-8 pb-10">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
 
-                <!-- Información Personal -->
-                <div class="bg-gray-50 rounded-xl p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-                        <i class="fas fa-user text-primary-600 mr-3"></i>
-                        Información Personal
-                    </h2>
+                    <!-- Información Personal -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-user text-green-600 mr-3"></i>
+                            Información Personal
+                        </h2>
                     
                     <!-- Profile Image -->
                     <div class="flex items-center space-x-6 mb-6">
@@ -41,11 +55,16 @@
                             <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                                 {{ form.profile_image.label }}
                             </label>
-                            <div class="mt-1">
+                            <div class="mt-1 flex items-center">
+                                <label for="{{ form.profile_image.id_for_label }}" class="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 transition-all duration-200">
+                                    <i class="fas fa-upload mr-2 text-gray-500"></i>
+                                    Seleccionar archivo
+                                </label>
                                 {{ form.profile_image }}
+                                <span id="file-name" class="ml-3 text-sm text-gray-500">Ningún archivo seleccionado</span>
                             </div>
                             {% if form.profile_image.help_text %}
-                                <p class="mt-1 text-sm text-gray-500">{{ form.profile_image.help_text }}</p>
+                                <p class="mt-2 text-xs text-gray-500">{{ form.profile_image.help_text }}</p>
                             {% endif %}
                             {% for error in form.profile_image.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ error }}</p>
@@ -268,7 +287,7 @@
                 {% endif %}
 
                 <!-- Botones de acción -->
-                <div class="flex justify-end items-center space-x-4 pt-6 border-t border-gray-200">
+                <div class="flex justify-end items-center space-x-4 pt-8 pb-4 border-t border-gray-200">
                     <a href="{% url 'profile' %}" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors duration-200">
                         <i class="fas fa-times mr-2"></i>
                         Cancelar
@@ -288,6 +307,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📝 Formulario de edición de perfil cargado');
+    
+    // Manejar la visualización del nombre del archivo seleccionado
+    const fileInput = document.getElementById('id_profile_image');
+    const fileNameSpan = document.getElementById('file-name');
+    
+    if (fileInput && fileNameSpan) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameSpan.textContent = this.files[0].name;
+                fileNameSpan.classList.remove('text-gray-500');
+                fileNameSpan.classList.add('text-green-600', 'font-medium');
+            } else {
+                fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                fileNameSpan.classList.remove('text-green-600', 'font-medium');
+                fileNameSpan.classList.add('text-gray-500');
+            }
+        });
+    }
     
     // Manejar dropdown dinámico de departamento/ciudad
     const departamentoSelect = document.getElementById('id_departamento');

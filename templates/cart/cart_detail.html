@@ -4,118 +4,118 @@
 {% block title %}Mi Carrito de Compras{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 8rem;">
-    <div class="max-w-4xl w-full">
+<div class="min-h-screen bg-white py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 lg:mb-12">
+            <div class="flex mb-4 items-center justify-center">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
+                </svg>
+                <span class="inline-block ml-2 text-sm font-medium text-green-900">Carrito</span>
+            </div>
+            <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 mb-4">
+                Mi Carrito de Compras
+            </h1>
+            <p class="text-base lg:text-lg text-gray-700">
+                Revisa tus productos antes de proceder al pago
+            </p>
+        </div>
+
         {% if not cart.items.all %}
-            <!-- Carrito Vacío - Todo en una card -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Header dentro de la card -->
-                <div class="bg-gradient-to-r from-primary-50 to-accent-50 px-8 py-6 border-b border-gray-200">
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-primary-600 mr-3"></i>
-                        Mi Carrito de Compras
-                    </h1>
-                    <p class="mt-2 text-gray-600 text-center">Revisa tus productos antes de proceder al pago</p>
+            <!-- Carrito Vacío -->
+            <div class="bg-white rounded-3xl shadow-md p-8 lg:p-16 text-center">
+                <div class="w-24 h-24 mx-auto mb-6 bg-green-50 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-4xl text-green-600"></i>
                 </div>
-                
-                <!-- Contenido centrado -->
-                <div class="text-center py-16 px-6">
-                    <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-4xl text-gray-400"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Tu carrito está vacío</h2>
-                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
-                        Parece que todavía no has añadido nada a tu carrito. ¡Explora nuestros productos y encuentra lo que necesitas!
-                    </p>
-                    <a href="{% url 'marketplace' %}" 
-                       class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        <i class="fas fa-store mr-3"></i>
-                        ¡Empieza a comprar!
-                    </a>
-                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Tu carrito está vacío</h2>
+                <p class="text-gray-700 mb-8 max-w-md mx-auto">
+                    Parece que todavía no has añadido nada a tu carrito. ¡Explora nuestros productos y encuentra lo que necesitas!
+                </p>
+                <a href="{% url 'marketplace' %}" 
+                   class="inline-flex items-center py-3 px-6 text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+                    <i class="fas fa-store mr-2"></i>
+                    ¡Empieza a comprar!
+                </a>
             </div>
         {% else %}
-            <!-- Carrito con Productos - Todo en una card -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Header dentro de la card -->
-                <div class="bg-gradient-to-r from-primary-50 to-accent-50 px-8 py-6 border-b border-gray-200">
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-primary-600 mr-3"></i>
-                        Mi Carrito de Compras
-                    </h1>
-                    <p class="mt-2 text-gray-600 text-center">Revisa tus productos antes de proceder al pago</p>
-                </div>
+            <!-- Carrito con Productos -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Productos del Carrito -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-3xl shadow-md p-6 lg:p-8">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                            <div>
+                                <h2 class="text-xl lg:text-2xl font-bold text-gray-900 flex items-center">
+                                    <i class="fas fa-box text-green-600 mr-3"></i>
+                                    Productos en tu Carrito
+                                </h2>
+                                <p class="text-sm text-gray-600 mt-1">{{ cart.items.count }} producto{{ cart.items.count|pluralize }} seleccionado{{ cart.items.count|pluralize }}</p>
+                            </div>
+                        </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8">
-                    <!-- Productos del Carrito -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-gray-50 rounded-xl p-6">
-                            <h2 class="text-xl font-bold text-gray-800 flex items-center mb-4">
-                                <i class="fas fa-box text-primary-600 mr-3"></i>
-                                Productos en tu Carrito
-                            </h2>
-                            <p class="text-sm text-gray-600 mb-6">{{ cart.items.count }} producto{{ cart.items.count|pluralize }} seleccionado{{ cart.items.count|pluralize }}</p>
-                    
-                    <div class="divide-y divide-gray-200">
+                    <div class="space-y-4">
                         {% for item in cart.items.all %}
-                        <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                            <div class="flex items-start space-x-4">
+                        <div class="p-5 bg-gray-50 rounded-2xl border border-gray-200 hover:border-green-300 transition-all duration-200">
+                            <div class="flex items-start gap-4">
                                 <!-- Imagen del Producto -->
                                 <div class="flex-shrink-0">
                                     {% if item.publication.imagen %}
-                                        <img class="w-20 h-20 rounded-xl object-cover shadow-md" 
+                                        <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover" 
                                              src="{{ item.publication.imagen.url }}" 
                                              alt="{{ item.publication.cultivo.nombre }}" />
                                     {% else %}
-                                        <div class="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
-                                            <i class="fas fa-seedling text-2xl text-green-600"></i>
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center">
+                                            <i class="fas fa-seedling text-2xl text-white"></i>
                                         </div>
                                     {% endif %}
                                 </div>
                                 
                                 <!-- Información del Producto -->
                                 <div class="flex-1 min-w-0">
-                                    <div class="flex items-start justify-between">
+                                    <div class="flex items-start justify-between mb-3">
                                         <div class="flex-1">
-                                            <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                                            <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-2">
                                                 {{ item.publication.cultivo.nombre }}
                                             </h3>
-                                            <p class="text-sm text-gray-600 mb-2">
-                                                <i class="fas fa-user mr-1"></i>
-                                                Vendido por: <span class="font-medium">{{ item.publication.cultivo.productor.username }}</span>
-                                            </p>
-                                            <p class="text-sm text-gray-500">
-                                                <i class="fas fa-map-marker-alt mr-1"></i>
-                                                {{ item.publication.cultivo.finca.departamento }}, {{ item.publication.cultivo.finca.ciudad }}
-                                            </p>
+                                            <div class="space-y-1">
+                                                <p class="text-sm text-gray-600">
+                                                    <i class="fas fa-user mr-1 text-green-600"></i>
+                                                    <span class="font-medium">{{ item.publication.cultivo.productor.username }}</span>
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i>
+                                                    {{ item.publication.cultivo.finca.departamento }}, {{ item.publication.cultivo.finca.ciudad }}
+                                                </p>
+                                            </div>
                                         </div>
                                         
-                                        <!-- Precio y Acciones -->
+                                        <!-- Precio -->
                                         <div class="text-right ml-4">
-                                            <p class="text-lg font-bold text-primary-600 mb-2">
+                                            <p class="text-lg sm:text-xl font-bold text-green-700 mb-1">
                                                 ${{ item.get_item_price|floatformat:2 }}
                                             </p>
-                                            <p class="text-sm text-gray-500">
-                                                ${{ item.publication.precio_por_unidad|floatformat:2 }} por {{ item.publication.cultivo.unidad_medida }}
+                                            <p class="text-xs text-gray-500">
+                                                ${{ item.publication.precio_por_unidad|floatformat:2 }} / {{ item.publication.cultivo.unidad_medida }}
                                             </p>
                                         </div>
                                     </div>
                                     
                                     <!-- Cantidad y Actualizar -->
-                                    <div class="mt-4 flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
+                                    <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                                        <div class="flex items-center gap-3">
                                             <span class="text-sm font-medium text-gray-700">Cantidad:</span>
-                                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="flex items-center space-x-2">
+                                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="flex items-center">
                                                 {% csrf_token %}
-                                                <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">
-                                                        <i class="fas fa-minus text-xs"></i>
+                                                <div class="flex items-center border-2 border-gray-300 rounded-full overflow-hidden">
+                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-3 py-1.5 bg-white hover:bg-gray-50 transition-colors">
+                                                        <i class="fas fa-minus text-xs text-gray-600"></i>
                                                     </button>
                                                     <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.publication.cantidad_disponible }}" 
-                                                           class="w-16 text-center border-0 focus:ring-0 focus:outline-none bg-white" 
+                                                           class="w-12 text-center border-0 focus:ring-0 focus:outline-none bg-white text-sm font-medium" 
                                                            onchange="this.form.submit()">
-                                                    <button type="button" onclick="increaseQuantity(this)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">
-                                                        <i class="fas fa-plus text-xs"></i>
+                                                    <button type="button" onclick="increaseQuantity(this)" class="px-3 py-1.5 bg-white hover:bg-gray-50 transition-colors">
+                                                        <i class="fas fa-plus text-xs text-gray-600"></i>
                                                     </button>
                                                 </div>
                                             </form>
@@ -123,7 +123,7 @@
                                         
                                         <!-- Botón Eliminar -->
                                         <a href="{% url 'cart:remove_from_cart' item.id %}" 
-                                           class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+                                           class="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200"
                                            onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')">
                                             <i class="fas fa-trash text-sm"></i>
                                         </a>
@@ -138,44 +138,44 @@
 
                 <!-- Resumen del Pedido -->
                 <div class="lg:col-span-1">
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 sticky top-8">
-                        <h2 class="text-xl font-bold text-gray-800 flex items-center mb-4">
+                    <div class="bg-white rounded-3xl shadow-md p-6 lg:p-8 lg:sticky lg:top-8">
+                        <h2 class="text-xl lg:text-2xl font-bold text-gray-900 flex items-center mb-6 pb-4 border-b border-gray-200">
                             <i class="fas fa-receipt text-green-600 mr-3"></i>
                             Resumen del Pedido
                         </h2>
                     
-                    <div class="p-6 space-y-4">
+                    <div class="space-y-5">
                         <!-- Subtotal -->
-                        <div class="flex justify-between items-center py-3 border-b border-gray-200">
-                            <span class="text-gray-600 font-medium">Subtotal</span>
+                        <div class="flex justify-between items-center py-3">
+                            <span class="text-gray-700 font-medium">Subtotal</span>
                             <span class="text-lg font-bold text-gray-900">${{ cart.get_total_price|floatformat:2 }}</span>
                         </div>
                         
                         <!-- Total -->
-                        <div class="flex justify-between items-center py-4 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl">
-                            <span class="text-xl font-bold text-gray-900">Total</span>
-                            <span class="text-2xl font-bold text-primary-600">${{ cart.get_total_price|floatformat:2 }}</span>
+                        <div class="flex justify-between items-center py-4 bg-green-50 rounded-2xl px-4 border-2 border-green-200">
+                            <span class="text-lg font-bold text-gray-900">Total</span>
+                            <span class="text-2xl font-bold text-green-700">${{ cart.get_total_price|floatformat:2 }}</span>
                         </div>
                         
                         <!-- Botón de Pago -->
                         <form action="{% url 'create_order_from_cart' %}" method="post">
                             {% csrf_token %}
                             <button type="submit" 
-                                    class="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-bold py-4 px-6 rounded-xl hover:from-primary-700 hover:to-accent-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
-                                <i class="fas fa-credit-card mr-3"></i>
+                                    class="w-full bg-green-900 hover:bg-green-800 text-white font-bold py-4 px-6 rounded-full transition duration-200 flex items-center justify-center">
+                                <i class="fas fa-credit-card mr-2"></i>
                                 Proceder al Pago
                             </button>
                         </form>
                         
-                        <p class="text-center text-sm text-gray-500">
+                        <p class="text-center text-sm text-gray-600">
                             <i class="fas fa-info-circle mr-1"></i>
                             Se crearán los pedidos y podrás pagar con MercadoPago
                         </p>
                         
                         <!-- Información de Seguridad -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-shield-alt text-blue-500 mt-1 mr-3"></i>
+                        <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-shield-alt text-blue-600 text-lg mt-0.5"></i>
                                 <div>
                                     <h3 class="text-sm font-bold text-blue-900 mb-1">Pago 100% Seguro</h3>
                                     <p class="text-xs text-blue-700">Protegido por MercadoPago</p>
@@ -185,9 +185,9 @@
                         </div>
                         
                         <!-- Información de Entrega -->
-                        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-truck text-green-500 mt-1 mr-3"></i>
+                        <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-truck text-green-600 text-lg mt-0.5"></i>
                                 <div>
                                     <h3 class="text-sm font-bold text-green-900 mb-1">Entrega Directa</h3>
                                     <p class="text-xs text-green-700">Del productor a tu hogar</p>
