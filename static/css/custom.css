@@ -1,6 +1,7 @@
-/* AgroConnect - Custom CSS for Modern Design */
+/* AgroConnect - Custom CSS for Modern Design with FaunaFlora styles */
 
 /* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* CSS Variables for consistent theming */
@@ -59,10 +60,10 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Figtree', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
-  color: var(--secondary-800);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #1D1F1E;
+  background: white;
   min-height: 100vh;
 }
 
@@ -178,32 +179,40 @@ h6 { font-size: 1rem; }
 }
 
 /* Enhanced form styles */
-.form-input {
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+textarea {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--secondary-300);
-  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background: white;
+  color: #1f2937;
 }
 
 /* Styled selects to match design */
-.form-select {
+.form-select,
+select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
-  padding: 0.875rem 2.75rem 0.875rem 1rem; /* right padding for arrow */
-  border: 2px solid var(--secondary-300);
-  border-radius: var(--radius-lg);
+  padding: 0.75rem 2.75rem 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background-color: #ffffff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7l5 5 5-5' stroke='%2316a34a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7l5 5 5-5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
-  box-shadow: var(--shadow-sm);
+  color: #1f2937;
 }
 
 .form-select:hover {
@@ -236,12 +245,26 @@ h6 { font-size: 1rem; }
   opacity: 0.8;
 }
 
-.form-input:focus {
+.form-input:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
   outline: none;
-  border-color: var(--primary-500);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-  transform: translateY(-1px);
-  position: relative; /* keep stacking context for icon overlay */
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+  position: relative;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #15803d;
+  cursor: pointer;
 }
 
 .form-label {
@@ -327,14 +350,48 @@ h6 { font-size: 1rem; }
   transform: translateY(-1px);
 }
 
-/* Enhanced hero section */
+/* Enhanced hero section - FaunaFlora style */
 .hero {
-  background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 50%, var(--primary-100) 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #065f46 100%);
   position: relative;
   overflow: hidden;
-  min-height: 100vh;
-  padding-bottom: 0;
-  margin-bottom: 0;
+  min-height: calc(100vh - 80px);
+  padding-top: 3rem;
+  padding-bottom: 6rem;
+}
+
+/* FaunaFlora inspired button styles */
+.btn-fauna {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 200ms ease;
+}
+
+.btn-fauna-primary {
+  color: white;
+  background-color: #15803d;
+  border: 1px solid #15803d;
+}
+
+.btn-fauna-primary:hover {
+  background-color: #166534;
+  border-color: #166534;
+}
+
+.btn-fauna-outline {
+  color: #15803d;
+  background-color: transparent;
+  border: 1px solid #15803d;
+}
+
+.btn-fauna-outline:hover {
+  color: white;
+  background-color: #15803d;
 }
 
 /* Ensure hero extends to footer without white bar */
@@ -377,12 +434,62 @@ body:has(.hero) main {
 .hero::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%2322c55e" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%2316a34a" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%234ade80" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="%2286efac" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="%22c55e" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-  opacity: 0.3;
+  top: -50%;
+  left: -10%;
+  right: -10%;
+  bottom: -50%;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 60px,
+      rgba(255, 255, 255, 0.03) 60px,
+      rgba(255, 255, 255, 0.03) 62px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(255, 255, 255, 0.02) 60px,
+      rgba(255, 255, 255, 0.02) 62px
+    );
+  opacity: 1;
+  z-index: 0;
+  animation: heroPattern 20s linear infinite;
+}
+
+@keyframes heroPattern {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(60px, 60px);
+  }
+}
+
+/* Animated blobs for CTA section */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
 }
 
 .hero-content {
@@ -400,6 +507,36 @@ body:has(.hero) main {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+}
+
+.stat-item {
+  transition: all 0.3s ease;
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a7f3d0 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .stat-card::before {

@@ -3,163 +3,143 @@
 {% block title %}Admin Dashboard - AgroConnect{% endblock %}
 
 {% block user_content %}
-<div class="min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="card mb-8">
-            <div class="card-body p-8">
-                <div class="flex items-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
-                        <i class="fas fa-cog text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-5xl font-bold text-gradient">Panel de Administración</h1>
-                        <p class="text-gray-600 mt-2 text-xl">Bienvenido, {{ user.username }}. Control total del sistema.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Panel de Administración</h1>
+    <p class="text-gray-600 mt-1">Bienvenido, {{ user.username }}. Control total del sistema.</p>
+</div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
-                    <i class="fas fa-users text-white text-2xl"></i>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6 mb-6">
+            <!-- Card 1 - Usuarios -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-users text-gray-800 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{{ total_users }}</h3>
-                    <p class="text-gray-600 font-medium">Usuarios</p>
-                </div>
-            </div>
-
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
-                    <i class="fas fa-seedling text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ total_crops }}</h3>
-                    <p class="text-gray-600 font-medium">Cultivos</p>
-                </div>
-            </div>
-
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-purple-400 to-purple-600">
-                    <i class="fas fa-store text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">{{ total_publications }}</h3>
-                    <p class="text-gray-600 font-medium">Publicaciones</p>
-                </div>
-            </div>
-
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-yellow-400 to-yellow-600">
-                    <i class="fas fa-shopping-cart text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">{{ total_orders }}</h3>
-                    <p class="text-gray-600 font-medium">Órdenes</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Notifications -->
-        <div class="card mb-8">
-            <div class="card-body p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                            <i class="fas fa-bell text-white text-lg"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-gray-800">Notificaciones Recientes</h2>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Usuarios</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_users }}</h4>
                     </div>
-                    <a href="{% url 'core:notifications_page' %}" class="text-primary-600 hover:text-primary-700 font-semibold text-lg transition-colors duration-300">
-                        Ver todas <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
                 </div>
-                
-                <div id="recent-notifications">
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-bell text-gray-400 text-2xl"></i>
-                        </div>
-                        <p class="text-gray-600">Cargando notificaciones...</p>
+            </div>
+
+            <!-- Card 2 - Cultivos -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-seedling text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Cultivos</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_crops }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 - Publicaciones -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-store text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Publicaciones</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_publications }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 - Órdenes -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-shopping-cart text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Órdenes</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_orders }}</h4>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Quick Actions -->
-        <div class="card mb-8">
-            <div class="card-body p-8">
-                <div class="flex items-center mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                        <i class="fas fa-bolt text-white text-lg"></i>
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-800">Gestión del Sistema</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <a href="{% url 'admin_user_list' %}" class="btn-primary group">
-                        <i class="fas fa-users mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                        Gestionar Usuarios
-                    </a>
-                    <a href="{% url 'admin_crop_list' %}" class="btn-secondary group">
-                        <i class="fas fa-seedling mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                        Gestionar Cultivos
-                    </a>
-                    <a href="{% url 'admin_publication_list' %}" class="btn-outline group">
-                        <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                        Gestionar Publicaciones
-                    </a>
-                    <a href="{% url 'admin_order_list' %}" class="btn-primary group">
-                        <i class="fas fa-shopping-cart mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                        Gestionar Órdenes
-                    </a>
-                </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">Gestión del Sistema</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="{% url 'admin_user_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-users mr-2"></i>
+                    Gestionar Usuarios
+                </a>
+                <a href="{% url 'admin_crop_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-seedling mr-2"></i>
+                    Gestionar Cultivos
+                </a>
+                <a href="{% url 'admin_publication_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-store mr-2"></i>
+                    Gestionar Publicaciones
+                </a>
+                <a href="{% url 'admin_order_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Gestionar Órdenes
+                </a>
             </div>
         </div>
 
-        <!-- Recent Users -->
-        {% if recent_users %}
-        <div class="card">
-            <div class="card-body p-8">
-                <div class="flex items-center mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                        <i class="fas fa-user-plus text-white text-lg"></i>
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-800">Usuarios Recientes</h2>
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Notifications -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Notificaciones Recientes</h2>
+                    <a href="{% url 'core:notifications_page' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Ver todas
+                    </a>
                 </div>
-                <div class="space-y-4">
+                <div id="recent-notifications">
+                    <div class="text-center py-8">
+                        <i class="fas fa-bell text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500">Cargando notificaciones...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Users -->
+            {% if recent_users %}
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Usuarios Recientes</h2>
+                </div>
+                <div class="space-y-3">
                     {% for u in recent_users %}
-                    <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
                             <div>
-                                <h4 class="font-bold text-gray-900 text-lg">{{ u.get_full_name|default:u.username }}</h4>
-                                <div class="flex items-center gap-4 mt-2">
-                                    <span class="text-gray-600">@{{ u.username }}</span>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                                        {% if u.role == 'Productor' %}bg-green-100 text-green-800
-                                        {% elif u.role == 'Comprador' %}bg-blue-100 text-blue-800
-                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <p class="font-medium text-gray-900">{{ u.get_full_name|default:u.username }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-500">@{{ u.username }}</span>
+                                    <span class="px-2 py-0.5 text-xs font-medium rounded-full
+                                        {% if u.role == 'Productor' %}bg-green-100 text-green-700
+                                        {% elif u.role == 'Comprador' %}bg-blue-100 text-blue-700
+                                        {% else %}bg-gray-100 text-gray-700{% endif %}">
                                         {{ u.role }}
                                     </span>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-sm text-gray-500">{{ u.date_joined|date:"d M Y" }}</p>
-                                <a href="{% url 'admin_user_edit' u.pk %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                                    <i class="fas fa-edit mr-1"></i>Editar
-                                </a>
-                            </div>
                         </div>
+                        <a href="{% url 'admin_user_edit' u.pk %}" class="text-green-600 hover:text-green-700">
+                            <i class="fas fa-edit"></i>
+                        </a>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -187,29 +167,21 @@ function renderRecentNotifications(notifications) {
     container.innerHTML = '';
 
     notifications.forEach(notification => {
-        const notificationElement = document.createElement('div');
-        notificationElement.className = `bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 group ${notification.is_read ? 'opacity-70' : ''}`;
-        
-        const iconClass = getNotificationIcon(notification.category);
-        const timeAgo = getTimeAgo(notification.created_at);
-        
-        notificationElement.innerHTML = `
-            <div class="flex items-start space-x-3">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${iconClass.bg}">
-                        <i class="${iconClass.icon} text-sm"></i>
-                    </div>
+        const div = document.createElement('div');
+        div.className = 'flex items-start space-x-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors';
+        div.innerHTML = `
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-bell text-green-600 text-sm"></i>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900">${notification.title}</p>
-                    <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
-                    <p class="text-xs text-gray-500 mt-2">${timeAgo}</p>
-                </div>
-                ${!notification.is_read ? '<div class="flex-shrink-0"><div class="w-2 h-2 bg-primary-500 rounded-full"></div></div>' : ''}
             </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">${notification.title}</p>
+                <p class="text-xs text-gray-600 mt-1">${notification.message}</p>
+            </div>
+            ${!notification.is_read ? '<div class="flex-shrink-0"><div class="w-2 h-2 bg-green-500 rounded-full"></div></div>' : ''}
         `;
-        
-        container.appendChild(notificationElement);
+        container.appendChild(div);
     });
 }
 
@@ -217,38 +189,10 @@ function showNoNotifications() {
     const container = document.getElementById('recent-notifications');
     container.innerHTML = `
         <div class="text-center py-8">
-            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-bell text-gray-400 text-2xl"></i>
-            </div>
-            <p class="text-gray-600">No tienes notificaciones recientes</p>
+            <i class="fas fa-bell text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No tienes notificaciones recientes</p>
         </div>
     `;
-}
-
-function getNotificationIcon(category) {
-    const icons = {
-        'order_status_update': { icon: 'fas fa-shopping-cart', bg: 'bg-blue-100 text-blue-600' },
-        'payment_approved': { icon: 'fas fa-check-circle', bg: 'bg-green-100 text-green-600' },
-        'payment_rejected': { icon: 'fas fa-times-circle', bg: 'bg-red-100 text-red-600' },
-        'new_order': { icon: 'fas fa-plus-circle', bg: 'bg-yellow-100 text-yellow-600' },
-        'order_received': { icon: 'fas fa-handshake', bg: 'bg-purple-100 text-purple-600' },
-        'order_shipped': { icon: 'fas fa-truck', bg: 'bg-indigo-100 text-indigo-600' },
-        'order_cancelled': { icon: 'fas fa-ban', bg: 'bg-gray-100 text-gray-600' },
-        'new_message': { icon: 'fas fa-comment', bg: 'bg-pink-100 text-pink-600' },
-        'rating_received': { icon: 'fas fa-star', bg: 'bg-orange-100 text-orange-600' }
-    };
-    return icons[category] || { icon: 'fas fa-bell', bg: 'bg-gray-100 text-gray-600' };
-}
-
-function getTimeAgo(dateString) {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return 'Hace un momento';
-    if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} min`;
-    if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} h`;
-    return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
 }
 </script>
 {% endblock %}

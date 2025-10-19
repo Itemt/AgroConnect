@@ -3,318 +3,164 @@
 {% block title %}Dashboard del Comprador{% endblock %}
 
 {% block user_content %}
-    <div class="min-h-screen">
-        <div class="max-w-7xl mx-auto">
-            <!-- Header -->
-            <div class="card mb-8">
-                <div class="card-body p-8">
-                    <div class="flex items-center mb-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
-                            <i class="fas fa-shopping-cart text-white text-2xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-5xl font-bold text-gradient">Dashboard del Comprador</h1>
-                            <p class="text-gray-600 mt-2 text-xl">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tus compras.</p>
-                        </div>
+<!-- Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard del Comprador</h1>
+    <p class="text-gray-600 mt-1">Bienvenido, {{ user.first_name }}. Gestiona tus compras y pedidos.</p>
+</div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6 mb-6">
+            <!-- Card 1 - Total Pedidos -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-shopping-cart text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Total Pedidos</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_orders }}</h4>
                     </div>
                 </div>
             </div>
 
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-primary-400 to-primary-600">
-                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">{{ total_orders }}</h3>
-                        <p class="text-gray-600 font-medium">Pedidos Totales</p>
-                    </div>
+            <!-- Card 2 - Pedidos Pendientes -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-clock text-gray-800 text-xl"></i>
                 </div>
-
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-yellow-400 to-yellow-600">
-                        <i class="fas fa-clock text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors duration-300">{{ pending_orders }}</h3>
-                        <p class="text-gray-600 font-medium">Pedidos por Confirmar</p>
-                    </div>
-                </div>
-
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
-                        <i class="fas fa-check-circle text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ completed_orders }}</h3>
-                        <p class="text-gray-600 font-medium">Pedidos Completados</p>
-                    </div>
-                </div>
-
-                <div class="stat-card group">
-                    <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
-                        <i class="fas fa-dollar-sign text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">${{ total_spent|floatformat:2 }}</h3>
-                        <p class="text-gray-600 font-medium">Total Gastado</p>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Pedidos Pendientes</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ pending_orders }}</h4>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Notifications -->
-            <div class="card mb-8">
-                <div class="card-body p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                                <i class="fas fa-bell text-white text-lg"></i>
-                            </div>
-                            <h2 class="text-3xl font-bold text-gray-800">Notificaciones Recientes</h2>
-                        </div>
-                        <a href="#" onclick="document.getElementById('notifications-button').click(); return false;" class="text-primary-600 hover:text-primary-700 font-semibold text-lg transition-colors duration-300">
-                            Ver todas <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
-                    
-                    <div id="recent-notifications">
-                        <div class="text-center py-8">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-bell text-gray-400 text-2xl"></i>
-                            </div>
-                            <p class="text-gray-600">Cargando notificaciones...</p>
-                        </div>
+            <!-- Card 3 - Pedidos Completados -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-check-circle text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Pedidos Completados</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ completed_orders }}</h4>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card mb-8">
-                <div class="card-body p-8">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                            <i class="fas fa-bolt text-white text-lg"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-gray-800">Acciones Rápidas</h2>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a href="{% url 'marketplace' %}" class="btn-primary group flex items-center justify-center text-center">
-                            <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            <span class="truncate">Explorar Marketplace</span>
-                        </a>
-                        <a href="{% url 'order_history' %}" class="btn-secondary group flex items-center justify-center text-center">
-                            <i class="fas fa-history mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            <span class="truncate">Ver Mis Pedidos</span>
-                        </a>
-                        <a href="{% url 'conversation_list' %}" class="btn-outline group flex items-center justify-center text-center">
-                            <i class="fas fa-comments mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            <span class="truncate">Mis Conversaciones ({{ active_conversations }})</span>
-                        </a>
+            <!-- Card 4 - Total Gastado -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
+                    <i class="fas fa-dollar-sign text-gray-800 text-xl"></i>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-sm text-gray-500">Total Gastado</span>
+                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">${{ total_spent|floatformat:0 }}</h4>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Quick Actions -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="{% url 'marketplace' %}" class="inline-flex items-center justify-center py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-store mr-2"></i>
+                    Ir al Marketplace
+                </a>
+                <a href="{% url 'order_history' %}" class="inline-flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-history mr-2"></i>
+                    Ver Mis Pedidos
+                </a>
+                <a href="{% url 'conversation_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors">
+                    <i class="fas fa-comments mr-2"></i>
+                    Mensajes
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Recent Orders -->
-            <div class="card mb-8">
-                <div class="card-body p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                                <i class="fas fa-shopping-cart text-white text-lg"></i>
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Pedidos Recientes</h2>
+                    <a href="{% url 'order_history' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Ver todos
+                    </a>
+                </div>
+                <div class="space-y-3">
+                    {% for order in recent_orders %}
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-blue-600"></i>
                             </div>
-                            <h2 class="text-3xl font-bold text-gray-800">Pedidos Recientes</h2>
-                        </div>
-                        <a href="{% url 'order_history' %}" 
-                           class="text-primary-600 hover:text-primary-700 font-semibold text-lg transition-colors duration-300">
-                            Ver todos <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
-                    
-                    {% if recent_orders %}
-                        <div class="space-y-4">
-                            {% for order in recent_orders %}
-                                <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300 group">
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex-1">
-                                            <h4 class="font-bold text-gray-900 mb-3 text-lg group-hover:text-primary-600 transition-colors duration-300">{{ order.publicacion.cultivo.nombre }}</h4>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                <div class="space-y-2">
-                                                    <p class="text-gray-700 font-medium">
-                                                        <i class="fas fa-user mr-2 text-primary-600"></i>
-                                                        <strong>Productor:</strong> {{ order.publicacion.cultivo.productor.first_name }} {{ order.publicacion.cultivo.productor.last_name }}
-                                                    </p>
-                                                    <p class="text-gray-700 font-medium">
-                                                        <i class="fas fa-weight mr-2 text-primary-600"></i>
-                                                        <strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}
-                                                    </p>
-                                                </div>
-                                                <div class="space-y-2">
-                                                    <p class="text-gray-700 font-medium">
-                                                        <i class="fas fa-tag mr-2 text-primary-600"></i>
-                                                        <strong>Precio por unidad:</strong> ${{ order.publicacion.precio_por_unidad }}
-                                                    </p>
-                                                    <p class="text-gray-700 font-medium">
-                                                        <i class="fas fa-dollar-sign mr-2 text-primary-600"></i>
-                                                        <strong>Total:</strong> <span class="text-primary-600 text-lg font-bold">${{ order.precio_total }}</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-center justify-between">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                                    {% if order.estado == 'acordado' %}bg-blue-100 text-blue-800 border border-blue-200
-                                                    {% elif order.estado == 'en_transito' %}bg-yellow-100 text-yellow-800 border border-yellow-200
-                                                    {% elif order.estado == 'entregado' %}bg-green-100 text-green-800 border border-green-200
-                                                    {% endif %}">
-                                                    <i class="fas fa-circle text-xs mr-2"></i>
-                                                    {{ order.get_estado_display }}
-                                                </span>
-                                                <div class="text-sm text-gray-500 font-medium">
-                                                    <i class="fas fa-calendar mr-2"></i>
-                                                    {{ order.created_at|date:"d M Y" }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-16">
-                            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <i class="fas fa-shopping-cart text-gray-400 text-4xl"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Orden #{{ order.id }}</p>
+                                <p class="text-sm text-gray-500">${{ order.total_price }} - {{ order.created_at|date:"d M" }}</p>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-4">No tienes pedidos aún</h3>
-                            <p class="text-gray-600 mb-8 max-w-md mx-auto">
-                                Explora el marketplace para encontrar productos frescos de productores locales.
-                            </p>
-                            <a href="{% url 'marketplace' %}" 
-                               class="btn-primary group">
-                                <i class="fas fa-store mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                                Explorar Marketplace
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3 py-1 text-xs font-medium rounded-full
+                                {% if order.status == 'delivered' %}bg-green-100 text-green-700
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-700
+                                {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
+                                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <a href="{% url 'order_detail' order.id %}" class="text-green-600 hover:text-green-700">
+                                <i class="fas fa-chevron-right"></i>
                             </a>
                         </div>
-                    {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-shopping-cart text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500">No tienes pedidos recientes</p>
+                        <a href="{% url 'marketplace' %}" class="inline-block mt-4 text-green-600 hover:text-green-700 font-medium">
+                            Explorar productos
+                        </a>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
             <!-- Active Conversations -->
-            {% if active_conversations > 0 %}
-            <div class="card">
-                <div class="card-body p-8">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                            <i class="fas fa-comments text-white text-lg"></i>
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Conversaciones Activas</h2>
+                    <a href="{% url 'conversation_list' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Ver todas
+                    </a>
+                </div>
+                <div class="space-y-3">
+                    {% for conversation in active_conversations %}
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Conversación #{{ conversation.id }}</p>
+                                <p class="text-sm text-gray-500">Sobre {{ conversation.publication.cultivo.crop_type|default:"producto" }}</p>
+                            </div>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800">Conversaciones Activas</h2>
-                    </div>
-                    <div class="text-center py-8">
-                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-comments text-blue-600 text-3xl"></i>
-                        </div>
-                        <p class="text-gray-700 text-lg mb-6">
-                            Tienes <span class="font-bold text-blue-600 text-2xl">{{ active_conversations }}</span> conversación{{ active_conversations|pluralize:"es" }} activa{{ active_conversations|pluralize:"s" }} con productores.
-                        </p>
-                        <a href="{% url 'conversation_list' %}" 
-                           class="btn-secondary group">
-                            <i class="fas fa-comments mr-2 group-hover:scale-110 transition-transform duration-300"></i>
-                            Ver Conversaciones
+                        <a href="{% url 'conversation_detail' conversation.id %}" class="text-green-600 hover:text-green-700">
+                            <i class="fas fa-chevron-right"></i>
                         </a>
                     </div>
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-comments text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500">No tienes conversaciones activas</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endif %}
         </div>
-    </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadRecentNotifications();
-    });
-
-    function loadRecentNotifications() {
-        fetch('/core/notifications/list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.notifications.length > 0) {
-                    renderRecentNotifications(data.notifications.slice(0, 5)); // Mostrar solo las 5 más recientes
-                } else {
-                    showNoNotifications();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading notifications:', error);
-                showNoNotifications();
-            });
-    }
-
-    function renderRecentNotifications(notifications) {
-        const container = document.getElementById('recent-notifications');
-        container.innerHTML = '';
-
-        notifications.forEach(notification => {
-            const notificationElement = document.createElement('div');
-            notificationElement.className = `bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 group ${notification.is_read ? 'opacity-70' : ''}`;
-            
-            const iconClass = getNotificationIcon(notification.category);
-            const timeAgo = getTimeAgo(notification.created_at);
-            
-            notificationElement.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${iconClass.bg}">
-                            <i class="${iconClass.icon} text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">${notification.title}</p>
-                        <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
-                        <p class="text-xs text-gray-500 mt-2">${timeAgo}</p>
-                    </div>
-                    ${!notification.is_read ? '<div class="flex-shrink-0"><div class="w-2 h-2 bg-primary-500 rounded-full"></div></div>' : ''}
-                </div>
-            `;
-            
-            container.appendChild(notificationElement);
-        });
-    }
-
-    function showNoNotifications() {
-        const container = document.getElementById('recent-notifications');
-        container.innerHTML = `
-            <div class="text-center py-8">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-bell text-gray-400 text-2xl"></i>
-                </div>
-                <p class="text-gray-600">No tienes notificaciones recientes</p>
-            </div>
-        `;
-    }
-
-    function getNotificationIcon(category) {
-        const icons = {
-            'order_status_update': { icon: 'fas fa-shopping-cart', bg: 'bg-blue-100 text-blue-600' },
-            'payment_approved': { icon: 'fas fa-check-circle', bg: 'bg-green-100 text-green-600' },
-            'payment_rejected': { icon: 'fas fa-times-circle', bg: 'bg-red-100 text-red-600' },
-            'new_order': { icon: 'fas fa-plus-circle', bg: 'bg-yellow-100 text-yellow-600' },
-            'order_received': { icon: 'fas fa-handshake', bg: 'bg-purple-100 text-purple-600' },
-            'order_shipped': { icon: 'fas fa-truck', bg: 'bg-indigo-100 text-indigo-600' },
-            'order_cancelled': { icon: 'fas fa-ban', bg: 'bg-gray-100 text-gray-600' },
-            'new_message': { icon: 'fas fa-comment', bg: 'bg-pink-100 text-pink-600' },
-            'rating_received': { icon: 'fas fa-star', bg: 'bg-orange-100 text-orange-600' }
-        };
-        return icons[category] || { icon: 'fas fa-bell', bg: 'bg-gray-100 text-gray-600' };
-    }
-
-    function getTimeAgo(dateString) {
-        const now = new Date();
-        const date = new Date(dateString);
-        const diffInSeconds = Math.floor((now - date) / 1000);
-        
-        if (diffInSeconds < 60) return 'Hace un momento';
-        if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} min`;
-        if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} h`;
-        return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
-    }
-    </script>
 {% endblock %}

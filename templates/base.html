@@ -12,7 +12,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
     <meta property="og:image:width" content="1200">
@@ -23,17 +23,69 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Conectando el Campo con tu Mesa{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.svg' %}{% endblock %}">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%2322c55e;stop-opacity:1' /><stop offset='100%25' style='stop-color:%2315803d;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white'>🌱</text></svg>">
     
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    
+    <style>
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            overflow-x: hidden;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Eliminar espacio entre main y footer */
+        main {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        footer {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        
+        /* Eliminar cualquier espacio en contenedores */
+        .container, .max-w-7xl, .max-w-6xl, .max-w-4xl {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Eliminar espacio en todas las páginas */
+        .min-h-screen {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Asegurar que no hay espacio antes del footer */
+        body > main + footer {
+            margin-top: 0 !important;
+        }
+        
+        /* Eliminar cualquier padding/margin en divs principales */
+        div[class*="py-"]:last-child {
+            padding-bottom: 0 !important;
+        }
+    </style>
 
     <script>
         tailwind.config = {
@@ -41,7 +93,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'sans': ['Figtree', 'Inter', 'system-ui', 'sans-serif'],
+                        'body': ['Figtree', 'sans-serif'],
+                        'heading': ['Figtree', 'sans-serif'],
                     },
                     colors: {
                         primary: {
@@ -102,7 +156,7 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full bg-gray-50">
+<body class="antialiased bg-white text-body font-body m-0 p-0">
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-3 pointer-events-none">
         <!-- Las notificaciones se agregarán aquí dinámicamente -->
@@ -110,58 +164,39 @@
 
     <!-- Navigation -->
     {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
-    <nav class="navbar backdrop-blur fixed top-0 left-0 right-0 z-30 px-4 py-4 shadow-lg">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
-            <a href="{% url 'index' %}" class="navbar-brand flex items-center space-x-3 group">
-                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                    <i class="fas fa-seedling text-white text-xl"></i>
-                </div>
-                <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">AgroConnect</span>
-            </a>
+    <section class="overflow-hidden" x-data="{ mobileNavOpen: false }">
+        <nav class="py-4 border-b border-gray-100 w-full">
+            <div class="w-full px-4 lg:px-8">
+                <div class="relative flex items-center justify-between">
+                    <a href="{% url 'index' %}" class="inline-block">
+                        <div class="flex items-center space-x-3 group">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
+                                <i class="fas fa-seedling text-white text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-green-900">AgroConnect</span>
+                        </div>
+                    </a>
 
-            <div class="flex items-center">
-                <!-- Navigation Links (Desktop) -->
-                <div class="items-center justify-between hidden w-full lg:flex lg:w-auto" id="navbar-user-desktop">
-                    <ul class="flex flex-col font-medium p-4 lg:p-0 mt-4 border border-gray-100 rounded-xl bg-white/50 backdrop-blur lg:flex-row lg:space-x-2 lg:mt-0 lg:border-0 lg:bg-transparent">
-                        <li>
-                            <a href="{% url 'marketplace' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 lg:hover:bg-primary-50 lg:p-3 transition-all duration-300">
-                                <i class="fas fa-store mr-2"></i>Marketplace
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'rankings' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 lg:hover:bg-primary-50 lg:p-3 transition-all duration-300">
-                                <i class="fas fa-trophy mr-2"></i>Rankings
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'core:documentation' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 lg:hover:bg-primary-50 lg:p-3 transition-all duration-300">
-                                <i class="fas fa-book mr-2"></i>Ayuda
-                            </a>
-                        </li>
+                    <ul class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center space-x-1">
+                        <li><a class="inline-block text-green-900 hover:text-green-700 font-medium py-2.5 px-4 rounded-full transition duration-200" href="{% url 'marketplace' %}">Marketplace</a></li>
+                        <li><a class="inline-block text-green-900 hover:text-green-700 font-medium py-2.5 px-4 rounded-full transition duration-200" href="{% url 'rankings' %}">Rankings</a></li>
+                        <li><a class="inline-block text-green-900 hover:text-green-700 font-medium py-2.5 px-4 rounded-full transition duration-200" href="{% url 'core:documentation' %}">Ayuda</a></li>
                         {% if user.is_authenticated %}
-                        <li>
                             {% if user.role == 'Productor' %}
-                            <a href="{% url 'producer_dashboard' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 lg:hover:bg-primary-50 lg:p-3 transition-all duration-300">
-                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-                            </a>
+                            <li><a class="inline-block text-green-900 hover:text-green-700 font-medium py-2.5 px-4 rounded-full transition duration-200" href="{% url 'producer_dashboard' %}">Dashboard</a></li>
                             {% elif user.role == 'Comprador' %}
-                            <a href="{% url 'buyer_dashboard' %}" class="nav-link block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 lg:hover:bg-primary-50 lg:p-3 transition-all duration-300">
-                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-                            </a>
+                            <li><a class="inline-block text-green-900 hover:text-green-700 font-medium py-2.5 px-4 rounded-full transition duration-200" href="{% url 'buyer_dashboard' %}">Dashboard</a></li>
                             {% endif %}
-                        </li>
                         {% endif %}
                     </ul>
-                </div>
-                
-                <!-- User Menu and Hamburger -->
-                <div class="flex items-center space-x-4 lg:ml-6">
-                    {% if user.is_authenticated %}
-                    <!-- Notifications Bell -->
-                    <div class="relative">
-                        <button id="notifications-button" type="button" class="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 group" data-dropdown-toggle="notifications-dropdown" data-dropdown-placement="bottom">
-                            <i class="fas fa-bell text-xl group-hover:scale-110 transition-transform duration-300"></i>
-                            <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center shadow-lg"></span>
+                    
+                    <!-- Right side buttons -->
+                    <div class="flex items-center space-x-2">
+                        {% if user.is_authenticated %}
+                        <!-- Notifications Bell -->
+                        <button id="notifications-button" type="button" class="relative p-2 text-green-900 hover:text-green-700 hover:bg-green-50 rounded-full transition duration-200" data-dropdown-toggle="notifications-dropdown" data-dropdown-placement="bottom">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center"></span>
                         </button>
                         <div id="notifications-dropdown" class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur rounded-2xl shadow-strong border border-gray-200 w-80 max-h-96 overflow-auto">
                             <div class="px-4 py-3 flex items-center justify-between">
@@ -177,29 +212,89 @@
                                 <a href="{% url 'core:notifications_page' %}" class="text-sm text-primary-700 hover:underline">Ver todas las notificaciones</a>
                             </div>
                         </div>
-                    </div>
-                    {% endif %}
-                    <!-- Cart Icon -->
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'cart:cart_detail' %}" class="relative p-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 group">
-                        <i class="fas fa-shopping-cart text-xl group-hover:scale-110 transition-transform duration-300"></i>
-                        {% if cart.items.all|length > 0 %}
-                        <span class="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg animate-pulse">{{ cart.items.all|length }}</span>
-                        {% endif %}
-                    </a>
-                    {% endif %}
+                        
+                        <!-- Cart Icon -->
+                        <a href="{% url 'cart:cart_detail' %}" class="relative p-2 text-green-900 hover:text-green-700 hover:bg-green-50 rounded-full transition duration-200">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                            {% if cart.items.all|length > 0 %}
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ cart.items.all|length }}</span>
+                            {% endif %}
+                        </a>
 
-                    <!-- User Menu Button -->
-                    <button type="button" class="flex text-sm rounded-xl focus:ring-4 focus:ring-primary-200 hover:bg-primary-50 p-2 transition-all duration-300 group" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-                        <span class="sr-only">Open user menu</span>
-                        {% if user.is_authenticated and user.profile_image %}
-                            <img class="w-10 h-10 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300" src="{{ user.profile_image.url }}" alt="user photo">
+                        <!-- User Menu Button -->
+                        <button type="button" class="flex text-sm rounded-full hover:bg-green-50 p-1.5 transition duration-200" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                            <span class="sr-only">Open user menu</span>
+                            {% if user.profile_image %}
+                                <img class="w-10 h-10 rounded-full" src="{{ user.profile_image.url }}" alt="user photo">
+                            {% else %}
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                            {% endif %}
+                        </button>
                         {% else %}
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                                <i class="fas fa-user text-white text-lg"></i>
-                            </div>
+                        <div class="hidden lg:block">
+                            <a class="inline-flex py-2.5 px-4 mr-3 items-center justify-center text-sm font-medium text-green-900 hover:text-white border border-green-900 hover:bg-green-900 rounded-full transition duration-200" href="{% url 'login' %}">Iniciar Sesión</a>
+                            <a class="inline-flex py-2.5 px-4 items-center justify-center text-sm font-medium text-white border border-green-900 bg-green-900 hover:bg-green-800 rounded-full transition duration-200" href="{% url 'register' %}">Registrarse</a>
+                        </div>
+                        
+                        <!-- Mobile Menu Button -->
+                        <button class="lg:hidden text-green-900 hover:text-green-800" x-on:click="mobileNavOpen = !mobileNavOpen">
+                            <svg width="32" height="32" viewbox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.19995 23.2H26.7999" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M5.19995 16H26.7999" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M5.19995 8.79999H26.7999" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </button>
                         {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div class="hidden fixed top-0 left-0 bottom-0 w-full xs:w-5/6 xs:max-w-md z-50" :class="{'block': mobileNavOpen, 'hidden': !mobileNavOpen}">
+            <div class="fixed inset-0 bg-gray-900 opacity-50" x-on:click="mobileNavOpen = !mobileNavOpen"></div>
+            <nav class="relative flex flex-col py-7 px-10 w-full h-full bg-white overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <a class="inline-block" href="{% url 'index' %}">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-seedling text-white"></i>
+                            </div>
+                            <span class="text-xl font-bold text-green-900">AgroConnect</span>
+                        </div>
+                    </a>
+                    <button x-on:click="mobileNavOpen = !mobileNavOpen">
+                        <svg width="32" height="32" viewbox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23.2 8.79999L8.80005 23.2M8.80005 8.79999L23.2 23.2" stroke="#1D1F1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
                     </button>
+                </div>
+                <div class="pt-20 pb-12 mb-auto">
+                    <ul class="flex-col">
+                        <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'marketplace' %}">Marketplace</a></li>
+                        <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'rankings' %}">Rankings</a></li>
+                        <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'core:documentation' %}">Ayuda</a></li>
+                        {% if user.is_authenticated %}
+                            {% if user.role == 'Productor' %}
+                            <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'producer_dashboard' %}">Dashboard</a></li>
+                            {% elif user.role == 'Comprador' %}
+                            <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'buyer_dashboard' %}">Dashboard</a></li>
+                            {% endif %}
+                            <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'profile' %}">Perfil</a></li>
+                            <li><a class="inline-block text-red-600 hover:text-red-700 font-medium" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                        {% else %}
+                            <li class="mb-6"><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'login' %}">Iniciar Sesión</a></li>
+                            <li><a class="inline-block text-green-900 hover:text-green-700 font-medium" href="{% url 'register' %}">Registrarse</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </section>
+    {% endif %}
+    
                     <!-- User Dropdown -->
                     <div class="z-50 hidden my-4 text-base list-none bg-white/95 backdrop-blur divide-y divide-gray-200 rounded-2xl shadow-strong border border-gray-200 w-56" id="user-dropdown">
                         {% if user.is_authenticated %}
@@ -248,9 +343,10 @@
                                 </a>
                             </li>
                             {% endif %}
-                            <li class="border-t border-gray-200 mt-2 pt-2">
-                                <a href="{% url 'logout' %}" class="block px-6 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200">
-                                    <i class="fas fa-sign-out-alt mr-3"></i>Cerrar Sesión
+                            <li class="border-t border-gray-200 mt-2 pt-2 mx-2">
+                                <a href="{% url 'logout' %}" class="flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 rounded-lg">
+                                    <i class="fas fa-sign-out-alt mr-3 w-4"></i>
+                                    <span>Cerrar Sesión</span>
                                 </a>
                             </li>
                         </ul>
@@ -271,130 +367,84 @@
                         </ul>
                         {% endif %}
                     </div>
-                    
-                    <!-- Hamburger Menu Button -->
-                    <button data-collapse-toggle="navbar-mobile" type="button" class="inline-flex items-center p-3 w-12 h-12 justify-center text-sm text-gray-600 rounded-xl lg:hidden hover:bg-primary-50 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all duration-300" aria-controls="navbar-mobile" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Mobile Menu Links -->
-            <div class="items-center justify-between hidden w-full lg:hidden" id="navbar-mobile">
-                <ul class="flex flex-col font-medium p-4 mt-4 border border-gray-200 rounded-2xl bg-white/95 backdrop-blur shadow-lg">
-                    <li>
-                        <a href="{% url 'marketplace' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
-                            <i class="fas fa-store mr-3"></i>Marketplace
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'rankings' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
-                            <i class="fas fa-trophy mr-3"></i>Rankings
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'core:documentation' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
-                            <i class="fas fa-book mr-3"></i>Ayuda
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li>
-                        {% if user.role == 'Productor' %}
-                        <a href="{% url 'producer_dashboard' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
-                        </a>
-                        {% elif user.role == 'Comprador' %}
-                        <a href="{% url 'buyer_dashboard' %}" class="block py-3 px-4 text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-700 transition-all duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
-                        </a>
-                        {% endif %}
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% endif %}
 
     <!-- Main Content -->
-    <main class="min-h-screen {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}pt-20{% endif %}" style="background: transparent !important;">
+    <main class="pb-32" style="background: transparent !important;">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
-    {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
-    <footer class="bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 text-white {% if request.resolver_match.url_name == 'index' %}mt-0{% else %}mt-16{% endif %} relative overflow-hidden">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute inset-0" style="background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 100 100&quot;><defs><pattern id=&quot;footer-pattern&quot; width=&quot;40&quot; height=&quot;40&quot; patternUnits=&quot;userSpaceOnUse&quot;><circle cx=&quot;20&quot; cy=&quot;20&quot; r=&quot;1&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.3&quot;/><circle cx=&quot;0&quot; cy=&quot;0&quot; r=&quot;0.5&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.2&quot;/><circle cx=&quot;40&quot; cy=&quot;40&quot; r=&quot;0.5&quot; fill=&quot;%23ffffff&quot; opacity=&quot;0.2&quot;/></pattern></defs><rect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;url(%23footer-pattern)&quot;/></svg>');"></div>
-        </div>
-        
-        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
+      <footer class="bg-green-900 text-white {% if request.resolver_match.url_name == 'index' %}mt-0{% else %}mt-16{% endif %} w-full">
+          <div class="w-full px-4 lg:px-8 py-12 lg:py-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- About Section -->
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center shadow-lg">
                             <i class="fas fa-seedling text-white text-xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold text-white">AgroConnect</h3>
                     </div>
-                    <p class="text-white/90 leading-relaxed">Conectando el campo con la ciudad. Una plataforma para facilitar el comercio justo y directo entre productores y compradores.</p>
+                    <p class="text-white/90 leading-relaxed mb-6">Conectando el campo con la ciudad. Una plataforma para facilitar el comercio justo y directo entre productores y compradores.</p>
                     <div class="flex items-center text-white/90">
-                        <i class="fas fa-map-marker-alt mr-3 text-white"></i>
+                        <i class="fas fa-map-marker-alt mr-3"></i>
                         <span>Barrancabermeja, Santander</span>
                     </div>
                 </div>
 
-                <!-- Contact Section -->
-                <div class="space-y-6">
-                    <h3 class="text-xl font-bold text-white">Contacto</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center text-white/90 hover:text-white transition-colors duration-300">
-                            <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-4">
-                                <i class="fas fa-phone text-sm"></i>
-                            </div>
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-white">Enlaces Rápidos</h3>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'marketplace' %}" class="text-white/90 hover:text-white transition">Marketplace</a></li>
+                        <li><a href="{% url 'rankings' %}" class="text-white/90 hover:text-white transition">Rankings</a></li>
+                        <li><a href="{% url 'core:documentation' %}" class="text-white/90 hover:text-white transition">Ayuda</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}" class="text-white/90 hover:text-white transition">Mi Perfil</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}" class="text-white/90 hover:text-white transition">Iniciar Sesión</a></li>
+                        <li><a href="{% url 'register' %}" class="text-white/90 hover:text-white transition">Registrarse</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Contact & Social -->
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-white">Contacto</h3>
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center text-white/90">
+                            <i class="fas fa-phone mr-3"></i>
                             <span>+57 300 123 4567</span>
                         </div>
-                        <div class="flex items-center text-white/90 hover:text-white transition-colors duration-300">
-                            <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-4">
-                                <i class="fas fa-envelope text-sm"></i>
-                            </div>
+                        <div class="flex items-center text-white/90">
+                            <i class="fas fa-envelope mr-3"></i>
                             <span>contacto@agroconnect.com</span>
                         </div>
                     </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                    <div class="flex space-x-3">
+                        <a href="#" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                        <a href="#" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                        <a href="#" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
+                        <a href="#" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                     </div>
                 </div>
-
-                <!-- Credits Section -->
-                <div class="space-y-6">
-                    <h3 class="text-xl font-bold text-white">Desarrollado por</h3>
-                    <div class="space-y-4">
-                        <p class="text-white/90 font-medium">Cristian Ramos y Jhonnier Arguello</p>
-                        <p class="text-white/90">Estudiantes de la <a href="https://udi.edu.co/" target="_blank" class="text-white font-semibold hover:text-accent-200 underline transition-colors duration-300">Universidad de Investigación y Desarrollo - UDI</a></p>
-                    </div>
-                </div>
             </div>
             
-            <div class="mt-12 pt-8 border-t border-primary-700/50 text-center">
-                <p class="text-white/80 font-medium">&copy; 2025 AgroConnect. Todos los derechos reservados.</p>
+            <div class="pt-8 pb-8 border-t border-white/20">
+                <div class="text-center">
+                    <p class="text-white/80 mb-2">&copy; 2025 AgroConnect. Todos los derechos reservados.</p>
+                    <p class="text-white/70 text-sm">Desarrollado por Cristian Ramos y Jhonnier Arguello - <a href="https://udi.edu.co/" target="_blank" class="underline hover:text-white transition">Universidad de Investigación y Desarrollo - UDI</a></p>
+                </div>
             </div>
         </div>
     </footer>
@@ -402,6 +452,14 @@
 
     <!-- Flowbite JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script>
+    // Reinicializar Flowbite después de que todo se cargue
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Flowbite !== 'undefined') {
+            Flowbite.initDropdowns();
+        }
+    });
+    </script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/enhanced-ui.js' %}"></script>
     
