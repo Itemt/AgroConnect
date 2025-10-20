@@ -345,7 +345,7 @@
     <!-- Footer -->
       {% if not request.resolver_match.url_name|slice:":8" == "producer" and not request.resolver_match.url_name|slice:":6" == "buyer_" and not request.resolver_match.url_name == "profile" and not request.resolver_match.url_name|slice:":12" == "conversation" and not request.resolver_match.url_name|slice:":4" == "crop" and not request.resolver_match.url_name|slice:":5" == "order" and not request.resolver_match.url_name|slice:":5" == "admin" %}
       <footer class="bg-green-900 text-white mt-0 w-full">
-          <div class="w-full px-4 lg:px-8 py-12 lg:py-16">
+          <div class="w-full px-4 lg:px-8 pt-12 lg:pt-16 pb-4 lg:pb-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
                 <!-- About Section -->
                 <div>
@@ -408,7 +408,7 @@
                 </div>
             </div>
             
-            <div class="pt-8 pb-8 border-t border-white/20">
+            <div class="pt-8 pb-4 border-t border-white/20">
                 <div class="text-center">
                     <p class="text-white/80 mb-2">&copy; 2025 AgroConnect. Todos los derechos reservados.</p>
                     <p class="text-white/70 text-sm">Desarrollado por Cristian Ramos y Jhonnier Arguello - <a href="https://udi.edu.co/" target="_blank" class="underline hover:text-white transition">Universidad de Investigación y Desarrollo - UDI</a></p>
