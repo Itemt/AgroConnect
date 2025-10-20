@@ -157,6 +157,37 @@ def documentation_view(request):
                 ]
             },
             {
+                'title': '⚖️ Sistema de Conversión de Unidades',
+                'icon': 'fas fa-balance-scale',
+                'color': 'indigo',
+                'content': [
+                    {
+                        'question': '¿Qué es el sistema de conversión de unidades?',
+                        'answer': 'Es un sistema que permite a los compradores elegir su unidad de compra preferida cuando el vendedor publica productos en medidas de peso. Si un vendedor publica en arrobas, puedes comprar en kilogramos, libras o cualquier otra medida de peso.'
+                    },
+                    {
+                        'question': '¿Qué unidades son convertibles?',
+                        'answer': 'Las medidas de PESO son convertibles: Kilogramos (kg), Gramos (g), Libras (lb), Arrobas (@) y Toneladas (t). Puedes comprar en cualquiera si el vendedor publicó en alguna de estas.'
+                    },
+                    {
+                        'question': '¿Qué unidades NO son convertibles?',
+                        'answer': 'Las unidades discretas NO son convertibles: Unidades, Cajas y Bultos. Si el vendedor publica en estas unidades, SOLO puedes comprar en esa unidad específica, sin opción de conversión.'
+                    },
+                    {
+                        'question': '¿Cómo funciona la conversión de precios?',
+                        'answer': 'El sistema convierte automáticamente el precio. Ejemplo: Si el vendedor publica 3 arrobas de tomate a $50,000/arroba, y quieres comprar 5 kg, el sistema calcula automáticamente que el precio es $4,346/kg (porque 1 arroba = 11.502 kg).'
+                    },
+                    {
+                        'question': '¿Puedo exceder la cantidad disponible?',
+                        'answer': 'No. El sistema valida automáticamente la cantidad disponible convirtiendo tu solicitud a la unidad del vendedor. Si pides más de lo disponible, el botón de compra se desactiva y recibes una advertencia.'
+                    },
+                    {
+                        'question': 'Como vendedor, ¿qué debo saber sobre las unidades?',
+                        'answer': 'Si publicas en medidas de peso (kg, libras, arrobas, etc.), los compradores podrán elegir su unidad preferida. Si publicas en Unidades, Cajas o Bultos, los compradores SOLO podrán comprar en esa unidad fija. El sistema te muestra un aviso naranja al seleccionar unidades no convertibles.'
+                    }
+                ]
+            },
+            {
                 'title': '💰 Pagos y Transacciones',
                 'icon': 'fas fa-credit-card',
                 'color': 'purple',
