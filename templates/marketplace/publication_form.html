@@ -538,6 +538,46 @@ document.addEventListener('DOMContentLoaded', function() {
             customAlert.classList.add('hidden');
         }, 300);
     }
+    
+    // Warning para unidades NO convertibles
+    const unidadMedidaSelect = document.getElementById('id_unidad_medida');
+    if (unidadMedidaSelect) {
+        const unidadesNoConvertibles = ['unidades', 'cajas', 'bultos'];
+        
+        // Crear div para el warning
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'unidad-warning';
+        warningDiv.className = 'hidden mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-lg';
+        warningDiv.innerHTML = `
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-orange-600 text-lg mr-2 mt-0.5"></i>
+                <div class="text-sm text-orange-800">
+                    <strong class="font-semibold">Unidad Fija:</strong> 
+                    Los compradores solo podrán comprar en esta unidad específica. 
+                    No habrá opción de conversión a otras medidas.
+                </div>
+            </div>
+        `;
+        
+        // Insertar después del select
+        unidadMedidaSelect.parentNode.appendChild(warningDiv);
+        
+        // Función para mostrar/ocultar warning
+        function checkUnidadMedida() {
+            const selectedValue = unidadMedidaSelect.value;
+            if (unidadesNoConvertibles.includes(selectedValue)) {
+                warningDiv.classList.remove('hidden');
+            } else {
+                warningDiv.classList.add('hidden');
+            }
+        }
+        
+        // Event listener
+        unidadMedidaSelect.addEventListener('change', checkUnidadMedida);
+        
+        // Verificar al cargar
+        checkUnidadMedida();
+    }
 });
 </script>
 {% endblock %}

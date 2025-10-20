@@ -107,13 +107,63 @@
                                 <i class="fas fa-arrow-left mr-2"></i>Volver al Marketplace
                             </a>
                         {% elif user.is_authenticated %}
-                            <form action="{% url 'cart:add_to_cart' publication.id %}" method="post" class="mb-3">
+                            <form action="{% url 'cart:add_to_cart' publication.id %}" method="post" class="mb-3" id="add-to-cart-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="next" value="{{ request.path }}">
-                                <div class="flex items-center mb-3">
-                                    <label for="quantity" class="text-sm font-medium text-gray-700 mr-3">Cantidad:</label>
-                                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ publication.cantidad_disponible }}" class="w-24 text-center border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                                
+                                {% if publication.es_unidad_convertible %}
+                                    <!-- Selector de Unidad (solo para medidas de peso) -->
+                                    <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <label for="unidad" class="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+                                            <i class="fas fa-balance-scale mr-2"></i>
+                                            Selecciona tu unidad de compra:
+                                        </label>
+                                        <select name="unidad" id="unidad" class="w-full mt-2 border-blue-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                            <option value="kg">Kilogramos (kg)</option>
+                                            <option value="g">Gramos (g)</option>
+                                            <option value="libras">Libras (lb)</option>
+                                            <option value="arrobas">Arrobas (@)</option>
+                                            <option value="toneladas">Toneladas (t)</option>
+                                        </select>
+                                        <p class="text-xs text-blue-700 mt-1">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            El vendedor publica en <strong>{{ publication.unidad_medida }}</strong>, pero puedes comprar en cualquier unidad de peso
+                                        </p>
+                                    </div>
+                                {% else %}
+                                    <!-- Mensaje para unidades NO convertibles -->
+                                    <input type="hidden" name="unidad" value="{{ publication.unidad_medida }}">
+                                    <div class="mb-4 bg-orange-50 border-2 border-orange-300 rounded-lg p-4">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-lock text-orange-600 text-xl mr-3 mt-1"></i>
+                                            <div>
+                                                <h4 class="text-sm font-bold text-orange-900 mb-1">Unidad de venta fija</h4>
+                                                <p class="text-xs text-orange-800">
+                                                    Este producto solo se vende por <strong class="text-orange-900 uppercase">{{ publication.get_unidad_medida_display }}</strong>.
+                                                    No es posible cambiar la unidad de compra.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Cantidad y Precio -->
+                                <div class="mb-4">
+                                    <label for="quantity" class="text-sm font-medium text-gray-700 mb-2 block">Cantidad:</label>
+                                    <input type="number" name="quantity" id="quantity" value="1" min="0.001" step="0.001" 
+                                           class="w-full text-center border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg">
+                                    <div id="price-info" class="mt-2 p-2 bg-gray-50 rounded text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Precio por unidad:</span>
+                                            <span id="precio-unitario" class="font-bold text-green-600">$<span data-precio="{{ publication.precio_por_unidad }}">{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
+                                        </div>
+                                        <div class="flex justify-between mt-1 pt-1 border-t">
+                                            <span class="text-gray-700 font-medium">Total:</span>
+                                            <span id="precio-total" class="font-bold text-green-700 text-lg">$<span>{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
+                                        </div>
+                                    </div>
                                 </div>
+                                
                                 <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center text-lg">
                                     <i class="fas fa-cart-plus mr-2"></i>Añadir al Carrito
                                 </button>
@@ -128,4 +178,114 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    // Sistema de conversión de unidades en tiempo real
+    const CONVERSION_TO_KG = {
+        'kg': 1,
+        'g': 0.001,
+        'libras': 0.453592,
+        'arrobas': 11.502,
+        'toneladas': 1000,
+        'unidades': null,
+        'cajas': null,
+        'bultos': null
+    };
+    
+    const unidadVendedor = '{{ publication.unidad_medida }}';
+    const precioOriginal = parseFloat('{{ publication.precio_por_unidad }}');
+    const cantidadDisponible = parseFloat('{{ publication.cantidad_disponible }}');
+    const esConvertible = {{ publication.es_unidad_convertible|yesno:"true,false" }};
+    
+    function convertirUnidad(cantidad, unidadOrigen, unidadDestino) {
+        if (unidadOrigen === unidadDestino) return cantidad;
+        
+        const factorOrigen = CONVERSION_TO_KG[unidadOrigen];
+        const factorDestino = CONVERSION_TO_KG[unidadDestino];
+        
+        if (!factorOrigen || !factorDestino) return null;
+        
+        const cantidadKg = cantidad * factorOrigen;
+        return cantidadKg / factorDestino;
+    }
+    
+    function actualizarPrecio() {
+        const cantidad = parseFloat(document.getElementById('quantity').value) || 0;
+        let unidadSeleccionada = unidadVendedor;
+        let precioUnitario = precioOriginal;
+        let disponibleEnUnidadSeleccionada = cantidadDisponible;
+        
+        // Solo hacer conversión si es unidad convertible y existe el selector
+        if (esConvertible) {
+            const selectorUnidad = document.getElementById('unidad');
+            if (selectorUnidad) {
+                unidadSeleccionada = selectorUnidad.value;
+                
+                // Calcular precio por unidad seleccionada
+                const conversion = convertirUnidad(1, unidadVendedor, unidadSeleccionada);
+                if (conversion) {
+                    precioUnitario = precioOriginal / conversion;
+                    
+                    // Calcular cantidad disponible en unidad seleccionada
+                    disponibleEnUnidadSeleccionada = convertirUnidad(cantidadDisponible, unidadVendedor, unidadSeleccionada);
+                }
+            }
+        }
+        
+        // Calcular precio total
+        const precioTotal = precioUnitario * cantidad;
+        
+        // Actualizar UI
+        document.querySelector('#precio-unitario span').textContent = precioUnitario.toLocaleString('es-CO', {maximumFractionDigits: 0});
+        document.querySelector('#precio-total span').textContent = precioTotal.toLocaleString('es-CO', {maximumFractionDigits: 0});
+        
+        // Actualizar max del input
+        const quantityInput = document.getElementById('quantity');
+        if (esConvertible) {
+            quantityInput.setAttribute('max', disponibleEnUnidadSeleccionada.toFixed(3));
+            quantityInput.setAttribute('step', '0.001');
+        } else {
+            quantityInput.setAttribute('max', cantidadDisponible);
+            quantityInput.setAttribute('step', '1');
+        }
+        
+        // Validar si excede disponible
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (cantidad > disponibleEnUnidadSeleccionada) {
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            submitButton.disabled = true;
+            document.getElementById('price-info').classList.add('border-2', 'border-red-500');
+            
+            // Agregar mensaje de advertencia
+            let warning = document.getElementById('cantidad-warning');
+            if (!warning) {
+                warning = document.createElement('p');
+                warning.id = 'cantidad-warning';
+                warning.className = 'text-red-600 text-xs mt-1';
+                document.getElementById('price-info').appendChild(warning);
+            }
+            warning.textContent = `⚠️ Solo hay ${disponibleEnUnidadSeleccionada.toFixed(esConvertible ? 2 : 0)} ${unidadSeleccionada} disponibles`;
+        } else {
+            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitButton.disabled = false;
+            document.getElementById('price-info').classList.remove('border-2', 'border-red-500');
+            
+            const warning = document.getElementById('cantidad-warning');
+            if (warning) warning.remove();
+        }
+    }
+    
+    // Event listeners
+    const selectorUnidad = document.getElementById('unidad');
+    if (selectorUnidad) {
+        selectorUnidad.addEventListener('change', actualizarPrecio);
+        // Inicializar con la unidad del vendedor
+        selectorUnidad.value = unidadVendedor;
+    }
+    
+    document.getElementById('quantity').addEventListener('input', actualizarPrecio);
+    
+    // Inicializar
+    actualizarPrecio();
+    </script>
 {% endblock %}
