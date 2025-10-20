@@ -98,7 +98,23 @@
     }
     
     html.sidebar-collapsed #sidebar .user-welcome {
-        display: none !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .user-welcome a {
+        justify-content: center !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .user-welcome a:hover {
+        background: transparent !important;
     }
     
     html.sidebar-collapsed #sidebar .sidebar-header {
@@ -190,10 +206,26 @@
     }
     
     #sidebar.w-20 .user-welcome {
-        display: none;
-        opacity: 0;
-        transform: translateY(-10px);
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+        display: flex !important;
+        justify-content: center !important;
+        opacity: 1;
+        transform: translateY(0);
         transition: all 0.3s ease;
+    }
+    
+    #sidebar.w-20 .user-welcome a {
+        justify-content: center !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    
+    #sidebar.w-20 .user-welcome a:hover {
+        background: transparent !important;
     }
     
     #sidebar.w-20 .sidebar-header {
@@ -397,7 +429,23 @@
     }
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome {
-        display: none;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome a {
+        justify-content: center !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome a:hover {
+        background: transparent !important;
     }
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-header {
@@ -456,9 +504,9 @@
                 {% if user.profile_image %}
                     <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="w-12 h-12 rounded-full object-cover shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 {% else %}
-                    <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                        <i class="fas fa-user text-white text-lg"></i>
-                    </div>
+                <div class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <i class="fas fa-user text-white text-lg"></i>
+                </div>
                 {% endif %}
                 <div class="ml-3 sidebar-text">
                     <h3 class="font-semibold text-gray-800 text-sm transition-colors duration-200">{{ user.first_name|default:user.username }}</h3>
@@ -715,9 +763,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-robot text-sm md:text-base"></i>
                     <span class="font-semibold text-sm md:text-base">Asistente IA · AgroConnect</span>
-                </div>
-                <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
             </div>
+            <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
+        </div>
         </div>
         <div class="border-b border-gray-200 flex">
             <button id="tab-ai" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm font-medium bg-white">Asistente</button>
@@ -727,16 +775,16 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="assistant-messages" class="overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50" style="height: 16rem;">
             <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
                 Hola, ¿en qué te ayudo hoy?
-            </div>
-        </div>
+                </div>
+                </div>
         <div id="chat-pane" class="hidden bg-gray-50 flex flex-col" style="height: 16rem;">
             <!-- View: conversations list only -->
             <div id="chat-list-view" class="h-full flex flex-col">
                 <div class="p-2 md:p-3 border-b bg-white flex-shrink-0">
                     <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                </div>
-                <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white"></div>
             </div>
+                <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white"></div>
+        </div>
             <!-- View: thread with back button -->
             <div id="chat-thread-view" class="hidden h-full flex flex-col">
                 <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b bg-white flex-shrink-0">
@@ -764,16 +812,16 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Assistant Bubble Logic -->
 <script>
     (function(){
-        const bubble = document.getElementById('assistant-bubble');
+    const bubble = document.getElementById('assistant-bubble');
         if (!bubble) return;
-        const panel = document.getElementById('assistant-panel');
-        const toggle = document.getElementById('assistant-toggle');
-        const closeBtn = document.getElementById('assistant-close');
-        const form = document.getElementById('assistant-form');
-        const input = document.getElementById('assistant-input');
-        const messages = document.getElementById('assistant-messages');
-        const aiTitle = document.getElementById('assistant-title');
-        const sendBtn = document.getElementById('assistant-send');
+    const panel = document.getElementById('assistant-panel');
+    const toggle = document.getElementById('assistant-toggle');
+    const closeBtn = document.getElementById('assistant-close');
+    const form = document.getElementById('assistant-form');
+    const input = document.getElementById('assistant-input');
+    const messages = document.getElementById('assistant-messages');
+    const aiTitle = document.getElementById('assistant-title');
+    const sendBtn = document.getElementById('assistant-send');
         const tabAI = document.getElementById('tab-ai');
         const tabChat = document.getElementById('tab-chat');
         const chatPane = document.getElementById('chat-pane');
@@ -890,8 +938,8 @@ document.addEventListener('DOMContentLoaded', function() {
             setTyping(true);
             const csrftoken = getCookie('csrftoken');
             setTitleIfEmpty(text);
-            fetch('{% url "core:assistant_reply" %}', {
-                method: 'POST',
+        fetch('{% url "core:assistant_reply" %}', {
+            method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
                 credentials: 'same-origin',
                 body: JSON.stringify({ message: text })
@@ -911,9 +959,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 appendMessage('No pude conectar con el asistente.', 'bot');
             }).finally(()=>{
                 sendBtn.disabled = false;
-            });
         });
-
+    });
+    
         // Mini chat helpers
         function renderConvList(items){
             chatList.innerHTML = '';
