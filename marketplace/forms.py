@@ -26,7 +26,7 @@ class PublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = [
-            'cultivo', 'finca', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
+            'cultivo', 'finca', 'unidad_medida', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
             'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen'
         ]
         widgets = {
@@ -36,17 +36,23 @@ class PublicationForm(forms.ModelForm):
             'finca': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
             }),
+            'unidad_medida': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white',
+                'id': 'id_unidad_medida'
+            }),
             'precio_por_unidad': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
                 'placeholder': 'Ej: 2.50'
             }),
             'cantidad_disponible': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
-                'placeholder': 'Ej: 100'
+                'placeholder': 'Ej: 100',
+                'step': '0.01'
             }),
             'cantidad_minima': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300', 
-                'placeholder': 'Ej: 10'
+                'placeholder': 'Ej: 10',
+                'step': '0.01'
             }),
             'categoria': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
