@@ -709,30 +709,51 @@ document.addEventListener('DOMContentLoaded', function() {
     <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
         <i class="fas fa-robot text-lg md:text-xl"></i>
     </button>
-    
-    <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-3 md:p-4 flex items-center justify-between">
-            <div class="flex items-center">
-                <i class="fas fa-robot mr-2 md:mr-3 text-sm md:text-base"></i>
-                <span class="font-semibold text-sm md:text-base">Asistente IA</span>
+    <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden" style="height: 28rem;">
+        <div class="px-3 py-2 md:px-4 md:py-3 bg-primary-600 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-robot text-sm md:text-base"></i>
+                    <span class="font-semibold text-sm md:text-base">Asistente IA · AgroConnect</span>
+                </div>
+                <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
             </div>
-            <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
         </div>
-        
+        <div class="border-b border-gray-200 flex">
+            <button id="tab-ai" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm font-medium bg-white">Asistente</button>
+            <button id="tab-chat" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm text-gray-600 bg-gray-100">Chats</button>
+        </div>
         <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
-        <div id="assistant-messages" class="h-48 md:h-64 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50">
-            <div class="flex items-start space-x-2 md:space-x-3">
-                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
-                </div>
-                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
-                    <p class="text-xs md:text-sm text-gray-800">¡Hola! Soy tu asistente de IA de AgroConnect. ¿En qué puedo ayudarte hoy?</p>
-                </div>
+        <div id="assistant-messages" class="overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50" style="height: 16rem;">
+            <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
+                Hola, ¿en qué te ayudo hoy?
             </div>
         </div>
-        
+        <div id="chat-pane" class="hidden bg-gray-50 flex flex-col" style="height: 16rem;">
+            <!-- View: conversations list only -->
+            <div id="chat-list-view" class="h-full flex flex-col">
+                <div class="p-2 md:p-3 border-b bg-white flex-shrink-0">
+                    <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                </div>
+                <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white"></div>
+            </div>
+            <!-- View: thread with back button -->
+            <div id="chat-thread-view" class="hidden h-full flex flex-col">
+                <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b bg-white flex-shrink-0">
+                    <button id="chat-back" class="text-primary-700 text-xs md:text-sm px-2 py-1 rounded hover:bg-primary-50"><i class="fas fa-arrow-left mr-1"></i>Atrás</button>
+                    <div id="chat-thread-title" class="text-xs md:text-sm text-gray-700 truncate ml-2 flex-1"></div>
+                </div>
+                <div id="chat-thread" class="flex-1 overflow-y-auto p-2 md:p-3 space-y-1 md:space-y-2 bg-gray-50"></div>
+                <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white flex-shrink-0">
+                    <input id="chat-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
+                    <button id="chat-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                        <i class="fas fa-paper-plane text-xs md:text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
         <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
-            <input id="assistant-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Pregunta sobre la plataforma..." required>
+            <input id="assistant-input" type="text" class="flex-1 text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-sm" placeholder="Pregunta sobre la plataforma..." required>
             <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
                 <i class="fas fa-paper-plane text-xs md:text-sm"></i>
             </button>
@@ -742,144 +763,279 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Assistant Bubble Logic -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const bubble = document.getElementById('assistant-bubble');
-    const panel = document.getElementById('assistant-panel');
-    const toggle = document.getElementById('assistant-toggle');
-    const closeBtn = document.getElementById('assistant-close');
-    const form = document.getElementById('assistant-form');
-    const input = document.getElementById('assistant-input');
-    const messages = document.getElementById('assistant-messages');
-    const aiTitle = document.getElementById('assistant-title');
-    const sendBtn = document.getElementById('assistant-send');
-    
-    let isOpen = false;
-    let conversationId = null;
-    
-    // Toggle panel
-    toggle.addEventListener('click', function() {
-        isOpen = !isOpen;
-        panel.classList.toggle('hidden', !isOpen);
-        if (isOpen) {
-            input.focus();
-        }
-    });
-    
-    // Close panel
-    closeBtn.addEventListener('click', function() {
-        isOpen = false;
-        panel.classList.add('hidden');
-    });
-    
-    // Send message
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const message = input.value.trim();
-        if (!message) return;
-        
-        // Add user message
-        addMessage(message, 'user');
-        input.value = '';
-        
-        // Show typing indicator
-        showTypingIndicator();
-        
-        // Send to backend
-        fetch('{% url "core:assistant_reply" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideTypingIndicator();
-            if (data.success) {
-                addMessage(data.reply, 'assistant');
-            } else {
-                addMessage('Lo siento, hubo un error al procesar tu mensaje.', 'assistant');
-            }
-        })
-        .catch(error => {
-            hideTypingIndicator();
-            addMessage('Lo siento, hubo un error de conexión.', 'assistant');
-        });
-    });
-    
-    function addMessage(content, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'flex items-start space-x-2 md:space-x-3';
-        
-        if (sender === 'user') {
-            messageDiv.innerHTML = `
-                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-user text-blue-600 text-xs md:text-sm"></i>
-                </div>
-                <div class="bg-blue-500 text-white rounded-lg p-2 md:p-3 shadow-sm max-w-[85%]">
-                    <p class="text-xs md:text-sm">${content}</p>
-                </div>
-            `;
-        } else {
-            messageDiv.innerHTML = `
-                <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
-                </div>
-                <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
-                    <p class="text-xs md:text-sm text-gray-800">${content}</p>
-                </div>
-            `;
-        }
-        
-        messages.appendChild(messageDiv);
-        messages.scrollTop = messages.scrollHeight;
-    }
-    
-    function showTypingIndicator() {
-        let el = document.getElementById('assistant-typing');
-        if (el) el.remove();
-        
-        el = document.createElement('div');
-        el.className = 'flex items-start space-x-2 md:space-x-3';
-        el.id = 'assistant-typing';
-        el.innerHTML = `
-            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-robot text-primary-600 text-xs md:text-sm"></i>
-            </div>
-            <div class="bg-white rounded-lg p-2 md:p-3 shadow-sm border border-gray-200 max-w-[85%]">
-                <div class="flex space-x-1">
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                </div>
-            </div>
-        `;
-        messages.appendChild(el);
-        messages.scrollTop = messages.scrollHeight;
-    }
-    
-    function hideTypingIndicator() {
-        const el = document.getElementById('assistant-typing');
-        if (el) el.remove();
-    }
-    
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-});
+    (function(){
+        const bubble = document.getElementById('assistant-bubble');
+        if (!bubble) return;
+        const panel = document.getElementById('assistant-panel');
+        const toggle = document.getElementById('assistant-toggle');
+        const closeBtn = document.getElementById('assistant-close');
+        const form = document.getElementById('assistant-form');
+        const input = document.getElementById('assistant-input');
+        const messages = document.getElementById('assistant-messages');
+        const aiTitle = document.getElementById('assistant-title');
+        const sendBtn = document.getElementById('assistant-send');
+        const tabAI = document.getElementById('tab-ai');
+        const tabChat = document.getElementById('tab-chat');
+        const chatPane = document.getElementById('chat-pane');
+        const chatList = document.getElementById('chat-list');
+        const chatThread = document.getElementById('chat-thread');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatListView = document.getElementById('chat-list-view');
+        const chatThreadView = document.getElementById('chat-thread-view');
+        const chatBack = document.getElementById('chat-back');
+        const chatTitle = document.getElementById('chat-thread-title');
+        let activeConversationId = null;
+        let lastMsgId = 0;
+        let polling = false;
+        let conversationsCache = [];
 
+        function appendMessage(text, from){
+            const div = document.createElement('div');
+            div.className = `text-sm rounded-xl p-3 shadow-soft ${from === 'user' ? 'bg-primary-600 text-white ml-10' : 'bg-white text-gray-800 mr-10'}`;
+            if (from === 'bot'){
+                // Render minimal markdown: **bold** and '- ' lists
+                const html = (text || '')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1<\/strong>')
+                    .split('\n')
+                    .map(line => line.trim().startsWith('- ')
+                        ? `<li>${line.trim().substring(2)}</li>`
+                        : `<p>${line}</p>`)
+                    .join('');
+                div.innerHTML = html.includes('<li>') ? `<ul class="list-disc ml-4 space-y-1">${html}<\/ul>` : html;
+            } else {
+                div.textContent = text;
+            }
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function setTyping(state){
+            let el = document.getElementById('assistant-typing');
+            if (state){
+                if (!el){
+                    el = document.createElement('div');
+                    el.id = 'assistant-typing';
+                    el.className = 'text-xs text-gray-600 italic mr-10 px-3 py-2';
+                    el.textContent = 'El asistente está escribiendo…';
+                    messages.appendChild(el);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            } else if (el){
+                el.remove();
+            }
+        }
+
+        function setTitleIfEmpty(fromText){
+            try{
+                if (fromText){
+                    const t = fromText.trim().replace(/\s+/g,' ').slice(0,60);
+                    aiTitle.textContent = t || 'Nueva conversación';
+                } else {
+                    aiTitle.textContent = 'Nueva conversación';
+                }
+            }catch(_){/* ignore */}
+        }
+
+        // Resetear título al cargar la página
+        setTitleIfEmpty('');
+
+        function getCookie(name){
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        toggle.addEventListener('click', ()=>{ panel.classList.toggle('hidden'); });
+        closeBtn.addEventListener('click', ()=>{ panel.classList.add('hidden'); });
+
+        // Tabs
+        if (tabAI && tabChat){
+            tabAI.addEventListener('click', ()=>{
+                tabAI.classList.remove('text-gray-600','bg-gray-100');
+                tabAI.classList.add('font-medium','bg-white');
+                tabChat.classList.remove('font-medium','bg-white');
+                tabChat.classList.add('text-gray-600','bg-gray-100');
+                aiTitle.classList.remove('hidden');
+                messages.classList.remove('hidden');
+                form.classList.remove('hidden');
+                chatPane.classList.add('hidden');
+            });
+            tabChat.addEventListener('click', ()=>{
+                tabChat.classList.remove('text-gray-600','bg-gray-100');
+                tabChat.classList.add('font-medium','bg-white');
+                tabAI.classList.remove('font-medium','bg-white');
+                tabAI.classList.add('text-gray-600','bg-gray-100');
+                aiTitle.classList.add('hidden');
+                messages.classList.add('hidden');
+                form.classList.add('hidden');
+                chatPane.classList.remove('hidden');
+                // Start in list view
+                if (chatListView && chatThreadView){
+                    chatListView.classList.remove('hidden');
+                    chatThreadView.classList.add('hidden');
+                }
+                loadConversations();
+            });
+        }
+
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+            appendMessage(text, 'user');
+            input.value = '';
+            sendBtn.disabled = true;
+            setTyping(true);
+            const csrftoken = getCookie('csrftoken');
+            setTitleIfEmpty(text);
+            fetch('{% url "core:assistant_reply" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                credentials: 'same-origin',
+                body: JSON.stringify({ message: text })
+            }).then(r=>r.json()).then(res=>{
+                setTyping(false);
+                if (res && res.success){
+                    appendMessage(res.reply + (res.model && res.model !== 'fallback' ? `\n\n` : ''), 'bot');
+                    if (res.model && res.model !== 'fallback'){
+                        const modelTag = document.createElement('div');
+                        modelTag.className = 'text-[10px] text-gray-500 mt-1 mr-10 text-right';
+                        modelTag.textContent = `Respuesta IA: ${res.model}`;
+                        messages.appendChild(modelTag);
+                    }
+                } else { appendMessage('Lo siento, hubo un problema. Intenta de nuevo.', 'bot'); }
+            }).catch(()=>{
+                setTyping(false);
+                appendMessage('No pude conectar con el asistente.', 'bot');
+            }).finally(()=>{
+                sendBtn.disabled = false;
+            });
+        });
+
+        // Mini chat helpers
+        function renderConvList(items){
+            chatList.innerHTML = '';
+            (items || []).forEach(c => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-primary-50';
+                btn.innerHTML = `<div class="font-medium">${c.other_user}</div><div class="text-xs text-gray-600 truncate">${c.last_message || ''}</div>`;
+                btn.addEventListener('click', ()=>{
+                    activeConversationId = c.id;
+                    chatThread.innerHTML = '';
+                    lastMsgId = 0;
+                    // Switch to thread view
+                    if (chatListView && chatThreadView){
+                        chatListView.classList.add('hidden');
+                        chatThreadView.classList.remove('hidden');
+                    }
+                    if (chatTitle){ chatTitle.textContent = c.other_user || 'Chat'; }
+                    pollMessages();
+                });
+                chatList.appendChild(btn);
+            });
+        }
+
+        function loadConversations(){
+            // Only last 15 days
+            const since = new Date(Date.now() - 15*24*60*60*1000).toISOString().slice(0,10);
+            fetch(`/api/conversations/?since=${since}`, { credentials: 'same-origin' })
+              .then(r=>r.json()).then(res=>{
+                if (res && res.success){
+                    conversationsCache = res.conversations || [];
+                    renderConvList(conversationsCache);
+                    // Mostrar aviso si hay archivadas
+                    if ((res.archived_count||0) > 0){
+                        const note = document.createElement('div');
+                        note.className = 'text-xs text-gray-600 px-3 py-2';
+                        note.innerHTML = `Tienes ${res.archived_count} conversaciones archivadas (&gt;15 días). <a href="/conversations/" class="text-primary-700 underline">Ver panel</a>`;
+                        chatList.prepend(note);
+                    }
+                }
+              }).catch(()=>{});
+        }
+
+        // Filtro de conversaciones
+        const chatSearch = document.getElementById('chat-search');
+        if (chatSearch){
+            chatSearch.addEventListener('input', function(){
+                const q = this.value.toLowerCase().trim();
+                const filtered = conversationsCache.filter(c =>
+                    (c.other_user||'').toLowerCase().includes(q) || (c.last_message||'').toLowerCase().includes(q)
+                );
+                renderConvList(filtered);
+            });
+        }
+
+        function pollMessages(){
+            if (!activeConversationId || polling) return;
+            polling = true;
+            fetch(`/conversation/${activeConversationId}/messages/?since=${lastMsgId}`, { credentials: 'same-origin' })
+              .then(r=>r.json()).then(data=>{
+                (data.messages||[]).forEach(m=>{
+                    const div = document.createElement('div');
+                    const own = Number('{{ user.id|default:0 }}') === m.sender_id;
+                    div.className = `text-sm rounded-xl p-2 ${own ? 'bg-primary-600 text-white ml-10' : 'bg-white text-gray-800 mr-10'}`;
+                    div.textContent = m.content;
+                    chatThread.appendChild(div);
+                    lastMsgId = Math.max(lastMsgId, m.id);
+                    chatThread.scrollTop = chatThread.scrollHeight;
+                });
+                polling = false;
+              }).catch(()=>{ polling = false; });
+        }
+
+        setInterval(()=>{ if (chatPane && !chatPane.classList.contains('hidden') && activeConversationId) pollMessages(); }, 500);
+
+        // Back button to conversations list
+        if (chatBack){
+            chatBack.addEventListener('click', function(){
+                activeConversationId = null;
+                if (chatListView && chatThreadView){
+                    chatThreadView.classList.add('hidden');
+                    chatListView.classList.remove('hidden');
+                    chatThread.innerHTML = '';
+                }
+            });
+        }
+
+        chatForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            if (!activeConversationId){
+                const warn = document.createElement('div');
+                warn.className = 'text-xs text-red-600 px-3 pb-2';
+                warn.textContent = 'Primero selecciona una conversación.';
+                chatThread.prepend(warn);
+                setTimeout(()=> warn.remove(), 3000);
+                return;
+            }
+            const text = chatInput.value.trim();
+            if (!text) return;
+            const fd = new FormData();
+            fd.append('content', text);
+            fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+            fetch(`/conversation/${activeConversationId}/`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+              .then(r=>r.json()).then(res=>{
+                if (res && res.success){
+                    const div = document.createElement('div');
+                    div.className = 'text-sm rounded-xl p-2 bg-primary-600 text-white ml-10';
+                    div.textContent = res.message.content;
+                    chatThread.appendChild(div);
+                    lastMsgId = Math.max(lastMsgId, res.message.id);
+                    chatInput.value = '';
+                    chatThread.scrollTop = chatThread.scrollHeight;
+                } else if (res && res.archived){
+                    // Si la conversación está archivada, redirigir al panel completo
+                    window.location.href = '/conversations/';
+                }
+              }).catch(()=>{});
+        });
+    })();
+</script>
+
+<script>
 // Polling para notificaciones del sidebar
 (function() {
     let pollingInterval = null;
