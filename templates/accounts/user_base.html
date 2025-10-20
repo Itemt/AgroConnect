@@ -95,6 +95,24 @@
     
     html.sidebar-collapsed #sidebar .sidebar-text {
         display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        transition: none !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-nav h4 {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        transition: none !important;
     }
     
     html.sidebar-collapsed #sidebar .user-welcome {
@@ -105,6 +123,10 @@
         margin-bottom: 1rem !important;
         display: flex !important;
         justify-content: center !important;
+        /* Mantener la altura fija */
+        min-height: 5rem !important;
+        height: 5rem !important;
+        transition: background 0.3s, border 0.3s, box-shadow 0.3s, padding 0.3s !important;
     }
     
     html.sidebar-collapsed #sidebar .user-welcome a {
@@ -123,6 +145,20 @@
     
     html.sidebar-collapsed #sidebar .sidebar-nav a {
         justify-content: center !important;
+        min-height: 3rem !important;
+        height: 3rem !important;
+    }
+    
+    html.sidebar-collapsed #sidebar .sidebar-nav h4 {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        transition: none !important;
     }
 
     /* Sidebar styles */
@@ -184,15 +220,31 @@
     
     #sidebar.w-20 .sidebar-text {
         display: none !important;
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: all 0.3s ease;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        transition: none !important;
     }
     
     #sidebar.w-20 .sidebar-nav a {
         justify-content: center;
         padding: 0.75rem;
-        min-height: 2.5rem;
+        min-height: 3rem !important;
+        height: 3rem !important;
+    }
+    
+    #sidebar.w-20 .sidebar-nav h4 {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        transition: none !important;
     }
     
     #sidebar.w-20 .sidebar-nav a.bg-gradient-to-r {
@@ -215,7 +267,10 @@
         justify-content: center !important;
         opacity: 1;
         transform: translateY(0);
-        transition: all 0.3s ease;
+        /* Mantener la altura fija */
+        min-height: 5rem !important;
+        height: 5rem !important;
+        transition: background 0.3s, border 0.3s, box-shadow 0.3s, padding 0.3s !important;
     }
     
     #sidebar.w-20 .user-welcome a {
@@ -239,15 +294,22 @@
     
     /* Smooth transitions for text visibility */
     .sidebar-text {
-        transition: all 0.3s ease;
         opacity: 1;
-        transform: translateX(0);
+        visibility: visible;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
     }
     
     .user-welcome {
-        transition: all 0.3s ease;
         opacity: 1;
         transform: translateY(0);
+        /* Altura fija para evitar rebote */
+        min-height: 5rem;
+        height: 5rem;
+        display: flex;
+        align-items: center;
+        transition: background 0.3s, border 0.3s, box-shadow 0.3s, padding 0.3s;
     }
     
     #sidebar-toggle {
@@ -339,12 +401,15 @@
         padding: 0.75rem;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         min-height: 3rem;
+        height: 3rem;
         background: transparent;
         border: none;
-        transition: all 0.3s ease;
+        transition: background 0.3s ease, transform 0.3s ease;
         position: relative;
+        white-space: nowrap;
+        overflow: hidden;
     }
     
     .sidebar-nav a:hover {
@@ -426,6 +491,11 @@
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-text {
         display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        transition: none !important;
     }
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome {
@@ -436,6 +506,10 @@
         margin-bottom: 1rem !important;
         display: flex !important;
         justify-content: center !important;
+        /* Mantener la altura fija */
+        min-height: 5rem !important;
+        height: 5rem !important;
+        transition: background 0.3s, border 0.3s, box-shadow 0.3s, padding 0.3s !important;
     }
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .user-welcome a {
@@ -454,6 +528,21 @@
     
     #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-nav a {
         justify-content: center;
+        min-height: 3rem !important;
+        height: 3rem !important;
+    }
+    
+    #sidebar-toggle-checkbox:checked + .relative #sidebar .sidebar-nav h4 {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        transition: none !important;
     }
     
     /* Estilo específico para el botón de cerrar sesión */
@@ -469,6 +558,40 @@
     /* Smooth transitions for dropdowns */
     [x-cloak] {
         display: none !important;
+    }
+    
+    /* Altura fija para la sección de navegación para evitar rebotes */
+    .sidebar-nav > div {
+        min-height: fit-content;
+    }
+    
+    /* Asegurar que los títulos de sección tengan altura consistente */
+    .sidebar-nav h4 {
+        min-height: 1.5rem;
+        height: 1.5rem;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        transition: none;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    /* Transición suave solo para el ancho del sidebar */
+    #sidebar {
+        transition: width 0.3s ease-in-out;
+    }
+    
+    /* Desactivar transiciones en elementos internos para evitar rebote */
+    #sidebar * {
+        transition-property: background, border, box-shadow, color, transform, filter;
+        transition-duration: 0.3s;
+    }
+    
+    /* Excepción: NO animar cambios de tamaño, display, visibility u opacity */
+    #sidebar .sidebar-text,
+    #sidebar .sidebar-nav h4 {
+        transition: none !important;
     }
 </style>
 {% endblock %}
@@ -491,7 +614,7 @@
                 <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
                     <i class="fas fa-cog text-white text-xl"></i>
                 </div>
-                <span class="sidebar-text text-lg font-normal text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent">Panel de Administración</span>
+                <span class="sidebar-text text-lg font-normal text-white ml-3 bg-gradient-to-r from-white to-accent-100 bg-clip-text text-transparent whitespace-nowrap">Panel</span>
             </div>
             <button type="button" onclick="document.getElementById('sidebar-toggle-checkbox').click()" class="w-10 h-10 flex items-center justify-center text-white hover:text-accent-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-opacity-50 rounded-xl hover:bg-white/10 transition-all duration-300 border border-accent-400/30 hover:border-accent-300 cursor-pointer">
                 <i class="fas fa-bars text-lg"></i>
@@ -518,48 +641,48 @@
         <nav class="text-white sidebar-nav px-0">
             <!-- Navegación Principal -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Navegación</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Menú</span></h4>
                 <a href="{% url 'index' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'index' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-home w-5"></i>
-                    <span class="sidebar-text ml-3">Inicio</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Inicio</span>
                 </a>
                 
                 <a href="{% url 'marketplace' %}" class="mb-3 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'marketplace' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-store w-5"></i>
-                    <span class="sidebar-text ml-3">Marketplace</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Tienda</span>
                 </a>
             </div>
             
             <!-- Dashboard y Perfil -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Mi Cuenta</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Cuenta</span></h4>
                 {% if user.role == 'Productor' %}
                 <a href="{% url 'producer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-tachometer-alt w-5"></i>
-                    <span class="sidebar-text ml-3">Dashboard</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Panel</span>
                 </a>
                 
                 <!-- Mis Fincas - Primera opción para productores -->
                 <a href="{% url 'core:farm_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'farm_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-tractor w-5"></i>
-                    <span class="sidebar-text ml-3">Mis Fincas</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Fincas</span>
                 </a>
                 
                 <!-- Mis Cultivos - Segunda opción para productores -->
                 <a href="{% url 'crop_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'crop_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-seedling w-5"></i>
-                    <span class="sidebar-text ml-3">Mis Cultivos</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Cultivos</span>
                 </a>
                 {% elif user.role == 'Comprador' %}
                 <a href="{% url 'buyer_dashboard' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'buyer_dashboard' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-tachometer-alt w-5"></i>
-                    <span class="sidebar-text ml-3">Dashboard</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Panel</span>
                 </a>
                 
                 <!-- Opción para convertirse en vendedor - Solo para compradores -->
                 <a href="{% url 'become_seller' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'become_seller' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-store w-5"></i>
-                    <span class="sidebar-text ml-3">¿Quieres ser vendedor?</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Ser Vendedor</span>
                 </a>
                 {% endif %}
             </div>
@@ -567,49 +690,49 @@
             <!-- Funcionalidades Específicas por Rol -->
             {% if user.role == 'Productor' %}
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Gestión de Productos</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Productos</span></h4>
                 <a href="{% url 'my_publications' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'my_publications' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-bullhorn w-5"></i>
-                    <span class="sidebar-text ml-3">Mis Publicaciones</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Publicaciones</span>
                 </a>
                 <a href="{% url 'producer_sales' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'producer_sales' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-chart-line w-5"></i>
-                    <span class="sidebar-text ml-3">Ventas</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Ventas</span>
                 </a>
             </div>
             {% endif %}
             
             <!-- Comunicación y Pedidos -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Comunicación</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Mensajes</span></h4>
                 <a href="{% url 'conversation_list' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'conversation_list' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-comments w-5"></i>
-                    <span class="sidebar-text ml-3">Mensajes</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Chats</span>
                 </a>
                 <a href="{% url 'core:notifications_page' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'notifications_page' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <div class="relative">
                         <i class="fas fa-bell w-5"></i>
                         <span id="sidebar-notifications-badge" class="hidden absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-4 min-w-[1rem] px-1 flex items-center justify-center shadow-lg"></span>
                     </div>
-                    <span class="sidebar-text ml-3">Notificaciones</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Alertas</span>
                 </a>
             </div>
             
             <!-- Pedidos y Compras -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Pedidos</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Pedidos</span></h4>
                 <a href="{% url 'order_history' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'order_history' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-shopping-cart w-5"></i>
-                    <span class="sidebar-text ml-3">{% if user.role == 'Productor' %}Mis Compras{% else %}Mis Pedidos{% endif %}</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">{% if user.role == 'Productor' %}Compras{% else %}Pedidos{% endif %}</span>
                 </a>
             </div>
             
             <!-- Ayuda y Documentación -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text">Ayuda</h4>
+                <h4 class="text-xs font-semibold text-primary-300 uppercase tracking-wider mb-3 sidebar-text whitespace-nowrap"><span class="section-title">Ayuda</span></h4>
                 <a href="{% url 'core:documentation' %}" class="mb-2 flex items-center px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200 {% if request.resolver_match.url_name == 'documentation' %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                     <i class="fas fa-book w-5"></i>
-                    <span class="sidebar-text ml-3">Documentación</span>
+                    <span class="sidebar-text ml-3 whitespace-nowrap">Docs</span>
                 </a>
             </div>
             
@@ -618,7 +741,7 @@
             <div class="border-t border-primary-700 my-4"></div>
             <a href="{% url 'admin_dashboard' %}" class="{% if 'admin' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-500 to-accent-600{% endif %}">
                 <i class="fas fa-cog"></i>
-                <span class="sidebar-text">Panel Admin</span>
+                <span class="sidebar-text whitespace-nowrap">Admin</span>
             </a>
             {% endif %}
             
@@ -627,7 +750,7 @@
             
             <a href="{% url 'logout' %}" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-500/20 transition-all duration-200 text-red-300 hover:text-white">
                 <i class="fas fa-sign-out-alt w-5"></i>
-                <span class="sidebar-text ml-3">Cerrar Sesión</span>
+                <span class="sidebar-text ml-3 whitespace-nowrap">Salir</span>
             </a>
         </nav>
     </div>
