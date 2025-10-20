@@ -49,6 +49,29 @@
 - **Carrito de compras**: Gestión completa con cálculo automático de totales
 - **Publicaciones desde cultivos**: Asociadas a finca específica con trazabilidad
 
+### ⚖️ **Sistema de Conversión de Unidades**
+- **Unidades de peso convertibles**: kg, g, libras, arrobas, toneladas (conversión automática)
+- **Unidades discretas fijas**: unidades, cajas, bultos (sin conversión)
+- **Conversión automática de precios**: El sistema calcula el precio en la unidad elegida por el comprador
+- **Validación de disponibilidad**: Previene compras que excedan el stock disponible
+- **Flexibilidad para compradores**: Compra en tu unidad preferida aunque el vendedor publique en otra
+- **Transparencia para vendedores**: Avisos claros sobre unidades convertibles vs fijas
+
+#### ¿Cómo Funciona?
+**Ejemplo práctico:**
+- 🌾 **Vendedor publica**: 3 arrobas de tomate a $50,000/arroba
+- 🛒 **Comprador quiere**: 5 kg de tomate
+- ⚙️ **Sistema convierte**: 
+  - 1 arroba = 11.502 kg
+  - Precio por kg = $50,000 ÷ 11.502 = $4,346/kg
+  - Total por 5 kg = $21,730
+  - Disponible: 34.5 kg (3 arrobas convertidas)
+- ✅ **Validación automática**: El comprador no puede pedir más de 34.5 kg
+
+**Unidades soportadas:**
+- **Convertibles** (peso): Kilogramos (kg), Gramos (g), Libras (lb), Arrobas (@), Toneladas (t)
+- **Fijas** (discretas): Unidades, Cajas, Bultos - solo se pueden comprar en la unidad publicada
+
 ### 📦 **Sistema Completo de Pedidos**
 - **Flujo de estados**: Pendiente → Confirmado → En Preparación → Enviado → En Tránsito → Recibido → Completado
 - **Gestión por roles**: Acciones específicas para compradores y vendedores
@@ -296,7 +319,7 @@ AgroConnect/
 │   └── forms.py             # Formularios de cultivos
 │
 ├── 📁 marketplace/           # Marketplace y publicaciones
-│   ├── models.py            # Publication
+│   ├── models.py            # Publication (con sistema de conversión de unidades)
 │   ├── views.py             # Listado, búsqueda, filtros, CRUD publicaciones
 │   └── forms.py             # Formularios de publicaciones
 │
@@ -488,13 +511,20 @@ graph LR
 - cultivo: FK → Crop
 - finca: FK → Farm
 - precio_por_unidad: Decimal
-- cantidad_disponible: PositiveInt
-- cantidad_minima: PositiveInt
+- cantidad_disponible: Decimal (con conversión de unidades)
+- cantidad_minima: Decimal
+- unidad_medida: choices (kg, g, libras, arrobas, toneladas, unidades, cajas, bultos)
 - departamento, ciudad: str
 - categoria: choices
 - estado: choices (Activa, Pausada, Agotada)
 - descripcion: text
 - imagen: ImageField
+
+# Métodos de conversión de unidades:
+- convertir_unidad(cantidad, unidad_origen, unidad_destino)
+- obtener_precio_en_unidad(unidad_destino)
+- es_unidad_convertible()
+- verificar_disponibilidad(cantidad_solicitada, unidad_solicitada)
 ```
 
 #### 🛒 **cart.Cart** y **cart.CartItem**
@@ -506,7 +536,12 @@ graph LR
 # CartItem
 - cart: FK → Cart
 - publication: FK → Publication
-- quantity: PositiveInt
+- quantity: Decimal (soporta decimales para conversiones)
+- unidad_compra: str (unidad elegida por el comprador)
+
+# Propiedades calculadas:
+- get_item_price() - calcula el precio con conversión de unidades
+- precio_unitario_display() - precio por unidad en la unidad de compra
 ```
 
 #### 📦 **sales.Order** (Pedido)
