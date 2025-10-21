@@ -150,6 +150,8 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
 
     // Configurar Google Sign-In
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
     // Removido temporalmente: prompt: 'select_account' para depuración
     // provider.setCustomParameters({
     //     prompt: 'select_account'
@@ -169,7 +171,14 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
             
             // Iniciar sesión con Google usando popup (más confiable)
             console.log('Llamando a signInWithPopup...');
-            const result = await firebase.auth().signInWithPopup(provider);
+            
+            // Agregar timeout de 60 segundos para el popup
+            const popupPromise = firebase.auth().signInWithPopup(provider);
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Popup timeout después de 60 segundos')), 60000)
+            );
+            
+            const result = await Promise.race([popupPromise, timeoutPromise]);
             console.log('signInWithPopup completado exitosamente');
             console.log('Result completo:', result);
             const user = result.user;

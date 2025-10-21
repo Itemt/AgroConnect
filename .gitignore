@@ -117,6 +117,9 @@ serviceAccountKey.json
 firebase-credentials.json
 *-firebase-adminsdk-*.json
 
+# Firebase test files (local only)
+firebase_test.html
+
 # Database files
 *.db
 *.sqlite
