@@ -62,42 +62,29 @@ def google_signin(request):
             return JsonResponse({
                 'success': True,
                 'message': 'Inicio de sesión exitoso',
-                'redirect_url': '/accounts/profile/' if user.role else '/accounts/complete-profile/'
+                'redirect_url': '/'
             })
             
         except User.DoesNotExist:
-            # Crear nuevo usuario
-            # Generar username único basado en el email
-            username = email.split('@')[0]
-            base_username = username
-            counter = 1
+            # Usuario nuevo - Guardar datos de Google en sesión y redirigir a registro
+            # Generar username sugerido basado en el email
+            suggested_username = email.split('@')[0]
             
-            while User.objects.filter(username=username).exists():
-                username = f"{base_username}{counter}"
-                counter += 1
-            
-            # Crear usuario sin contraseña (se autentica solo con Google)
-            user = User.objects.create(
-                username=username,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                role='Comprador',  # Por defecto es comprador
-            )
-            user.set_unusable_password()  # No puede usar contraseña tradicional
-            user.save()
-            
-            # Crear perfil de comprador
-            BuyerProfile.objects.create(user=user)
-            
-            # Iniciar sesión
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
+            # Guardar datos de Google en la sesión
+            request.session['google_signup_data'] = {
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+                'name': name,
+                'picture': picture,
+                'suggested_username': suggested_username,
+                'firebase_uid': user_info.get('uid')
+            }
             
             return JsonResponse({
                 'success': True,
-                'message': 'Registro exitoso con Google',
-                'redirect_url': '/accounts/complete-profile/',
+                'message': 'Nuevo usuario - completar registro',
+                'redirect_url': '/accounts/register-with-google/',
                 'new_user': True
             })
             
@@ -114,41 +101,114 @@ def google_signin(request):
         }, status=500)
 
 
-@login_required
-def complete_profile(request):
+def register_with_google(request):
     """
-    Vista para completar el perfil después del registro con Google
+    Vista para completar el registro después de autenticarse con Google
+    El usuario debe proporcionar: username, cédula, teléfono, departamento, ciudad y contraseña
     """
-    if request.user.telefono and request.user.ciudad and request.user.departamento:
-        # Perfil ya completado
-        return redirect('profile')
+    # Verificar que hay datos de Google en la sesión
+    google_data = request.session.get('google_signup_data')
+    
+    if not google_data:
+        messages.error(request, 'Sesión expirada. Por favor, inicia sesión con Google nuevamente.')
+        return redirect('login')
     
     if request.method == 'POST':
-        telefono = request.POST.get('telefono')
+        username = request.POST.get('username')
         cedula = request.POST.get('cedula')
+        telefono = request.POST.get('telefono')
         departamento = request.POST.get('departamento')
         ciudad = request.POST.get('ciudad')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
         
-        # Actualizar usuario
-        request.user.telefono = telefono
-        request.user.cedula = cedula
-        request.user.departamento = departamento
-        request.user.ciudad = ciudad
-        request.user.save()
+        # Validaciones
+        errors = []
         
-        # Actualizar perfil de comprador
-        if hasattr(request.user, 'buyer_profile'):
-            request.user.buyer_profile.departamento = departamento
-            request.user.buyer_profile.ciudad = ciudad
-            request.user.buyer_profile.save()
+        if not username or len(username) < 3:
+            errors.append('El nombre de usuario debe tener al menos 3 caracteres')
         
-        messages.success(request, 'Perfil completado exitosamente')
-        return redirect('profile')
+        if User.objects.filter(username=username).exists():
+            errors.append('El nombre de usuario ya está en uso')
+        
+        if not cedula:
+            errors.append('La cédula es requerida')
+        
+        if not telefono:
+            errors.append('El teléfono es requerido')
+        
+        if not departamento or not ciudad:
+            errors.append('Departamento y ciudad son requeridos')
+        
+        if not password or len(password) < 6:
+            errors.append('La contraseña debe tener al menos 6 caracteres')
+        
+        if password != confirm_password:
+            errors.append('Las contraseñas no coinciden')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            context = {
+                'google_data': google_data,
+                'username': username,
+                'cedula': cedula,
+                'telefono': telefono,
+                'departamento': departamento,
+                'ciudad': ciudad
+            }
+            return render(request, 'accounts/register_with_google.html', context)
+        
+        # Crear el usuario
+        try:
+            user = User.objects.create(
+                username=username,
+                email=google_data['email'],
+                first_name=google_data['first_name'],
+                last_name=google_data['last_name'],
+                cedula=cedula,
+                telefono=telefono,
+                departamento=departamento,
+                ciudad=ciudad,
+                role='Comprador'  # Por defecto es comprador
+            )
+            user.set_password(password)
+            user.save()
+            
+            # Crear perfil de comprador
+            BuyerProfile.objects.create(
+                user=user,
+                departamento=departamento,
+                ciudad=ciudad
+            )
+            
+            # Limpiar datos de Google de la sesión
+            del request.session['google_signup_data']
+            
+            # Iniciar sesión automáticamente
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            
+            messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}! Tu cuenta ha sido creada exitosamente.')
+            return redirect('index')
+            
+        except Exception as e:
+            messages.error(request, f'Error al crear la cuenta: {str(e)}')
+            context = {
+                'google_data': google_data,
+                'username': username,
+                'cedula': cedula,
+                'telefono': telefono,
+                'departamento': departamento,
+                'ciudad': ciudad
+            }
+            return render(request, 'accounts/register_with_google.html', context)
     
+    # GET request - mostrar formulario
     context = {
-        'user': request.user
+        'google_data': google_data
     }
-    return render(request, 'accounts/complete_profile.html', context)
+    return render(request, 'accounts/register_with_google.html', context)
 
 
 def password_reset_phone(request):
