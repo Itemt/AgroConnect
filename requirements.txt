@@ -40,7 +40,7 @@ Twisted==25.5.0
 txaio==25.9.2
 typing_extensions==4.15.0
 tzdata==2025.2
-urllib3==2.5.0
+urllib3>=1.26.5,<2.0
 whitenoise==6.7.0
 zope.interface==8.0.1
 google-generativeai==0.7.2
