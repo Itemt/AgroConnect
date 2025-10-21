@@ -148,6 +148,53 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
         }
     }
 
+    // Manejar el resultado del redirect
+    firebase.auth().getRedirectResult().then(function(result) {
+        if (result.credential) {
+            // El usuario se autenticó exitosamente
+            const user = result.user;
+            console.log('Google Sign-In successful via redirect:', user);
+            
+            // Obtener el token de ID
+            user.getIdToken().then(function(idToken) {
+                console.log('ID Token obtained');
+                
+                // Enviar el token al servidor
+                fetch("{% url 'google_signin' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        idToken: idToken
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server response:', data);
+                    
+                    if (data.success) {
+                        console.log('Redirecting to:', data.redirect_url);
+                        window.location.href = data.redirect_url;
+                    } else {
+                        console.error('Server error:', data.error);
+                        alert('Error al iniciar sesión: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending token to server:', error);
+                    alert('Error al comunicarse con el servidor: ' + error.message);
+                });
+            });
+        } else {
+            console.log('No redirect result found');
+        }
+    }).catch(function(error) {
+        console.error('Error getting redirect result:', error);
+        alert('Error al procesar el resultado de autenticación: ' + error.message);
+    });
+
     // Configurar Google Sign-In
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({
@@ -163,9 +210,10 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
             
             console.log('Starting Google Sign-In...');
             
-            // Iniciar sesión con Google
-            const result = await firebase.auth().signInWithPopup(provider);
-            const user = result.user;
+            // Iniciar sesión con Google usando redirect
+            const result = await firebase.auth().signInWithRedirect(provider);
+            // El redirect se manejará automáticamente
+            return;
             
             console.log('Google Sign-In successful:', user);
             
