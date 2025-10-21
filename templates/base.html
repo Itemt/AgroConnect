@@ -423,9 +423,14 @@
     <script>
     // Reinicializar Flowbite después de que todo se cargue
     document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Flowbite !== 'undefined') {
-            Flowbite.initDropdowns();
-        }
+        // Esperar a que Flowbite se cargue completamente
+        setTimeout(function() {
+            if (typeof Flowbite !== 'undefined' && typeof Flowbite.initDropdowns === 'function') {
+                Flowbite.initDropdowns();
+            } else {
+                console.warn('Flowbite no está disponible o initDropdowns no es una función');
+            }
+        }, 100);
     });
     </script>
     <script src="{% static 'js/main.js' %}"></script>
