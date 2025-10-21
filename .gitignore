@@ -112,6 +112,11 @@ credentials.json
 *.p12
 *.pfx
 
+# Firebase credentials
+serviceAccountKey.json
+firebase-credentials.json
+*-firebase-adminsdk-*.json
+
 # Database files
 *.db
 *.sqlite

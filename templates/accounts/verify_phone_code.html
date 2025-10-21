@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Verificar Código SMS - AgroConnect{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-shield-check"></i> Verificar Código
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Hemos enviado un código de verificación de 6 dígitos al número: 
+                        <strong>{{ phone_number }}</strong>
+                    </div>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" id="verifyCodeForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="verification_code" class="form-label">Código de Verificación</label>
+                            <input type="text" 
+                                   class="form-control form-control-lg text-center" 
+                                   id="verification_code" 
+                                   name="verification_code" 
+                                   placeholder="000000"
+                                   maxlength="6"
+                                   pattern="[0-9]{6}"
+                                   required
+                                   autocomplete="off">
+                            <small class="text-muted">Ingresa el código de 6 dígitos que recibiste por SMS</small>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Nueva Contraseña</h5>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="new_password" 
+                                   name="new_password" 
+                                   placeholder="Mínimo 6 caracteres"
+                                   minlength="6"
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="confirm_password" 
+                                   name="confirm_password" 
+                                   placeholder="Repite la contraseña"
+                                   minlength="6"
+                                   required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-key"></i> Restablecer Contraseña
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-2">¿No recibiste el código?</p>
+                        <a href="{% url 'password_reset_phone' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-repeat"></i> Reenviar Código
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validar que el código solo contenga números
+document.getElementById('verification_code').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+});
+
+// Validar que las contraseñas coincidan
+document.getElementById('verifyCodeForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Las contraseñas no coinciden. Por favor, verifica.');
+        return false;
+    }
+    
+    if (password.length < 6) {
+        e.preventDefault();
+        alert('La contraseña debe tener al menos 6 caracteres.');
+        return false;
+    }
+    
+    // Deshabilitar botón para prevenir doble envío
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verificando...';
+});
+</script>
+{% endblock %}
+
