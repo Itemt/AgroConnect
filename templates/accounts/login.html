@@ -171,7 +171,21 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
             
             // Usar popup ahora que OAuth está configurado
             console.log('Llamando a signInWithPopup...');
+            console.log('Configuración del provider:', {
+                providerId: provider.providerId,
+                scopes: provider.scopes,
+                customParameters: provider.customParameters
+            });
+            
+            // Agregar un listener para detectar cuando el popup se abre
+            console.log('Abriendo popup de Google...');
+            const popupStartTime = Date.now();
+            
             const result = await firebase.auth().signInWithPopup(provider);
+            
+            const popupDuration = Date.now() - popupStartTime;
+            console.log(`Popup completado en ${popupDuration}ms`);
+            
             const user = result.user;
             
             console.log('✅ Google Sign-In exitoso!');
@@ -233,13 +247,30 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
             if (error.code === 'auth/popup-blocked') {
                 alert('El navegador bloqueó el popup. Por favor, permite popups para este sitio y vuelve a intentar.');
             } else if (error.code === 'auth/popup-closed-by-user') {
-                console.log('Usuario cerró el popup');
-                alert('Cerraste la ventana de Google. Por favor, inténtalo de nuevo.');
+                console.log('Usuario cerró el popup (o se cerró automáticamente)');
+                console.log('⚠️ POSIBLES CAUSAS:');
+                console.log('1. OAuth no configurado correctamente en Google Cloud Console');
+                console.log('2. Los cambios de OAuth no se han propagado (espera 5-10 minutos)');
+                console.log('3. Dominio no autorizado en Google Cloud Console');
+                console.log('Dominio actual:', window.location.origin);
+                console.log('Debe estar en: http://localhost:8000 o https://agroconnect.itemt.tech');
+                
+                alert('⚠️ El popup de Google se cerró.\n\n' +
+                      'POSIBLES CAUSAS:\n' +
+                      '1. OAuth no configurado en Google Cloud Console\n' +
+                      '2. Los cambios tardan 5-10 minutos en aplicarse\n' +
+                      '3. Dominio no autorizado\n\n' +
+                      'Dominio actual: ' + window.location.origin + '\n\n' +
+                      'Si acabas de configurar OAuth, espera 10 minutos y vuelve a intentar.');
             } else if (error.code === 'auth/cancelled-popup-request') {
                 console.log('Solicitud de popup cancelada');
             } else if (error.code === 'auth/unauthorized-domain') {
-                alert('Error: Dominio no autorizado. Contacta al administrador.');
-                console.error('Dominio actual:', window.location.hostname);
+                alert('❌ ERROR: Dominio no autorizado.\n\n' +
+                      'Este dominio no está autorizado en Google Cloud Console:\n' +
+                      window.location.origin + '\n\n' +
+                      'Agrega este dominio en:\n' +
+                      'Google Cloud Console → OAuth Client → Orígenes autorizados');
+                console.error('Dominio NO autorizado:', window.location.hostname);
             } else {
                 alert('Error al iniciar sesión con Google: ' + error.message);
             }
