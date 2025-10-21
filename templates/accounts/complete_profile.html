@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Completar Perfil - AgroConnect{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-check"></i> Completa tu Perfil
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        ¡Bienvenido a AgroConnect! Para completar tu registro, por favor proporciona la siguiente información:
+                    </p>
+                    
+                    <form method="post" id="completeProfileForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cedula" class="form-label">Cédula *</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="cedula" 
+                                           name="cedula" 
+                                           placeholder="Número de cédula"
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="telefono" class="form-label">Teléfono *</label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="telefono" 
+                                           name="telefono" 
+                                           placeholder="+57 300 123 4567"
+                                           required>
+                                    <small class="text-muted">Formato: +57 seguido de tu número</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="departamento" class="form-label">Departamento *</label>
+                                    <select class="form-select" 
+                                            id="departamento" 
+                                            name="departamento" 
+                                            required>
+                                        <option value="">Seleccione un departamento</option>
+                                        <option value="Amazonas">Amazonas</option>
+                                        <option value="Antioquia">Antioquia</option>
+                                        <option value="Arauca">Arauca</option>
+                                        <option value="Atlántico">Atlántico</option>
+                                        <option value="Bolívar">Bolívar</option>
+                                        <option value="Boyacá">Boyacá</option>
+                                        <option value="Caldas">Caldas</option>
+                                        <option value="Caquetá">Caquetá</option>
+                                        <option value="Casanare">Casanare</option>
+                                        <option value="Cauca">Cauca</option>
+                                        <option value="Cesar">Cesar</option>
+                                        <option value="Chocó">Chocó</option>
+                                        <option value="Córdoba">Córdoba</option>
+                                        <option value="Cundinamarca">Cundinamarca</option>
+                                        <option value="Guainía">Guainía</option>
+                                        <option value="Guaviare">Guaviare</option>
+                                        <option value="Huila">Huila</option>
+                                        <option value="La Guajira">La Guajira</option>
+                                        <option value="Magdalena">Magdalena</option>
+                                        <option value="Meta">Meta</option>
+                                        <option value="Nariño">Nariño</option>
+                                        <option value="Norte de Santander">Norte de Santander</option>
+                                        <option value="Putumayo">Putumayo</option>
+                                        <option value="Quindío">Quindío</option>
+                                        <option value="Risaralda">Risaralda</option>
+                                        <option value="San Andrés y Providencia">San Andrés y Providencia</option>
+                                        <option value="Santander">Santander</option>
+                                        <option value="Sucre">Sucre</option>
+                                        <option value="Tolima">Tolima</option>
+                                        <option value="Valle del Cauca">Valle del Cauca</option>
+                                        <option value="Vaupés">Vaupés</option>
+                                        <option value="Vichada">Vichada</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="ciudad" class="form-label">Ciudad/Municipio *</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="ciudad" 
+                                           name="ciudad" 
+                                           placeholder="Tu ciudad o municipio"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Nota:</strong> Has sido registrado como <strong>Comprador</strong>. 
+                            Si deseas vender productos, podrás convertirte en vendedor desde tu perfil.
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Completar Registro
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación del formato de teléfono
+document.getElementById('telefono').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (!value.startsWith('57')) {
+        value = '57' + value;
+    }
+    e.target.value = '+' + value;
+});
+</script>
+{% endblock %}
+

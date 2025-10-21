@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
+                'accounts.context_processors.firebase_config',
             ],
         },
     },
@@ -199,6 +200,15 @@ if not DEBUG:
 
 # MercadoPago Configuration
 MERCADOPAGO_ACCESS_TOKEN = config('MERCADOPAGO_ACCESS_TOKEN', default='')
+
+# Firebase Configuration
+FIREBASE_API_KEY = config('FIREBASE_API_KEY', default='')
+FIREBASE_AUTH_DOMAIN = config('FIREBASE_AUTH_DOMAIN', default='')
+FIREBASE_PROJECT_ID = config('FIREBASE_PROJECT_ID', default='')
+FIREBASE_STORAGE_BUCKET = config('FIREBASE_STORAGE_BUCKET', default='')
+FIREBASE_MESSAGING_SENDER_ID = config('FIREBASE_MESSAGING_SENDER_ID', default='')
+FIREBASE_APP_ID = config('FIREBASE_APP_ID', default='')
+FIREBASE_ADMIN_CREDENTIALS_PATH = config('FIREBASE_ADMIN_CREDENTIALS_PATH', default='')
 
 # Logging configuration
 LOGGING = {

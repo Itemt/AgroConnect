@@ -122,6 +122,7 @@
 - **MercadoPago SDK 2.3.0** - Pasarela de pagos
 - **Cloudinary** - Almacenamiento de imágenes en producción
 - **Google Gemini** - IA para asistente y sugerencias (opcional)
+- **Firebase Authentication** - Autenticación con Google y SMS OTP
 
 ### Frontend
 - **HTML5/CSS3** - Semántica moderna
@@ -147,6 +148,8 @@ pillow==11.3.0
 dj-database-url==2.1.0
 python-decouple==3.8
 google-generativeai==0.7.2
+firebase-admin==6.5.0
+pyrebase4==4.8.0
 Faker==37.8.0
 ```
 
@@ -208,6 +211,15 @@ GOOGLE_API_KEY=tu_google_api_key
 # o alternativamente:
 GEMINI_API_KEY=tu_gemini_api_key
 
+# Firebase Authentication (Opcional, para Google Sign-In y SMS OTP)
+FIREBASE_API_KEY=tu_firebase_api_key
+FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
+FIREBASE_PROJECT_ID=tu-proyecto-id
+FIREBASE_STORAGE_BUCKET=tu-proyecto.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=123456789
+FIREBASE_APP_ID=1:123456789:web:abc123
+FIREBASE_ADMIN_CREDENTIALS_PATH=path/to/serviceAccountKey.json
+
 # Configuración Regional
 LANGUAGE_CODE=es-es
 TIME_ZONE=America/Bogota
@@ -266,8 +278,114 @@ python manage.py runserver
 | `CLOUDINARY_API_KEY` | ❌ | API Key de Cloudinary (prod) | `123456789` |
 | `CLOUDINARY_API_SECRET` | ❌ | Secret de Cloudinary (prod) | `abc123...` |
 | `GOOGLE_API_KEY` | ❌ | API Key de Google Gemini (IA) | `AIza...` |
+| `FIREBASE_API_KEY` | ❌ | API Key de Firebase (Google Sign-In) | `AIza...` |
+| `FIREBASE_AUTH_DOMAIN` | ❌ | Dominio de auth de Firebase | `proyecto.firebaseapp.com` |
+| `FIREBASE_PROJECT_ID` | ❌ | ID del proyecto Firebase | `proyecto-id` |
+| `FIREBASE_STORAGE_BUCKET` | ❌ | Bucket de storage Firebase | `proyecto.appspot.com` |
+| `FIREBASE_MESSAGING_SENDER_ID` | ❌ | Sender ID de Firebase | `123456789` |
+| `FIREBASE_APP_ID` | ❌ | App ID de Firebase | `1:123456789:web:abc123` |
+| `FIREBASE_ADMIN_CREDENTIALS_PATH` | ❌ | Path al archivo JSON de credenciales | `/path/to/serviceAccountKey.json` |
 
 **Leyenda:** ✅ Obligatorio | ⚠️ Requerido para funcionalidad específica | ❌ Opcional
+
+### Configuración de Firebase Authentication
+
+#### 1. Crear Proyecto en Firebase
+
+1. Ve a [Firebase Console](https://console.firebase.google.com/)
+2. Click en "Agregar proyecto"
+3. Nombre del proyecto: `AgroConnect` (o el que prefieras)
+4. Acepta los términos y crea el proyecto
+
+#### 2. Habilitar Métodos de Autenticación
+
+En Firebase Console → **Authentication** → **Sign-in method**:
+
+1. **Google Sign-In**:
+   - Click en "Google"
+   - Activa "Habilitar"
+   - Configura el correo de soporte del proyecto
+   - Guarda los cambios
+
+2. **Phone (SMS OTP)**:
+   - Click en "Teléfono"
+   - Activa "Habilitar"
+   - **Nota**: Firebase ofrece 10,000 verificaciones gratis al mes (perfecta para proyectos universitarios)
+
+#### 3. Obtener Credenciales Web
+
+En Firebase Console → **Configuración del proyecto** (⚙️) → **Tus aplicaciones**:
+
+1. Click en el ícono web `</>`
+2. Registra tu app con un nombre (ej: "AgroConnect Web")
+3. Copia las credenciales del SDK:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "AIza...",                           // FIREBASE_API_KEY
+  authDomain: "proyecto.firebaseapp.com",      // FIREBASE_AUTH_DOMAIN
+  projectId: "proyecto-id",                     // FIREBASE_PROJECT_ID
+  storageBucket: "proyecto.appspot.com",        // FIREBASE_STORAGE_BUCKET
+  messagingSenderId: "123456789",               // FIREBASE_MESSAGING_SENDER_ID
+  appId: "1:123456789:web:abc123"              // FIREBASE_APP_ID
+};
+```
+
+#### 4. Obtener Credenciales de Admin (Servidor)
+
+Para verificar tokens y enviar SMS desde el backend:
+
+1. En Firebase Console → **Configuración del proyecto** (⚙️)
+2. Ve a la pestaña **Cuentas de servicio**
+3. Click en "Generar nueva clave privada"
+4. Descarga el archivo JSON
+5. Guarda el archivo como `serviceAccountKey.json` en un lugar seguro
+6. En tu `.env`, apunta al archivo:
+   ```env
+   FIREBASE_ADMIN_CREDENTIALS_PATH=/path/to/serviceAccountKey.json
+   ```
+
+#### 5. Configurar Dominios Autorizados
+
+En Firebase Console → **Authentication** → **Settings** → **Authorized domains**:
+
+Agrega tus dominios:
+- `localhost` (ya viene por defecto)
+- `tu-dominio.com`
+- `agroconnect.itemt.tech` (o tu dominio real)
+
+#### 6. Características Implementadas
+
+✅ **Google Sign-In**:
+- Botón de inicio de sesión con Google en página de login
+- Creación automática de usuarios al primer inicio de sesión
+- Los usuarios se registran como "Compradores" por defecto
+- Redirige a completar perfil (teléfono, cédula, ubicación)
+
+✅ **SMS OTP para Recuperación de Contraseña**:
+- Link "¿Olvidaste tu contraseña? Recuperar por SMS" en login
+- Envío de código de 6 dígitos al número registrado
+- Validación de código y restablecimiento de contraseña
+- Sin costo adicional hasta 10,000 SMS/mes
+
+#### 7. Notas Importantes
+
+⚠️ **Proyecto Universitario**:
+- Firebase Authentication es **100% gratuito** para autenticación con Google
+- SMS tiene cuota generosa de 10,000 verificaciones/mes gratis
+- No requiere tarjeta de crédito para proyectos pequeños
+- Ideal para demos y prototipos académicos
+
+⚠️ **Seguridad**:
+- **NUNCA** subas `serviceAccountKey.json` a Git
+- Agrégalo a `.gitignore`
+- En producción, usa variables de entorno o secretos de Coolify
+- Las credenciales web (API Key) son públicas y van en el frontend
+
+⚠️ **Opcional**:
+- Firebase es completamente opcional
+- Si no configuras Firebase, la autenticación tradicional sigue funcionando
+- Los usuarios pueden seguir registrándose con email/contraseña
 
 ### Configuración de MercadoPago
 
