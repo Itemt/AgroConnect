@@ -212,13 +212,14 @@ GOOGLE_API_KEY=tu_google_api_key
 GEMINI_API_KEY=tu_gemini_api_key
 
 # Firebase Authentication (Opcional, para Google Sign-In y SMS OTP)
-FIREBASE_API_KEY=tu_firebase_api_key
-FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
-FIREBASE_PROJECT_ID=tu-proyecto-id
-FIREBASE_STORAGE_BUCKET=tu-proyecto.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=123456789
-FIREBASE_APP_ID=1:123456789:web:abc123
-FIREBASE_ADMIN_CREDENTIALS_PATH=path/to/serviceAccountKey.json
+FIREBASE_API_KEY=AIzaSyBocgWBneNY_ElZDwP7_H3y6Egg1wChF9Q
+FIREBASE_AUTH_DOMAIN=agroconnect-b9b1c.firebaseapp.com
+FIREBASE_PROJECT_ID=agroconnect-b9b1c
+FIREBASE_STORAGE_BUCKET=agroconnect-b9b1c.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=90070952239
+FIREBASE_APP_ID=1:90070952239:web:c6486c84288c86f5ddd9da
+FIREBASE_ADMIN_CREDENTIALS_PATH=serviceAccountKey.json
+# Para producción en Coolify, usa FIREBASE_ADMIN_CREDENTIALS_JSON en lugar de PATH
 
 # Configuración Regional
 LANGUAGE_CODE=es-es
