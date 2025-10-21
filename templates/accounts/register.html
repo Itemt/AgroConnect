@@ -252,10 +252,53 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
 
     // Configurar Google Sign-In Provider
     const provider = new firebase.auth.GoogleAuthProvider();
-    // Removido temporalmente: prompt: 'select_account' para depuración
-    // provider.setCustomParameters({
-    //     prompt: 'select_account'
-    // });
+    provider.addScope('profile');
+    provider.addScope('email');
+
+    // Función para procesar el usuario después del sign-in (igual que en login)
+    async function processUserSignIn(user) {
+        console.log('Procesando usuario:', user);
+        
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        loadingDiv.innerHTML = '<div class="bg-white p-6 rounded-lg shadow-xl text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div><span class="text-lg">Procesando...</span></div>';
+        document.body.appendChild(loadingDiv);
+        
+        const idToken = await user.getIdToken();
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+        
+        const response = await fetch("{% url 'google_signin' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ idToken: idToken })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert('Error al registrarse: ' + data.error);
+            document.querySelector('.fixed.inset-0')?.remove();
+        }
+    }
+
+    // Al cargar la página, verificar si hay un resultado de redirect pendiente
+    window.addEventListener('load', async function() {
+        console.log('Verificando resultado de redirect en página de registro...');
+        try {
+            const result = await firebase.auth().getRedirectResult();
+            if (result && result.user) {
+                console.log('✅ Redirect completado! Procesando usuario...');
+                await processUserSignIn(result.user);
+            }
+        } catch (error) {
+            console.error('Error al obtener redirect result:', error);
+        }
+    });
 
     // Manejar el clic del botón de Google Sign-In
     const googleBtn = document.getElementById('googleSignInBtn');
@@ -264,78 +307,22 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
             try {
                 const btn = this;
                 btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Registrando...';
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Redirigiendo a Google...';
                 
-                console.log('Starting Google Sign-In from registration page with popup...');
+                console.log('Iniciando Google Sign-In desde página de registro...');
                 
-                // Iniciar sesión con Google usando popup
-                const result = await firebase.auth().signInWithPopup(provider);
-                const user = result.user;
+                // Usar redirect en lugar de popup
+                await firebase.auth().signInWithRedirect(provider);
+                // El código después de esto no se ejecutará porque redireccionará
+            } catch (error) {
+                console.error('Error en Google Sign-In:', error);
+                alert('Error al registrarse con Google: ' + error.message);
                 
-                console.log('Google Sign-In successful:', user);
-                console.log('User info:', {
-                    email: user.email,
-                    displayName: user.displayName,
-                    uid: user.uid,
-                    photoURL: user.photoURL
-                });
-                
-                // Mostrar mensaje de carga
-                const loadingDiv = document.createElement('div');
-                loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                loadingDiv.innerHTML = '<div class="bg-white p-6 rounded-lg shadow-xl text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div><span class="text-lg">Procesando...</span></div>';
-                document.body.appendChild(loadingDiv);
-                
-                // Obtener el token de ID
-                const idToken = await user.getIdToken();
-                console.log('ID Token obtained:', idToken.substring(0, 20) + '...');
-                
-                // Obtener el CSRF token
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
-                console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
-                
-                // Enviar el token al servidor
-                const response = await fetch("{% url 'google_signin' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({
-                        idToken: idToken
-                    })
-                });
-                
-                console.log('Response status:', response.status);
-                const data = await response.json();
-                console.log('Server response:', data);
-                
-                if (data.success) {
-                    console.log('Redirecting to:', data.redirect_url);
-                    window.location.href = data.redirect_url;
-                } else {
-                    console.error('Server error:', data.error);
-                    alert('Error al registrarse: ' + data.error);
-                    document.querySelector('.fixed.inset-0')?.remove();
+                const btn = document.getElementById('googleSignInBtn');
+                if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Registrarse con Google';
                 }
-            } catch (error) {
-                console.error('Error en Google Sign-In:', error);
-                
-                // Manejar diferentes tipos de errores
-                if (error.code === 'auth/popup-blocked') {
-                    alert('El navegador bloqueó el popup. Por favor, permite popups para este sitio y vuelve a intentar.');
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    console.log('User closed the popup');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    console.log('Popup request cancelled');
-                } else {
-                    alert('Error al iniciar sesión con Google: ' + error.message);
-                }
-                
-                btn.disabled = false;
-                btn.innerHTML = '<svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Registrarse con Google';
             }
         });
     }
