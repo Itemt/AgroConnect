@@ -355,6 +355,38 @@ Agrega tus dominios:
 - `tu-dominio.com`
 - `agroconnect.itemt.tech` (o tu dominio real)
 
+#### 5.1. Configurar OAuth en Google Cloud Console
+
+**IMPORTANTE**: Para que Google Sign-In funcione correctamente, debes configurar los **orígenes autorizados** y **URIs de redirección** en Google Cloud Console:
+
+1. **Obtén tu Client ID**:
+   - Firebase Console → Authentication → Sign-in method → Google
+   - Expande la sección de Google
+   - Copia el **Web client ID** (formato: `xxxxx.apps.googleusercontent.com`)
+
+2. **Configura OAuth en Google Cloud Console**:
+   - Opción A: Usa este link directo (reemplaza `YOUR_PROJECT_ID`):
+     ```
+     https://console.cloud.google.com/apis/credentials?project=YOUR_PROJECT_ID
+     ```
+   - Opción B: Ve a https://console.cloud.google.com/ → Selecciona tu proyecto → APIs y servicios → Credenciales
+
+3. **Edita el Client ID de OAuth 2.0**:
+   - Click en el client ID que usas para web
+   - Agrega los siguientes **Orígenes de JavaScript autorizados**:
+     - `http://localhost:8000` (desarrollo)
+     - `https://tu-dominio-produccion.com` (producción)
+   
+   - Agrega los siguientes **URIs de redirección autorizados**:
+     - `http://localhost:8000/__/auth/handler` (Firebase Auth manejará esto)
+     - `https://tu-dominio-produccion.com/__/auth/handler`
+   
+   - Click en **Guardar**
+
+4. **Verifica que esté configurado correctamente**:
+   - Los cambios pueden tardar 5-10 minutos en aplicarse
+   - Si ves errores como `popup-closed-by-user` o `redirect-uri-mismatch`, revisa esta configuración
+
 #### 6. Características Implementadas
 
 ✅ **Google Sign-In**:
