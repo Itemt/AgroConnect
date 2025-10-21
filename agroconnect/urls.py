@@ -45,7 +45,7 @@ urlpatterns = [
 
     # Firebase Authentication
     path('accounts/google-signin/', firebase_views.google_signin, name='google_signin'),
-    path('accounts/complete-profile/', firebase_views.complete_profile, name='complete_profile'),
+    path('accounts/register-with-google/', firebase_views.register_with_google, name='register_with_google'),
     path('accounts/password-reset-phone/', firebase_views.password_reset_phone, name='password_reset_phone'),
     path('accounts/verify-phone-code/', firebase_views.verify_phone_code, name='verify_phone_code'),
     path('accounts/api/verify-phone-code/', firebase_views.verify_phone_code_ajax, name='verify_phone_code_ajax'),

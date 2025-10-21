@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Completar Registro - AgroConnect{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Completar Registro</h2>
+            <p class="text-gray-600">
+                ¡Bienvenido, {{ google_data.name }}! Complete su perfil para continuar
+            </p>
+            <div class="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                <p class="text-sm text-green-800">
+                    <strong>Email verificado:</strong> {{ google_data.email }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="bg-white shadow-xl rounded-2xl p-8">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" id="registerGoogleForm">
+                {% csrf_token %}
+                
+                <!-- Nombre de Usuario -->
+                <div class="mb-6">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre de Usuario *
+                    </label>
+                    <input type="text" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                           id="username" 
+                           name="username" 
+                           value="{{ username|default:google_data.suggested_username }}"
+                           placeholder="Ingrese su nombre de usuario"
+                           required>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Sugerido: {{ google_data.suggested_username }}
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Cédula -->
+                    <div>
+                        <label for="cedula" class="block text-sm font-medium text-gray-700 mb-2">
+                            Cédula *
+                        </label>
+                        <input type="text" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                               id="cedula" 
+                               name="cedula" 
+                               value="{{ cedula }}"
+                               placeholder="Número de cédula"
+                               required>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div>
+                        <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
+                            Teléfono *
+                        </label>
+                        <input type="tel" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                               id="telefono" 
+                               name="telefono" 
+                               value="{{ telefono }}"
+                               placeholder="+57 300 123 4567"
+                               required>
+                        <p class="mt-1 text-sm text-gray-500">Formato: +57 seguido de tu número</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <!-- Departamento -->
+                    <div>
+                        <label for="departamento" class="block text-sm font-medium text-gray-700 mb-2">
+                            Departamento *
+                        </label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                id="departamento" 
+                                name="departamento" 
+                                required>
+                            <option value="">Seleccione un departamento</option>
+                            <option value="Amazonas" {% if departamento == "Amazonas" %}selected{% endif %}>Amazonas</option>
+                            <option value="Antioquia" {% if departamento == "Antioquia" %}selected{% endif %}>Antioquia</option>
+                            <option value="Arauca" {% if departamento == "Arauca" %}selected{% endif %}>Arauca</option>
+                            <option value="Atlántico" {% if departamento == "Atlántico" %}selected{% endif %}>Atlántico</option>
+                            <option value="Bolívar" {% if departamento == "Bolívar" %}selected{% endif %}>Bolívar</option>
+                            <option value="Boyacá" {% if departamento == "Boyacá" %}selected{% endif %}>Boyacá</option>
+                            <option value="Caldas" {% if departamento == "Caldas" %}selected{% endif %}>Caldas</option>
+                            <option value="Caquetá" {% if departamento == "Caquetá" %}selected{% endif %}>Caquetá</option>
+                            <option value="Casanare" {% if departamento == "Casanare" %}selected{% endif %}>Casanare</option>
+                            <option value="Cauca" {% if departamento == "Cauca" %}selected{% endif %}>Cauca</option>
+                            <option value="Cesar" {% if departamento == "Cesar" %}selected{% endif %}>Cesar</option>
+                            <option value="Chocó" {% if departamento == "Chocó" %}selected{% endif %}>Chocó</option>
+                            <option value="Córdoba" {% if departamento == "Córdoba" %}selected{% endif %}>Córdoba</option>
+                            <option value="Cundinamarca" {% if departamento == "Cundinamarca" %}selected{% endif %}>Cundinamarca</option>
+                            <option value="Guainía" {% if departamento == "Guainía" %}selected{% endif %}>Guainía</option>
+                            <option value="Guaviare" {% if departamento == "Guaviare" %}selected{% endif %}>Guaviare</option>
+                            <option value="Huila" {% if departamento == "Huila" %}selected{% endif %}>Huila</option>
+                            <option value="La Guajira" {% if departamento == "La Guajira" %}selected{% endif %}>La Guajira</option>
+                            <option value="Magdalena" {% if departamento == "Magdalena" %}selected{% endif %}>Magdalena</option>
+                            <option value="Meta" {% if departamento == "Meta" %}selected{% endif %}>Meta</option>
+                            <option value="Nariño" {% if departamento == "Nariño" %}selected{% endif %}>Nariño</option>
+                            <option value="Norte de Santander" {% if departamento == "Norte de Santander" %}selected{% endif %}>Norte de Santander</option>
+                            <option value="Putumayo" {% if departamento == "Putumayo" %}selected{% endif %}>Putumayo</option>
+                            <option value="Quindío" {% if departamento == "Quindío" %}selected{% endif %}>Quindío</option>
+                            <option value="Risaralda" {% if departamento == "Risaralda" %}selected{% endif %}>Risaralda</option>
+                            <option value="San Andrés y Providencia" {% if departamento == "San Andrés y Providencia" %}selected{% endif %}>San Andrés y Providencia</option>
+                            <option value="Santander" {% if departamento == "Santander" %}selected{% endif %}>Santander</option>
+                            <option value="Sucre" {% if departamento == "Sucre" %}selected{% endif %}>Sucre</option>
+                            <option value="Tolima" {% if departamento == "Tolima" %}selected{% endif %}>Tolima</option>
+                            <option value="Valle del Cauca" {% if departamento == "Valle del Cauca" %}selected{% endif %}>Valle del Cauca</option>
+                            <option value="Vaupés" {% if departamento == "Vaupés" %}selected{% endif %}>Vaupés</option>
+                            <option value="Vichada" {% if departamento == "Vichada" %}selected{% endif %}>Vichada</option>
+                        </select>
+                    </div>
+
+                    <!-- Ciudad -->
+                    <div>
+                        <label for="ciudad" class="block text-sm font-medium text-gray-700 mb-2">
+                            Ciudad/Municipio *
+                        </label>
+                        <input type="text" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                               id="ciudad" 
+                               name="ciudad" 
+                               value="{{ ciudad }}"
+                               placeholder="Tu ciudad o municipio"
+                               required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <!-- Contraseña -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Contraseña *
+                        </label>
+                        <input type="password" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Mínimo 6 caracteres"
+                               required>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Confirmar Contraseña *
+                        </label>
+                        <input type="password" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                               id="confirm_password" 
+                               name="confirm_password" 
+                               placeholder="Repite tu contraseña"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm text-blue-800">
+                                <strong>Nota:</strong> Serás registrado como <strong>Comprador</strong>. 
+                                Si deseas vender productos, podrás convertirte en vendedor desde tu perfil.
+                            </p>
+                            <p class="text-sm text-blue-800 mt-2">
+                                Tu cuenta estará vinculada a <strong>{{ google_data.email }}</strong> y podrás iniciar sesión con Google o con tu contraseña.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="mt-8 space-y-3">
+                    <button type="submit" class="w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition duration-200 transform hover:scale-105">
+                        Completar Registro
+                    </button>
+                    <a href="{% url 'login' %}" class="block text-center py-3 px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition duration-200">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación del formato de teléfono
+document.getElementById('telefono').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (!value.startsWith('57')) {
+        value = '57' + value;
+    }
+    e.target.value = '+' + value;
+});
+
+// Validación de contraseñas en tiempo real
+document.getElementById('confirm_password').addEventListener('input', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = e.target.value;
+    
+    if (password !== confirmPassword) {
+        e.target.setCustomValidity('Las contraseñas no coinciden');
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}
+
