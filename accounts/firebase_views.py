@@ -70,16 +70,19 @@ def google_signin(request):
             # Generar username sugerido basado en el email
             suggested_username = email.split('@')[0]
             
-            # Guardar datos de Google en la sesión
+            # Guardar datos de Google en la sesión (incluye foto de perfil)
             request.session['google_signup_data'] = {
                 'email': email,
                 'first_name': first_name,
                 'last_name': last_name,
                 'name': name,
-                'picture': picture,
+                'picture': picture,  # URL de la foto de perfil de Google
                 'suggested_username': suggested_username,
                 'firebase_uid': user_info.get('uid')
             }
+            
+            print(f"Usuario nuevo detectado: {email}")
+            print(f"Foto de perfil: {picture}")
             
             return JsonResponse({
                 'success': True,
