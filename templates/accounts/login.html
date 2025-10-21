@@ -150,9 +150,10 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
 
     // Configurar Google Sign-In
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
+    // Removido temporalmente: prompt: 'select_account' para depuración
+    // provider.setCustomParameters({
+    //     prompt: 'select_account'
+    // });
 
     // Manejar el clic del botón de Google Sign-In
     document.getElementById('googleSignInBtn').addEventListener('click', async function() {
