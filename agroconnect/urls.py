@@ -39,8 +39,12 @@ urlpatterns = [
     path('accounts/profile/', accounts_views.profile_view, name='profile'),
     path('accounts/profile/edit/', accounts_views.profile_edit_view, name='profile_edit'),
     path('accounts/become-seller/', accounts_views.become_seller, name='become_seller'),
-    # Incluir otras URLs de auth si las necesitas (ej. password reset)
-    path('accounts/', include('django.contrib.auth.urls')),
+    # Password Reset (Custom OTP-based)
+    path('accounts/password_reset/', accounts_views.CustomPasswordResetView.as_view(), name='password_reset'),
+    path('accounts/password_reset/done/', accounts_views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/', accounts_views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('accounts/reset/done/', accounts_views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('accounts/verify-phone-code/', accounts_views.verify_phone_code, name='verify_phone_code'),
 
     # Google OAuth Callback
     # (Flujo actual usa redirect y callback en el backend)
