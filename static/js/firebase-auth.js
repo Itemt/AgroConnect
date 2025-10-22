@@ -79,6 +79,13 @@ class FirebaseAuthHelper {
         const state = urlParams.get('state');
         const error = urlParams.get('error');
         
+        console.log('🔍 Verificando código de autorización...');
+        console.log('URL params:', {
+            code: code ? code.substring(0, 20) + '...' : 'No encontrado',
+            state: state || 'No encontrado',
+            error: error || 'No encontrado'
+        });
+        
         if (error) {
             throw new Error(`Error de Google OAuth: ${error}`);
         }
@@ -92,7 +99,9 @@ class FirebaseAuthHelper {
             return await this.exchangeCodeForToken(code);
         }
         
-        throw new Error('No se encontró código de autorización');
+        // Si no hay código, no es un error - solo significa que la página se cargó normalmente
+        console.log('ℹ️ No hay código de autorización - página cargada normalmente');
+        return null;
     }
 
     /**
