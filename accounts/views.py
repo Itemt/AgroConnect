@@ -40,8 +40,9 @@ def google_auth_callback(request):
             import requests
             import json
             
-            client_id = '90070952239-6mibg7a7cvnofgtt3ph4oh54q3ecc0d1.apps.googleusercontent.com'
-            client_secret = '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'
+            from django.conf import settings
+            client_id = settings.GOOGLE_CLIENT_ID
+            client_secret = settings.GOOGLE_CLIENT_SECRET
             redirect_uri = request.build_absolute_uri('/auth/google-callback/')
             
             token_url = 'https://oauth2.googleapis.com/token'

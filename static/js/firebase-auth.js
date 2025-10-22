@@ -5,12 +5,10 @@
 
 class FirebaseAuthHelper {
     constructor() {
-        // Los secrets se pasan desde Django como variables globales
+        // Solo el Client ID es necesario en el frontend
         this.clientId = window.GOOGLE_CLIENT_ID || '';
-        this.clientSecret = window.GOOGLE_CLIENT_SECRET || '';
-        
-        if (!this.clientId || !this.clientSecret) {
-            throw new Error('Google OAuth credentials not configured');
+        if (!this.clientId) {
+            throw new Error('Google OAuth Client ID not configured');
         }
     }
 
@@ -73,8 +71,8 @@ class FirebaseAuthHelper {
             console.log('Code:', code.substring(0, 20) + '...');
             console.log('State:', state);
             
-            // Intercambiar código por token
-            return await this.exchangeCodeForToken(code);
+            // Dejar que el backend haga el intercambio con el client_secret
+            return { code };
         }
         
         // Si no hay código, no es un error - solo significa que la página se cargó normalmente
@@ -85,45 +83,7 @@ class FirebaseAuthHelper {
     /**
      * Intercambiar código por token
      */
-    async exchangeCodeForToken(code) {
-        console.log('🔄 Intercambiando código por token...');
-        
-        const redirectUri = window.location.origin + window.location.pathname;
-        
-        const tokenUrl = 'https://oauth2.googleapis.com/token';
-        const tokenData = {
-            client_id: this.clientId,
-            client_secret: this.clientSecret,
-            code: code,
-            grant_type: 'authorization_code',
-            redirect_uri: redirectUri
-        };
-        
-        try {
-            const response = await fetch(tokenUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams(tokenData)
-            });
-            
-            const data = await response.json();
-            
-            if (data.access_token) {
-                console.log('✅ Token obtenido exitosamente!');
-                console.log('Access Token:', data.access_token.substring(0, 20) + '...');
-                
-                // Obtener información del usuario
-                return await this.getUserInfo(data.access_token);
-            } else {
-                throw new Error('Error obteniendo token: ' + JSON.stringify(data));
-            }
-        } catch (error) {
-            console.error('❌ Error en intercambio de token:', error);
-            throw error;
-        }
-    }
+    async exchangeCodeForToken() { /* ya no se usa en frontend */ }
 
     /**
      * Obtener información del usuario usando el access token
