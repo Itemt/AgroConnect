@@ -198,10 +198,15 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
     // Verificar si hay código de autorización al cargar la página
     const authHelper = new FirebaseAuthHelper();
     authHelper.checkAuthCode().then(async (userInfo) => {
-        console.log('✅ Código de autorización encontrado al cargar la página');
-        await authHelper.processUserLogin(userInfo);
+        if (userInfo) {
+            console.log('✅ Código de autorización encontrado al cargar la página');
+            await authHelper.processUserLogin(userInfo);
+        } else {
+            console.log('ℹ️ No hay código de autorización - página cargada normalmente');
+        }
     }).catch((error) => {
-        console.log('No hay código de autorización - página cargada normalmente');
+        console.log('ℹ️ No hay código de autorización - página cargada normalmente');
+        // No mostrar error si no hay código - es normal
     });
 }
 </script>
