@@ -221,11 +221,13 @@
             log('🔄 Intercambiando código por token...');
             
             const clientId = '90070952239-6mibg7a7cvnofgtt3ph4oh54q3ecc0d1.apps.googleusercontent.com';
+            const clientSecret = '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';
             const redirectUri = window.location.origin + '/firebase-debug/';
             
             const tokenUrl = 'https://oauth2.googleapis.com/token';
             const tokenData = {
                 client_id: clientId,
+                client_secret: clientSecret,
                 code: code,
                 grant_type: 'authorization_code',
                 redirect_uri: redirectUri
