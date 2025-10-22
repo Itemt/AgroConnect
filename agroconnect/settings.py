@@ -210,6 +210,10 @@ FIREBASE_MESSAGING_SENDER_ID = config('FIREBASE_MESSAGING_SENDER_ID', default=''
 FIREBASE_APP_ID = config('FIREBASE_APP_ID', default='')
 FIREBASE_ADMIN_CREDENTIALS_PATH = config('FIREBASE_ADMIN_CREDENTIALS_PATH', default='')
 
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
+
 # Logging configuration
 LOGGING = {
     'version': 1,

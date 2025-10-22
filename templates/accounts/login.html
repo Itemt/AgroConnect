@@ -115,9 +115,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Firebase SDK (versión estable) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Authentication Helper -->
+<script src="{% static 'js/firebase-auth.js' %}"></script>
 
 <script>
 // Configuración de Firebase
@@ -129,6 +128,10 @@ const firebaseConfig = {
     messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
     appId: "{{ FIREBASE_APP_ID }}"
 };
+
+// Configuración de Google OAuth (desde variables de entorno)
+window.GOOGLE_CLIENT_ID = "{{ GOOGLE_CLIENT_ID }}";
+window.GOOGLE_CLIENT_SECRET = "{{ GOOGLE_CLIENT_SECRET }}";
 
 console.log('Firebase Config:', firebaseConfig);
 
@@ -148,86 +151,18 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
         }
     }
 
-    // Configurar Google Sign-In (configuración simple y estable)
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('profile');
-    provider.addScope('email');
-    
-    // Configuración mínima para máxima compatibilidad
-    provider.setCustomParameters({
-        'prompt': 'select_account'
-    });
-
-    // Función para procesar el usuario después del sign-in
-    async function processUserSignIn(user) {
-        console.log('✅ Procesando usuario después del sign-in...');
-        console.log('User info:', {
-            email: user.email,
-            displayName: user.displayName,
-            uid: user.uid,
-            photoURL: user.photoURL
-        });
-        
-        // Mostrar mensaje de carga
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        loadingDiv.innerHTML = '<div class="bg-white p-6 rounded-lg shadow-xl text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div><span class="text-lg">Procesando...</span></div>';
-        document.body.appendChild(loadingDiv);
-        
-        try {
-            // Obtener el token de ID
-            const idToken = await user.getIdToken();
-            console.log('ID Token obtained:', idToken.substring(0, 20) + '...');
-            
-            // Obtener el CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
-            console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
-            
-            // Enviar el token al servidor
-            const response = await fetch("{% url 'google_signin' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    idToken: idToken
-                })
-            });
-            
-            console.log('Response status:', response.status);
-            const data = await response.json();
-            console.log('Server response:', data);
-            
-            if (data.success) {
-                console.log('✅ Login exitoso! Redirecting to:', data.redirect_url);
-                window.location.href = data.redirect_url;
-            } else {
-                console.error('Server error:', data.error);
-                alert('Error al iniciar sesión: ' + data.error);
-                document.querySelector('.fixed.inset-0')?.remove();
-            }
-        } catch (error) {
-            console.error('Error procesando usuario:', error);
-            alert('Error al procesar el login: ' + error.message);
-            document.querySelector('.fixed.inset-0')?.remove();
-        }
-    }
-
     // Manejar el clic del botón de Google Sign-In
-    document.getElementById('googleSignInBtn').addEventListener('click', function() {
+    document.getElementById('googleSignInBtn').addEventListener('click', async function() {
         try {
             const btn = this;
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Redirigiendo...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Iniciando sesión...';
             
-            console.log('=== INICIO DE GOOGLE SIGN-IN (REDIRECT) ===');
-            console.log('Timestamp:', new Date().toISOString());
-            console.log('Provider config:', provider);
+            console.log('=== INICIANDO GOOGLE SIGN-IN ===');
             
-            // Usar redirect que es más confiable que popup
-            console.log('Llamando a signInWithRedirect...');
-            firebase.auth().signInWithRedirect(provider);
+            // Usar el helper que funciona
+            const authHelper = new FirebaseAuthHelper();
+            await authHelper.startGoogleSignIn();
             
         } catch (error) {
             console.error('=== ERROR EN GOOGLE SIGN-IN ===');
@@ -242,21 +177,13 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
         }
     });
 
-    // Manejar el resultado del redirect cuando el usuario regresa
-    firebase.auth().getRedirectResult().then(function(result) {
-        if (result.credential) {
-            console.log('✅ Redirect result found!');
-            const user = result.user;
-            console.log('User from redirect:', user);
-            
-            // Procesar el usuario
-            processUserSignIn(user);
-        } else {
-            console.log('No redirect result found - user likely just loaded the page');
-        }
-    }).catch(function(error) {
-        console.error('Error getting redirect result:', error);
-        alert('Error al procesar el resultado de Google: ' + error.message);
+    // Verificar si hay código de autorización al cargar la página
+    const authHelper = new FirebaseAuthHelper();
+    authHelper.checkAuthCode().then(async (userInfo) => {
+        console.log('✅ Código de autorización encontrado al cargar la página');
+        await authHelper.processUserLogin(userInfo);
+    }).catch((error) => {
+        console.log('No hay código de autorización - página cargada normalmente');
     });
 }
 </script>
