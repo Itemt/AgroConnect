@@ -18,6 +18,29 @@
         <!-- Form -->
         <div class="card">
             <div class="card-body p-8">
+                {% if is_google_signup %}
+                <!-- Información de Google -->
+                <div class="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            {% if google_data.photo_url %}
+                                <img src="{{ google_data.photo_url }}" alt="Foto de perfil" class="w-10 h-10 rounded-full">
+                            {% else %}
+                                <i class="fas fa-user text-blue-600 text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-900">¡Bienvenido desde Google!</h3>
+                            <p class="text-blue-700">Hemos obtenido tu información básica de Google. Completa los datos restantes para crear tu cuenta de productor.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div><strong>Email:</strong> {{ google_data.email }}</div>
+                        <div><strong>Nombre:</strong> {{ google_data.first_name }} {{ google_data.last_name }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <form method="post" id="producer-registration-form">
                     {% csrf_token %}
                     
@@ -52,8 +75,17 @@
                             <div>
                                 <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                                     Correo Electrónico *
+                                    {% if is_google_signup %}
+                                        <span class="text-sm text-blue-600">(obtenido de Google)</span>
+                                    {% endif %}
                                 </label>
-                                {{ form.email }}
+                                {% if is_google_signup %}
+                                    <input type="email" value="{{ form.email.value }}" readonly 
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                                    <input type="hidden" name="email" value="{{ form.email.value }}">
+                                {% else %}
+                                    {{ form.email }}
+                                {% endif %}
                                 {% if form.email.errors %}
                                     <div class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</div>
                                 {% endif %}
@@ -90,6 +122,7 @@
                             </div>
                         </div>
                         
+                        {% if not is_google_signup %}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
                                 <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
@@ -111,6 +144,15 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% else %}
+                        <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <span class="text-green-800 font-medium">Autenticación segura con Google</span>
+                            </div>
+                            <p class="text-green-700 text-sm mt-1">No necesitas crear una contraseña. Tu cuenta estará protegida con tu autenticación de Google.</p>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Información de la Finca -->

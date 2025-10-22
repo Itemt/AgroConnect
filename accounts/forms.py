@@ -7,7 +7,7 @@ from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LO
 from core.models import Farm
 
 
-class BuyerRegistrationForm(UserCreationForm):
+class BuyerRegistrationForm(forms.ModelForm):
     """Formulario de registro para compradores (sin campos de finca)"""
     # Campos básicos
     first_name = forms.CharField(
@@ -58,7 +58,7 @@ class BuyerRegistrationForm(UserCreationForm):
     )
     telefono = forms.CharField(
         max_length=15, 
-        required=False, 
+        required=True, 
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
@@ -68,7 +68,25 @@ class BuyerRegistrationForm(UserCreationForm):
             'title': 'Solo se permiten números',
             'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
         }),
-        help_text="Número de teléfono de contacto (opcional)"
+        help_text="Número de teléfono de contacto"
+    )
+    
+    # Campos de contraseña (solo para registro normal)
+    password1 = forms.CharField(
+        required=False,
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tu contraseña'
+        })
+    )
+    password2 = forms.CharField(
+        required=False,
+        label="Confirmar Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Confirma tu contraseña'
+        })
     )
     
     # Campos de ubicación
@@ -91,17 +109,23 @@ class BuyerRegistrationForm(UserCreationForm):
     )
     
     def __init__(self, *args, **kwargs):
+        # Unificar inicialización para evitar duplicados y pérdidas de lógica
+        is_google_signup = kwargs.pop('is_google_signup', False)
         super().__init__(*args, **kwargs)
-        
-        # Si hay datos POST, cargar las ciudades del departamento seleccionado
-        if self.data and 'departamento' in self.data:
-            departamento = self.data.get('departamento')
-            if departamento:
-                from core.colombia_locations import get_cities_by_department
-                ciudades = get_cities_by_department(departamento)
-                self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
-        
-        # Configurar widgets de contraseña
+
+        # Guardar flag para validaciones posteriores
+        self.is_google_signup = is_google_signup
+
+        # Configurar widgets de contraseña y visibilidad según el flujo
+        if self.is_google_signup:
+            self.fields['password1'].widget = forms.HiddenInput()
+            self.fields['password2'].widget = forms.HiddenInput()
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+        else:
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
+
         self.fields['password1'].widget.attrs.update({
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Mínimo 8 caracteres'
@@ -114,22 +138,41 @@ class BuyerRegistrationForm(UserCreationForm):
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'placeholder': 'Nombre de usuario único'
         })
+
+        # Poblar opciones de ciudades basado en el departamento seleccionado
+        from core.colombia_locations import get_cities_by_department
+        departamento_actual = None
+
+        # Prioridad: POST data -> initial -> existing field value
+        if self.data and self.data.get('departamento'):
+            departamento_actual = self.data.get('departamento')
+        elif 'departamento' in self.initial and self.initial.get('departamento'):
+            departamento_actual = self.initial.get('departamento')
+
+        if departamento_actual:
+            ciudades = get_cities_by_department(departamento_actual)
+            self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
     
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad')
     
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.role = 'Comprador'  # Siempre comprador
-        
-        # Guardar ubicación en el usuario también
-        user.departamento = self.cleaned_data.get('departamento')
-        user.ciudad = self.cleaned_data.get('ciudad')
+        # Crear usuario usando User.objects.create_user para manejar contraseñas
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data.get('password1', 'unusable_password'),
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            cedula=self.cleaned_data['cedula'],
+            telefono=self.cleaned_data['telefono'],
+            departamento=self.cleaned_data.get('departamento'),
+            ciudad=self.cleaned_data.get('ciudad'),
+            role='Comprador'  # Siempre comprador
+        )
         
         if commit:
-            user.save()
-            
             # Crear BuyerProfile
             buyer_profile = BuyerProfile.objects.create(
                 user=user,
@@ -137,6 +180,28 @@ class BuyerRegistrationForm(UserCreationForm):
                 ciudad=self.cleaned_data.get('ciudad')
             )
         return user
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Validar contraseñas solo si no es registro con Google
+        if not hasattr(self, 'is_google_signup') or not self.is_google_signup:
+            password1 = cleaned_data.get('password1')
+            password2 = cleaned_data.get('password2')
+            
+            if password1 and password2:
+                if password1 != password2:
+                    raise forms.ValidationError("Las contraseñas no coinciden.")
+                if len(password1) < 8:
+                    raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        
+        return cleaned_data
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Este nombre de usuario ya está en uso. Por favor, elige otro.")
+        return username
 
 class CustomUserCreationForm(UserCreationForm):
     # Campos básicos
@@ -1335,3 +1400,211 @@ class BuyerProfileForm(forms.ModelForm):
             'company_name': 'Nombre de la empresa',
             'business_type': 'Tipo de negocio'
         }
+
+
+class ProducerRegistrationForm(forms.ModelForm):
+    """Formulario de registro para productores con finca inicial"""
+    # Campos básicos
+    first_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Nombres",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus nombres',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30, 
+        required=True, 
+        label="Apellidos",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tus apellidos',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras y espacios',
+            'oninput': 'this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")'
+        })
+    )
+    email = forms.EmailField(
+        required=True, 
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'tu@email.com'
+        })
+    )
+    cedula = forms.CharField(
+        max_length=20, 
+        required=True, 
+        label="Cédula",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tu número de cédula',
+            'pattern': '[0-9]+',
+            'title': 'Solo se permiten números',
+            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+        })
+    )
+    telefono = forms.CharField(
+        max_length=15, 
+        required=True, 
+        label="Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tu número de teléfono',
+            'pattern': '[0-9+\-\s()]+',
+            'title': 'Formato: +57 300 123 4567'
+        })
+    )
+    
+    # Campos de contraseña (solo para registro normal)
+    password1 = forms.CharField(
+        required=False,
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Tu contraseña'
+        })
+    )
+    password2 = forms.CharField(
+        required=False,
+        label="Confirmar Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Confirma tu contraseña'
+        })
+    )
+    
+    # Campos de la finca
+    finca_nombre = forms.CharField(
+        max_length=100, 
+        required=True, 
+        label="Nombre de la Finca",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Nombre de tu finca'
+        })
+    )
+    finca_departamento = forms.ChoiceField(
+        required=True, 
+        label="Departamento",
+        choices=[('', 'Selecciona un departamento')] + [(dept, dept) for dept in sorted(get_departments())],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'onchange': 'updateCities()'
+        })
+    )
+    finca_ciudad = forms.ChoiceField(
+        required=True, 
+        label="Ciudad",
+        choices=[('', 'Primero selecciona un departamento')],
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
+        })
+    )
+    finca_direccion = forms.CharField(
+        max_length=200, 
+        required=True, 
+        label="Dirección de la Finca",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': 'Dirección completa de tu finca'
+        })
+    )
+    finca_area = forms.DecimalField(
+        required=True, 
+        label="Área Total (hectáreas)",
+        min_value=0.01,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'placeholder': '0.00',
+            'step': '0.01',
+            'min': '0.01'
+        })
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+                'placeholder': 'Nombre de usuario único'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.is_google_signup = kwargs.pop('is_google_signup', False)
+        super().__init__(*args, **kwargs)
+        
+        # Si es registro con Google, ocultar campos de contraseña
+        if self.is_google_signup:
+            self.fields['password1'].widget = forms.HiddenInput()
+            self.fields['password2'].widget = forms.HiddenInput()
+        else:
+            # Si es registro normal, hacer contraseñas requeridas
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Si es registro con Google, no validar contraseñas
+        if self.is_google_signup:
+            return cleaned_data
+            
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError("Las contraseñas no coinciden.")
+            try:
+                validate_password(password1)
+            except ValidationError as e:
+                raise forms.ValidationError(e.messages)
+        
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Crear usuario
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name']
+        )
+        
+        # Manejar contraseña según el tipo de registro
+        if self.is_google_signup:
+            user.set_unusable_password()
+        else:
+            user.set_password(self.cleaned_data['password1'])
+        
+        if commit:
+            user.save()
+            
+            # Crear perfil de productor
+            ProducerProfile.objects.create(
+                user=user,
+                cedula=self.cleaned_data['cedula'],
+                telefono=self.cleaned_data['telefono']
+            )
+            
+            # Crear finca inicial
+            Farm.objects.create(
+                user=user,
+                nombre=self.cleaned_data['finca_nombre'],
+                departamento=self.cleaned_data['finca_departamento'],
+                ciudad=self.cleaned_data['finca_ciudad'],
+                direccion=self.cleaned_data['finca_direccion'],
+                area_total=self.cleaned_data['finca_area']
+            )
+        
+        return user
