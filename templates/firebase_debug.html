@@ -191,10 +191,77 @@
             updateStatus('signin-status', '❌ Error en redirect: ' + error.message, false);
         });
 
+        // Verificar si hay código de autorización en la URL
+        function checkAuthCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+            
+            if (error) {
+                log('❌ Error de Google OAuth: ' + error);
+                log('Error description: ' + urlParams.get('error_description'));
+                updateStatus('signin-status', '❌ Error de Google: ' + error, false);
+                return;
+            }
+            
+            if (code && state) {
+                log('✅ Código de autorización encontrado!');
+                log('Code: ' + code.substring(0, 20) + '...');
+                log('State: ' + state);
+                updateStatus('signin-status', '✅ Código de autorización recibido!', true);
+                
+                // Intentar intercambiar el código por un token
+                exchangeCodeForToken(code);
+            }
+        }
+
+        // Intercambiar código por token
+        function exchangeCodeForToken(code) {
+            log('🔄 Intercambiando código por token...');
+            
+            const clientId = '90070952239-6mibg7a7cvnofgtt3ph4oh54q3ecc0d1.apps.googleusercontent.com';
+            const redirectUri = window.location.origin + '/firebase-debug/';
+            
+            const tokenUrl = 'https://oauth2.googleapis.com/token';
+            const tokenData = {
+                client_id: clientId,
+                code: code,
+                grant_type: 'authorization_code',
+                redirect_uri: redirectUri
+            };
+            
+            fetch(tokenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(tokenData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.access_token) {
+                    log('✅ Token obtenido exitosamente!');
+                    log('Access Token: ' + data.access_token.substring(0, 20) + '...');
+                    updateStatus('signin-status', '✅ Token obtenido - Login exitoso!', true);
+                } else {
+                    log('❌ Error obteniendo token: ' + JSON.stringify(data));
+                    updateStatus('signin-status', '❌ Error obteniendo token', false);
+                }
+            })
+            .catch(error => {
+                log('❌ Error en intercambio de token: ' + error.message);
+                updateStatus('signin-status', '❌ Error en intercambio', false);
+            });
+        }
+
         // Log inicial
         log('=== FIREBASE DEBUG TEST INICIADO ===');
         log('URL actual: ' + window.location.href);
         log('User Agent: ' + navigator.userAgent);
+        
+        // Verificar si hay código de autorización
+        checkAuthCode();
     </script>
 </body>
 </html>
