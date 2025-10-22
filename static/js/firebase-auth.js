@@ -15,13 +15,14 @@ class FirebaseAuthHelper {
     }
 
     /**
-     * Inicializar Google Sign-In en nueva pestaña
+     * Inicializar Google Sign-In usando redirect (evita infinite loop)
      */
-    async signInWithGooglePopup() {
+    async signInWithGoogleRedirect() {
         try {
-            console.log('=== INICIANDO GOOGLE SIGN-IN (POPUP) ===');
+            console.log('=== INICIANDO GOOGLE SIGN-IN (REDIRECT) ===');
             
-            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+            const redirectUri = encodeURIComponent(window.location.origin + '/auth/google-callback/');
+            console.log('🔗 Nueva URI de redirección:', redirectUri);
             const scope = encodeURIComponent('openid profile email');
             const state = 'google-signin-' + Date.now();
             
@@ -35,35 +36,11 @@ class FirebaseAuthHelper {
                 
                 console.log('🔗 URL de Google OAuth:', googleAuthUrl);
                 console.log('🌐 Redirect URI:', redirectUri);
-                console.log('🌐 Abriendo en nueva pestaña...');
+                console.log('🌐 Preparando redirección...');
             
-            // Abrir en nueva pestaña
-            const newWindow = window.open(googleAuthUrl, 'google-signin', 'width=500,height=600,scrollbars=yes,resizable=yes');
-            
-            if (!newWindow) {
-                throw new Error('No se pudo abrir nueva pestaña (popup bloqueado)');
-            }
-            
-            console.log('✅ Nueva pestaña abierta correctamente');
-            
-            // Esperar a que la pestaña se cierre o se complete el proceso
-            return new Promise((resolve, reject) => {
-                const checkClosed = setInterval(() => {
-                    if (newWindow.closed) {
-                        clearInterval(checkClosed);
-                        console.log('⚠️ Pestaña de Google cerrada');
-                        
-                        // Verificar si hay código de autorización en la URL
-                        this.checkAuthCode().then(resolve).catch(reject);
-                    }
-                }, 1000);
-                
-                // Timeout después de 5 minutos
-                setTimeout(() => {
-                    clearInterval(checkClosed);
-                    reject(new Error('Timeout: La pestaña tardó demasiado en cerrarse'));
-                }, 300000);
-            });
+            // Redirigir directamente (evita infinite loop)
+            console.log('🌐 Redirigiendo a Google...');
+            window.location.href = googleAuthUrl;
             
         } catch (error) {
             console.error('❌ Error en Google Sign-In:', error);
@@ -259,8 +236,8 @@ class FirebaseAuthHelper {
      */
     async startGoogleSignIn() {
         try {
-            const userInfo = await this.signInWithGooglePopup();
-            await this.processUserLogin(userInfo);
+            // El redirect no retorna, simplemente redirige
+            await this.signInWithGoogleRedirect();
         } catch (error) {
             console.error('❌ Error en Google Sign-In:', error);
             alert('Error al iniciar sesión con Google: ' + error.message);

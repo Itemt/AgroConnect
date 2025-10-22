@@ -4,7 +4,7 @@ from .models import User, ProducerProfile, BuyerProfile
 from core.models import Farm
 from core.colombia_locations import get_departments, get_cities_by_department
 
-class ProducerRegistrationForm(UserCreationForm):
+class ProducerRegistrationForm(forms.ModelForm):
     """Formulario de registro para productores con finca inicial"""
     
     # Campos básicos del usuario
@@ -44,14 +44,33 @@ class ProducerRegistrationForm(UserCreationForm):
         })
     )
     telefono = forms.CharField(
-        max_length=15, 
-        required=True, 
+        max_length=15,
+        required=True,
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'form-input',
             'placeholder': 'Ej: 3001234567'
         })
     )
+    
+    # Campos de contraseña (solo para registro normal)
+    password1 = forms.CharField(
+        required=False,
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Tu contraseña'
+        })
+    )
+    password2 = forms.CharField(
+        required=False,
+        label="Confirmar Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Confirma tu contraseña'
+        })
+    )
+    
     role = forms.ChoiceField(
         choices=[('Productor', 'Productor')],
         initial='Productor',
@@ -166,20 +185,20 @@ class ProducerRegistrationForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'role', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'role')
     
     def __init__(self, *args, **kwargs):
+        self.is_google_signup = kwargs.pop('is_google_signup', False)
         super().__init__(*args, **kwargs)
         
-        # Configurar campos de contraseña
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-input',
-            'placeholder': 'Mínimo 8 caracteres'
-        })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-input',
-            'placeholder': 'Repite tu contraseña'
-        })
+        # Si es registro con Google, ocultar campos de contraseña
+        if self.is_google_signup:
+            self.fields['password1'].widget = forms.HiddenInput()
+            self.fields['password2'].widget = forms.HiddenInput()
+        else:
+            # Si es registro normal, hacer contraseñas requeridas
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
         self.fields['username'].widget.attrs.update({
             'class': 'form-input',
             'placeholder': 'Tu nombre de usuario'
@@ -199,8 +218,20 @@ class ProducerRegistrationForm(UserCreationForm):
         return cleaned_data
     
     def save(self, commit=True):
-        user = super().save(commit=False)
+        # Crear usuario
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name']
+        )
         user.role = 'Productor'
+        
+        # Manejar contraseña según el tipo de registro
+        if self.is_google_signup:
+            user.set_unusable_password()
+        else:
+            user.set_password(self.cleaned_data['password1'])
         
         if commit:
             user.save()
@@ -208,14 +239,13 @@ class ProducerRegistrationForm(UserCreationForm):
             # Crear perfil del productor
             ProducerProfile.objects.create(
                 user=user,
-                direccion=self.cleaned_data['direccion'],
-                farm_description=self.cleaned_data.get('farm_description', ''),
-                main_crops=self.cleaned_data.get('main_crops', '')
+                cedula=self.cleaned_data['cedula'],
+                telefono=self.cleaned_data['telefono']
             )
             
             # Crear finca inicial
             Farm.objects.create(
-                propietario=user,
+                user=user,
                 nombre=self.cleaned_data['finca_nombre'],
                 departamento=self.cleaned_data['finca_departamento'],
                 ciudad=self.cleaned_data['finca_ciudad'],

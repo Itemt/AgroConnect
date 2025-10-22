@@ -3,6 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -22,24 +23,162 @@ from core.forms import FarmForm
 def firebase_debug_view(request):
     return render(request, 'firebase_debug.html')
 
+def google_auth_callback(request):
+    """Callback para Google OAuth que procesa el login directamente"""
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    error = request.GET.get('error')
+    
+    if error:
+        # Si hay error, redirigir al login con mensaje de error
+        return redirect(f'/accounts/login/?error={error}')
+    
+    if code and state:
+        # Procesar el login directamente aquí
+        try:
+            # Intercambiar código por token
+            import requests
+            import json
+            
+            client_id = '90070952239-6mibg7a7cvnofgtt3ph4oh54q3ecc0d1.apps.googleusercontent.com'
+            client_secret = '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'
+            redirect_uri = request.build_absolute_uri('/auth/google-callback/')
+            
+            token_url = 'https://oauth2.googleapis.com/token'
+            token_data = {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': code,
+                'grant_type': 'authorization_code',
+                'redirect_uri': redirect_uri
+            }
+            
+            response = requests.post(token_url, data=token_data)
+            token_response = response.json()
+            
+            if 'access_token' in token_response:
+                # Obtener información del usuario
+                user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
+                headers = {'Authorization': f'Bearer {token_response["access_token"]}'}
+                user_response = requests.get(user_info_url, headers=headers)
+                user_info = user_response.json()
+                
+                # Verificar si el usuario ya existe
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                
+                try:
+                    user = User.objects.get(email=user_info['email'])
+                    # Usuario existe, hacer login
+                    from django.contrib.auth import login
+                    login(request, user)
+                    return redirect('/')  # Redirigir al dashboard
+                    
+                except User.DoesNotExist:
+                    # Usuario no existe, redirigir a completar registro
+                    # Guardar datos de Google en la sesión
+                    import time
+                    request.session['google_user_data'] = {
+                        'email': user_info['email'],
+                        'first_name': user_info.get('given_name', ''),
+                        'last_name': user_info.get('family_name', ''),
+                        'photo_url': user_info.get('picture', ''),
+                        'username_suggestion': user_info['email'].split('@')[0],  # Parte antes del @
+                        'timestamp': time.time()  # Timestamp para expiración
+                    }
+                    
+                    return redirect('/accounts/register/?from=google')  # Completar registro
+            else:
+                return redirect('/accounts/login/?error=token_error')
+                
+        except Exception as e:
+            return redirect(f'/accounts/login/?error=processing_error')
+    else:
+        # Si no hay código, redirigir al login normal
+        return redirect('/accounts/login/')
+
 def register(request):
     """Registro para compradores (sin campos de finca)"""
+    # Verificar si hay datos de Google en la sesión
+    google_data = request.session.get('google_user_data', {})
+    came_from_google = request.GET.get('from') == 'google'
+    
+    # Limpiar datos de Google si han pasado más de 10 minutos
+    if google_data and 'timestamp' in google_data:
+        import time
+        if time.time() - google_data['timestamp'] > 600:  # 10 minutos
+            if 'google_user_data' in request.session:
+                del request.session['google_user_data']
+            google_data = {}
+    
+    # Si no venimos del callback de Google, limpiar cualquier dato residual
+    if not came_from_google and google_data:
+        if 'google_user_data' in request.session:
+            del request.session['google_user_data']
+        google_data = {}
+
+    # Si no hay datos de Google, limpiar cualquier dato residual de seguridad
+    if not google_data:
+        if 'google_user_data' in request.session:
+            del request.session['google_user_data']
+    
     if request.method == 'POST':
-        form = BuyerRegistrationForm(request.POST)
+        form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
             user = form.save()  # El formulario ya maneja la creación del perfil
+            
+            # Limpiar datos de Google de la sesión
+            if 'google_user_data' in request.session:
+                del request.session['google_user_data']
+            
             login(request, user)
             messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
             return redirect('index')
     else:
-        form = BuyerRegistrationForm()
+        # Pre-llenar formulario con datos de Google solo si existen
+        initial_data = {}
+        if google_data:
+            initial_data = {
+                'email': google_data.get('email', ''),
+                'first_name': google_data.get('first_name', ''),
+                'last_name': google_data.get('last_name', ''),
+                'username': google_data.get('username_suggestion', ''),
+            }
+        form = BuyerRegistrationForm(initial=initial_data, is_google_signup=bool(google_data))
     
-    return render(request, 'accounts/register.html', {'form': form})
+    context = {
+        'form': form,
+        'google_data': google_data,
+        'is_google_signup': bool(google_data),
+        'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
+        'GOOGLE_CLIENT_SECRET': settings.GOOGLE_CLIENT_SECRET,
+        'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+        'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+        'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+        'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+        'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+        'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+    }
+    
+    return render(request, 'accounts/register.html', context)
+
+@csrf_exempt
+def clear_google_data(request):
+    """Endpoint para limpiar datos de Google de la sesión"""
+    if request.method == 'POST':
+        if 'google_user_data' in request.session:
+            del request.session['google_user_data']
+            print("🧹 Datos de Google limpiados de la sesión")
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
 
 def register_producer(request):
     """Registro específico para productores con finca inicial"""
+    # Obtener datos de Google si existen
+    google_data = request.session.get('google_user_data', {})
+    
     if request.method == 'POST':
-        form = ProducerRegistrationForm(request.POST)
+        form = ProducerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
             user = form.save()
             
@@ -50,13 +189,32 @@ def register_producer(request):
                 ciudad=form.cleaned_data['finca_ciudad']
             )
             
+            # Limpiar datos de Google de la sesión
+            if 'google_user_data' in request.session:
+                del request.session['google_user_data']
+            
             login(request, user)
             messages.success(request, '¡Registro exitoso! Tu cuenta de productor y finca han sido creadas.')
             return redirect('core:farm_list')
     else:
-        form = ProducerRegistrationForm()
+        # Pre-llenar formulario con datos de Google
+        initial_data = {}
+        if google_data:
+            initial_data = {
+                'email': google_data.get('email', ''),
+                'first_name': google_data.get('first_name', ''),
+                'last_name': google_data.get('last_name', ''),
+                'username': google_data.get('username_suggestion', ''),
+            }
+        form = ProducerRegistrationForm(initial=initial_data, is_google_signup=bool(google_data))
     
-    return render(request, 'accounts/register_producer.html', {'form': form})
+    context = {
+        'form': form,
+        'google_data': google_data,
+        'is_google_signup': bool(google_data)
+    }
+    
+    return render(request, 'accounts/register_producer.html', context)
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
