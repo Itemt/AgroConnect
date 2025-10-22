@@ -4,6 +4,20 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+import string
+import time
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -683,3 +697,124 @@ def become_seller(request):
     }
     print("Rendering template...")
     return render(request, 'accounts/become_seller.html', context)
+
+
+# Password Reset Views
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.html'
+    subject_template_name = 'accounts/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    form_class = PasswordResetForm
+
+    def form_valid(self, form):
+        # Obtener el email del formulario
+        email = form.cleaned_data['email']
+        
+        # Buscar el usuario por email
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generar código OTP de 6 dígitos
+            otp_code = ''.join(random.choices(string.digits, k=6))
+            
+            # Guardar el código OTP en la sesión temporalmente
+            self.request.session['password_reset_otp'] = {
+                'code': otp_code,
+                'user_id': user.id,
+                'email': email,
+                'timestamp': time.time()
+            }
+            
+            # Enviar SMS con el código OTP (aquí deberías integrar tu servicio SMS)
+            # Por ahora, simularemos el envío
+            print(f"Código OTP para {email}: {otp_code}")
+            
+            # Redirigir a la página de verificación de código
+            return redirect('verify_phone_code')
+            
+        except User.DoesNotExist:
+            messages.error(self.request, 'No existe una cuenta con ese correo electrónico.')
+            return self.form_invalid(form)
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'accounts/password_reset_done.html'
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'accounts/password_reset_complete.html'
+
+
+def verify_phone_code(request):
+    """Vista para verificar el código OTP enviado por SMS"""
+    if request.method == 'POST':
+        verification_code = request.POST.get('verification_code')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Obtener datos de la sesión
+        otp_data = request.session.get('password_reset_otp', {})
+        
+        if not otp_data:
+            messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
+            return redirect('password_reset')
+        
+        # Verificar que el código no haya expirado (10 minutos)
+        if time.time() - otp_data.get('timestamp', 0) > 600:
+            messages.error(request, 'El código ha expirado. Por favor, solicita uno nuevo.')
+            del request.session['password_reset_otp']
+            return redirect('password_reset')
+        
+        # Verificar el código OTP
+        if verification_code != otp_data.get('code'):
+            messages.error(request, 'Código de verificación incorrecto.')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': otp_data.get('email', '')
+            })
+        
+        # Verificar que las contraseñas coincidan
+        if new_password != confirm_password:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': otp_data.get('email', '')
+            })
+        
+        if len(new_password) < 6:
+            messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': otp_data.get('email', '')
+            })
+        
+        # Cambiar la contraseña del usuario
+        try:
+            User = get_user_model()
+            user = User.objects.get(id=otp_data['user_id'])
+            user.set_password(new_password)
+            user.save()
+            
+            # Limpiar la sesión
+            del request.session['password_reset_otp']
+            
+            messages.success(request, 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.')
+            return redirect('login')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'Usuario no encontrado.')
+            return redirect('password_reset')
+    
+    # GET request - mostrar formulario
+    otp_data = request.session.get('password_reset_otp', {})
+    if not otp_data:
+        messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
+        return redirect('password_reset')
+    
+    return render(request, 'accounts/verify_phone_code.html', {
+        'phone_number': otp_data.get('email', '')
+    })
