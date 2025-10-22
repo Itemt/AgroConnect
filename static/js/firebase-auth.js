@@ -25,16 +25,17 @@ class FirebaseAuthHelper {
             const scope = encodeURIComponent('openid profile email');
             const state = 'google-signin-' + Date.now();
             
-            const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?` +
-                `client_id=${this.clientId}&` +
-                `redirect_uri=${redirectUri}&` +
-                `scope=${scope}&` +
-                `response_type=code&` +
-                `state=${state}&` +
-                `prompt=select_account`;
-            
-            console.log('🔗 URL de Google OAuth:', googleAuthUrl);
-            console.log('🌐 Abriendo en nueva pestaña...');
+                const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?` +
+                    `client_id=${this.clientId}&` +
+                    `redirect_uri=${redirectUri}&` +
+                    `scope=${scope}&` +
+                    `response_type=code&` +
+                    `state=${state}&` +
+                    `prompt=select_account`;
+                
+                console.log('🔗 URL de Google OAuth:', googleAuthUrl);
+                console.log('🌐 Redirect URI:', redirectUri);
+                console.log('🌐 Abriendo en nueva pestaña...');
             
             // Abrir en nueva pestaña
             const newWindow = window.open(googleAuthUrl, 'google-signin', 'width=500,height=600,scrollbars=yes,resizable=yes');
