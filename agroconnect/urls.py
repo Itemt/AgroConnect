@@ -21,7 +21,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts import views as accounts_views
 from accounts import ajax_views as accounts_ajax
-from accounts import firebase_views as firebase_views
 from marketplace import views as marketplace_views
 from sales import views as sales_views
 from inventory import views as inventory_views
@@ -43,15 +42,10 @@ urlpatterns = [
     # Incluir otras URLs de auth si las necesitas (ej. password reset)
     path('accounts/', include('django.contrib.auth.urls')),
 
-    # Firebase Authentication
-    path('accounts/google-signin/', firebase_views.google_signin, name='google_signin'),
-    path('accounts/register-with-google/', firebase_views.register_with_google, name='register_with_google'),
-    path('firebase-debug/', accounts_views.firebase_debug_view, name='firebase_debug'),
+    # Google OAuth Callback
+    # (Flujo actual usa redirect y callback en el backend)
     path('auth/google-callback/', accounts_views.google_auth_callback, name='google_auth_callback'),
     path('accounts/clear-google-data/', accounts_views.clear_google_data, name='clear_google_data'),
-    path('accounts/password-reset-phone/', firebase_views.password_reset_phone, name='password_reset_phone'),
-    path('accounts/verify-phone-code/', firebase_views.verify_phone_code, name='verify_phone_code'),
-    path('accounts/api/verify-phone-code/', firebase_views.verify_phone_code_ajax, name='verify_phone_code_ajax'),
 
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
