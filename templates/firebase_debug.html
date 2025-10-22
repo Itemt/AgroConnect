@@ -23,7 +23,8 @@
     
     <div class="test-section">
         <h2>2. Test de Google Sign-In</h2>
-        <button onclick="testGoogleSignIn()">Probar Google Sign-In</button>
+        <button onclick="testGoogleSignIn()">Probar Google Sign-In (Nueva Pestaña)</button>
+        <button onclick="testFirebaseRedirect()">Probar Firebase Redirect</button>
         <div id="signin-status">No probado</div>
     </div>
     
@@ -97,14 +98,79 @@
                 log('Scopes: ' + provider.scopes);
                 log('Custom Parameters: ' + JSON.stringify(provider.customParameters));
                 
-                updateStatus('signin-status', 'Probando redirect...', false);
+                updateStatus('signin-status', 'Abriendo Google Sign-In en nueva pestaña...', false);
+                
+                // Crear URL de Google OAuth manualmente
+                const clientId = '90070952239-6mibg7a7cvnofgtt3ph4oh54q3ecc0d1.apps.googleusercontent.com';
+                const redirectUri = encodeURIComponent(window.location.origin + '/firebase-debug/');
+                const scope = encodeURIComponent('openid profile email');
+                const state = 'debug-test-' + Date.now();
+                
+                const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?` +
+                    `client_id=${clientId}&` +
+                    `redirect_uri=${redirectUri}&` +
+                    `scope=${scope}&` +
+                    `response_type=code&` +
+                    `state=${state}&` +
+                    `prompt=select_account`;
+                
+                log('🔗 URL de Google OAuth: ' + googleAuthUrl);
+                log('🌐 Abriendo en nueva pestaña...');
+                
+                // Abrir en nueva pestaña
+                const newWindow = window.open(googleAuthUrl, 'google-signin', 'width=500,height=600,scrollbars=yes,resizable=yes');
+                
+                if (newWindow) {
+                    log('✅ Nueva pestaña abierta correctamente');
+                    updateStatus('signin-status', '✅ Nueva pestaña abierta - Completa el login en Google', true);
+                    
+                    // Monitorear si la pestaña se cierra
+                    const checkClosed = setInterval(() => {
+                        if (newWindow.closed) {
+                            log('⚠️ Pestaña de Google cerrada');
+                            clearInterval(checkClosed);
+                            updateStatus('signin-status', '⚠️ Pestaña cerrada - Verifica si el login fue exitoso', false);
+                        }
+                    }, 1000);
+                    
+                } else {
+                    log('❌ No se pudo abrir nueva pestaña (popup bloqueado)');
+                    updateStatus('signin-status', '❌ Popup bloqueado - Permite popups para este sitio', false);
+                }
+                
+            } catch (error) {
+                log('❌ Error en Google Sign-In: ' + error.message);
+                log('Error code: ' + error.code);
+                log('Error stack: ' + error.stack);
+                updateStatus('signin-status', '❌ Error: ' + error.message, false);
+            }
+        }
+
+        // Test 3: Firebase Redirect (método original)
+        function testFirebaseRedirect() {
+            log('=== INICIANDO TEST DE FIREBASE REDIRECT ===');
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({
+                    'prompt': 'select_account'
+                });
+                
+                log('✅ Provider configurado correctamente');
+                log('Provider ID: ' + provider.providerId);
+                log('Scopes: ' + provider.scopes);
+                log('Custom Parameters: ' + JSON.stringify(provider.customParameters));
+                
+                updateStatus('signin-status', 'Probando Firebase redirect...', false);
                 
                 // Intentar redirect
                 log('Llamando a signInWithRedirect...');
                 firebase.auth().signInWithRedirect(provider);
                 
             } catch (error) {
-                log('❌ Error en Google Sign-In: ' + error.message);
+                log('❌ Error en Firebase Redirect: ' + error.message);
                 log('Error code: ' + error.code);
                 log('Error stack: ' + error.stack);
                 updateStatus('signin-status', '❌ Error: ' + error.message, false);
