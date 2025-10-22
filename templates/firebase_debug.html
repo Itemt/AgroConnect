@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #log { background-color: #f8f9fa; padding: 10px; margin: 10px 0; border: 1px solid #dee2e6; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Firebase Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Configuración de Firebase</h2>
+        <div id="config-status">Verificando...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test de Google Sign-In</h2>
+        <button onclick="testGoogleSignIn()">Probar Google Sign-In</button>
+        <div id="signin-status">No probado</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Log de Debug</h2>
+        <div id="log"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBocgWBneNY_ElZDwP7_H3y6Egg1wChF9Q",
+            authDomain: "agroconnect-b9b1c.firebaseapp.com",
+            projectId: "agroconnect-b9b1c",
+            storageBucket: "agroconnect-b9b1c.firebasestorage.app",
+            messagingSenderId: "90070952239",
+            appId: "1:90070952239:web:c6486c84288c86f5ddd9da"
+        };
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.textContent += new Date().toISOString() + ': ' + message + '\n';
+            console.log(message);
+        }
+
+        function updateStatus(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = isSuccess ? 'success' : 'error';
+        }
+
+        // Test 1: Verificar configuración
+        try {
+            log('Iniciando Firebase...');
+            firebase.initializeApp(firebaseConfig);
+            log('✅ Firebase inicializado correctamente');
+            
+            updateStatus('config-status', '✅ Firebase configurado correctamente', true);
+            
+            // Verificar que auth esté disponible
+            if (firebase.auth) {
+                log('✅ Firebase Auth disponible');
+            } else {
+                log('❌ Firebase Auth NO disponible');
+                updateStatus('config-status', '❌ Firebase Auth no disponible', false);
+            }
+            
+        } catch (error) {
+            log('❌ Error inicializando Firebase: ' + error.message);
+            updateStatus('config-status', '❌ Error: ' + error.message, false);
+        }
+
+        // Test 2: Google Sign-In
+        function testGoogleSignIn() {
+            log('=== INICIANDO TEST DE GOOGLE SIGN-IN ===');
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                provider.setCustomParameters({
+                    'prompt': 'select_account'
+                });
+                
+                log('✅ Provider configurado correctamente');
+                log('Provider ID: ' + provider.providerId);
+                log('Scopes: ' + provider.scopes);
+                log('Custom Parameters: ' + JSON.stringify(provider.customParameters));
+                
+                updateStatus('signin-status', 'Probando redirect...', false);
+                
+                // Intentar redirect
+                log('Llamando a signInWithRedirect...');
+                firebase.auth().signInWithRedirect(provider);
+                
+            } catch (error) {
+                log('❌ Error en Google Sign-In: ' + error.message);
+                log('Error code: ' + error.code);
+                log('Error stack: ' + error.stack);
+                updateStatus('signin-status', '❌ Error: ' + error.message, false);
+            }
+        }
+
+        // Manejar resultado del redirect
+        firebase.auth().getRedirectResult().then(function(result) {
+            if (result.credential) {
+                log('✅ Redirect result encontrado!');
+                log('User: ' + JSON.stringify(result.user));
+                updateStatus('signin-status', '✅ Redirect exitoso!', true);
+            } else {
+                log('No redirect result - página cargada normalmente');
+            }
+        }).catch(function(error) {
+            log('❌ Error en getRedirectResult: ' + error.message);
+            updateStatus('signin-status', '❌ Error en redirect: ' + error.message, false);
+        });
+
+        // Log inicial
+        log('=== FIREBASE DEBUG TEST INICIADO ===');
+        log('URL actual: ' + window.location.href);
+        log('User Agent: ' + navigator.userAgent);
+    </script>
+</body>
+</html>

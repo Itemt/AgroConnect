@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
@@ -16,6 +17,9 @@ from core.models import Notification
 from core.forms import FarmForm
 
 # Create your views here.
+
+def firebase_debug_view(request):
+    return render(request, 'firebase_debug.html')
 
 def register(request):
     """Registro para compradores (sin campos de finca)"""
