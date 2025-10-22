@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
+from django.conf import settings
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -59,6 +60,21 @@ def register_producer(request):
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar variables de Firebase y Google OAuth
+        context.update({
+            'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+            'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+            'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+            'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+            'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+            'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+            'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
+            'GOOGLE_CLIENT_SECRET': settings.GOOGLE_CLIENT_SECRET,
+        })
+        return context
 
     def get_success_url(self):
         user = self.request.user
