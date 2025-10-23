@@ -1,9 +1,9 @@
 {% extends 'accounts/admin_base_tailadmin.html' %}
 {% load static %}
 
-{% block title %}Eliminar Pedido #{{ order.id }} - AgroConnect{% endblock %}
+{% block title %}Eliminar Publicación - AgroConnect{% endblock %}
 
-{% block page_title %}Eliminar Pedido #{{ order.id }}{% endblock %}
+{% block page_title %}Eliminar Publicación{% endblock %}
 
 {% block admin_content %}
 <div class="space-y-6">
@@ -11,12 +11,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Eliminar Pedido #{{ order.id }}</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Confirmar eliminación del pedido</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Eliminar Publicación</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Confirmar eliminación de la publicación</p>
             </div>
-            <a href="{% url 'admin_order_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+            <a href="{% url 'admin_publication_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
                 <i class="fas fa-arrow-left"></i>
-                Volver a Pedidos
+                Volver a Publicaciones
             </a>
         </div>
     </div>
@@ -29,38 +29,38 @@
             </div>
             
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                ¿Estás seguro de que quieres eliminar este pedido?
+                ¿Estás seguro de que quieres eliminar esta publicación?
             </h3>
             
             <p class="text-gray-500 dark:text-gray-400 mb-6">
-                Esta acción no se puede deshacer. Se eliminará permanentemente el pedido #{{ order.id }} y todos sus datos asociados.
+                Esta acción no se puede deshacer. Se eliminará permanentemente la publicación y todos sus datos asociados.
             </p>
 
-            <!-- Order Info -->
+            <!-- Publication Info -->
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
                 <div class="flex items-center justify-center space-x-4">
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-white text-lg"></i>
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-newspaper text-white text-lg"></i>
                     </div>
                     <div class="text-left">
                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                            Pedido #{{ order.id }}
+                            {{ publication.cultivo.nombre }}
                         </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ order.publicacion.cultivo.nombre }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">${{ order.precio_total|floatformat:2 }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ publication.categoria }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ publication.get_estado_display }}</div>
                     </div>
                 </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-center gap-4">
-                <a href="{% url 'admin_order_list' %}" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                <a href="{% url 'admin_publication_list' %}" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
                     Cancelar
                 </a>
                 <form method="POST" class="inline">
                     {% csrf_token %}
                     <button type="submit" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
-                        Sí, Eliminar Pedido
+                        Sí, Eliminar Publicación
                     </button>
                 </form>
             </div>

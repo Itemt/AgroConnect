@@ -1,0 +1,142 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Detalle del Pedido #{{ order.id }} - AgroConnect{% endblock %}
+
+{% block page_title %}Detalle del Pedido #{{ order.id }}{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Pedido #{{ order.id }}</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Información detallada del pedido</p>
+            </div>
+            <a href="{% url 'admin_order_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Pedidos
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Order Details -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información del Pedido</h3>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">ID:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">#{{ order.id }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Estado:</span>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                        {% if order.estado == 'completado' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        {% elif order.estado == 'cancelado' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                        {% elif order.estado == 'pendiente' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200{% endif %}">
+                        {{ order.get_estado_display }}
+                    </span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Precio Total:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">${{ order.precio_total|floatformat:2 }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Cantidad:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Fecha de Creación:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información del Cliente</h3>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Comprador:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ order.comprador.get_full_name|default:order.comprador.username }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Email:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ order.comprador.email }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500 dark:text-gray-400">Vendedor:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ order.publicacion.cultivo.productor.get_full_name|default:order.publicacion.cultivo.productor.username }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información del Producto</h3>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between">
+                <span class="text-gray-500 dark:text-gray-400">Producto:</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ order.publicacion.cultivo.nombre }}</span>
+            </div>
+            
+            <div class="flex justify-between">
+                <span class="text-gray-500 dark:text-gray-400">Categoría:</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ order.publicacion.categoria }}</span>
+            </div>
+            
+            <div class="flex justify-between">
+                <span class="text-gray-500 dark:text-gray-400">Precio por Unidad:</span>
+                <span class="font-medium text-gray-900 dark:text-white">${{ order.publicacion.precio_por_unidad|floatformat:2 }} / {{ order.publicacion.unidad_medida }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    {% if order.notas_comprador or order.notas_vendedor %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Notas</h3>
+        
+        <div class="space-y-4">
+            {% if order.notas_comprador %}
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas del Comprador:</h4>
+                <p class="text-gray-900 dark:text-white">{{ order.notas_comprador }}</p>
+            </div>
+            {% endif %}
+            
+            {% if order.notas_vendedor %}
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas del Vendedor:</h4>
+                <p class="text-gray-900 dark:text-white">{{ order.notas_vendedor }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-end gap-4">
+        <a href="{% url 'admin_order_edit' order.id %}" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors">
+            <i class="fas fa-edit mr-2"></i>Editar Pedido
+        </a>
+        <a href="{% url 'admin_order_delete' order.id %}" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+            <i class="fas fa-trash mr-2"></i>Eliminar Pedido
+        </a>
+    </div>
+</div>
+{% endblock %}

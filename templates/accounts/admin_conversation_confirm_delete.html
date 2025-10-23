@@ -1,0 +1,119 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Eliminar Conversación - AgroConnect{% endblock %}
+
+{% block page_title %}Eliminar Conversación{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Eliminar Conversación</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Confirmar eliminación de la conversación</p>
+            </div>
+            <a href="{% url 'admin_conversation_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Conversaciones
+            </a>
+        </div>
+    </div>
+
+    <!-- Confirmation Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+            </div>
+            
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                ¿Estás seguro de que quieres eliminar esta conversación?
+            </h3>
+            
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                Esta acción no se puede deshacer. Se eliminará permanentemente la conversación y todos sus mensajes.
+            </p>
+            
+            <!-- Conversation Details -->
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 text-left">
+                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Detalles de la conversación:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">ID:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">#{{ conversation.id }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Participantes:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ participants.count }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Mensajes:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ message_count }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Creada:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ conversation.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+                
+                <!-- Participants List -->
+                <div class="mt-4">
+                    <h5 class="font-medium text-gray-900 dark:text-white mb-2">Participantes:</h5>
+                    <div class="space-y-2">
+                        {% for participant in participants %}
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-brand-100 dark:bg-brand-500/20 rounded-full flex items-center justify-center mr-2">
+                                <i class="fas fa-user text-brand-500 text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-900 dark:text-white">
+                                {{ participant.get_full_name|default:participant.username }} ({{ participant.email }})
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Last Message -->
+                {% if last_message %}
+                <div class="mt-4">
+                    <h5 class="font-medium text-gray-900 dark:text-white mb-2">Último mensaje:</h5>
+                    <div class="bg-white dark:bg-gray-600 rounded p-3 text-sm">
+                        <div class="text-gray-900 dark:text-white">{{ last_message.content|truncatechars:100 }}</div>
+                        <div class="text-gray-500 dark:text-gray-400 mt-1">
+                            Por: {{ last_message.sender.get_full_name|default:last_message.sender.username }} • 
+                            {{ last_message.created_at|date:"M d, H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Warning Message -->
+            <div class="bg-yellow-50 dark:bg-yellow-500/20 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5 mr-3"></i>
+                    <div class="text-sm text-yellow-800 dark:text-yellow-300">
+                        <p class="font-medium mb-1">Advertencia:</p>
+                        <p>Esta acción eliminará permanentemente toda la conversación y sus {{ message_count }} mensajes. Los usuarios ya no podrán acceder a esta conversación.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-center gap-4">
+                <a href="{% url 'admin_conversation_list' %}" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Eliminar Conversación
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

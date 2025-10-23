@@ -46,3 +46,4 @@ zope.interface==8.0.1
 google-generativeai==0.7.2
 firebase-admin==6.5.0
 pyrebase4==4.8.0
+resend==2.17.0

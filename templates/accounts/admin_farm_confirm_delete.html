@@ -1,0 +1,88 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Eliminar Finca - AgroConnect{% endblock %}
+
+{% block page_title %}Eliminar Finca{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Eliminar Finca</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Confirmar eliminación de la finca</p>
+            </div>
+            <a href="{% url 'admin_farm_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Fincas
+            </a>
+        </div>
+    </div>
+
+    <!-- Confirmation Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+            </div>
+            
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                ¿Estás seguro de que quieres eliminar esta finca?
+            </h3>
+            
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                Esta acción no se puede deshacer. Se eliminará permanentemente la finca y toda su información asociada.
+            </p>
+            
+            <!-- Farm Details -->
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 text-left">
+                <h4 class="font-medium text-gray-900 dark:text-white mb-3">Detalles de la finca:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Nombre:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ farm.nombre }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Propietario:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ farm.propietario.get_full_name|default:farm.propietario.username }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Ubicación:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ farm.ciudad }}, {{ farm.departamento }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600 dark:text-gray-400">Área Total:</span>
+                        <span class="text-gray-900 dark:text-white font-medium ml-2">{{ farm.area_total }} hectáreas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warning Message -->
+            <div class="bg-yellow-50 dark:bg-yellow-500/20 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5 mr-3"></i>
+                    <div class="text-sm text-yellow-800 dark:text-yellow-300">
+                        <p class="font-medium mb-1">Advertencia:</p>
+                        <p>Si esta finca tiene cultivos asociados, también se eliminarán. Asegúrate de que no hay información importante antes de continuar.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-center gap-4">
+                <a href="{% url 'admin_farm_list' %}" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Eliminar Finca
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

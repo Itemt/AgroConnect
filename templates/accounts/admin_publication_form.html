@@ -1,0 +1,412 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - AgroConnect{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ title }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {% if is_create %}Crear una nueva publicación asociada a un productor{% else %}Modificar información de la publicación{% endif %}
+                </p>
+            </div>
+            <a href="{% url 'admin_publication_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Publicaciones
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Productor y Cultivo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Productor -->
+                <div>
+                    <label for="producer_select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Productor
+                    </label>
+                    <select id="producer_select" name="producer_select" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        <option value="">Selecciona un productor</option>
+                        {% for producer in producers %}
+                            <option value="{{ producer.id }}">{{ producer.get_full_name|default:producer.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Cultivo -->
+                <div>
+                    <label for="{{ form.cultivo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.cultivo.label }}
+                    </label>
+                    {{ form.cultivo }}
+                    {% if form.cultivo.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.cultivo.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div id="crop-info" class="text-sm text-gray-500 dark:text-gray-400 mt-1 hidden">
+                        <span id="crop-details"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finca y Ubicación -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Finca -->
+                <div>
+                    <label for="{{ form.finca.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.finca.label }}
+                    </label>
+                    {{ form.finca }}
+                    {% if form.finca.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.finca.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Departamento -->
+                <div>
+                    <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.departamento.label }}
+                    </label>
+                    {{ form.departamento }}
+                    {% if form.departamento.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.departamento.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Ciudad -->
+                <div>
+                    <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.ciudad.label }}
+                    </label>
+                    {{ form.ciudad }}
+                    {% if form.ciudad.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.ciudad.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información del Producto -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Categoría -->
+                <div>
+                    <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.categoria.label }}
+                    </label>
+                    {{ form.categoria }}
+                    {% if form.categoria.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.categoria.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.estado.label }}
+                    </label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.estado.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Unidad de Medida -->
+                <div>
+                    <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.unidad_medida.label }}
+                    </label>
+                    {{ form.unidad_medida }}
+                    {% if form.unidad_medida.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.unidad_medida.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Precio por Unidad -->
+                <div>
+                    <label for="{{ form.precio_por_unidad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.precio_por_unidad.label }}
+                    </label>
+                    {{ form.precio_por_unidad }}
+                    {% if form.precio_por_unidad.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.precio_por_unidad.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cantidad Disponible -->
+                <div>
+                    <label for="{{ form.cantidad_disponible.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.cantidad_disponible.label }}
+                    </label>
+                    {{ form.cantidad_disponible }}
+                    {% if form.cantidad_disponible.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.cantidad_disponible.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cantidad Mínima -->
+                <div>
+                    <label for="{{ form.cantidad_minima.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.cantidad_minima.label }}
+                    </label>
+                    {{ form.cantidad_minima }}
+                    {% if form.cantidad_minima.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.cantidad_minima.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Descripción -->
+            <div>
+                <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.descripcion.label }}
+                </label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-red-600 text-sm mt-1">
+                        {% for error in form.descripcion.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Imagen -->
+            <div>
+                <label for="{{ form.imagen.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.imagen.label }}
+                </label>
+                {{ form.imagen }}
+                {% if form.imagen.errors %}
+                    <div class="text-red-600 text-sm mt-1">
+                        {% for error in form.imagen.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Errores generales del formulario -->
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="text-red-600 text-sm">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="{% url 'admin_publication_list' %}" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors">
+                    {% if is_create %}Crear Publicación{% else %}Actualizar Publicación{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const producerSelect = document.getElementById('producer_select');
+    const cropSelect = document.getElementById('id_cultivo');
+    const farmSelect = document.getElementById('id_finca');
+    const cropInfo = document.getElementById('crop-info');
+    const cropDetails = document.getElementById('crop-details');
+
+    // Función para cargar los cultivos del productor seleccionado
+    function loadCrops(producerId) {
+        if (!producerId) {
+            cropSelect.innerHTML = '<option value="">Primero selecciona un productor</option>';
+            farmSelect.innerHTML = '<option value="">Primero selecciona un productor</option>';
+            cropInfo.classList.add('hidden');
+            return;
+        }
+
+        // Mostrar loading
+        cropSelect.innerHTML = '<option value="">Cargando cultivos...</option>';
+        cropSelect.disabled = true;
+
+        // Hacer petición AJAX
+        fetch(`{% url 'admin_get_crops_by_producer' %}?producer_id=${producerId}`)
+            .then(response => response.json())
+            .then(data => {
+                cropSelect.innerHTML = '<option value="">Selecciona un cultivo</option>';
+                
+                if (data.crops.length === 0) {
+                    cropSelect.innerHTML = '<option value="">No hay cultivos disponibles</option>';
+                } else {
+                    data.crops.forEach(crop => {
+                        const option = document.createElement('option');
+                        option.value = crop.id;
+                        option.textContent = `${crop.nombre} - ${crop.categoria} (${crop.cantidad_estimada} ${crop.unidad_medida})`;
+                        option.dataset.cantidadEstimada = crop.cantidad_estimada;
+                        option.dataset.unidadMedida = crop.unidad_medida;
+                        option.dataset.fincaNombre = crop.finca_nombre;
+                        cropSelect.appendChild(option);
+                    });
+                }
+                
+                cropSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                cropSelect.innerHTML = '<option value="">Error al cargar cultivos</option>';
+                cropSelect.disabled = false;
+            });
+    }
+
+    // Función para cargar las fincas del cultivo seleccionado
+    function loadFarms(cropId) {
+        if (!cropId) {
+            farmSelect.innerHTML = '<option value="">Primero selecciona un cultivo</option>';
+            return;
+        }
+
+        // Mostrar loading
+        farmSelect.innerHTML = '<option value="">Cargando fincas...</option>';
+        farmSelect.disabled = true;
+
+        // Hacer petición AJAX
+        fetch(`{% url 'admin_get_farms_by_crop' %}?crop_id=${cropId}`)
+            .then(response => response.json())
+            .then(data => {
+                farmSelect.innerHTML = '<option value="">Selecciona una finca (opcional)</option>';
+                
+                if (data.farms.length === 0) {
+                    farmSelect.innerHTML = '<option value="">No hay fincas disponibles</option>';
+                } else {
+                    data.farms.forEach(farm => {
+                        const option = document.createElement('option');
+                        option.value = farm.id;
+                        option.textContent = `${farm.nombre} - ${farm.ciudad}, ${farm.departamento}`;
+                        farmSelect.appendChild(option);
+                    });
+                }
+                
+                farmSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                farmSelect.innerHTML = '<option value="">Error al cargar fincas</option>';
+                farmSelect.disabled = false;
+            });
+    }
+
+    // Event listener para el cambio de productor
+    producerSelect.addEventListener('change', function() {
+        const producerId = this.value;
+        loadCrops(producerId);
+        farmSelect.innerHTML = '<option value="">Primero selecciona un cultivo</option>';
+        cropInfo.classList.add('hidden');
+    });
+
+    // Event listener para el cambio de cultivo
+    cropSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const cropId = this.value;
+        
+        if (selectedOption.dataset.cantidadEstimada) {
+            const cantidadEstimada = parseFloat(selectedOption.dataset.cantidadEstimada);
+            const unidadMedida = selectedOption.dataset.unidadMedida;
+            const fincaNombre = selectedOption.dataset.fincaNombre;
+            
+            cropDetails.textContent = `Cantidad estimada: ${cantidadEstimada} ${unidadMedida} | Finca: ${fincaNombre}`;
+            cropInfo.classList.remove('hidden');
+            
+            // Cargar fincas del cultivo
+            loadFarms(cropId);
+        } else {
+            cropInfo.classList.add('hidden');
+            farmSelect.innerHTML = '<option value="">Primero selecciona un cultivo</option>';
+        }
+    });
+
+    // Cargar datos si estamos en modo edición
+    {% if not is_create and publication %}
+        // Establecer el productor del cultivo actual
+        const currentProducerId = {{ publication.cultivo.productor.id }};
+        producerSelect.value = currentProducerId;
+        loadCrops(currentProducerId);
+        
+        // Establecer el cultivo actual después de cargar
+        setTimeout(() => {
+            cropSelect.value = {{ publication.cultivo.id }};
+            const selectedOption = cropSelect.options[cropSelect.selectedIndex];
+            if (selectedOption.dataset.cantidadEstimada) {
+                const cantidadEstimada = parseFloat(selectedOption.dataset.cantidadEstimada);
+                const unidadMedida = selectedOption.dataset.unidadMedida;
+                const fincaNombre = selectedOption.dataset.fincaNombre;
+                
+                cropDetails.textContent = `Cantidad estimada: ${cantidadEstimada} ${unidadMedida} | Finca: ${fincaNombre}`;
+                cropInfo.classList.remove('hidden');
+                
+                // Cargar fincas y establecer la finca actual
+                loadFarms({{ publication.cultivo.id }});
+                setTimeout(() => {
+                    {% if publication.finca %}
+                        farmSelect.value = {{ publication.finca.id }};
+                    {% endif %}
+                }, 500);
+            }
+        }, 500);
+    {% endif %}
+});
+</script>
+{% endblock %}

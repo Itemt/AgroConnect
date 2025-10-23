@@ -214,6 +214,10 @@ FIREBASE_ADMIN_CREDENTIALS_PATH = config('FIREBASE_ADMIN_CREDENTIALS_PATH', defa
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 
+# Resend Email Configuration
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+RESEND_FROM_EMAIL = config('RESEND_FROM_EMAIL', default='noreply@agroconnect.com')
+
 # Logging configuration
 LOGGING = {
     'version': 1,

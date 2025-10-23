@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import views_farm
 from . import views_docs
+from . import views_admin
 
 app_name = 'core'
 
@@ -30,6 +31,7 @@ urlpatterns = [
     path('assistant/reply/', views.assistant_reply, name='assistant_reply'),
     # AI Suggestions para publicaciones
     path('ai/suggestions/', views.ai_publication_suggestions, name='ai_publication_suggestions'),
+    
 ]
 
 

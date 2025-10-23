@@ -1,0 +1,183 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Gestión de Fincas - AgroConnect{% endblock %}
+
+{% block page_title %}Gestión de Fincas{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Fincas</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Administra todas las fincas del sistema</p>
+            </div>
+            <a href="{% url 'admin_farm_create' %}" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-plus"></i>
+                Nueva Finca
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+                <input type="text" id="search" name="search" value="{% if search_query and search_query != 'None' %}{{ search_query }}{% endif %}" 
+                       placeholder="Buscar por nombre, productor, ciudad..."
+                       class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+            </div>
+            <div>
+                <label for="producer" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Productor</label>
+                <select id="producer" name="producer" class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">Todos los productores</option>
+                    {% for producer in producers %}
+                        <option value="{{ producer.id }}" {% if current_producer and current_producer != 'None' and current_producer == producer.id|stringformat:"s" %}selected{% endif %}>
+                            {{ producer.get_full_name|default:producer.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-search mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Farms List -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Lista de Fincas ({{ farms.paginator.count }})
+            </h3>
+            
+            {% if farms %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Finca</th>
+                                <th scope="col" class="px-6 py-3">Propietario</th>
+                                <th scope="col" class="px-6 py-3">Ubicación</th>
+                                <th scope="col" class="px-6 py-3">Área</th>
+                                <th scope="col" class="px-6 py-3">Estado</th>
+                                <th scope="col" class="px-6 py-3">Creada</th>
+                                <th scope="col" class="px-6 py-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for farm in farms %}
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-brand-100 dark:bg-brand-500/20 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="fas fa-map-marker-alt text-brand-500"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">{{ farm.nombre }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ farm.tipo_suelo|title }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-success-100 dark:bg-success-500/20 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-user text-success-500 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">{{ farm.propietario.get_full_name|default:farm.propietario.username }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ farm.propietario.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-gray-900 dark:text-white">{{ farm.ciudad }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ farm.departamento }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-gray-900 dark:text-white">{{ farm.area_total }} ha</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ farm.area_cultivable }} cultivable</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if farm.activa %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800 dark:bg-success-500/20 dark:text-success-400">
+                                            <i class="fas fa-check-circle mr-1"></i>Activa
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400">
+                                            <i class="fas fa-pause-circle mr-1"></i>Inactiva
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-gray-900 dark:text-white">{{ farm.created_at|date:"M d, Y" }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ farm.created_at|time:"H:i" }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{% url 'admin_farm_edit' farm.pk %}" 
+                                           class="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300"
+                                           title="Editar finca">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'admin_farm_delete' farm.pk %}" 
+                                           class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                           title="Eliminar finca">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if farms.has_other_pages %}
+                <div class="mt-6 flex items-center justify-between">
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        Mostrando {{ farms.start_index }} a {{ farms.end_index }} de {{ farms.paginator.count }} fincas
+                    </div>
+                    <div class="flex items-center gap-2">
+                        {% if farms.has_previous %}
+                            <a href="?page={{ farms.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_producer %}&producer={{ current_producer }}{% endif %}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700">
+                                Anterior
+                            </a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2 text-sm font-medium text-gray-900 bg-brand-50 border border-brand-300 rounded-lg dark:bg-brand-500/20 dark:border-brand-500 dark:text-brand-400">
+                            {{ farms.number }} de {{ farms.paginator.num_pages }}
+                        </span>
+                        
+                        {% if farms.has_next %}
+                            <a href="?page={{ farms.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_producer %}&producer={{ current_producer }}{% endif %}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700">
+                                Siguiente
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-map-marker-alt text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay fincas</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">No se encontraron fincas con los criterios de búsqueda.</p>
+                    <a href="{% url 'admin_farm_create' %}" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Crear Primera Finca
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

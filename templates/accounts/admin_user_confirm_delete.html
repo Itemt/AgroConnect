@@ -1,27 +1,69 @@
-{% extends 'accounts/user_base.html' %}
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
 
-{% block title %}Confirm Delete - Admin{% endblock %}
+{% block title %}Eliminar Usuario - AgroConnect{% endblock %}
 
-{% block user_content %}
-<div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h1 class="text-xl font-bold text-gray-900">Delete User: {{ user_to_delete.username }}</h1>
-            <p class="mt-2 text-sm text-gray-600">
-                Are you sure you want to permanently delete the user <strong>{{ user_to_delete.username }}</strong>? 
-                This action cannot be undone. All data associated with this user will be removed.
+{% block page_title %}Eliminar Usuario{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Eliminar Usuario</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Confirmar eliminación del usuario</p>
+            </div>
+            <a href="{% url 'admin_user_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Usuarios
+            </a>
+        </div>
+    </div>
+
+    <!-- Confirmation Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+            </div>
+            
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                ¿Estás seguro de que quieres eliminar este usuario?
+            </h3>
+            
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                Esta acción no se puede deshacer. Se eliminará permanentemente el usuario <strong>{{ user.username }}</strong> y todos sus datos asociados.
             </p>
-            <form method="post" class="mt-6">
-                {% csrf_token %}
-                <div class="flex justify-end space-x-3">
-                    <a href="{% url 'admin_user_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Cancel
-                    </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        Confirm Delete
-                    </button>
+
+            <!-- User Info -->
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="w-12 h-12 bg-brand-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-lg"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                            {{ user.get_full_name|default:user.username }}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">@{{ user.username }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</div>
+                    </div>
                 </div>
-            </form>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-center gap-4">
+                <a href="{% url 'admin_user_list' %}" class="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                        Sí, Eliminar Usuario
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

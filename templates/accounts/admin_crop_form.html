@@ -1,135 +1,339 @@
-{% extends 'accounts/user_base.html' %}
-{% load widget_tweaks %}
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
 
-{% block title %}{{ title }} - Admin{% endblock %}
+{% block title %}{{ title }} - AgroConnect{% endblock %}
 
-{% block user_content %}
-<div class="max-w-4xl mx-auto">
-    <div class="card mb-8">
-        <div class="card-body p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
-                <a href="{% url 'admin_crop_list' %}" class="text-primary-600 hover:text-primary-800">&larr; Volver</a>
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ title }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {% if is_create %}Crear un nuevo cultivo asociado a un productor{% else %}Modificar información del cultivo{% endif %}
+                </p>
             </div>
-
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-500"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-red-700">
-                                <strong>Error:</strong> Por favor corrige los errores en el formulario.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="{{ form.productor.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Productor *
-                        </label>
-                        {{ form.productor|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.productor.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.productor.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nombre del Cultivo *
-                        </label>
-                        {{ form.nombre|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.nombre.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.nombre.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Cantidad Estimada *
-                        </label>
-                        {{ form.cantidad_estimada|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.cantidad_estimada.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.cantidad_estimada.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Unidad de Medida *
-                        </label>
-                        {{ form.unidad_medida|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.unidad_medida.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.unidad_medida.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Estado *
-                        </label>
-                        {{ form.estado|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.estado.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.estado.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="{{ form.fecha_siembra.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha de Siembra *
-                        </label>
-                        {{ form.fecha_siembra|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.fecha_siembra.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.fecha_siembra.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha de Disponibilidad *
-                        </label>
-                        {{ form.fecha_disponibilidad|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                        {% if form.fecha_disponibilidad.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.fecha_disponibilidad.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if form.descripcion %}
-                <div>
-                    <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Descripción
-                    </label>
-                    {{ form.descripcion|add_class:"block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" }}
-                    {% if form.descripcion.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ form.descripcion.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <div class="flex justify-end space-x-4 pt-4 border-t">
-                    <a href="{% url 'admin_crop_list' %}" 
-                       class="btn-outline">
-                        Cancelar
-                    </a>
-                    <button type="submit" 
-                            class="btn-primary">
-                        <i class="fas fa-save mr-2"></i>Guardar Cultivo
-                    </button>
-                </div>
-            </form>
+            <a href="{% url 'admin_crop_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Cultivos
+            </a>
         </div>
     </div>
+
+    <!-- Form Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Productor y Finca -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Productor -->
+                <div>
+                    <label for="{{ form.productor.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.productor.label }}
+                    </label>
+                    <select id="{{ form.productor.id_for_label }}" name="{{ form.productor.name }}" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        {% for value, label in form.productor.field.choices %}
+                            <option value="{{ value }}" {% if form.productor.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.productor.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.productor.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Finca -->
+                <div>
+                    <label for="{{ form.finca.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.finca.label }}
+                    </label>
+                    <select id="{{ form.finca.id_for_label }}" name="{{ form.finca.name }}" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        {% for value, label in form.finca.field.choices %}
+                            <option value="{{ value }}" {% if form.finca.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.finca.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.finca.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div id="farm-info" class="text-sm text-gray-500 dark:text-gray-400 mt-1 hidden">
+                        <span id="farm-area-info"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Cultivo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nombre -->
+                <div>
+                    <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.nombre.label }}
+                    </label>
+                    <input type="text" id="{{ form.nombre.id_for_label }}" name="{{ form.nombre.name }}" 
+                           value="{{ form.nombre.value|default:'' }}" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="Ej: Tomate Chonto">
+                    {% if form.nombre.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.nombre.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Categoría -->
+                <div>
+                    <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.categoria.label }}
+                    </label>
+                    <select id="{{ form.categoria.id_for_label }}" name="{{ form.categoria.name }}" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        {% for value, label in form.categoria.field.choices %}
+                            <option value="{{ value }}" {% if form.categoria.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.categoria.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.categoria.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cantidad Estimada -->
+                <div>
+                    <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.cantidad_estimada.label }}
+                    </label>
+                    <input type="number" id="{{ form.cantidad_estimada.id_for_label }}" name="{{ form.cantidad_estimada.name }}" 
+                           value="{{ form.cantidad_estimada.value|default:'' }}" 
+                           step="0.01" min="0"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="Ej: 500">
+                    {% if form.cantidad_estimada.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.cantidad_estimada.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Unidad de Medida -->
+                <div>
+                    <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.unidad_medida.label }}
+                    </label>
+                    <select id="{{ form.unidad_medida.id_for_label }}" name="{{ form.unidad_medida.name }}" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        {% for value, label in form.unidad_medida.field.choices %}
+                            <option value="{{ value }}" {% if form.unidad_medida.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.unidad_medida.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.unidad_medida.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Área Ocupada -->
+                <div>
+                    <label for="{{ form.area_ocupada.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.area_ocupada.label }}
+                    </label>
+                    <input type="number" id="{{ form.area_ocupada.id_for_label }}" name="{{ form.area_ocupada.name }}" 
+                           value="{{ form.area_ocupada.value|default:'' }}" 
+                           step="0.01" min="0"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="Ej: 0.5">
+                    {% if form.area_ocupada.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.area_ocupada.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.estado.label }}
+                    </label>
+                    <select id="{{ form.estado.id_for_label }}" name="{{ form.estado.name }}" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                        {% for value, label in form.estado.field.choices %}
+                            <option value="{{ value }}" {% if form.estado.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.estado.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {% for error in form.estado.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Fecha de Disponibilidad -->
+            <div>
+                <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.fecha_disponibilidad.label }}
+                </label>
+                <input type="date" id="{{ form.fecha_disponibilidad.id_for_label }}" name="{{ form.fecha_disponibilidad.name }}" 
+                       value="{{ form.fecha_disponibilidad.value|default:'' }}" 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                {% if form.fecha_disponibilidad.errors %}
+                    <div class="text-red-600 text-sm mt-1">
+                        {% for error in form.fecha_disponibilidad.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label for="{{ form.notas.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.notas.label }}
+                </label>
+                <textarea id="{{ form.notas.id_for_label }}" name="{{ form.notas.name }}" rows="4" 
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white resize-none"
+                          placeholder="Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.">{{ form.notas.value|default:'' }}</textarea>
+                {% if form.notas.errors %}
+                    <div class="text-red-600 text-sm mt-1">
+                        {% for error in form.notas.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Errores generales del formulario -->
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="text-red-600 text-sm">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="{% url 'admin_crop_list' %}" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors">
+                    {% if is_create %}Crear Cultivo{% else %}Actualizar Cultivo{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const producerSelect = document.getElementById('id_productor');
+    const farmSelect = document.getElementById('id_finca');
+    const farmInfo = document.getElementById('farm-info');
+    const farmAreaInfo = document.getElementById('farm-area-info');
+
+    // Función para cargar las fincas del productor seleccionado
+    function loadFarms(producerId) {
+        if (!producerId) {
+            farmSelect.innerHTML = '<option value="">Primero selecciona un productor</option>';
+            farmInfo.classList.add('hidden');
+            return;
+        }
+
+        // Mostrar loading
+        farmSelect.innerHTML = '<option value="">Cargando fincas...</option>';
+        farmSelect.disabled = true;
+
+        // Hacer petición AJAX
+        fetch(`{% url 'admin_get_farms_by_producer' %}?producer_id=${producerId}`)
+            .then(response => response.json())
+            .then(data => {
+                farmSelect.innerHTML = '<option value="">Selecciona una finca</option>';
+                
+                if (data.farms.length === 0) {
+                    farmSelect.innerHTML = '<option value="">No hay fincas disponibles</option>';
+                } else {
+                    data.farms.forEach(farm => {
+                        const option = document.createElement('option');
+                        option.value = farm.id;
+                        option.textContent = `${farm.nombre} - ${farm.ciudad}, ${farm.departamento}`;
+                        option.dataset.areaDisponible = farm.area_disponible;
+                        farmSelect.appendChild(option);
+                    });
+                }
+                
+                farmSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                farmSelect.innerHTML = '<option value="">Error al cargar fincas</option>';
+                farmSelect.disabled = false;
+            });
+    }
+
+    // Event listener para el cambio de productor
+    producerSelect.addEventListener('change', function() {
+        const producerId = this.value;
+        loadFarms(producerId);
+        farmInfo.classList.add('hidden');
+    });
+
+    // Event listener para el cambio de finca
+    farmSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.dataset.areaDisponible) {
+            const areaDisponible = parseFloat(selectedOption.dataset.areaDisponible);
+            farmAreaInfo.textContent = `Área disponible: ${areaDisponible} hectáreas`;
+            farmInfo.classList.remove('hidden');
+        } else {
+            farmInfo.classList.add('hidden');
+        }
+    });
+
+    // Cargar fincas si ya hay un productor seleccionado (modo edición)
+    if (producerSelect.value) {
+        loadFarms(producerSelect.value);
+        
+        // Si hay una finca seleccionada, mostrar su información
+        if (farmSelect.value) {
+            const selectedOption = farmSelect.options[farmSelect.selectedIndex];
+            if (selectedOption.dataset.areaDisponible) {
+                const areaDisponible = parseFloat(selectedOption.dataset.areaDisponible);
+                farmAreaInfo.textContent = `Área disponible: ${areaDisponible} hectáreas`;
+                farmInfo.classList.remove('hidden');
+            }
+        }
+    }
+});
+</script>
 {% endblock %}
