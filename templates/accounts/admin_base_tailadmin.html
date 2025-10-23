@@ -1,0 +1,573 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - AgroConnect{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            25: '#f0fdf4',
+                            50: '#dcfce7',
+                            100: '#bbf7d0',
+                            200: '#86efac',
+                            300: '#4ade80',
+                            400: '#22c55e',
+                            500: '#16a34a',
+                            600: '#15803d',
+                            700: '#166534',
+                            800: '#14532d',
+                            900: '#14532d',
+                            950: '#052e16',
+                        },
+                        success: {
+                            25: '#f6fef9',
+                            50: '#ecfdf3',
+                            100: '#d1fadf',
+                            200: '#a6f4c5',
+                            300: '#6ce9a6',
+                            400: '#32d583',
+                            500: '#12b76a',
+                            600: '#039855',
+                            700: '#027a48',
+                            800: '#05603a',
+                            900: '#054f31',
+                            950: '#053321',
+                        },
+                        error: {
+                            25: '#fffbfa',
+                            50: '#fef3f2',
+                            100: '#fee4e2',
+                            200: '#fecdca',
+                            300: '#fda29b',
+                            400: '#f97066',
+                            500: '#f04438',
+                            600: '#d92d20',
+                            700: '#b42318',
+                            800: '#912018',
+                            900: '#7a271a',
+                            950: '#55160c',
+                        },
+                        warning: {
+                            25: '#fffcf5',
+                            50: '#fffaeb',
+                            100: '#fef0c7',
+                            200: '#fedf89',
+                            300: '#fec84b',
+                            400: '#fdb022',
+                            500: '#f79009',
+                            600: '#dc6803',
+                            700: '#b54708',
+                            800: '#93370d',
+                            900: '#7a2e0e',
+                            950: '#4e1d09',
+                        }
+                    },
+                    fontFamily: {
+                        'outfit': ['Outfit', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'theme-sm': '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+                        'theme-md': '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)',
+                        'theme-lg': '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)',
+                        'theme-xl': '0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Critical CSS for theme - prevents flash -->
+    <style>
+        /* Critical theme styles - inline to prevent flash */
+        html {
+            color-scheme: light;
+        }
+        
+        html.dark {
+            color-scheme: dark;
+        }
+        
+        /* Hide content until theme is applied */
+        body {
+            visibility: hidden;
+        }
+        
+        body.theme-loaded {
+            visibility: visible;
+        }
+    </style>
+    
+    <!-- Sidebar State Script - Execute before DOM render -->
+    <script>
+        // Prevent sidebar flashing by setting initial state
+        (function() {
+            // Load sidebar state
+            const savedSidebarState = localStorage.getItem('sidebarCollapsed');
+            if (savedSidebarState === 'true') {
+                // Add collapsed class to html element before render
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+            
+            // Load theme state - CRITICAL: Must be synchronous
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                // Default to system preference
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+            
+            // Show content after theme is applied
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('theme-loaded');
+            });
+        })();
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Additional theme script for extra safety -->
+    <script>
+        // Extra safety measure for theme loading
+        (function() {
+            // Force theme application immediately
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
+    <style>
+        /* Prevent sidebar flashing */
+        .sidebar-collapsed #sidebar {
+            width: 80px !important;
+        }
+        
+        .sidebar-collapsed #main-content {
+            margin-left: 80px !important;
+        }
+        
+        .sidebar-collapsed .sidebar-text {
+            display: none !important;
+        }
+        
+        .sidebar-collapsed .sidebar-abbr {
+            display: block !important;
+        }
+        
+        .sidebar-collapsed nav ul li a {
+            justify-content: center !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        .sidebar-collapsed .py-8 {
+            justify-content: center !important;
+        }
+        
+        @media (max-width: 1023px) {
+            .sidebar-collapsed #sidebar {
+                width: 290px !important;
+            }
+            
+            .sidebar-collapsed #main-content {
+                margin-left: 0 !important;
+            }
+        }
+        
+        /* Ensure smooth transitions */
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-outfit bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen xl:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0" data-collapsed="false">
+            
+            <!-- Logo -->
+            <div class="py-8 flex justify-start">
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col sidebar-text h-8 justify-center">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">AgroConnect</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Admin Panel</span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="flex flex-col overflow-y-auto duration-300 ease-linear flex-1">
+                <nav class="mb-6">
+                    <div class="flex flex-col gap-4">
+                        <!-- Menu Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Menú
+                                </h2>
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-abbr hidden">
+                                    MENÚ
+                                </h2>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'admin_dashboard' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-tachometer-alt text-lg"></i>
+                                        <span class="sidebar-text">Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_user_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_user' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-users text-lg"></i>
+                                        <span class="sidebar-text">Usuarios</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_publication_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_publication' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-newspaper text-lg"></i>
+                                        <span class="sidebar-text">Publicaciones</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_order_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_order' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-shopping-cart text-lg"></i>
+                                        <span class="sidebar-text">Pedidos</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_crop_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_crop' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-seedling text-lg"></i>
+                                        <span class="sidebar-text">Cultivos</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_farm_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_farm' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-map-marker-alt text-lg"></i>
+                                        <span class="sidebar-text">Fincas</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_conversation_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_conversation' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-comments text-lg"></i>
+                                        <span class="sidebar-text">Conversaciones</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Admin Tools Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Herramientas
+                                </h2>
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-abbr hidden">
+                                    HERR.
+                                </h2>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'admin_history' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_history' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-history text-lg"></i>
+                                        <span class="sidebar-text">Historial</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_audit_log' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_audit_log' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-clipboard-list text-lg"></i>
+                                        <span class="sidebar-text">Auditoría</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_config' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_config' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-cog text-lg"></i>
+                                        <span class="sidebar-text">Configuración</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+        
+        <!-- Backdrop for mobile -->
+        <div id="backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+        
+        <!-- Main Content -->
+        <div id="main-content" class="flex-1 transition-all duration-300 ease-in-out lg:ml-[290px]">
+            <!-- Header -->
+            <header class="sticky top-0 w-full bg-white border-b border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <!-- Left side: Mobile menu + Page title -->
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile Menu Button -->
+                        <button id="mobile-menu-btn" class="flex items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                        
+                        <!-- Page Title -->
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                                {% block page_title %}Panel de Administración{% endblock %}
+                            </h1>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% block page_description %}Panel de administración{% endblock %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right side: Actions -->
+                    <div class="flex items-center gap-4">
+                        <!-- Theme Toggle -->
+                        <button id="theme-toggle" class="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
+                            <i class="fas fa-moon dark:hidden"></i>
+                            <i class="fas fa-sun hidden dark:block"></i>
+                        </button>
+                        
+                        <!-- User Menu -->
+                        <div class="relative">
+                            <button id="user-menu-btn" class="flex items-center gap-3 p-2 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-sm"></i>
+                                </div>
+                                <div class="hidden text-left lg:block">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ user.get_full_name|default:user.username }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrador</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-sm text-gray-500 dark:text-gray-400"></i>
+                            </button>
+                            
+                            <!-- User Dropdown -->
+                            <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-theme-lg border border-gray-200 dark:border-gray-700 hidden">
+                                <div class="p-3 border-b border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.get_full_name|default:user.username }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrador</p>
+                                </div>
+                                <div class="p-1">
+                                    <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 rounded-md">
+                                        <i class="fas fa-user text-sm"></i>
+                                        <span>Perfil</span>
+                                    </a>
+                                    <a href="{% url 'admin_config' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 rounded-md">
+                                        <i class="fas fa-cog text-sm"></i>
+                                        <span class="sidebar-text">Configuración</span>
+                                    </a>
+                                    <hr class="my-1 border-gray-200 dark:border-gray-700">
+                                    <a href="{% url 'logout' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md">
+                                        <i class="fas fa-sign-out-alt text-sm"></i>
+                                        <span>Cerrar Sesión</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="p-4 mx-auto max-w-7xl md:p-6">
+                {% block admin_content %}{% endblock %}
+            </div>
+            
+            <!-- Footer -->
+            <footer class="p-4 mx-auto max-w-7xl md:p-6 pt-0">
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400">
+                    Diseñado y Desarrollado por 
+                    <a href="#" class="text-brand-500 hover:text-brand-600 transition-colors duration-200 font-medium">
+                        AgroConnect
+                    </a>
+                    ~ Panel de Administración
+                </p>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('backdrop');
+        const mainContent = document.getElementById('main-content');
+        let isMobileOpen = false;
+        let isCollapsed = false;
+        
+        // Function to save sidebar state
+        function saveSidebarState() {
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+        
+        // Function to load sidebar state
+        function loadSidebarState() {
+            const savedState = localStorage.getItem('sidebarCollapsed');
+            if (savedState !== null) {
+                isCollapsed = savedState === 'true';
+                applySidebarState();
+            }
+        }
+        
+        // Function to apply sidebar state
+        function applySidebarState() {
+            if (isCollapsed) {
+                // Add collapsed class to html element
+                document.documentElement.classList.add('sidebar-collapsed');
+                sidebar.setAttribute('data-collapsed', 'true');
+            } else {
+                // Remove collapsed class from html element
+                document.documentElement.classList.remove('sidebar-collapsed');
+                sidebar.setAttribute('data-collapsed', 'false');
+            }
+        }
+        
+        // Load sidebar state immediately to prevent flashing
+        loadSidebarState();
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            console.log('Hamburger clicked!');
+            
+            // Check if we're on mobile or desktop
+            if (window.innerWidth < 1024) {
+                // Mobile behavior - show/hide sidebar
+                isMobileOpen = !isMobileOpen;
+                if (isMobileOpen) {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                    backdrop.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    sidebar.classList.remove('translate-x-0');
+                    backdrop.classList.add('hidden');
+                }
+            } else {
+                // Desktop behavior - collapse/expand sidebar
+                isCollapsed = !isCollapsed;
+                applySidebarState();
+                saveSidebarState();
+            }
+        });
+        
+        backdrop.addEventListener('click', () => {
+            isMobileOpen = false;
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+        });
+        
+        // User menu toggle
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenu = document.getElementById('user-menu');
+        let isUserMenuOpen = false;
+        
+        userMenuBtn.addEventListener('click', () => {
+            isUserMenuOpen = !isUserMenuOpen;
+            if (isUserMenuOpen) {
+                userMenu.classList.remove('hidden');
+            } else {
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                isUserMenuOpen = false;
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            console.log('Theme toggle clicked!');
+            const isDark = html.classList.contains('dark');
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                // Desktop - close mobile menu
+                isMobileOpen = false;
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+                backdrop.classList.add('hidden');
+                
+                // Restore desktop sidebar behavior
+                applySidebarState();
+            } else {
+                // Mobile - reset desktop state
+                isCollapsed = false;
+                sidebar.classList.remove('lg:w-[80px]');
+                sidebar.classList.add('lg:w-[290px]');
+                mainContent.classList.remove('lg:ml-[80px]');
+                mainContent.classList.add('lg:ml-[290px]');
+                
+                // Show all text elements and hide abbreviations
+                const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
+                sidebarTexts.forEach(text => {
+                    text.classList.remove('hidden');
+                });
+                
+                const sidebarAbbrs = sidebar.querySelectorAll('.sidebar-abbr');
+                sidebarAbbrs.forEach(abbr => {
+                    abbr.classList.add('hidden');
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

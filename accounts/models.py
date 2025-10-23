@@ -5,11 +5,12 @@ from core.colombia_locations import get_departments, get_all_cities
 
 class User(AbstractUser):
     ROLE_CHOICES = (
+        ('Admin', 'Admin'),
         ('Productor', 'Productor'),
         ('Comprador', 'Comprador'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
-    cedula = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name="Cédula", help_text="Número de cédula de identidad")
+    cedula = models.CharField(max_length=20, null=True, blank=True, verbose_name="Cédula", help_text="Número de cédula de identidad")
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name="Teléfono", help_text="Número de teléfono de contacto")
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
     
@@ -150,3 +151,48 @@ class BuyerProfile(BaseModel):
 
     def __str__(self):
         return self.user.username
+
+class AdminAction(BaseModel):
+    """Modelo para registrar acciones del administrador"""
+    ACTION_TYPES = (
+        ('create', 'Crear'),
+        ('update', 'Actualizar'),
+        ('delete', 'Eliminar'),
+        ('login', 'Inicio de sesión'),
+        ('logout', 'Cerrar sesión'),
+        ('view', 'Ver'),
+        ('export', 'Exportar'),
+        ('import', 'Importar'),
+    )
+    
+    OBJECT_TYPES = (
+        ('user', 'Usuario'),
+        ('crop', 'Cultivo'),
+        ('publication', 'Publicación'),
+        ('order', 'Pedido'),
+        ('farm', 'Finca'),
+        ('system', 'Sistema'),
+    )
+    
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_actions', verbose_name="Administrador")
+    action_type = models.CharField(max_length=20, choices=ACTION_TYPES, verbose_name="Tipo de Acción")
+    object_type = models.CharField(max_length=20, choices=OBJECT_TYPES, verbose_name="Tipo de Objeto")
+    object_id = models.PositiveIntegerField(blank=True, null=True, verbose_name="ID del Objeto")
+    object_name = models.CharField(max_length=255, verbose_name="Nombre del Objeto")
+    description = models.TextField(verbose_name="Descripción", help_text="Detalles de la acción realizada")
+    changes = models.JSONField(null=True, blank=True, verbose_name="Cambios", help_text="Cambios específicos realizados (JSON)")
+    ip_address = models.GenericIPAddressField(verbose_name="Dirección IP")
+    user_agent = models.TextField(blank=True, null=True, verbose_name="User Agent")
+    
+    class Meta:
+        verbose_name = "Acción de Administrador"
+        verbose_name_plural = "Acciones de Administrador"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['admin', 'created_at']),
+            models.Index(fields=['action_type', 'created_at']),
+            models.Index(fields=['object_type', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_action_type_display()} {self.get_object_type_display()}: {self.object_name}"

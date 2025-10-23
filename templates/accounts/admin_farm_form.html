@@ -1,0 +1,341 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}{{ title|default:"Crear Finca" }} - AgroConnect{% endblock %}
+
+{% block page_title %}{{ title|default:"Crear Finca" }}{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ title|default:"Crear Finca" }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {% if is_create %}Agregar una nueva finca al sistema{% else %}Modificar información de la finca {{ farm.nombre }}{% endif %}
+                </p>
+            </div>
+            <a href="{% url 'admin_farm_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Fincas
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Información Básica -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.propietario.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.propietario.label }}
+                    </label>
+                    {{ form.propietario }}
+                    {% if form.propietario.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.propietario.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.nombre.label }}
+                    </label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.nombre.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Descripción -->
+            <div>
+                <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.descripcion.label }}
+                </label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {% for error in form.descripcion.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Ubicación -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.departamento.label }}
+                    </label>
+                    {{ form.departamento }}
+                    {% if form.departamento.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.departamento.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.ciudad.label }}
+                    </label>
+                    {{ form.ciudad }}
+                    {% if form.ciudad.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.ciudad.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.activa.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.activa.label }}
+                    </label>
+                    <div class="flex items-center">
+                        {{ form.activa }}
+                        <label for="{{ form.activa.id_for_label }}" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                            Finca activa
+                        </label>
+                    </div>
+                    {% if form.activa.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.activa.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Dirección -->
+            <div>
+                <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.direccion.label }}
+                </label>
+                {{ form.direccion }}
+                {% if form.direccion.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {% for error in form.direccion.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Coordenadas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.coordenadas_lat.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.coordenadas_lat.label }}
+                    </label>
+                    {{ form.coordenadas_lat }}
+                    {% if form.coordenadas_lat.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.coordenadas_lat.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.coordenadas_lng.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.coordenadas_lng.label }}
+                    </label>
+                    {{ form.coordenadas_lng }}
+                    {% if form.coordenadas_lng.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.coordenadas_lng.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Áreas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.area_total.label }}
+                    </label>
+                    {{ form.area_total }}
+                    {% if form.area_total.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.area_total.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.area_cultivable.label }}
+                    </label>
+                    {{ form.area_cultivable }}
+                    {% if form.area_cultivable.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.area_cultivable.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Características -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.tipo_suelo.label }}
+                    </label>
+                    {{ form.tipo_suelo }}
+                    {% if form.tipo_suelo.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.tipo_suelo.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.tipo_riego.label }}
+                    </label>
+                    {{ form.tipo_riego }}
+                    {% if form.tipo_riego.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.tipo_riego.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Certificaciones -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="flex items-center">
+                        {{ form.certificacion_organica }}
+                        <label for="{{ form.certificacion_organica.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.certificacion_organica.label }}
+                        </label>
+                    </div>
+                    {% if form.certificacion_organica.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.certificacion_organica.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <div class="flex items-center">
+                        {{ form.certificacion_bpa }}
+                        <label for="{{ form.certificacion_bpa.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.certificacion_bpa.label }}
+                        </label>
+                    </div>
+                    {% if form.certificacion_bpa.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {% for error in form.certificacion_bpa.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Otras Certificaciones -->
+            <div>
+                <label for="{{ form.otras_certificaciones.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.otras_certificaciones.label }}
+                </label>
+                {{ form.otras_certificaciones }}
+                {% if form.otras_certificaciones.errors %}
+                    <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {% for error in form.otras_certificaciones.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="{% url 'admin_farm_list' %}" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors">
+                    {% if is_create %}Crear Finca{% else %}Actualizar Finca{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departamentoSelect = document.getElementById('id_departamento');
+    const ciudadSelect = document.getElementById('id_ciudad');
+    
+    if (departamentoSelect && ciudadSelect) {
+        departamentoSelect.addEventListener('change', function() {
+            const departamento = this.value;
+            
+            if (departamento) {
+                // Habilitar el campo de ciudad
+                ciudadSelect.disabled = false;
+                ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+                
+                // Hacer petición AJAX para obtener las ciudades
+                fetch(`/ajax/cities/?departamento=${departamento}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                        data.cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city[0];
+                            option.textContent = city[1];
+                            ciudadSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    });
+            } else {
+                // Deshabilitar el campo de ciudad
+                ciudadSelect.disabled = true;
+                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

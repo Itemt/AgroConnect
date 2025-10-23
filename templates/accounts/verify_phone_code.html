@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block title %}Verificar Código SMS - AgroConnect{% endblock %}
 
@@ -18,7 +19,11 @@
                         <i class="bi bi-info-circle"></i>
                         Hemos enviado un código de verificación de 6 dígitos al número: 
                         <strong>{{ phone_number }}</strong>
+                        <br><small class="text-muted">El código expira en 5 minutos</small>
                     </div>
+                    
+                    <!-- Contenedor para reCAPTCHA (invisible) -->
+                    <div id="recaptcha-container"></div>
                     
                     {% if messages %}
                         {% for message in messages %}
@@ -82,10 +87,15 @@
                     <hr class="my-4">
                     
                     <div class="text-center">
-                        <p class="mb-2">¿No recibiste el código?</p>
-                        <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-repeat"></i> Reenviar Código
-                        </a>
+                        <p class="mb-2">¿No recibiste el mensaje?</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-repeat"></i> Reenviar Código SMS
+                            </a>
+                            <a href="{% url 'password_reset_email' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-envelope"></i> Recupérala con tu correo electrónico
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,6 +130,57 @@ document.getElementById('verifyCodeForm').addEventListener('submit', function(e)
     const submitBtn = this.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verificando...';
+});
+</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase Phone Auth Helper -->
+<script src="{% static 'js/firebase-phone-auth.js' %}"></script>
+
+<script>
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "{{ FIREBASE_API_KEY }}",
+    authDomain: "{{ FIREBASE_AUTH_DOMAIN }}",
+    projectId: "{{ FIREBASE_PROJECT_ID }}",
+    storageBucket: "{{ FIREBASE_STORAGE_BUCKET }}",
+    messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
+    appId: "{{ FIREBASE_APP_ID }}"
+};
+
+// Inicializar Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// Inicializar Firebase Phone Auth
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.firebasePhoneAuth) {
+        window.firebasePhoneAuth.initialize();
+        
+        // Enviar OTP automáticamente cuando se carga la página
+        const phoneNumber = '{{ phone_number }}';
+        if (phoneNumber) {
+            window.firebasePhoneAuth.sendOTP(phoneNumber).then(result => {
+                if (result.success) {
+                    console.log('OTP enviado:', result.message);
+                } else {
+                    console.error('Error enviando OTP:', result.message);
+                    // Mostrar error al usuario
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <strong>Error:</strong> ${result.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.alert-info'));
+                }
+            });
+        }
+    }
 });
 </script>
 {% endblock %}

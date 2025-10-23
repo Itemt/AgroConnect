@@ -18,6 +18,8 @@ from django.conf import settings
 import random
 import string
 import time
+from core.email_service import email_service
+from core.firebase_phone_auth import firebase_phone_auth
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
 from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -323,278 +325,8 @@ def profile_edit_view(request):
 def is_staff(user):
     return user.is_staff
 
-@user_passes_test(is_staff)
-def admin_dashboard(request):
-    from sales.models import Order
-    from marketplace.models import Publication
-    from inventory.models import Crop
-    
-    # Estadísticas
-    total_users = User.objects.count()
-    total_crops = Crop.objects.count()
-    total_publications = Publication.objects.count()
-    total_orders = Order.objects.count()
-    
-    # Usuarios recientes
-    recent_users = User.objects.order_by('-date_joined')[:5]
-    
-    context = {
-        'total_users': total_users,
-        'total_crops': total_crops,
-        'total_publications': total_publications,
-        'total_orders': total_orders,
-        'recent_users': recent_users,
-        'recent_notifications': Notification.objects.filter(recipient=request.user).order_by('-created_at')[:20],
-    }
-    return render(request, 'accounts/admin_dashboard.html', context)
 
 @user_passes_test(is_staff)
-def admin_publication_list(request):
-    publications = Publication.objects.all().select_related(
-        'cultivo__productor', 
-        'cultivo'
-    ).order_by('-created_at')
-    return render(request, 'accounts/admin_publication_list.html', {'publications': publications})
-
-@user_passes_test(is_staff)
-def admin_publication_edit(request, pk):
-    publication = get_object_or_404(Publication, pk=pk)
-    if request.method == 'POST':
-        form = PublicationForm(request.POST, instance=publication)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Publicación actualizada exitosamente.')
-            return redirect('admin_publication_list')
-    else:
-        form = PublicationForm(instance=publication)
-    
-    context = {
-        'form': form,
-        'publication': publication,
-        'title': 'Editar Publicación (Admin)'
-    }
-    return render(request, 'marketplace/publication_form.html', context)
-
-@user_passes_test(is_staff)
-def admin_publication_delete(request, pk):
-    publication = get_object_or_404(Publication, pk=pk)
-    if request.method == 'POST':
-        publication.delete() 
-        messages.success(request, 'Publicación eliminada exitosamente.')
-        return redirect('admin_publication_list')
-    
-    context = {
-        'publication': publication
-    }
-    return render(request, 'marketplace/publication_confirm_delete.html', context)
-
-@user_passes_test(is_staff)
-def admin_user_list(request):
-    users = User.objects.all().order_by('username')
-    return render(request, 'accounts/admin_user_list.html', {'users': users})
-
-@user_passes_test(is_staff)
-def admin_user_edit(request, pk):
-    user_to_edit = get_object_or_404(User, pk=pk)
-    if request.method == 'POST':
-        form = AdminUserEditForm(request.POST, instance=user_to_edit)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Usuario {user_to_edit.username} actualizado exitosamente.')
-            return redirect('admin_user_list')
-    else:
-        form = AdminUserEditForm(instance=user_to_edit)
-    
-    context = {
-        'form': form,
-        'user_to_edit': user_to_edit,
-        'title': 'Editar Usuario'
-    }
-    return render(request, 'accounts/admin_user_form.html', context)
-
-@user_passes_test(is_staff)
-def admin_user_delete(request, pk):
-    user_to_delete = get_object_or_404(User, pk=pk)
-    if request.method == 'POST':
-        # No permitir que un admin se borre a sí mismo
-        if request.user.pk == user_to_delete.pk:
-            messages.error(request, 'No puedes eliminar tu propia cuenta de administrador.')
-            return redirect('admin_user_list')
-        
-        user_to_delete.delete()
-        messages.success(request, f'Usuario {user_to_delete.username} eliminado exitosamente.')
-        return redirect('admin_user_list')
-    
-    context = {
-        'user_to_delete': user_to_delete
-    }
-    return render(request, 'accounts/admin_user_confirm_delete.html', context)
-
-@user_passes_test(is_staff)
-def admin_order_list(request):
-    orders = Order.objects.all().select_related(
-        'comprador',
-        'publicacion__cultivo__productor'
-    ).order_by('-created_at')
-    return render(request, 'accounts/admin_order_list.html', {'orders': orders})
-
-@user_passes_test(is_staff)
-def admin_order_detail(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    
-    # Para un admin, no verificamos si es comprador o vendedor.
-    # Podemos añadir acciones específicas de admin si es necesario en el futuro.
-    
-    context = {
-        'order': order,
-        'user_role': 'admin' # Pasamos un rol especial para la plantilla
-    }
-    return render(request, 'sales/order_detail.html', context)
-
-@user_passes_test(is_staff)
-def admin_order_edit(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    
-    if request.method == 'POST':
-        estado = request.POST.get('estado')
-        if estado:
-            order.estado = estado
-            order.save()
-            messages.success(request, f'Estado de la orden #{order.id} actualizado exitosamente.')
-            return redirect('admin_order_list')
-    
-    # Obtener las opciones de estado
-    estado_choices = Order.ESTADO_CHOICES
-    
-    context = {
-        'order': order,
-        'estado_choices': estado_choices,
-    }
-    return render(request, 'accounts/admin_order_edit.html', context)
-
-@user_passes_test(is_staff)
-def admin_order_delete(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    
-    if request.method == 'POST':
-        order_number = order.id
-        order.delete()
-        messages.success(request, f'Orden #{order_number} eliminada exitosamente.')
-        return redirect('admin_order_list')
-    
-    context = {
-        'order': order,
-    }
-    return render(request, 'accounts/admin_order_confirm_delete.html', context)
-
-# ===== CRUD COMPLETO DE USUARIOS =====
-@user_passes_test(is_staff)
-def admin_user_create(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        role = request.POST.get('role')
-        cedula = request.POST.get('cedula')
-        
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            role=role,
-            cedula=cedula
-        )
-        messages.success(request, f'Usuario {username} creado exitosamente.')
-        return redirect('admin_user_list')
-    
-    return render(request, 'accounts/admin_user_create.html')
-
-# ===== CRUD COMPLETO DE CULTIVOS =====
-@user_passes_test(is_staff)
-def admin_crop_list(request):
-    from inventory.models import Crop
-    crops = Crop.objects.all().select_related('productor').order_by('-created_at')
-    return render(request, 'accounts/admin_crop_list.html', {'crops': crops})
-
-@user_passes_test(is_staff)
-def admin_crop_create(request):
-    from inventory.forms import CropForm
-    if request.method == 'POST':
-        form = CropForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Cultivo creado exitosamente.')
-            return redirect('admin_crop_list')
-    else:
-        form = CropForm()
-    
-    context = {
-        'form': form,
-        'title': 'Crear Cultivo (Admin)'
-    }
-    return render(request, 'accounts/admin_crop_form.html', context)
-
-@user_passes_test(is_staff)
-def admin_crop_edit(request, pk):
-    from inventory.models import Crop
-    from inventory.forms import CropForm
-    crop = get_object_or_404(Crop, pk=pk)
-    
-    if request.method == 'POST':
-        form = CropForm(request.POST, instance=crop)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Cultivo actualizado exitosamente.')
-            return redirect('admin_crop_list')
-    else:
-        form = CropForm(instance=crop)
-    
-    context = {
-        'form': form,
-        'crop': crop,
-        'title': 'Editar Cultivo (Admin)'
-    }
-    return render(request, 'accounts/admin_crop_form.html', context)
-
-@user_passes_test(is_staff)
-def admin_crop_delete(request, pk):
-    from inventory.models import Crop
-    crop = get_object_or_404(Crop, pk=pk)
-    
-    if request.method == 'POST':
-        crop_name = crop.nombre
-        crop.delete()
-        messages.success(request, f'Cultivo "{crop_name}" eliminado exitosamente.')
-        return redirect('admin_crop_list')
-    
-    context = {
-        'crop': crop
-    }
-    return render(request, 'accounts/admin_crop_confirm_delete.html', context)
-
-# ===== CREATE DE PUBLICACIONES =====
-@user_passes_test(is_staff)
-def admin_publication_create(request):
-    from marketplace.forms import PublicationForm
-    if request.method == 'POST':
-        form = PublicationForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Publicación creada exitosamente.')
-            return redirect('admin_publication_list')
-    else:
-        form = PublicationForm()
-    
-    context = {
-        'form': form,
-        'title': 'Crear Publicación (Admin)'
-    }
-    return render(request, 'marketplace/publication_form.html', context)
-
 @login_required
 def become_seller(request):
     """Vista para que un comprador se convierta en vendedor"""
@@ -716,20 +448,30 @@ class CustomPasswordResetView(PasswordResetView):
         try:
             user = User.objects.get(email=email)
             
+            # Verificar que el usuario tenga teléfono
+            if not user.telefono:
+                messages.error(self.request, 'Tu cuenta no tiene un número de teléfono registrado. Contacta soporte.')
+                return self.form_invalid(form)
+            
             # Generar código OTP de 6 dígitos
             otp_code = ''.join(random.choices(string.digits, k=6))
             
-            # Guardar el código OTP en la sesión temporalmente
+            # Guardar el código OTP en la sesión temporalmente (5 minutos)
             self.request.session['password_reset_otp'] = {
                 'code': otp_code,
                 'user_id': user.id,
                 'email': email,
+                'phone': user.telefono,
                 'timestamp': time.time()
             }
             
-            # Enviar SMS con el código OTP (aquí deberías integrar tu servicio SMS)
-            # Por ahora, simularemos el envío
-            print(f"Código OTP para {email}: {otp_code}")
+            # Preparar datos para Firebase Phone Auth
+            phone_auth_data = firebase_phone_auth.create_phone_auth_data(user.telefono, otp_code)
+            
+            # Guardar datos adicionales en la sesión para el frontend
+            self.request.session['firebase_phone_auth'] = phone_auth_data
+            
+            messages.success(self.request, f'Código de verificación enviado a {user.telefono}')
             
             # Redirigir a la página de verificación de código
             return redirect('verify_phone_code')
@@ -741,6 +483,44 @@ class CustomPasswordResetView(PasswordResetView):
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     template_name = 'accounts/password_reset_done.html'
+
+
+def password_reset_email(request):
+    """Vista para recuperar contraseña por email usando Resend"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        # Buscar el usuario por email
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generar token de reset
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Crear URL de reset
+            reset_url = request.build_absolute_uri(
+                reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+            
+            # Enviar correo con Resend
+            success, message = email_service.send_password_reset_email(
+                user.email, 
+                reset_url, 
+                user.get_full_name() or user.username
+            )
+            
+            if success:
+                messages.success(request, 'Se ha enviado un enlace de recuperación a tu correo electrónico.')
+                return redirect('password_reset_done')
+            else:
+                messages.error(request, f'Error enviando correo: {message}')
+                
+        except User.DoesNotExist:
+            messages.error(request, 'No existe una cuenta con ese correo electrónico.')
+    
+    return render(request, 'accounts/password_reset_email.html')
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
@@ -766,8 +546,8 @@ def verify_phone_code(request):
             messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
             return redirect('password_reset')
         
-        # Verificar que el código no haya expirado (10 minutos)
-        if time.time() - otp_data.get('timestamp', 0) > 600:
+        # Verificar que el código no haya expirado (5 minutos)
+        if time.time() - otp_data.get('timestamp', 0) > 300:
             messages.error(request, 'El código ha expirado. Por favor, solicita uno nuevo.')
             del request.session['password_reset_otp']
             return redirect('password_reset')
@@ -776,20 +556,41 @@ def verify_phone_code(request):
         if verification_code != otp_data.get('code'):
             messages.error(request, 'Código de verificación incorrecto.')
             return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('email', '')
+                'phone_number': otp_data.get('phone', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
             })
         
         # Verificar que las contraseñas coincidan
         if new_password != confirm_password:
             messages.error(request, 'Las contraseñas no coinciden.')
             return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('email', '')
+                'phone_number': otp_data.get('phone', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
             })
         
         if len(new_password) < 6:
             messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
             return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('email', '')
+                'phone_number': otp_data.get('phone', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
             })
         
         # Cambiar la contraseña del usuario
@@ -816,5 +617,12 @@ def verify_phone_code(request):
         return redirect('password_reset')
     
     return render(request, 'accounts/verify_phone_code.html', {
-        'phone_number': otp_data.get('email', '')
+        'phone_number': otp_data.get('phone', ''),
+        'email': otp_data.get('email', ''),
+        'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+        'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+        'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+        'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+        'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+        'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
     })

@@ -1,0 +1,181 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Gestionar Publicaciones - AgroConnect{% endblock %}
+
+{% block page_title %}Gestionar Publicaciones{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Publicaciones</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Administra todas las publicaciones del marketplace</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'admin_dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    Dashboard
+                </a>
+                <a href="{% url 'admin_publication_create' %}" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fas fa-plus"></i>
+                    Crear Publicación
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+                <input type="text" id="search" name="search" value="{{ search_query|default:'' }}" 
+                       placeholder="Buscar por producto, vendedor o descripción..."
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+            </div>
+            <div class="md:w-48">
+                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+                <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">Todos los estados</option>
+                    <option value="Activa" {% if current_status == 'Activa' %}selected{% endif %}>Activa</option>
+                    <option value="Pausada" {% if current_status == 'Pausada' %}selected{% endif %}>Pausada</option>
+                    <option value="Agotada" {% if current_status == 'Agotada' %}selected{% endif %}>Agotada</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-search mr-2"></i>Filtrar
+                </button>
+                <a href="{% url 'admin_publication_list_preview' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-times mr-2"></i>Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Publications Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Publicaciones ({{ publications.paginator.count }} total)</h3>
+        </div>
+        
+        {% if publications %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Producto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vendedor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Disponible</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Creado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for publication in publications %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-white text-sm"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ publication.cultivo.nombre }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ publication.categoria }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ publication.cultivo.productor.get_full_name|default:publication.cultivo.productor.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if publication.estado == 'Activa' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                {% elif publication.estado == 'Pausada' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                                {{ publication.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ${{ publication.precio_por_unidad|floatformat:2 }} / {{ publication.unidad_medida }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ publication.cantidad_disponible }} {{ publication.unidad_medida }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {{ publication.created_at|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'admin_publication_edit' publication.pk %}" class="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin_publication_delete' publication.pk %}" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if publications.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    Mostrando {{ publications.start_index }} a {{ publications.end_index }} de {{ publications.paginator.count }} resultados
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if publications.has_previous %}
+                        <a href="?page={{ publications.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                            Anterior
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in publications.paginator.page_range %}
+                        {% if publications.number == num %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-brand-500 border border-brand-500 rounded-lg">{{ num }}</span>
+                        {% elif num > publications.number|add:'-3' and num < publications.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if publications.has_next %}
+                        <a href="?page={{ publications.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                            Siguiente
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-newspaper text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay publicaciones registradas</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">Comienza creando la primera publicación del marketplace.</p>
+            <a href="{% url 'admin_publication_create' %}" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg inline-flex items-center gap-2 transition-colors">
+                <i class="fas fa-plus"></i>
+                Crear Primera Publicación
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

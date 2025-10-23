@@ -1,49 +1,412 @@
-{% extends 'accounts/user_base.html' %}
-{% load widget_tweaks %}
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
 
-{% block title %}{{ title }} - Admin{% endblock %}
+{% block title %}{{ title|default:"Crear Usuario" }} - AgroConnect{% endblock %}
 
-{% block user_content %}
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h1 class="text-2xl font-bold text-gray-900">{{ title }} for {{ user_to_edit.username }}</h1>
-        </div>
-        <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
+{% block page_title %}{{ title|default:"Crear Usuario" }}{% endblock %}
 
-                {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        {{ field.label }}
-                    </label>
-                    <div class="mt-1">
-                        {% if field.name == 'is_active' or field.name == 'is_staff' %}
-                            {{ field|add_class:'h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500' }}
-                        {% else %}
-                            {{ field|add_class:'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm' }}
-                        {% endif %}
-                    </div>
-                    {% if field.help_text %}
-                        <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
-                {% endfor %}
-
-                <div class="flex justify-end space-x-3">
-                    <a href="{% url 'admin_user_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Cancel
-                    </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Save Changes
-                    </button>
-                </div>
-            </form>
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ title|default:"Crear Usuario" }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {% if is_create %}Agregar un nuevo usuario al sistema{% else %}Modificar información del usuario {{ user.username }}{% endif %}
+                </p>
+            </div>
+            <a href="{% url 'admin_user_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Usuarios
+            </a>
         </div>
     </div>
+
+    <!-- Form Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                    <input type="text" id="username" name="username" value="{% if not is_create and user %}{{ user.username }}{% endif %}" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" required>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <input type="email" id="email" name="email" value="{% if not is_create and user %}{{ user.email }}{% endif %}" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" required>
+                </div>
+
+                <!-- First Name -->
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
+                    <input type="text" id="first_name" name="first_name" value="{% if not is_create and user %}{{ user.first_name }}{% endif %}" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido</label>
+                    <input type="text" id="last_name" name="last_name" value="{% if not is_create and user %}{{ user.last_name }}{% endif %}" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                </div>
+
+                <!-- Role -->
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rol</label>
+                    <select id="role" name="role" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" required>
+                        <option value="">Seleccionar rol</option>
+                        {% for value, label in role_choices %}
+                            <option value="{{ value }}" {% if not is_create and user and user.role == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Is Active -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+                    <div class="flex items-center h-10">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_active" {% if is_create or not user or user.is_active %}checked{% endif %} 
+                                   class="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 rounded focus:ring-brand-500 dark:focus:ring-brand-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Usuario activo</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información Adicional</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Cédula -->
+                    <div>
+                        <label for="cedula" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cédula</label>
+                        <input type="text" id="cedula" name="cedula" value="{% if not is_create and user %}{{ user.cedula }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Número de cédula">
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div>
+                        <label for="telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" value="{% if not is_create and user %}{{ user.telefono }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Número de teléfono">
+                    </div>
+
+                    <!-- Departamento -->
+                    <div>
+                        <label for="departamento" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Departamento</label>
+                        <select id="departamento" name="departamento" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Seleccionar departamento</option>
+                            <!-- Opciones de departamentos se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Ciudad -->
+                    <div>
+                        <label for="ciudad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ciudad</label>
+                        <select id="ciudad" name="ciudad" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" disabled>
+                            <option value="">Primero seleccione un departamento</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Finca (solo para Productores) -->
+            <div id="farm-section" class="border-t border-gray-200 dark:border-gray-700 pt-6" style="display: none;">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de la Finca</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Nombre de la Finca -->
+                    <div>
+                        <label for="finca_nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de la Finca</label>
+                        <input type="text" id="finca_nombre" name="finca_nombre" value="{% if not is_create and user and user.farms.first %}{{ user.farms.first.nombre }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Nombre de la finca">
+                    </div>
+
+                    <!-- Área de la Finca -->
+                    <div>
+                        <label for="finca_area" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Área (hectáreas)</label>
+                        <input type="number" id="finca_area" name="finca_area" value="{% if not is_create and user and user.farms.first %}{{ user.farms.first.area }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Área en hectáreas" step="0.01" min="0.01">
+                    </div>
+
+                    <!-- Departamento de la Finca -->
+                    <div>
+                        <label for="finca_departamento" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Departamento de la Finca</label>
+                        <select id="finca_departamento" name="finca_departamento" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Seleccionar departamento</option>
+                            <!-- Opciones de departamentos se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Ciudad de la Finca -->
+                    <div>
+                        <label for="finca_ciudad" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ciudad de la Finca</label>
+                        <select id="finca_ciudad" name="finca_ciudad" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" disabled>
+                            <option value="">Primero seleccione un departamento</option>
+                        </select>
+                    </div>
+
+                    <!-- Dirección de la Finca -->
+                    <div class="md:col-span-2">
+                        <label for="finca_direccion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dirección/Vereda</label>
+                        <input type="text" id="finca_direccion" name="finca_direccion" value="{% if not is_create and user and user.farms.first %}{{ user.farms.first.direccion }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Vereda, sector o dirección específica">
+                    </div>
+
+                    <!-- Descripción de la Finca -->
+                    <div class="md:col-span-2">
+                        <label for="finca_descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción de la Finca</label>
+                        <textarea id="finca_descripcion" name="finca_descripcion" rows="3" 
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                                  placeholder="Descripción de la finca, tipo de terreno, etc.">{% if not is_create and user and user.farms.first %}{{ user.farms.first.descripcion }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Cultivos Principales -->
+                    <div class="md:col-span-2">
+                        <label for="finca_cultivos" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cultivos Principales</label>
+                        <input type="text" id="finca_cultivos" name="finca_cultivos" value="{% if not is_create and user and user.farms.first %}{{ user.farms.first.cultivos_principales }}{% endif %}" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Principales cultivos de esta finca">
+                    </div>
+                </div>
+            </div>
+            {% if not user %}
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Contraseña</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="password1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+                        <input type="password" id="password1" name="password1" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label for="password2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirmar Contraseña</label>
+                        <input type="password" id="password2" name="password2" 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white" required>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="{% url 'admin_user_list' %}" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-colors">
+                    {% if is_create %}Crear Usuario{% else %}Actualizar Usuario{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar departamentos para usuario y finca
+    loadDepartments();
+    loadFarmDepartments();
+    
+    // Si estamos editando un usuario, cargar sus datos
+    {% if not is_create and user %}
+        loadUserData();
+    {% endif %}
+    
+    // Manejar cambio de rol para mostrar/ocultar sección de finca
+    document.getElementById('role').addEventListener('change', function() {
+        const role = this.value;
+        const farmSection = document.getElementById('farm-section');
+        
+        if (role === 'Productor') {
+            farmSection.style.display = 'block';
+        } else {
+            farmSection.style.display = 'none';
+        }
+    });
+    
+    // Manejar cambio de departamento del usuario
+    document.getElementById('departamento').addEventListener('change', function() {
+        const departamento = this.value;
+        const ciudadSelect = document.getElementById('ciudad');
+        
+        if (departamento) {
+            loadCities(departamento);
+            ciudadSelect.disabled = false;
+        } else {
+            ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            ciudadSelect.disabled = true;
+        }
+    });
+    
+    // Manejar cambio de departamento de la finca
+    document.getElementById('finca_departamento').addEventListener('change', function() {
+        const departamento = this.value;
+        const ciudadSelect = document.getElementById('finca_ciudad');
+        
+        if (departamento) {
+            loadFarmCities(departamento);
+            ciudadSelect.disabled = false;
+        } else {
+            ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            ciudadSelect.disabled = true;
+        }
+    });
+    
+    // Verificar rol inicial para mostrar sección de finca
+    const initialRole = document.getElementById('role').value;
+    if (initialRole === 'Productor') {
+        document.getElementById('farm-section').style.display = 'block';
+    }
+});
+
+function loadDepartments() {
+    // Lista de departamentos de Colombia
+    const departments = [
+        'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas',
+        'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca',
+        'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
+        'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia',
+        'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada'
+    ];
+    
+    const select = document.getElementById('departamento');
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        select.appendChild(option);
+    });
+}
+
+function loadCities(departamento) {
+    // Lista básica de ciudades por departamento
+    const citiesByDepartment = {
+        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa'],
+        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera'],
+        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí'],
+        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga'],
+        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí'],
+        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia'],
+        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer'],
+        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento'],
+        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo'],
+        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña']
+    };
+    
+    const select = document.getElementById('ciudad');
+    select.innerHTML = '<option value="">Seleccionar ciudad</option>';
+    
+    const cities = citiesByDepartment[departamento] || [];
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        select.appendChild(option);
+    });
+}
+
+function loadFarmDepartments() {
+    // Lista de departamentos de Colombia para la finca
+    const departments = [
+        'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas',
+        'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca',
+        'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
+        'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia',
+        'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada'
+    ];
+    
+    const select = document.getElementById('finca_departamento');
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        select.appendChild(option);
+    });
+}
+
+function loadFarmCities(departamento) {
+    // Lista básica de ciudades por departamento para la finca
+    const citiesByDepartment = {
+        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa'],
+        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera'],
+        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí'],
+        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga'],
+        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí'],
+        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia'],
+        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer'],
+        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento'],
+        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo'],
+        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña']
+    };
+    
+    const select = document.getElementById('finca_ciudad');
+    select.innerHTML = '<option value="">Seleccionar ciudad</option>';
+    
+    const cities = citiesByDepartment[departamento] || [];
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        select.appendChild(option);
+    });
+}
+
+function loadUserData() {
+    // Cargar datos del usuario en edición
+    {% if not is_create and user %}
+        const user = {
+            departamento: '{{ user.departamento|default:"" }}',
+            ciudad: '{{ user.ciudad|default:"" }}',
+            farm: {
+                departamento: '{{ user.farms.first.departamento|default:"" }}',
+                ciudad: '{{ user.farms.first.ciudad|default:"" }}'
+            }
+        };
+        
+        // Cargar datos de ubicación del usuario
+        if (user.departamento) {
+            const departamentoSelect = document.getElementById('departamento');
+            departamentoSelect.value = user.departamento;
+            loadCities(user.departamento);
+            
+            if (user.ciudad) {
+                setTimeout(() => {
+                    const ciudadSelect = document.getElementById('ciudad');
+                    ciudadSelect.value = user.ciudad;
+                }, 100);
+            }
+        }
+        
+        // Cargar datos de ubicación de la finca
+        if (user.farm.departamento) {
+            const farmDepartamentoSelect = document.getElementById('finca_departamento');
+            farmDepartamentoSelect.value = user.farm.departamento;
+            loadFarmCities(user.farm.departamento);
+            
+            if (user.farm.ciudad) {
+                setTimeout(() => {
+                    const farmCiudadSelect = document.getElementById('finca_ciudad');
+                    farmCiudadSelect.value = user.farm.ciudad;
+                }, 100);
+            }
+        }
+    {% endif %}
+}
+</script>
+
 {% endblock %}

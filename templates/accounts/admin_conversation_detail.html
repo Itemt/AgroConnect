@@ -1,0 +1,129 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Conversación #{{ conversation.id }} - AgroConnect{% endblock %}
+
+{% block page_title %}Conversación #{{ conversation.id }}{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Conversación #{{ conversation.id }}</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Detalle completo de la conversación</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'admin_conversation_delete' conversation.pk %}" 
+                   class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fas fa-trash"></i>
+                    Eliminar
+                </a>
+                <a href="{% url 'admin_conversation_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver a Conversaciones
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversation Info -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Información de la Conversación</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Participants -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Participantes</h4>
+                <div class="space-y-3">
+                    {% for participant in participants %}
+                    <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="w-10 h-10 bg-brand-100 dark:bg-brand-500/20 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-brand-500"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ participant.get_full_name|default:participant.username }}
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ participant.email }} • {{ participant.role|title }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Publication Info -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Publicación Asociada</h4>
+                {% if conversation.publication %}
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="font-medium text-gray-900 dark:text-white mb-2">
+                            {{ conversation.publication.titulo }}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                            <div><strong>Cultivo:</strong> {{ conversation.publication.cultivo.nombre }}</div>
+                            <div><strong>Productor:</strong> {{ conversation.publication.cultivo.productor.get_full_name|default:conversation.publication.cultivo.productor.username }}</div>
+                            <div><strong>Precio:</strong> ${{ conversation.publication.precio_por_unidad }}</div>
+                            <div><strong>Estado:</strong> {{ conversation.publication.estado }}</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+                        <i class="fas fa-info-circle text-gray-400 text-2xl mb-2"></i>
+                        <div class="text-gray-500 dark:text-gray-400">Sin publicación asociada</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Conversation Stats -->
+        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ messages.count }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Mensajes</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ participants.count }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Participantes</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ conversation.created_at|date:"M d" }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Fecha de Creación</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Mensajes</h3>
+        
+        {% if messages %}
+            <div class="space-y-4 max-h-96 overflow-y-auto">
+                {% for message in messages %}
+                <div class="flex {% if message.sender == buyer %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg {% if message.sender == buyer %}bg-brand-500 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white{% endif %}">
+                        <div class="text-sm">{{ message.content }}</div>
+                        <div class="text-xs mt-1 {% if message.sender == buyer %}text-brand-100{% else %}text-gray-500 dark:text-gray-400{% endif %}">
+                            {{ message.sender.get_full_name|default:message.sender.username }} • {{ message.created_at|date:"M d, H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-comment-slash text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Sin mensajes</h3>
+                <p class="text-gray-500 dark:text-gray-400">Esta conversación no tiene mensajes aún.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

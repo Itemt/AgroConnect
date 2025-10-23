@@ -1,0 +1,487 @@
+{% extends 'accounts/admin_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - AgroConnect{% endblock %}
+
+{% block page_title %}Dashboard Administrativo{% endblock %}
+
+{% block admin_content %}
+<div class="grid grid-cols-12 gap-4 md:gap-6">
+    <!-- Welcome Section -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-brand-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tachometer-alt text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Bienvenido al Panel de Administración</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Gestiona y monitorea toda la actividad de AgroConnect desde este panel central.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stats Cards -->
+    <div class="col-span-12 xl:col-span-7">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <!-- Total Users -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Usuarios</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_users|default:0 }}</p>
+                        <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+                            <i class="fas fa-arrow-up"></i>
+                            +{{ user_stats.new_users_today|default:0 }} hoy
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-users text-success-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Crops -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Cultivos</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_crops|default:0 }}</p>
+                        <p class="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
+                            <i class="fas fa-arrow-up"></i>
+                            +{{ crop_stats.planted_today|default:0 }} hoy
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-brand-50 dark:bg-brand-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-leaf text-brand-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Publications -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicaciones</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_publications|default:0 }}</p>
+                        <p class="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
+                            <i class="fas fa-arrow-up"></i>
+                            +{{ publication_stats.published_today|default:0 }} hoy
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-warning-50 dark:bg-warning-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-newspaper text-warning-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pedidos</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_orders|default:0 }}</p>
+                        <p class="text-xs text-error-600 dark:text-error-400 flex items-center gap-1">
+                            <i class="fas fa-arrow-up"></i>
+                            +{{ order_stats.orders_today|default:0 }} hoy
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-error-50 dark:bg-error-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-error-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Overview -->
+    <div class="col-span-12 xl:col-span-5">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumen Financiero</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-success-50 dark:bg-success-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-success-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Ingresos Totales</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ financial_stats.total_revenue|floatformat:0|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-warning-50 dark:bg-warning-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-warning-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Pendientes</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ financial_stats.pending_revenue|floatformat:0|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-brand-50 dark:bg-brand-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-brand-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Valor Promedio</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">${{ financial_stats.avg_order_value|floatformat:0|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="col-span-12 xl:col-span-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Crecimiento de Usuarios</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Últimos 6 meses</span>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-span-12 xl:col-span-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Estado de Pedidos</h3>
+            <div class="h-80">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="col-span-12 xl:col-span-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Estadísticas de Usuarios</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.active_users|default:0 }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Activos</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.producer_users|default:0 }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Productores</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.buyer_users|default:0 }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Compradores</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.admin_users|default:0 }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Administradores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Statistics -->
+    <div class="col-span-12 xl:col-span-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Estado de Cultivos</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-success-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">En Crecimiento</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ crop_stats.active_crops|default:0 }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-warning-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Listo para Cosechar</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ crop_stats.harvest_ready|default:0 }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-brand-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Cosechado</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ crop_stats.inactive_crops|default:0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Actividad Reciente</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Recent Users -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Usuarios Recientes</h4>
+                    <div class="space-y-3">
+                        {% for user in recent_activity.recent_users %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.date_joined|date:"M d" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No hay usuarios recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Recent Crops -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Cultivos Recientes</h4>
+                    <div class="space-y-3">
+                        {% for crop in recent_activity.recent_crops %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-leaf text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ crop.nombre }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ crop.created_at|date:"M d" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No hay cultivos recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Recent Publications -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Publicaciones Recientes</h4>
+                    <div class="space-y-3">
+                        {% for publication in recent_activity.recent_publications %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-warning-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-newspaper text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ publication.titulo }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ publication.created_at|date:"M d" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No hay publicaciones recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Pedidos Recientes</h4>
+                    <div class="space-y-3">
+                        {% for order in recent_activity.recent_orders %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-error-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Pedido #{{ order.id }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.created_at|date:"M d" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No hay pedidos recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Acciones Rápidas</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                <a href="{% url 'admin_user_create' %}" class="flex flex-col items-center gap-3 p-4 bg-brand-50 dark:bg-brand-500/20 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/30 transition-colors">
+                    <i class="fas fa-user-plus text-brand-500 text-xl"></i>
+                    <span class="text-sm font-medium text-brand-700 dark:text-brand-300">Nuevo Usuario</span>
+                </a>
+                <a href="{% url 'admin_crop_create' %}" class="flex flex-col items-center gap-3 p-4 bg-blue-50 dark:bg-blue-500/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/30 transition-colors">
+                    <i class="fas fa-seedling text-blue-500 text-xl"></i>
+                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Nuevo Cultivo</span>
+                </a>
+                <a href="{% url 'admin_publication_create' %}" class="flex flex-col items-center gap-3 p-4 bg-warning-50 dark:bg-warning-500/20 rounded-lg hover:bg-warning-100 dark:hover:bg-warning-500/30 transition-colors">
+                    <i class="fas fa-plus text-warning-500 text-xl"></i>
+                    <span class="text-sm font-medium text-warning-700 dark:text-warning-300">Nueva Publicación</span>
+                </a>
+                <a href="{% url 'admin_user_list' %}" class="flex flex-col items-center gap-3 p-4 bg-blue-50 dark:bg-blue-500/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/30 transition-colors">
+                    <i class="fas fa-users text-blue-500 text-xl"></i>
+                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Ver Usuarios</span>
+                </a>
+                <a href="{% url 'admin_order_list' %}" class="flex flex-col items-center gap-3 p-4 bg-purple-50 dark:bg-purple-500/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-500/30 transition-colors">
+                    <i class="fas fa-shopping-cart text-purple-500 text-xl"></i>
+                    <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Ver Pedidos</span>
+                </a>
+                <a href="{% url 'admin_crop_list' %}" class="flex flex-col items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-500/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors">
+                    <i class="fas fa-leaf text-indigo-500 text-xl"></i>
+                    <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">Ver Cultivos</span>
+                </a>
+                <a href="{% url 'admin_farm_create' %}" class="flex flex-col items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-500/30 transition-colors">
+                    <i class="fas fa-map-marker-alt text-emerald-500 text-xl"></i>
+                    <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Nueva Finca</span>
+                </a>
+                <a href="{% url 'admin_farm_list' %}" class="flex flex-col items-center gap-3 p-4 bg-teal-50 dark:bg-teal-500/20 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-500/30 transition-colors">
+                    <i class="fas fa-map text-teal-500 text-xl"></i>
+                    <span class="text-sm font-medium text-teal-700 dark:text-teal-300">Ver Fincas</span>
+                </a>
+                <a href="{% url 'admin_conversation_list' %}" class="flex flex-col items-center gap-3 p-4 bg-rose-50 dark:bg-rose-500/20 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/30 transition-colors">
+                    <i class="fas fa-comments text-rose-500 text-xl"></i>
+                    <span class="text-sm font-medium text-rose-700 dark:text-rose-300">Ver Conversaciones</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // User Growth Chart
+    const userGrowthCtx = document.getElementById('userGrowthChart');
+    if (userGrowthCtx) {
+        try {
+            const monthlyData = {{ monthly_growth|safe }};
+            console.log('Monthly data:', monthlyData);
+            const labels = monthlyData && monthlyData.length > 0 ? monthlyData.map(item => item.month) : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
+            const data = monthlyData && monthlyData.length > 0 ? monthlyData.map(item => item.users) : [0, 0, 0, 0, 0, 0];
+            console.log('Labels:', labels);
+            console.log('Data:', data);
+        
+        new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Usuarios Registrados',
+                    data: data,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#22c55e',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6b7280'
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        borderWidth: 3
+                    }
+                }
+            }
+        });
+        } catch (error) {
+            console.error('Error creating user growth chart:', error);
+        }
+    }
+
+    // Order Status Chart
+    const orderStatusCtx = document.getElementById('orderStatusChart');
+    if (orderStatusCtx) {
+        try {
+            const orderData = {{ order_status_distribution|safe }};
+            console.log('Order data:', orderData);
+            const labels = orderData && orderData.length > 0 ? orderData.map(item => item.estado) : ['Sin datos'];
+            const data = orderData && orderData.length > 0 ? orderData.map(item => item.count) : [1];
+            console.log('Order labels:', labels);
+            console.log('Order data:', data);
+        
+        // Colores dinámicos basados en el estado
+        const getStatusColor = (status) => {
+            const colors = {
+                'pendiente': '#f79009',
+                'confirmado': '#465fff', 
+                'enviado': '#12b76a',
+                'completado': '#8b5cf6',
+                'cancelado': '#f04438'
+            };
+            return colors[status] || '#6b7280';
+        };
+        
+        const backgroundColor = labels.map(status => getStatusColor(status));
+        
+        new Chart(orderStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColor,
+                    borderWidth: 0,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        } catch (error) {
+            console.error('Error creating order status chart:', error);
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,6 +1,16 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.template.response import TemplateResponse
+from django.urls import path
+from django.utils.html import format_html
 from .models import User, ProducerProfile, BuyerProfile, Farm
+from .models import AdminAction
+from inventory.models import Crop
+from sales.models import Order, Conversation, Message, Rating
+from marketplace.models import Publication
+from core.models import Notification
+from cart.models import Cart, CartItem
+from payments.models import Payment
 
 class ProducerProfileInline(admin.StackedInline):
     model = ProducerProfile
@@ -89,4 +99,7 @@ class FarmAdmin(admin.ModelAdmin):
 # Personalizar el sitio de administración
 admin.site.site_header = 'AgroConnect Administración'
 admin.site.site_title = 'AgroConnect Admin'
-admin.site.index_title = 'Panel de Control'
+admin.site.index_title = 'Panel de Control Administrativo'
+
+# Registrar AdminAction
+admin.site.register(AdminAction)

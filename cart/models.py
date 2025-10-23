@@ -12,7 +12,7 @@ class Cart(models.Model):
     @property
     def get_total_price(self):
         total = sum(item.get_item_price for item in self.items.all())
-        return total
+        return round(total, 2)
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -31,9 +31,9 @@ class CartItem(models.Model):
             precio_convertido = self.publication.obtener_precio_en_unidad(self.unidad_compra)
             if precio_convertido is None:
                 # Si no se puede convertir, usar precio original
-                return self.publication.precio_por_unidad * self.quantity
+                return float(self.publication.precio_por_unidad) * float(self.quantity)
             return precio_convertido * float(self.quantity)
-        return self.publication.precio_por_unidad * float(self.quantity)
+        return float(self.publication.precio_por_unidad) * float(self.quantity)
     
     @property
     def precio_unitario_display(self):
@@ -42,4 +42,4 @@ class CartItem(models.Model):
             precio_convertido = self.publication.obtener_precio_en_unidad(self.unidad_compra)
             if precio_convertido is not None:
                 return precio_convertido
-        return self.publication.precio_por_unidad
+        return float(self.publication.precio_por_unidad)
