@@ -118,10 +118,13 @@ class BuyerRegistrationForm(forms.ModelForm):
 
         # Configurar widgets de contraseña y visibilidad según el flujo
         if self.is_google_signup:
-            self.fields['password1'].widget = forms.HiddenInput()
-            self.fields['password2'].widget = forms.HiddenInput()
-            self.fields['password1'].required = False
-            self.fields['password2'].required = False
+            # Para usuarios de Google, hacer campos de contraseña obligatorios
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
+            self.fields['password1'].label = "Contraseña"
+            self.fields['password2'].label = "Confirmar Contraseña"
+            self.fields['password1'].help_text = "Asigna una contraseña para poder iniciar sesión con tu nombre de usuario"
+            self.fields['password2'].help_text = "Confirma tu contraseña"
         else:
             self.fields['password1'].required = True
             self.fields['password2'].required = True
@@ -159,18 +162,40 @@ class BuyerRegistrationForm(forms.ModelForm):
     
     def save(self, commit=True):
         # Crear usuario usando User.objects.create_user para manejar contraseñas
-        user = User.objects.create_user(
-            username=self.cleaned_data['username'],
-            email=self.cleaned_data['email'],
-            password=self.cleaned_data.get('password1', 'unusable_password'),
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            cedula=self.cleaned_data['cedula'],
-            telefono=self.cleaned_data['telefono'],
-            departamento=self.cleaned_data.get('departamento'),
-            ciudad=self.cleaned_data.get('ciudad'),
-            role='Comprador'  # Siempre comprador
-        )
+        password = self.cleaned_data.get('password1')
+        
+        if self.is_google_signup:
+            # Usuario de Google con contraseña obligatoria
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                password=self.cleaned_data['password1'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                cedula=self.cleaned_data['cedula'],
+                telefono=self.cleaned_data['telefono'],
+                departamento=self.cleaned_data.get('departamento'),
+                ciudad=self.cleaned_data.get('ciudad'),
+                role='Comprador',  # Siempre comprador
+                has_password=True,
+                is_google_user=True
+            )
+        else:
+            # Usuario normal con contraseña requerida
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                password=self.cleaned_data.get('password1', 'unusable_password'),
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                cedula=self.cleaned_data['cedula'],
+                telefono=self.cleaned_data['telefono'],
+                departamento=self.cleaned_data.get('departamento'),
+                ciudad=self.cleaned_data.get('ciudad'),
+                role='Comprador',  # Siempre comprador
+                has_password=True,
+                is_google_user=False
+            )
         
         if commit:
             # Crear BuyerProfile
@@ -184,16 +209,17 @@ class BuyerRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        # Validar contraseñas solo si no es registro con Google
-        if not hasattr(self, 'is_google_signup') or not self.is_google_signup:
-            password1 = cleaned_data.get('password1')
-            password2 = cleaned_data.get('password2')
-            
-            if password1 and password2:
-                if password1 != password2:
-                    raise forms.ValidationError("Las contraseñas no coinciden.")
-                if len(password1) < 8:
-                    raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        # Validar contraseñas siempre (tanto para Google como registro normal)
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError("Las contraseñas no coinciden.")
+            if len(password1) < 8:
+                raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        else:
+            raise forms.ValidationError("Debes completar ambos campos de contraseña.")
         
         return cleaned_data
     
@@ -1543,10 +1569,14 @@ class ProducerRegistrationForm(forms.ModelForm):
         self.is_google_signup = kwargs.pop('is_google_signup', False)
         super().__init__(*args, **kwargs)
         
-        # Si es registro con Google, ocultar campos de contraseña
+        # Si es registro con Google, hacer campos de contraseña obligatorios
         if self.is_google_signup:
-            self.fields['password1'].widget = forms.HiddenInput()
-            self.fields['password2'].widget = forms.HiddenInput()
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
+            self.fields['password1'].label = "Contraseña"
+            self.fields['password2'].label = "Confirmar Contraseña"
+            self.fields['password1'].help_text = "Asigna una contraseña para poder iniciar sesión con tu nombre de usuario"
+            self.fields['password2'].help_text = "Confirma tu contraseña"
         else:
             # Si es registro normal, hacer contraseñas requeridas
             self.fields['password1'].required = True
@@ -1555,10 +1585,7 @@ class ProducerRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        # Si es registro con Google, no validar contraseñas
-        if self.is_google_signup:
-            return cleaned_data
-            
+        # Validar contraseñas siempre (tanto para Google como registro normal)
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
         
@@ -1569,23 +1596,37 @@ class ProducerRegistrationForm(forms.ModelForm):
                 validate_password(password1)
             except ValidationError as e:
                 raise forms.ValidationError(e.messages)
+        else:
+            raise forms.ValidationError("Debes completar ambos campos de contraseña.")
         
         return cleaned_data
 
     def save(self, commit=True):
         # Crear usuario
-        user = User.objects.create_user(
-            username=self.cleaned_data['username'],
-            email=self.cleaned_data['email'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name']
-        )
+        password = self.cleaned_data.get('password1')
         
-        # Manejar contraseña según el tipo de registro
         if self.is_google_signup:
-            user.set_unusable_password()
+            # Usuario de Google con contraseña obligatoria
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                password=self.cleaned_data['password1'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                has_password=True,
+                is_google_user=True
+            )
         else:
-            user.set_password(self.cleaned_data['password1'])
+            # Usuario normal con contraseña requerida
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                password=self.cleaned_data['password1'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                has_password=True,
+                is_google_user=False
+            )
         
         if commit:
             user.save()

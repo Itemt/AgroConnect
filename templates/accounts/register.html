@@ -169,12 +169,52 @@
                             </div>
                         </div>
 
-                        {% if not is_google_signup %}
+                        {% if is_google_signup %}
+                        <!-- Campos de contraseña obligatorios para usuarios de Google -->
+                        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                <span class="text-blue-800 font-medium">Asignar Contraseña</span>
+                            </div>
+                            <p class="text-blue-700 text-sm mb-4">Debes asignar una contraseña para poder iniciar sesión también con tu nombre de usuario, además de Google.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="field-wrapper">
+                                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-lock mr-2 text-blue-600"></i>
+                                        {{ form.password1.label }} <span class="text-red-500">*</span>
+                                    </label>
+                                    {{ form.password1 }}
+                                    {% if form.password1.help_text %}
+                                        <p class="mt-1 text-xs text-blue-600">{{ form.password1.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in form.password1.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="field-wrapper">
+                                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-lock mr-2 text-blue-600"></i>
+                                        {{ form.password2.label }} <span class="text-red-500">*</span>
+                                    </label>
+                                    {{ form.password2 }}
+                                    {% if form.password2.help_text %}
+                                        <p class="mt-1 text-xs text-blue-600">{{ form.password2.help_text }}</p>
+                                    {% endif %}
+                                    {% for error in form.password2.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Campos de contraseña requeridos para registro normal -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="field-wrapper">
                                 <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-lock mr-2 text-green-600"></i>
-                                    {{ form.password1.label }}
+                                    {{ form.password1.label }} <span class="text-red-500">*</span>
                                 </label>
                                 {{ form.password1 }}
                                 {% if form.password1.help_text %}
@@ -188,7 +228,7 @@
                             <div class="field-wrapper">
                                 <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-lock mr-2 text-green-600"></i>
-                                    {{ form.password2.label }}
+                                    {{ form.password2.label }} <span class="text-red-500">*</span>
                                 </label>
                                 {{ form.password2 }}
                                 {% if form.password2.help_text %}
@@ -198,14 +238,6 @@
                                     <p class="mt-1 text-sm text-red-600">{{ error }}</p>
                                 {% endfor %}
                             </div>
-                        </div>
-                        {% else %}
-                        <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                <span class="text-green-800 font-medium">Autenticación segura con Google</span>
-                            </div>
-                            <p class="text-green-700 text-sm mt-1">No necesitas crear una contraseña. Tu cuenta estará protegida con tu autenticación de Google.</p>
                         </div>
                         {% endif %}
 
