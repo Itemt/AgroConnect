@@ -19,6 +19,10 @@ class User(AbstractUser):
     
     # Nuevo campo para sistema unificado
     can_sell = models.BooleanField(default=False, verbose_name="¿Puede vender?", help_text="Indica si el usuario puede crear publicaciones y vender productos")
+    
+    # Campos para manejo de autenticación dual
+    has_password = models.BooleanField(default=True, help_text='Indica si el usuario tiene una contraseña configurada', verbose_name='Tiene contraseña')
+    is_google_user = models.BooleanField(default=False, help_text='Indica si el usuario se registró con Google', verbose_name='Usuario de Google')
 
 
 class Farm(BaseModel):
