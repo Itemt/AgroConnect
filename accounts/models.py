@@ -196,3 +196,34 @@ class AdminAction(BaseModel):
     
     def __str__(self):
         return f"{self.get_action_type_display()} {self.get_object_type_display()}: {self.object_name}"
+
+
+class PasswordResetCode(BaseModel):
+    """Modelo para códigos de recuperación de contraseña con expiración"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_codes', verbose_name="Usuario")
+    code = models.CharField(max_length=6, verbose_name="Código de Recuperación")
+    email = models.EmailField(verbose_name="Email")
+    is_used = models.BooleanField(default=False, verbose_name="Código Usado")
+    expires_at = models.DateTimeField(verbose_name="Expira en")
+    
+    class Meta:
+        verbose_name = "Código de Recuperación"
+        verbose_name_plural = "Códigos de Recuperación"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['code', 'is_used']),
+            models.Index(fields=['email', 'is_used']),
+            models.Index(fields=['expires_at']),
+        ]
+    
+    def is_expired(self):
+        """Verifica si el código ha expirado"""
+        from django.utils import timezone
+        return timezone.now() > self.expires_at
+    
+    def is_valid(self):
+        """Verifica si el código es válido (no usado y no expirado)"""
+        return not self.is_used and not self.is_expired()
+    
+    def __str__(self):
+        return f"Código {self.code} para {self.user.email} - {'Válido' if self.is_valid() else 'Inválido'}"

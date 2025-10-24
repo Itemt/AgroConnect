@@ -44,6 +44,7 @@ urlpatterns = [
     path('accounts/password_reset/', accounts_views.CustomPasswordResetView.as_view(), name='password_reset'),
     path('accounts/password_reset/done/', accounts_views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
     path('accounts/password_reset/email/', accounts_views.password_reset_email, name='password_reset_email'),
+    path('accounts/password_reset/verify/<str:email>/', accounts_views.password_reset_code_verification, name='password_reset_code_verification'),
     path('accounts/reset/<uidb64>/<token>/', accounts_views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/reset/done/', accounts_views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('accounts/verify-phone-code/', accounts_views.verify_phone_code, name='verify_phone_code'),

@@ -19,7 +19,7 @@ class EmailService:
         else:
             logger.warning("RESEND_API_KEY not configured. Email functionality will be disabled.")
     
-    def send_password_reset_email(self, user_email, reset_url, user_name=None):
+    def send_password_reset_email(self, user_email, reset_url, user_name=None, recovery_code=None):
         """
         Envía correo de recuperación de contraseña
         """
@@ -33,11 +33,12 @@ class EmailService:
             context = {
                 'user_name': user_name or 'Usuario',
                 'reset_url': reset_url,
+                'recovery_code': recovery_code,
                 'site_name': 'AgroConnect'
             }
             
-            # Renderizar template HTML
-            html_content = render_to_string('accounts/password_reset_email.html', context)
+            # Renderizar template HTML del email
+            html_content = render_to_string('accounts/password_reset_email_template.html', context)
             text_content = strip_tags(html_content)
             
             params = {
