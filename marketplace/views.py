@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Publication
 from .forms import PublicationForm
 from inventory.models import Crop
+from accounts.models import User, ProducerProfile
 from django.db.models import Q
 from django.core.paginator import Paginator
 
@@ -95,7 +96,7 @@ def marketplace_view(request):
                     publication.display_location = location[:25]
             else:
                 publication.display_location = "Ubicación no especificada"
-        except User.producer_profile.RelatedObjectDoesNotExist:
+        except ProducerProfile.DoesNotExist:
             publication.display_location = "Productor sin perfil"
     
     context = {
@@ -132,7 +133,7 @@ def publication_detail_view(request, publication_id):
                 publication.display_location = location[:30]
         else:
             publication.display_location = "Ubicación no especificada"
-    except User.producer_profile.RelatedObjectDoesNotExist:
+    except ProducerProfile.DoesNotExist:
         publication.display_location = "Productor sin perfil"
     
     context = {
