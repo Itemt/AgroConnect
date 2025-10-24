@@ -491,6 +491,9 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 
 def password_reset_email(request):
     """Vista para recuperar contraseña por email usando Resend"""
+    logger.info(f"=== INICIO ENVÍO EMAIL ===")
+    logger.info(f"Método: {request.method}")
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         
@@ -552,6 +555,10 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 def password_reset_code_verification(request, email):
     """Vista para verificar el código de recuperación enviado por email"""
+    logger.info(f"=== INICIO VERIFICACIÓN CÓDIGO ===")
+    logger.info(f"Email recibido: {email}")
+    logger.info(f"Método: {request.method}")
+    
     if request.method == 'POST':
         code = request.POST.get('code')
         
