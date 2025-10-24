@@ -495,25 +495,40 @@ def password_reset_email(request):
         try:
             user = User.objects.get(email=email)
             
-            # Generar token de reset
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # Generar código de recuperación de 6 dígitos
+            import random
+            recovery_code = str(random.randint(100000, 999999))
             
-            # Crear URL de reset
+            # Calcular fecha de expiración (10 minutos)
+            from django.utils import timezone
+            from datetime import timedelta
+            expires_at = timezone.now() + timedelta(minutes=10)
+            
+            # Crear registro del código de recuperación
+            from .models import PasswordResetCode
+            reset_code = PasswordResetCode.objects.create(
+                user=user,
+                code=recovery_code,
+                email=email,
+                expires_at=expires_at
+            )
+            
+            # Crear URL de reset (opcional, para el botón del email)
             reset_url = request.build_absolute_uri(
-                reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                reverse('password_reset_confirm', kwargs={'uidb64': 'dummy', 'token': 'dummy'})
             )
             
             # Enviar correo con Resend
             success, message = email_service.send_password_reset_email(
                 user.email, 
                 reset_url, 
-                user.get_full_name() or user.username
+                user.get_full_name() or user.username,
+                recovery_code
             )
             
             if success:
-                messages.success(request, 'Se ha enviado un enlace de recuperación a tu correo electrónico.')
-                return redirect('password_reset_done')
+                messages.success(request, f'Se ha enviado un código de recuperación a {email}. El código expira en 10 minutos.')
+                return redirect('password_reset_code_verification', email=email)
             else:
                 messages.error(request, f'Error enviando correo: {message}')
                 
@@ -526,6 +541,36 @@ def password_reset_email(request):
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'accounts/password_reset_confirm.html'
     success_url = reverse_lazy('password_reset_complete')
+
+
+def password_reset_code_verification(request, email):
+    """Vista para verificar el código de recuperación enviado por email"""
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        
+        try:
+            # Buscar el código válido
+            from .models import PasswordResetCode
+            reset_code = PasswordResetCode.objects.filter(
+                email=email,
+                code=code,
+                is_used=False
+            ).first()
+            
+            if reset_code and reset_code.is_valid():
+                # Marcar código como usado
+                reset_code.is_used = True
+                reset_code.save()
+                
+                # Redirigir a cambio de contraseña
+                return redirect('password_reset_confirm', uidb64='code', token=code)
+            else:
+                messages.error(request, 'Código inválido o expirado. Por favor, solicita un nuevo código.')
+                
+        except Exception as e:
+            messages.error(request, 'Error verificando el código. Inténtalo de nuevo.')
+    
+    return render(request, 'accounts/password_reset_code_verification.html', {'email': email})
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
