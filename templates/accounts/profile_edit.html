@@ -338,22 +338,20 @@ document.addEventListener('DOMContentLoaded', function() {
             ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
             
             if (departamento) {
-                fetch('{% url "core:get_ciudades" %}', {
-                    method: 'POST',
+                fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento), {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: 'departamento=' + encodeURIComponent(departamento)
+                        'Content-Type': 'application/json',
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
                     ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                    if (data.ciudades && data.ciudades.length > 0) {
-                        data.ciudades.forEach(ciudad => {
+                    if (data.success && data.cities && data.cities.length > 0) {
+                        data.cities.forEach(ciudad => {
                             const option = document.createElement('option');
-                            option.value = ciudad.value;
-                            option.textContent = ciudad.text;
+                            option.value = ciudad;
+                            option.textContent = ciudad;
                             ciudadSelect.appendChild(option);
                         });
                     } else {

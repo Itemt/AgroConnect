@@ -1,187 +1,145 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
 {% load static %}
 
 {% block title %}Verificar Código SMS - AgroConnect{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">
-                        <i class="bi bi-shield-check"></i> Verificar Código
-                    </h3>
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <div class="text-center mb-10">
+                <div class="flex mb-4 items-center justify-center">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
+                    </svg>
+                    <span class="inline-block ml-2 text-sm font-medium text-green-900">Verificación</span>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i>
-                        Hemos enviado un código de verificación de 6 dígitos al número: 
-                        <strong>{{ phone_number }}</strong>
-                        <br><small class="text-muted">El código expira en 5 minutos</small>
-                    </div>
-                    
-                    <!-- Contenedor para reCAPTCHA (invisible) -->
-                    <div id="recaptcha-container"></div>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <h1 class="font-heading text-4xl sm:text-5xl font-bold text-green-900 mb-4">
+                    Verificar Código
+                </h1>
+                <p class="text-base text-gray-700">
+                    Hemos enviado un código de verificación de 6 dígitos al número:
+                </p>
+                <p class="text-lg font-semibold text-green-700 mt-2">
+                    📱 {{ phone_number }}
+                </p>
+                <p class="text-sm text-gray-600 mt-2">
+                    El código expira en 5 minutos
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-md p-8">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                <p class="text-sm">{{ message }}</p>
                             </div>
-                        {% endfor %}
-                    {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form class="space-y-6" method="post">
+                    {% csrf_token %}
                     
-                    <form method="post" id="verifyCodeForm">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="verification_code" class="form-label">Código de Verificación</label>
+                    <div class="space-y-5">
+                        <div>
+                            <label for="verification_code" class="block text-sm font-medium text-gray-700 mb-2">
+                                Código de Verificación
+                            </label>
                             <input type="text" 
-                                   class="form-control form-control-lg text-center" 
-                                   id="verification_code" 
                                    name="verification_code" 
+                                   id="verification_code"
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition text-center text-2xl font-mono tracking-widest"
                                    placeholder="000000"
                                    maxlength="6"
                                    pattern="[0-9]{6}"
-                                   required
-                                   autocomplete="off">
-                            <small class="text-muted">Ingresa el código de 6 dígitos que recibiste por SMS</small>
+                                   required>
+                            <p class="text-xs text-gray-500 mt-2">
+                                Ingresa el código de 6 dígitos que recibiste por SMS
+                            </p>
                         </div>
                         
-                        <hr class="my-4">
-                        
-                        <h5 class="mb-3">Nueva Contraseña</h5>
-                        
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">Nueva Contraseña</label>
+                        <div>
+                            <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nueva Contraseña
+                            </label>
                             <input type="password" 
-                                   class="form-control" 
-                                   id="new_password" 
                                    name="new_password" 
+                                   id="new_password"
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition"
                                    placeholder="Mínimo 6 caracteres"
                                    minlength="6"
                                    required>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                        <div>
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Confirmar Contraseña
+                            </label>
                             <input type="password" 
-                                   class="form-control" 
-                                   id="confirm_password" 
                                    name="confirm_password" 
+                                   id="confirm_password"
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition"
                                    placeholder="Repite la contraseña"
                                    minlength="6"
                                    required>
                         </div>
-                        
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-key"></i> Restablecer Contraseña
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
-                        <p class="mb-2">¿No recibiste el mensaje?</p>
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-repeat"></i> Reenviar Código SMS
-                            </a>
-                            <a href="{% url 'password_reset_email' %}" class="btn btn-outline-primary">
-                                <i class="bi bi-envelope"></i> Recupérala con tu correo electrónico
-                            </a>
-                        </div>
                     </div>
-                </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+                            <i class="fas fa-check mr-2"></i>Restablecer Contraseña
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'password_reset_email' %}" class="text-sm text-green-700 hover:text-green-800 transition-colors">
+                            ¿No recibiste el mensaje? Recupérala con tu correo electrónico
+                        </a>
+                    </div>
+
+                    <div class="text-center border-t border-gray-200 pt-6 mt-6">
+                        <p class="text-gray-700">
+                            ¿Recordaste tu contraseña? 
+                            <a href="{% url 'login' %}" class="font-medium text-green-700 hover:text-green-800 transition-colors">
+                                Iniciar sesión
+                            </a>
+                        </p>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// Validar que el código solo contenga números
-document.getElementById('verification_code').addEventListener('input', function(e) {
-    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-});
-
-// Validar que las contraseñas coincidan
-document.getElementById('verifyCodeForm').addEventListener('submit', function(e) {
-    const password = document.getElementById('new_password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    
-    if (password !== confirmPassword) {
-        e.preventDefault();
-        alert('Las contraseñas no coinciden. Por favor, verifica.');
-        return false;
-    }
-    
-    if (password.length < 6) {
-        e.preventDefault();
-        alert('La contraseña debe tener al menos 6 caracteres.');
-        return false;
-    }
-    
-    // Deshabilitar botón para prevenir doble envío
-    const submitBtn = this.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verificando...';
-});
-</script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-<!-- Firebase Phone Auth Helper -->
-<script src="{% static 'js/firebase-phone-auth.js' %}"></script>
-
-<script>
-// Configuración de Firebase
-const firebaseConfig = {
-    apiKey: "{{ FIREBASE_API_KEY }}",
-    authDomain: "{{ FIREBASE_AUTH_DOMAIN }}",
-    projectId: "{{ FIREBASE_PROJECT_ID }}",
-    storageBucket: "{{ FIREBASE_STORAGE_BUCKET }}",
-    messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
-    appId: "{{ FIREBASE_APP_ID }}"
-};
-
-// Inicializar Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-// Inicializar Firebase Phone Auth
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.firebasePhoneAuth) {
-        window.firebasePhoneAuth.initialize();
+    <script>
+        // Auto-focus en el campo de código
+        document.getElementById('verification_code').focus();
         
-        // Enviar OTP automáticamente cuando se carga la página
-        const phoneNumber = '{{ phone_number }}';
-        if (phoneNumber) {
-            window.firebasePhoneAuth.sendOTP(phoneNumber).then(result => {
-                if (result.success) {
-                    console.log('OTP enviado:', result.message);
-                } else {
-                    console.error('Error enviando OTP:', result.message);
-                    // Mostrar error al usuario
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                    alertDiv.innerHTML = `
-                        <strong>Error:</strong> ${result.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.alert-info'));
-                }
-            });
-        }
-    }
-});
-</script>
+        // Solo permitir números
+        document.getElementById('verification_code').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Verificar que las contraseñas coincidan
+        document.getElementById('confirm_password').addEventListener('input', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && newPassword !== confirmPassword) {
+                this.setCustomValidity('Las contraseñas no coinciden');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        document.getElementById('new_password').addEventListener('input', function(e) {
+            const confirmPassword = document.getElementById('confirm_password');
+            if (confirmPassword.value && this.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Las contraseñas no coinciden');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        });
+    </script>
 {% endblock %}
-
