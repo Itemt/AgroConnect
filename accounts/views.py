@@ -548,9 +548,60 @@ def password_reset_email(request):
     return render(request, 'accounts/password_reset_email.html')
 
 
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = 'accounts/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+def password_reset_confirm_with_code(request, uidb64, token):
+    """Vista personalizada para establecer nueva contraseña usando código"""
+    logger.info(f"=== INICIO CONFIRMACIÓN CONTRASEÑA ===")
+    logger.info(f"uidb64: {uidb64}, token: {token}")
+    
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password1')
+        confirm_password = request.POST.get('new_password2')
+        
+        logger.info(f"Nueva contraseña recibida: {bool(new_password)}")
+        logger.info(f"Confirmar contraseña recibida: {bool(confirm_password)}")
+        
+        if new_password != confirm_password:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return render(request, 'accounts/password_reset_confirm.html')
+        
+        if len(new_password) < 6:
+            messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
+            return render(request, 'accounts/password_reset_confirm.html')
+        
+        # Buscar el código usado
+        try:
+            from .models import PasswordResetCode
+            reset_code = PasswordResetCode.objects.filter(
+                code=uidb64,
+                is_used=True
+            ).first()
+            
+            logger.info(f"Código encontrado: {reset_code}")
+            
+            if reset_code:
+                # Cambiar la contraseña del usuario
+                user = reset_code.user
+                user.set_password(new_password)
+                user.save()
+                
+                # Eliminar el código usado
+                reset_code.delete()
+                
+                logger.info(f"Contraseña actualizada para usuario: {user.email}")
+                messages.success(request, 'Contraseña actualizada exitosamente. Ya puedes iniciar sesión.')
+                return redirect('login')
+            else:
+                messages.error(request, 'Código de recuperación inválido o expirado.')
+                
+        except Exception as e:
+            logger.error(f"Error actualizando contraseña: {e}")
+            messages.error(request, 'Error actualizando la contraseña. Inténtalo de nuevo.')
+    
+    return render(request, 'accounts/password_reset_confirm.html')
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'accounts/password_reset_complete.html'
 
 
 def password_reset_code_verification(request, email):
