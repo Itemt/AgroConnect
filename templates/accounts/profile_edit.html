@@ -327,53 +327,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Manejar dropdown dinámico de departamento/ciudad
-    const departamentoSelect = document.getElementById('id_departamento');
-    const ciudadSelect = document.getElementById('id_ciudad');
-    
-       if (departamentoSelect && ciudadSelect) {
-        departamentoSelect.addEventListener('change', function() {
-            const departamento = this.value;
+    setTimeout(() => {
+        const departamentoSelect = document.getElementById('id_departamento');
+        const ciudadSelect = document.getElementById('id_ciudad');
+        
+        if (departamentoSelect && ciudadSelect) {
+            // Deshabilitar Flowbite para ambos selects
+            [departamentoSelect, ciudadSelect].forEach(select => {
+                select.removeAttribute('data-dropdown-toggle');
+                select.removeAttribute('data-dropdown-trigger');
+                select.classList.remove('flowbite-dropdown');
+                select.setAttribute('data-flowbite-ignore', 'true');
+            });
             
-            // Mostrar estado de carga
-            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
-            
-            if (departamento) {
-                fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                   .then(data => {
-                       // Limpiar todas las opciones y agregar la primera
-                       ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                       
-                       if (data.success && data.cities && data.cities.length > 0) {
-                           data.cities.forEach(ciudad => {
-                               const option = document.createElement('option');
-                               option.value = ciudad;
-                               option.textContent = ciudad;
-                               ciudadSelect.appendChild(option);
-                           });
-                           
-                           // Forzar actualización visual
-                           ciudadSelect.dispatchEvent(new Event('change'));
-                           ciudadSelect.style.display = 'none';
-                           ciudadSelect.offsetHeight; // Trigger reflow
-                           ciudadSelect.style.display = '';
-                       } else {
-                           ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
-                       }
-                })
-                .catch(error => {
-                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
-                });
-            } else {
-                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
-            }
-        });
-    }
+            departamentoSelect.addEventListener('change', function() {
+                const departamento = this.value;
+                
+                if (departamento) {
+                    ciudadSelect.innerHTML = '<option value="">Cargando...</option>';
+                    
+                    fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento))
+                    .then(response => response.json())
+                    .then(data => {
+                        ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                        
+                        if (data.success && data.cities) {
+                            // Recrear completamente el select
+                            const parent = ciudadSelect.parentNode;
+                            const newSelect = document.createElement('select');
+                            
+                            // Copiar atributos del select original
+                            newSelect.id = ciudadSelect.id;
+                            newSelect.name = ciudadSelect.name;
+                            newSelect.className = ciudadSelect.className;
+                            
+                            // Agregar opción inicial
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = 'Seleccionar ciudad';
+                            newSelect.appendChild(defaultOption);
+                            
+                            // Agregar ciudades
+                            data.cities.forEach(ciudad => {
+                                const option = document.createElement('option');
+                                option.value = ciudad;
+                                option.textContent = ciudad;
+                                newSelect.appendChild(option);
+                            });
+                            
+                            // Reemplazar el select original
+                            parent.replaceChild(newSelect, ciudadSelect);
+                        } else {
+                            ciudadSelect.innerHTML = '<option value="">No hay ciudades</option>';
+                        }
+                    })
+                    .catch(error => {
+                        ciudadSelect.innerHTML = '<option value="">Error</option>';
+                    });
+                } else {
+                    ciudadSelect.innerHTML = '<option value="">Seleccionar departamento primero</option>';
+                }
+            });
+        }
+    }, 1000);
     
     // Mostrar/ocultar campos de contraseña según necesidad
     const newPasswordField = document.getElementById('id_new_password');
