@@ -21,7 +21,8 @@ import time
 from core.email_service import email_service
 from core.firebase_phone_auth import firebase_phone_auth
 from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
-from .forms_farm import ProducerRegistrationForm, ProducerProfileEditForm
+from .forms_farm import ProducerRegistrationForm
+from .forms import ProducerProfileEditForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile, User
 from inventory.models import Crop
