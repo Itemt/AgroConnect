@@ -14,13 +14,21 @@ class EmailService:
         self.api_key = settings.RESEND_API_KEY
         self.from_email = settings.RESEND_FROM_EMAIL
         
-        if self.api_key:
+        if self.api_key and self.api_key.strip():
             resend.api_key = self.api_key
+        else:
+            logger.warning("RESEND_API_KEY not configured. Email functionality will be disabled.")
     
     def send_password_reset_email(self, user_email, reset_url, user_name=None):
         """
         Envía correo de recuperación de contraseña
         """
+        # Verificar si la API key está configurada
+        if not self.api_key or not self.api_key.strip():
+            error_msg = "API key is invalid"
+            logger.error(f"Email service not configured: {error_msg}")
+            return False, error_msg
+            
         try:
             context = {
                 'user_name': user_name or 'Usuario',
