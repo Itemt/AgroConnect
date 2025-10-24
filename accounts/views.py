@@ -513,6 +513,9 @@ def password_reset_email(request):
                 expires_at=expires_at
             )
             
+            # Debug: Log para verificar que el código se creó
+            print(f"DEBUG: Código creado - ID: {reset_code.id}, Código: {recovery_code}, Email: {email}, Expira: {expires_at}")
+            
             # Crear URL de reset (opcional, para el botón del email)
             reset_url = request.build_absolute_uri(
                 reverse('password_reset_confirm', kwargs={'uidb64': 'dummy', 'token': 'dummy'})
@@ -557,6 +560,13 @@ def password_reset_code_verification(request, email):
                 is_used=False
             ).first()
             
+            # Debug: Log para verificar qué está pasando
+            print(f"DEBUG: Buscando código para email: {email}, código: {code}")
+            print(f"DEBUG: Código encontrado: {reset_code}")
+            if reset_code:
+                print(f"DEBUG: Código válido: {reset_code.is_valid()}")
+                print(f"DEBUG: Código expirado: {reset_code.is_expired()}")
+            
             if reset_code and reset_code.is_valid():
                 # Marcar código como usado
                 reset_code.is_used = True
@@ -568,6 +578,7 @@ def password_reset_code_verification(request, email):
                 messages.error(request, 'Código inválido o expirado. Por favor, solicita un nuevo código.')
                 
         except Exception as e:
+            print(f"DEBUG: Error en verificación: {e}")
             messages.error(request, 'Error verificando el código. Inténtalo de nuevo.')
     
     return render(request, 'accounts/password_reset_code_verification.html', {'email': email})
