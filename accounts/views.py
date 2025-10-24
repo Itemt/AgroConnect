@@ -26,6 +26,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ProducerProfile, BuyerProfile, User
 from inventory.models import Crop
 from django.urls import reverse_lazy, reverse
+import logging
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 from marketplace.models import Publication
 from marketplace.forms import PublicationForm
 from django.shortcuts import get_object_or_404, redirect
@@ -514,7 +518,7 @@ def password_reset_email(request):
             )
             
             # Debug: Log para verificar que el código se creó
-            print(f"DEBUG: Código creado - ID: {reset_code.id}, Código: {recovery_code}, Email: {email}, Expira: {expires_at}")
+            logger.info(f"DEBUG: Código creado - ID: {reset_code.id}, Código: {recovery_code}, Email: {email}, Expira: {expires_at}")
             
             # Crear URL de reset (opcional, para el botón del email)
             reset_url = request.build_absolute_uri(
@@ -561,11 +565,11 @@ def password_reset_code_verification(request, email):
             ).first()
             
             # Debug: Log para verificar qué está pasando
-            print(f"DEBUG: Buscando código para email: {email}, código: {code}")
-            print(f"DEBUG: Código encontrado: {reset_code}")
+            logger.info(f"DEBUG: Buscando código para email: {email}, código: {code}")
+            logger.info(f"DEBUG: Código encontrado: {reset_code}")
             if reset_code:
-                print(f"DEBUG: Código válido: {reset_code.is_valid()}")
-                print(f"DEBUG: Código expirado: {reset_code.is_expired()}")
+                logger.info(f"DEBUG: Código válido: {reset_code.is_valid()}")
+                logger.info(f"DEBUG: Código expirado: {reset_code.is_expired()}")
             
             if reset_code and reset_code.is_valid():
                 # Marcar código como usado
@@ -578,7 +582,7 @@ def password_reset_code_verification(request, email):
                 messages.error(request, 'Código inválido o expirado. Por favor, solicita un nuevo código.')
                 
         except Exception as e:
-            print(f"DEBUG: Error en verificación: {e}")
+            logger.error(f"DEBUG: Error en verificación: {e}")
             messages.error(request, 'Error verificando el código. Inténtalo de nuevo.')
     
     return render(request, 'accounts/password_reset_code_verification.html', {'email': email})
