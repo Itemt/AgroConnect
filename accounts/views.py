@@ -301,7 +301,7 @@ def profile_edit_view(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
-                return redirect('profile')
+                return redirect('profile_edit')
         else:
             # Usar formulario completo para compradores
             form = BuyerEditForm(request.POST, request.FILES, instance=request.user)
@@ -309,7 +309,7 @@ def profile_edit_view(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
-                return redirect('profile')
+                return redirect('profile_edit')
     else:
         if request.user.role == 'Productor':
             try:

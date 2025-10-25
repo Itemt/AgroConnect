@@ -607,7 +607,7 @@ class BuyerEditForm(forms.ModelForm):
     # Campos de usuario
     username = forms.CharField(
         max_length=150,
-        required=True,
+        required=False,
         label="Nombre de Usuario",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -615,7 +615,7 @@ class BuyerEditForm(forms.ModelForm):
         })
     )
     email = forms.EmailField(
-        required=True,
+        required=False,
         label="Correo Electrónico",
         widget=forms.EmailInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -624,7 +624,7 @@ class BuyerEditForm(forms.ModelForm):
     )
     first_name = forms.CharField(
         max_length=30,
-        required=True,
+        required=False,
         label="Nombres",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -633,7 +633,7 @@ class BuyerEditForm(forms.ModelForm):
     )
     last_name = forms.CharField(
         max_length=30,
-        required=True,
+        required=False,
         label="Apellidos",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -642,7 +642,7 @@ class BuyerEditForm(forms.ModelForm):
     )
     cedula = forms.CharField(
         max_length=20,
-        required=True,
+        required=False,
         label="Cédula",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -686,7 +686,7 @@ class BuyerEditForm(forms.ModelForm):
             'id': 'id_departamento'
         }),
         label="Departamento",
-        required=True
+        required=False
     )
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
@@ -695,7 +695,7 @@ class BuyerEditForm(forms.ModelForm):
             'id': 'id_ciudad'
         }),
         label="Ciudad/Municipio",
-        required=True
+        required=False
     )
     
     # Campos de contraseña
@@ -1109,7 +1109,7 @@ class ProducerProfileEditForm(forms.ModelForm):
     # Campos de usuario
     username = forms.CharField(
         max_length=150,
-        required=True,
+        required=False,
         label="Nombre de Usuario",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -1117,7 +1117,7 @@ class ProducerProfileEditForm(forms.ModelForm):
         })
     )
     email = forms.EmailField(
-        required=True,
+        required=False,
         label="Correo Electrónico",
         widget=forms.EmailInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -1126,7 +1126,7 @@ class ProducerProfileEditForm(forms.ModelForm):
     )
     first_name = forms.CharField(
         max_length=30,
-        required=True,
+        required=False,
         label="Nombres",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -1135,7 +1135,7 @@ class ProducerProfileEditForm(forms.ModelForm):
     )
     last_name = forms.CharField(
         max_length=30,
-        required=True,
+        required=False,
         label="Apellidos",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -1144,7 +1144,7 @@ class ProducerProfileEditForm(forms.ModelForm):
     )
     cedula = forms.CharField(
         max_length=20,
-        required=True,
+        required=False,
         label="Cédula",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
@@ -1188,7 +1188,7 @@ class ProducerProfileEditForm(forms.ModelForm):
             'id': 'id_departamento'
         }),
         label="Departamento",
-        required=True
+        required=False
     )
     ciudad = forms.ChoiceField(
         choices=[('', 'Selecciona primero un departamento')],
@@ -1197,7 +1197,7 @@ class ProducerProfileEditForm(forms.ModelForm):
             'id': 'id_ciudad'
         }),
         label="Ciudad/Municipio",
-        required=True
+        required=False
     )
     
     # Campos de contraseña
