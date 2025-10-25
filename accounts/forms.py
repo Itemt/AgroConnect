@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import User, ProducerProfile, BuyerProfile
 from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LOCATIONS
+from core.country_codes import get_country_codes
 from core.models import Farm
 
 
@@ -57,16 +58,15 @@ class BuyerRegistrationForm(forms.ModelForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15, 
+        max_length=20, 
         required=True, 
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: 3001234567',
+            'placeholder': '+57 320 123 4567',
             'type': 'tel',
-            'pattern': '[0-9]+',
-            'title': 'Solo se permiten números',
-            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         }),
         help_text="Número de teléfono de contacto"
     )
@@ -278,16 +278,15 @@ class CustomUserCreationForm(UserCreationForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15, 
+        max_length=20, 
         required=True, 
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Ej: 3001234567',
+            'placeholder': '+57 320 123 4567',
             'type': 'tel',
-            'pattern': '[0-9]+',
-            'title': 'Solo se permiten números',
-            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         }),
         help_text="Número de teléfono de contacto"
     )
@@ -655,18 +654,27 @@ class BuyerEditForm(forms.ModelForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15,
+        max_length=20,
         required=False,
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-            'placeholder': 'Ej: 3001234567',
+            'placeholder': '+57 320 123 4567',
             'type': 'tel',
-            'pattern': '[0-9]+',
-            'title': 'Solo se permiten números',
-            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         }),
-        help_text="Número de teléfono de contacto (opcional)"
+        help_text="Número de teléfono con código de país (+57 para Colombia)"
+    )
+    pais = forms.ChoiceField(
+        choices=get_country_codes(),
+        required=False,
+        label="País",
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_pais'
+        }),
+        help_text="Selecciona tu país para el número de teléfono"
     )
     profile_image = forms.ImageField(
         required=False,
@@ -736,7 +744,17 @@ class BuyerEditForm(forms.ModelForm):
             self.fields['first_name'].initial = self.instance.first_name
             self.fields['last_name'].initial = self.instance.last_name
             self.fields['cedula'].initial = self.instance.cedula
-            self.fields['telefono'].initial = self.instance.telefono
+            # Formatear número de teléfono con código de país si no lo tiene
+            telefono = self.instance.telefono
+            if telefono and not telefono.startswith('+57'):
+                # Si el número empieza con 3 y tiene 10 dígitos, agregar +57
+                if telefono.startswith('3') and len(telefono) == 10:
+                    telefono = f"+57{telefono}"
+                # Si el número empieza con 57 y tiene 12 dígitos, agregar +
+                elif telefono.startswith('57') and len(telefono) == 12:
+                    telefono = f"+{telefono}"
+            self.fields['telefono'].initial = telefono
+            self.fields['pais'].initial = self.instance.pais
             self.fields['departamento'].initial = self.instance.departamento
             self.fields['ciudad'].initial = self.instance.ciudad
             
@@ -822,7 +840,25 @@ class BuyerEditForm(forms.ModelForm):
         self.instance.first_name = self.cleaned_data.get('first_name')
         self.instance.last_name = self.cleaned_data.get('last_name')
         self.instance.cedula = self.cleaned_data.get('cedula')
-        self.instance.telefono = self.cleaned_data.get('telefono')
+        # Normalizar número de teléfono
+        telefono = self.cleaned_data.get('telefono')
+        if telefono:
+            # Remover espacios y caracteres especiales excepto +
+            telefono = telefono.replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+            # Si empieza con +57, mantenerlo
+            if telefono.startswith('+57'):
+                self.instance.telefono = telefono
+            # Si empieza con 57 y tiene 12 dígitos, agregar +
+            elif telefono.startswith('57') and len(telefono) == 12:
+                self.instance.telefono = f"+{telefono}"
+            # Si empieza con 3 y tiene 10 dígitos, agregar +57
+            elif telefono.startswith('3') and len(telefono) == 10:
+                self.instance.telefono = f"+57{telefono}"
+            else:
+                self.instance.telefono = telefono
+        else:
+            self.instance.telefono = telefono
+        self.instance.pais = self.cleaned_data.get('pais')
         self.instance.departamento = self.cleaned_data.get('departamento')
         self.instance.ciudad = self.cleaned_data.get('ciudad')
         
@@ -866,16 +902,15 @@ class UserEditForm(forms.ModelForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15, 
+        max_length=20, 
         required=False, 
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ej: 3001234567',
+            'placeholder': '+57 320 123 4567',
             'type': 'tel',
-            'pattern': '[0-9]+',
-            'title': 'Solo se permiten números',
-            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         }),
         help_text="Número de teléfono de contacto"
     )
@@ -1163,18 +1198,27 @@ class ProducerProfileEditForm(forms.ModelForm):
         help_text="Número de cédula de identidad"
     )
     telefono = forms.CharField(
-        max_length=15,
+        max_length=20,
         required=False,
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-            'placeholder': 'Ej: 3001234567',
+            'placeholder': '+57 320 123 4567',
             'type': 'tel',
-            'pattern': '[0-9]+',
-            'title': 'Solo se permiten números',
-            'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         }),
-        help_text="Número de teléfono de contacto (opcional)"
+        help_text="Número de teléfono con código de país (+57 para Colombia)"
+    )
+    pais = forms.ChoiceField(
+        choices=get_country_codes(),
+        required=False,
+        label="País",
+        widget=forms.Select(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'id': 'id_pais'
+        }),
+        help_text="Selecciona tu país para el número de teléfono"
     )
     profile_image = forms.ImageField(
         required=False,
@@ -1277,7 +1321,17 @@ class ProducerProfileEditForm(forms.ModelForm):
             self.fields['first_name'].initial = self.user.first_name
             self.fields['last_name'].initial = self.user.last_name
             self.fields['cedula'].initial = self.user.cedula
-            self.fields['telefono'].initial = self.user.telefono
+            # Formatear número de teléfono con código de país si no lo tiene
+            telefono = self.user.telefono
+            if telefono and not telefono.startswith('+57'):
+                # Si el número empieza con 3 y tiene 10 dígitos, agregar +57
+                if telefono.startswith('3') and len(telefono) == 10:
+                    telefono = f"+57{telefono}"
+                # Si el número empieza con 57 y tiene 12 dígitos, agregar +
+                elif telefono.startswith('57') and len(telefono) == 12:
+                    telefono = f"+{telefono}"
+            self.fields['telefono'].initial = telefono
+            self.fields['pais'].initial = self.user.pais
             self.fields['departamento'].initial = self.user.departamento
             self.fields['ciudad'].initial = self.user.ciudad
             
@@ -1374,7 +1428,25 @@ class ProducerProfileEditForm(forms.ModelForm):
             self.user.first_name = self.cleaned_data.get('first_name')
             self.user.last_name = self.cleaned_data.get('last_name')
             self.user.cedula = self.cleaned_data.get('cedula')
-            self.user.telefono = self.cleaned_data.get('telefono')
+            # Normalizar número de teléfono
+            telefono = self.cleaned_data.get('telefono')
+            if telefono:
+                # Remover espacios y caracteres especiales excepto +
+                telefono = telefono.replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+                # Si empieza con +57, mantenerlo
+                if telefono.startswith('+57'):
+                    self.user.telefono = telefono
+                # Si empieza con 57 y tiene 12 dígitos, agregar +
+                elif telefono.startswith('57') and len(telefono) == 12:
+                    self.user.telefono = f"+{telefono}"
+                # Si empieza con 3 y tiene 10 dígitos, agregar +57
+                elif telefono.startswith('3') and len(telefono) == 10:
+                    self.user.telefono = f"+57{telefono}"
+                else:
+                    self.user.telefono = telefono
+            else:
+                self.user.telefono = telefono
+            self.user.pais = self.cleaned_data.get('pais')
             self.user.departamento = self.cleaned_data.get('departamento')
             self.user.ciudad = self.cleaned_data.get('ciudad')
             
@@ -1539,14 +1611,14 @@ class ProducerRegistrationForm(forms.ModelForm):
         })
     )
     telefono = forms.CharField(
-        max_length=15, 
+        max_length=20, 
         required=True, 
         label="Teléfono",
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-            'placeholder': 'Tu número de teléfono',
-            'pattern': '[0-9+\-\s()]+',
-            'title': 'Formato: +57 300 123 4567'
+            'placeholder': '+57 320 123 4567',
+            'pattern': '\\+?[0-9\\s\\-()]+',
+            'title': 'Formato: +57 320 123 4567'
         })
     )
     

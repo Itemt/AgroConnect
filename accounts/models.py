@@ -11,10 +11,11 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
     cedula = models.CharField(max_length=20, null=True, blank=True, verbose_name="Cédula", help_text="Número de cédula de identidad")
-    telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name="Teléfono", help_text="Número de teléfono de contacto")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono", help_text="Número de teléfono de contacto")
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, verbose_name="Imagen de Perfil")
     
     # Ubicación
+    pais = models.CharField(max_length=10, blank=True, null=True, verbose_name="País", help_text="Código de país para el teléfono")
     departamento = models.CharField(max_length=100, blank=True, null=True, verbose_name="Departamento")
     ciudad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Ciudad/Municipio")
     
