@@ -494,9 +494,6 @@ def admin_dashboard_preview(request):
     return render(request, 'accounts/admin_dashboard_tailadmin.html', context)
 
 # Funciones auxiliares para compatibilidad
-def admin_test(request):
-    """Vista de prueba"""
-    return render(request, 'accounts/admin_test.html', {})
 
 def admin_dashboard_simple(request):
     """Dashboard simple"""
