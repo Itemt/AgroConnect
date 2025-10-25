@@ -39,7 +39,7 @@
                     {% endfor %}
                 {% endif %}
                 
-                <form class="space-y-6" method="post">
+                <form class="space-y-6" method="post" id="verify-form">
                     {% csrf_token %}
                     
                     <div class="space-y-5">
@@ -112,7 +112,56 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Phone Auth Helper -->
+    <script src="{% static 'js/firebase-phone-auth.js' %}"></script>
+    
+    <!-- reCAPTCHA container (invisible) -->
+    <div id="recaptcha-container"></div>
+    
     <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "{{ FIREBASE_API_KEY }}",
+            authDomain: "{{ FIREBASE_AUTH_DOMAIN }}",
+            projectId: "{{ FIREBASE_PROJECT_ID }}",
+            storageBucket: "{{ FIREBASE_STORAGE_BUCKET }}",
+            messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
+            appId: "{{ FIREBASE_APP_ID }}"
+        };
+        
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        // Inicializar Firebase Phone Auth
+        if (window.firebasePhoneAuth) {
+            window.firebasePhoneAuth.initialize();
+            
+            // Enviar código OTP automáticamente al cargar la página
+            const phoneNumber = '{{ phone_number }}';
+            if (phoneNumber) {
+                console.log('Enviando código OTP a:', phoneNumber);
+                window.firebasePhoneAuth.sendOTP(phoneNumber)
+                    .then(result => {
+                        if (result.success) {
+                            console.log('Código OTP enviado correctamente');
+                        } else {
+                            console.error('Error enviando OTP:', result.message);
+                            alert('Error enviando código OTP: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error enviando OTP:', error);
+                        alert('Error enviando código OTP: ' + error.message);
+                    });
+            }
+        }
+        
         // Auto-focus en el campo de código
         document.getElementById('verification_code').focus();
         
@@ -139,6 +188,50 @@
                 confirmPassword.setCustomValidity('Las contraseñas no coinciden');
             } else {
                 confirmPassword.setCustomValidity('');
+            }
+        });
+        
+        // Manejar envío del formulario con Firebase Phone Auth
+        document.getElementById('verify-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const verificationCode = document.getElementById('verification_code').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (!verificationCode || !newPassword || !confirmPassword) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            // Verificar código OTP con Firebase
+            if (window.firebasePhoneAuth) {
+                window.firebasePhoneAuth.verifyOTP(verificationCode)
+                    .then(result => {
+                        if (result.success) {
+                            // Si la verificación es exitosa, enviar el formulario
+                            this.submit();
+                        } else {
+                            alert('Código de verificación incorrecto: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error verificando OTP:', error);
+                        alert('Error verificando código: ' + error.message);
+                    });
+            } else {
+                // Fallback: enviar formulario sin verificación Firebase
+                this.submit();
             }
         });
     </script>
