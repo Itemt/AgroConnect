@@ -745,6 +745,12 @@ class BuyerEditForm(forms.ModelForm):
                 from core.colombia_locations import get_cities_by_department
                 ciudades = get_cities_by_department(self.instance.departamento)
                 self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+                # Asegurar que el valor inicial de la ciudad se mantenga
+                if self.instance.ciudad:
+                    self.fields['ciudad'].initial = self.instance.ciudad
+            else:
+                # Si no hay departamento, limpiar las opciones de ciudad
+                self.fields['ciudad'].choices = [('', 'Selecciona primero un departamento')]
         
         # Si hay datos POST, cargar ciudades del departamento seleccionado
         if self.data and 'departamento' in self.data:
@@ -1280,6 +1286,12 @@ class ProducerProfileEditForm(forms.ModelForm):
                 from core.colombia_locations import get_cities_by_department
                 ciudades = get_cities_by_department(self.user.departamento)
                 self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+                # Asegurar que el valor inicial de la ciudad se mantenga
+                if self.user.ciudad:
+                    self.fields['ciudad'].initial = self.user.ciudad
+            else:
+                # Si no hay departamento, limpiar las opciones de ciudad
+                self.fields['ciudad'].choices = [('', 'Selecciona primero un departamento')]
             
             # Cargar datos del ProducerProfile si existe
             try:

@@ -222,9 +222,15 @@ RESEND_FROM_EMAIL = config('RESEND_FROM_EMAIL', default='noreply@agroconnect.com
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'exclude_notifications': {
+            '()': 'agroconnect.logging_filters.ExcludeNotificationsFilter',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'filters': ['exclude_notifications'],
         },
     },
     'root': {
