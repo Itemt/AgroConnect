@@ -1228,6 +1228,38 @@ class ProducerProfileEditForm(forms.ModelForm):
         })
     )
     
+    # Campos específicos del productor
+    direccion = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Dirección de la Finca",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ej: Vereda La Esperanza, Finca Los Naranjos'
+        }),
+        help_text="Dirección específica de tu finca (opcional)"
+    )
+    farm_description = forms.CharField(
+        required=False,
+        label="Descripción de la Finca",
+        widget=forms.Textarea(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'rows': 4,
+            'placeholder': 'Describe tu finca, tipo de terreno, etc.'
+        }),
+        help_text="Información adicional sobre tu finca (opcional)"
+    )
+    main_crops = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Cultivos Principales",
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+            'placeholder': 'Ej: Papa, Maíz, Tomate'
+        }),
+        help_text="Principales cultivos de tu finca (opcional)"
+    )
+    
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
@@ -1248,6 +1280,16 @@ class ProducerProfileEditForm(forms.ModelForm):
                 from core.colombia_locations import get_cities_by_department
                 ciudades = get_cities_by_department(self.user.departamento)
                 self.fields['ciudad'].choices = [('', 'Selecciona una ciudad')] + ciudades
+            
+            # Cargar datos del ProducerProfile si existe
+            try:
+                producer_profile = self.user.producer_profile
+                self.fields['direccion'].initial = producer_profile.direccion
+                self.fields['farm_description'].initial = producer_profile.farm_description
+                self.fields['main_crops'].initial = producer_profile.main_crops
+            except AttributeError:
+                # Si no tiene producer_profile, usar valores por defecto
+                pass
         
         # Si hay datos POST, cargar ciudades del departamento seleccionado
         if self.data and 'departamento' in self.data:
@@ -1335,12 +1377,21 @@ class ProducerProfileEditForm(forms.ModelForm):
             
             if commit:
                 self.user.save()
+                
+                # Actualizar ProducerProfile
+                producer_profile, created = ProducerProfile.objects.get_or_create(user=self.user)
+                producer_profile.departamento = self.cleaned_data.get('departamento')
+                producer_profile.ciudad = self.cleaned_data.get('ciudad')
+                producer_profile.direccion = self.cleaned_data.get('direccion')
+                producer_profile.farm_description = self.cleaned_data.get('farm_description')
+                producer_profile.main_crops = self.cleaned_data.get('main_crops')
+                producer_profile.save()
         
         return self.user
     
     class Meta:
-        model = ProducerProfile
-        fields = ['direccion', 'farm_description', 'main_crops']
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad', 'profile_image']
         widgets = {
             'direccion': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
