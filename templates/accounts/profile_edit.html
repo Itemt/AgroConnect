@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Editar Perfil{% endblock %}
 
@@ -308,6 +309,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📝 Formulario de edición de perfil cargado');
     
+    // Obtener el valor inicial de la ciudad desde Django
+    const initialCityValue = '{{ form.ciudad.initial|default:"" }}';
+    
     // Manejar la visualización del nombre del archivo seleccionado
     const fileInput = document.getElementById('id_profile_image');
     const fileNameSpan = document.getElementById('file-name');
@@ -340,10 +344,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.setAttribute('data-flowbite-ignore', 'true');
             });
             
-            departamentoSelect.addEventListener('change', function() {
-                const departamento = this.value;
-                
+            // Función para cargar ciudades
+            function loadCities(departamento, preserveCurrentValue = false, initialCityValue = '') {
                 if (departamento) {
+                    const currentValue = preserveCurrentValue ? (initialCityValue || ciudadSelect.value) : '';
                     ciudadSelect.innerHTML = '<option value="">Cargando...</option>';
                     
                     fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento))
@@ -372,11 +376,26 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const option = document.createElement('option');
                                 option.value = ciudad;
                                 option.textContent = ciudad;
+                                if (preserveCurrentValue && ciudad === currentValue) {
+                                    option.selected = true;
+                                }
                                 newSelect.appendChild(option);
                             });
                             
+                            // Si no se encontró coincidencia exacta, intentar con trim
+                            if (preserveCurrentValue && currentValue && !newSelect.value) {
+                                const trimmedValue = currentValue.trim();
+                                const matchingOption = Array.from(newSelect.options).find(opt => opt.value.trim() === trimmedValue);
+                                if (matchingOption) {
+                                    matchingOption.selected = true;
+                                }
+                            }
+                            
                             // Reemplazar el select original
                             parent.replaceChild(newSelect, ciudadSelect);
+                            
+                            // Reasignar el event listener al nuevo select
+                            ciudadSelect = newSelect;
                         } else {
                             ciudadSelect.innerHTML = '<option value="">No hay ciudades</option>';
                         }
@@ -387,6 +406,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     ciudadSelect.innerHTML = '<option value="">Seleccionar departamento primero</option>';
                 }
+            }
+            
+            // Cargar ciudades automáticamente si ya hay un departamento seleccionado
+            if (departamentoSelect.value) {
+                loadCities(departamentoSelect.value, true, initialCityValue);
+            }
+            
+            // Event listener para cambios en el departamento
+            departamentoSelect.addEventListener('change', function() {
+                loadCities(this.value, false);
             });
         }
     }, 1000);

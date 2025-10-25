@@ -608,7 +608,12 @@
                     credentials: 'same-origin',
                     cache: 'no-cache'
                 })
-                    .then(r => r.json())
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                        }
+                        return r.json();
+                    })
                     .then(res => {
                         if (res && res.success) {
                             const unreadCount = res.notifications.filter(n => !n.is_read).length;
@@ -622,7 +627,14 @@
                         }
                     })
                     .catch((error) => {
-                        // Silent error handling
+                        // Stop polling if server is not available and schedule restart
+                        if (error.message.includes('ERR_CONNECTION_REFUSED') || 
+                            error.message.includes('Failed to fetch') ||
+                            error.message.includes('HTTP 500') ||
+                            error.message.includes('HTTP 404')) {
+                            console.warn('Server not available, stopping notification polling and scheduling restart');
+                            restartPollingWithDelay();
+                        }
                     });
             }
             
@@ -631,7 +643,7 @@
                     return; // Already polling
                 }
                 isPollingActive = true;
-                pollingInterval = setInterval(fetchNotifications, 500); // Poll every 0.5 seconds for instant notifications
+                pollingInterval = setInterval(fetchNotifications, 5000); // Poll every 5 seconds for notifications
             }
             
             function stopPolling() {
@@ -640,6 +652,16 @@
                     pollingInterval = null;
                     isPollingActive = false;
                 }
+            }
+            
+            function restartPollingWithDelay() {
+                // Stop current polling
+                stopPolling();
+                // Restart after 30 seconds
+                setTimeout(() => {
+                    console.log('Attempting to restart notification polling...');
+                    startPolling();
+                }, 30000);
             }
 
             function addNotificationToList(payload){
