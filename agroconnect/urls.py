@@ -48,6 +48,7 @@ urlpatterns = [
     path('accounts/reset/<uidb64>/<token>/', accounts_views.password_reset_confirm_with_code, name='password_reset_confirm'),
     path('accounts/reset/done/', accounts_views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('accounts/verify-phone-code/', accounts_views.verify_phone_code, name='verify_phone_code'),
+    path('accounts/firebase-test/', accounts_views.firebase_test, name='firebase_test'),
 
     # Google OAuth Callback
     # (Flujo actual usa redirect y callback en el backend)
