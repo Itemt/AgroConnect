@@ -40,6 +40,7 @@ class FirebasePhoneAuthHelper {
 
     /**
      * Configura reCAPTCHA para el envío de SMS
+     * Según documentación oficial de Firebase
      */
     setupRecaptcha() {
         try {
@@ -50,9 +51,9 @@ class FirebasePhoneAuthHelper {
                 return;
             }
 
-            console.log('Configurando reCAPTCHA...');
+            console.log('Configurando reCAPTCHA según documentación oficial...');
             
-            // Crear reCAPTCHA invisible
+            // Crear reCAPTCHA invisible según documentación oficial
             this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible',
                 'callback': (response) => {
@@ -65,6 +66,13 @@ class FirebasePhoneAuthHelper {
                 }
             });
 
+            // Renderizar reCAPTCHA según documentación
+            this.recaptchaVerifier.render().then((widgetId) => {
+                console.log('reCAPTCHA renderizado correctamente, widget ID:', widgetId);
+            }).catch((error) => {
+                console.error('Error renderizando reCAPTCHA:', error);
+            });
+
             console.log('reCAPTCHA configurado correctamente');
         } catch (error) {
             console.error('Error configurando reCAPTCHA:', error);
@@ -74,6 +82,7 @@ class FirebasePhoneAuthHelper {
 
     /**
      * Envía código OTP por SMS
+     * Según documentación oficial de Firebase
      */
     async sendOTP(phoneNumber) {
         try {
@@ -87,10 +96,10 @@ class FirebasePhoneAuthHelper {
                 }
             }
 
-            // Limpiar número de teléfono
+            // Limpiar número de teléfono según documentación
             const cleanPhone = this.cleanPhoneNumber(phoneNumber);
             if (!cleanPhone) {
-                throw new Error('Número de teléfono inválido');
+                throw new Error('Número de teléfono inválido. Use formato internacional (+57XXXXXXXXXX)');
             }
 
             console.log('Número de teléfono limpio:', cleanPhone);
@@ -101,12 +110,15 @@ class FirebasePhoneAuthHelper {
                 throw new Error('Firebase Auth no está disponible');
             }
 
-            console.log('Enviando código de verificación...');
+            console.log('Enviando código de verificación según documentación oficial...');
             
-            // Enviar código de verificación
+            // Enviar código de verificación según documentación oficial
+            // signInWithPhoneNumber(phoneNumber, appVerifier)
             this.confirmationResult = await firebase.auth().signInWithPhoneNumber(cleanPhone, this.recaptchaVerifier);
             
             console.log('Código OTP enviado exitosamente a:', cleanPhone);
+            console.log('confirmationResult:', this.confirmationResult);
+            
             return {
                 success: true,
                 message: 'Código enviado correctamente'
@@ -116,6 +128,7 @@ class FirebasePhoneAuthHelper {
             console.error('Error detallado enviando OTP:', error);
             console.error('Código de error:', error.code);
             console.error('Mensaje de error:', error.message);
+            console.error('Stack trace:', error.stack);
             
             return {
                 success: false,
