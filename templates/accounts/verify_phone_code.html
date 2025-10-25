@@ -220,11 +220,13 @@
             const newPassword = document.getElementById('new_password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
             
+            // Validar campos requeridos
             if (!verificationCode || !newPassword || !confirmPassword) {
                 alert('Por favor completa todos los campos');
                 return;
             }
             
+            // Validar contraseñas
             if (newPassword !== confirmPassword) {
                 alert('Las contraseñas no coinciden');
                 return;
@@ -235,22 +237,39 @@
                 return;
             }
             
+            // Deshabilitar botón para evitar múltiples envíos
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verificando...';
+            
             // Verificar código OTP con Firebase
             if (window.firebasePhoneAuth) {
+                console.log('Verificando código OTP con Firebase...');
                 window.firebasePhoneAuth.verifyOTP(verificationCode)
                     .then(result => {
+                        console.log('Resultado de verificación:', result);
                         if (result.success) {
+                            console.log('✅ Código OTP verificado correctamente');
                             // Si la verificación es exitosa, enviar el formulario
                             this.submit();
                         } else {
-                            alert('Código de verificación incorrecto: ' + result.message);
+                            console.error('❌ Código OTP incorrecto:', result.message);
+                            alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
+                            // Rehabilitar botón
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
                         }
                     })
                     .catch(error => {
                         console.error('Error verificando OTP:', error);
                         alert('Error verificando código: ' + error.message);
+                        // Rehabilitar botón
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
                     });
             } else {
+                console.warn('Firebase Phone Auth no disponible, enviando formulario sin verificación');
                 // Fallback: enviar formulario sin verificación Firebase
                 this.submit();
             }
