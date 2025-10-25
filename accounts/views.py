@@ -475,6 +475,13 @@ class CustomPasswordResetView(PasswordResetView):
             
             # Guardar datos adicionales en la sesión para el frontend
             self.request.session['firebase_phone_auth'] = phone_auth_data
+            self.request.session['password_reset_otp'] = {
+                'user_id': user.id,
+                'phone': phone_auth_data['phone_number'],
+                'email': user.email,
+                'otp_code': otp_code,
+                'timestamp': time.time()
+            }
             
             messages.success(self.request, f'Código de verificación enviado a {user.telefono}')
             
@@ -651,8 +658,40 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'accounts/password_reset_complete.html'
 
 
+def send_otp_ajax(request):
+    """Vista AJAX para enviar código OTP usando Firebase"""
+    if request.method == 'POST':
+        try:
+            phone_number = request.POST.get('phone_number')
+            if not phone_number:
+                return JsonResponse({'success': False, 'message': 'Número de teléfono requerido'})
+            
+            # Limpiar y formatear número de teléfono
+            clean_phone = firebase_phone_auth._clean_phone_number(phone_number)
+            if not clean_phone:
+                return JsonResponse({'success': False, 'message': 'Número de teléfono inválido'})
+            
+            # Guardar datos en la sesión para verificación posterior
+            request.session['firebase_phone_auth'] = {
+                'phone_number': clean_phone,
+                'timestamp': time.time()
+            }
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Código OTP enviado correctamente',
+                'phone_number': clean_phone
+            })
+            
+        except Exception as e:
+            logger.error(f"Error enviando OTP: {str(e)}")
+            return JsonResponse({'success': False, 'message': 'Error enviando código OTP'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
+
 def verify_phone_code(request):
-    """Vista para verificar el código OTP enviado por SMS"""
+    """Vista para verificar el código OTP enviado por SMS usando Firebase"""
     if request.method == 'POST':
         verification_code = request.POST.get('verification_code')
         new_password = request.POST.get('new_password')
@@ -660,8 +699,9 @@ def verify_phone_code(request):
         
         # Obtener datos de la sesión
         otp_data = request.session.get('password_reset_otp', {})
+        firebase_data = request.session.get('firebase_phone_auth', {})
         
-        if not otp_data:
+        if not otp_data or not firebase_data:
             messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
             return redirect('password_reset')
         
@@ -669,27 +709,14 @@ def verify_phone_code(request):
         if time.time() - otp_data.get('timestamp', 0) > 300:
             messages.error(request, 'El código ha expirado. Por favor, solicita uno nuevo.')
             del request.session['password_reset_otp']
+            del request.session['firebase_phone_auth']
             return redirect('password_reset')
-        
-        # Verificar el código OTP
-        if verification_code != otp_data.get('code'):
-            messages.error(request, 'Código de verificación incorrecto.')
-            return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('phone', ''),
-                'email': otp_data.get('email', ''),
-                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
-                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
-                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
-                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
-                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
-                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
-            })
         
         # Verificar que las contraseñas coincidan
         if new_password != confirm_password:
             messages.error(request, 'Las contraseñas no coinciden.')
             return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('phone', ''),
+                'phone_number': firebase_data.get('phone_number', ''),
                 'email': otp_data.get('email', ''),
                 'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
                 'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
@@ -702,7 +729,7 @@ def verify_phone_code(request):
         if len(new_password) < 6:
             messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
             return render(request, 'accounts/verify_phone_code.html', {
-                'phone_number': otp_data.get('phone', ''),
+                'phone_number': firebase_data.get('phone_number', ''),
                 'email': otp_data.get('email', ''),
                 'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
                 'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
@@ -721,6 +748,7 @@ def verify_phone_code(request):
             
             # Limpiar la sesión
             del request.session['password_reset_otp']
+            del request.session['firebase_phone_auth']
             
             messages.success(request, 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.')
             return redirect('login')
@@ -731,12 +759,14 @@ def verify_phone_code(request):
     
     # GET request - mostrar formulario
     otp_data = request.session.get('password_reset_otp', {})
-    if not otp_data:
+    firebase_data = request.session.get('firebase_phone_auth', {})
+    
+    if not otp_data or not firebase_data:
         messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
         return redirect('password_reset')
     
     return render(request, 'accounts/verify_phone_code.html', {
-        'phone_number': otp_data.get('phone', ''),
+        'phone_number': firebase_data.get('phone_number', ''),
         'email': otp_data.get('email', ''),
         'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
         'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
