@@ -580,9 +580,16 @@
             });
         {% endif %}
         {% if user.is_authenticated %}
-        // WebSocket para notificaciones
+        // WebSocket para notificaciones - v2.0 (Fixed polling interval)
         (function(){
+            // Prevent multiple instances
+            if (window.agroConnectNotifications) {
+                return;
+            }
+            window.agroConnectNotifications = true;
+            
             let pollingInterval = null;
+            let isPollingActive = false;
             
             function updateBadge(count){
                 const badge = document.getElementById('notifications-badge');
@@ -596,29 +603,42 @@
             }
             
             function fetchNotifications() {
-                fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
+                const timestamp = new Date().getTime();
+                fetch('{% url "core:notifications_list" %}?t=' + timestamp, { 
+                    credentials: 'same-origin',
+                    cache: 'no-cache'
+                })
                     .then(r => r.json())
                     .then(res => {
                         if (res && res.success) {
                             const unreadCount = res.notifications.filter(n => !n.is_read).length;
                             updateBadge(unreadCount);
-                            console.log('Notifications polled:', unreadCount, 'unread');
+                            
+                            // Dispatch custom event for other components (like sidebar)
+                            const event = new CustomEvent('notificationsUpdated', {
+                                detail: { unreadCount: unreadCount, notifications: res.notifications }
+                            });
+                            document.dispatchEvent(event);
                         }
                     })
                     .catch((error) => {
-                        console.log('Polling error:', error);
+                        // Silent error handling
                     });
             }
             
             function startPolling() {
-                if (pollingInterval) return; // Already polling
-                pollingInterval = setInterval(fetchNotifications, 500); // Poll every 0.5 seconds
+                if (isPollingActive || pollingInterval) {
+                    return; // Already polling
+                }
+                isPollingActive = true;
+                pollingInterval = setInterval(fetchNotifications, 500); // Poll every 0.5 seconds for instant notifications
             }
             
             function stopPolling() {
                 if (pollingInterval) {
                     clearInterval(pollingInterval);
                     pollingInterval = null;
+                    isPollingActive = false;
                 }
             }
 
@@ -689,21 +709,21 @@
 
             // Initialize
             document.addEventListener('DOMContentLoaded', function(){
+                // Clear any existing polling first
+                stopPolling();
+                
                 updateBadge(0);
                 // Fetch notifications immediately
                 fetchNotifications();
                 // Start polling for notifications
                 startPolling();
-                console.log('Notifications polling started');
                 
                 // Stop polling when page is hidden (performance optimization)
                 document.addEventListener('visibilitychange', function() {
                     if (document.hidden) {
                         stopPolling();
-                        console.log('Polling stopped (page hidden)');
                     } else {
                         startPolling();
-                        console.log('Polling started (page visible)');
                     }
                 });
                 // Load on dropdown open

@@ -1235,10 +1235,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Polling para notificaciones del sidebar
+// Sidebar badge update function - relies on main polling system in base.html
 (function() {
-    let pollingInterval = null;
-    
     function updateSidebarBadge(count) {
         const badge = document.getElementById('sidebar-notifications-badge');
         if (!badge) return;
@@ -1250,50 +1248,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function fetchSidebarNotifications() {
-        fetch('{% url "core:notifications_list" %}', { credentials: 'same-origin' })
-            .then(r => r.json())
-            .then(res => {
-                if (res && res.success) {
-                    const unreadCount = res.notifications.filter(n => !n.is_read).length;
-                    updateSidebarBadge(unreadCount);
-                    console.log('Notifications polled:', unreadCount, 'unread');
-                }
-            })
-            .catch((error) => {
-                console.log('Polling error:', error);
-            });
-    }
-    
-    function startSidebarPolling() {
-        if (pollingInterval) return; // Already polling
-        pollingInterval = setInterval(fetchSidebarNotifications, 500); // Poll every 0.5 seconds
-    }
-    
-    function stopSidebarPolling() {
-        if (pollingInterval) {
-            clearInterval(pollingInterval);
-            pollingInterval = null;
-        }
-    }
-    
-    // Start polling when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        updateSidebarBadge(0);
-        // Fetch notifications immediately
-        fetchSidebarNotifications();
-        // Start polling for notifications
-        startSidebarPolling();
-        console.log('Notifications polling started');
+    // Listen for custom events from the main notification system
+    document.addEventListener('notificationsUpdated', function(event) {
+        updateSidebarBadge(event.detail.unreadCount);
     });
     
-    // Stop polling when page is hidden (performance optimization)
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            stopSidebarPolling();
-        } else {
-            startSidebarPolling();
-        }
+    // Initialize sidebar badge
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSidebarBadge(0);
     });
 })();
 </script>
