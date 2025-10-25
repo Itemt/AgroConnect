@@ -139,27 +139,48 @@
         }
         
         // Inicializar Firebase Phone Auth
+        console.log('Inicializando Firebase Phone Auth...');
+        
         if (window.firebasePhoneAuth) {
-            window.firebasePhoneAuth.initialize();
+            const initialized = window.firebasePhoneAuth.initialize();
+            console.log('Firebase Phone Auth inicializado:', initialized);
             
-            // Enviar código OTP automáticamente al cargar la página
-            const phoneNumber = '{{ phone_number }}';
-            if (phoneNumber) {
-                console.log('Enviando código OTP a:', phoneNumber);
-                window.firebasePhoneAuth.sendOTP(phoneNumber)
-                    .then(result => {
-                        if (result.success) {
-                            console.log('Código OTP enviado correctamente');
-                        } else {
-                            console.error('Error enviando OTP:', result.message);
-                            alert('Error enviando código OTP: ' + result.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error enviando OTP:', error);
-                        alert('Error enviando código OTP: ' + error.message);
-                    });
+            if (initialized) {
+                // Enviar código OTP automáticamente al cargar la página
+                const phoneNumber = '{{ phone_number }}';
+                console.log('Número de teléfono recibido:', phoneNumber);
+                
+                if (phoneNumber) {
+                    console.log('Enviando código OTP a:', phoneNumber);
+                    
+                    // Esperar un poco para que reCAPTCHA se configure
+                    setTimeout(() => {
+                        window.firebasePhoneAuth.sendOTP(phoneNumber)
+                            .then(result => {
+                                console.log('Resultado del envío:', result);
+                                if (result.success) {
+                                    console.log('Código OTP enviado correctamente');
+                                } else {
+                                    console.error('Error enviando OTP:', result.message);
+                                    alert('Error enviando código OTP: ' + result.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error enviando OTP:', error);
+                                alert('Error enviando código OTP: ' + error.message);
+                            });
+                    }, 2000); // Esperar 2 segundos
+                } else {
+                    console.error('No se proporcionó número de teléfono');
+                    alert('Error: No se proporcionó número de teléfono');
+                }
+            } else {
+                console.error('No se pudo inicializar Firebase Phone Auth');
+                alert('Error: No se pudo inicializar el sistema de autenticación');
             }
+        } else {
+            console.error('Firebase Phone Auth no está disponible');
+            alert('Error: Sistema de autenticación no disponible');
         }
         
         // Auto-focus en el campo de código

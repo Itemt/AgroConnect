@@ -20,8 +20,17 @@ class FirebasePhoneAuthHelper {
                 return false;
             }
 
+            console.log('Firebase está disponible, inicializando Phone Auth...');
+            
+            // Verificar configuración de Firebase
+            if (!firebase.apps.length) {
+                console.error('Firebase no está inicializado');
+                return false;
+            }
+
             // Configurar reCAPTCHA para SMS
             this.setupRecaptcha();
+            console.log('Firebase Phone Auth inicializado correctamente');
             return true;
         } catch (error) {
             console.error('Error inicializando Firebase Phone Auth:', error);
@@ -34,18 +43,32 @@ class FirebasePhoneAuthHelper {
      */
     setupRecaptcha() {
         try {
+            // Verificar que el contenedor de reCAPTCHA existe
+            const recaptchaContainer = document.getElementById('recaptcha-container');
+            if (!recaptchaContainer) {
+                console.error('Contenedor de reCAPTCHA no encontrado');
+                return;
+            }
+
+            console.log('Configurando reCAPTCHA...');
+            
             // Crear reCAPTCHA invisible
             this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible',
                 'callback': (response) => {
-                    console.log('reCAPTCHA resuelto');
+                    console.log('reCAPTCHA resuelto correctamente');
                 },
                 'expired-callback': () => {
-                    console.log('reCAPTCHA expirado');
+                    console.log('reCAPTCHA expirado, reiniciando...');
+                    this.recaptchaVerifier = null;
+                    this.setupRecaptcha();
                 }
             });
+
+            console.log('reCAPTCHA configurado correctamente');
         } catch (error) {
             console.error('Error configurando reCAPTCHA:', error);
+            this.recaptchaVerifier = null;
         }
     }
 
@@ -54,8 +77,14 @@ class FirebasePhoneAuthHelper {
      */
     async sendOTP(phoneNumber) {
         try {
+            console.log('Iniciando envío de OTP para:', phoneNumber);
+            
             if (!this.recaptchaVerifier) {
-                throw new Error('reCAPTCHA no configurado');
+                console.error('reCAPTCHA no configurado, intentando configurar...');
+                this.setupRecaptcha();
+                if (!this.recaptchaVerifier) {
+                    throw new Error('No se pudo configurar reCAPTCHA');
+                }
             }
 
             // Limpiar número de teléfono
@@ -64,22 +93,33 @@ class FirebasePhoneAuthHelper {
                 throw new Error('Número de teléfono inválido');
             }
 
+            console.log('Número de teléfono limpio:', cleanPhone);
             this.phoneNumber = cleanPhone;
 
+            // Verificar que Firebase Auth esté disponible
+            if (!firebase.auth) {
+                throw new Error('Firebase Auth no está disponible');
+            }
+
+            console.log('Enviando código de verificación...');
+            
             // Enviar código de verificación
             this.confirmationResult = await firebase.auth().signInWithPhoneNumber(cleanPhone, this.recaptchaVerifier);
             
-            console.log('Código OTP enviado a:', cleanPhone);
+            console.log('Código OTP enviado exitosamente a:', cleanPhone);
             return {
                 success: true,
                 message: 'Código enviado correctamente'
             };
 
         } catch (error) {
-            console.error('Error enviando OTP:', error);
+            console.error('Error detallado enviando OTP:', error);
+            console.error('Código de error:', error.code);
+            console.error('Mensaje de error:', error.message);
+            
             return {
                 success: false,
-                message: this.getErrorMessage(error.code)
+                message: this.getErrorMessage(error.code) || error.message || 'Error desconocido. Intenta nuevamente'
             };
         }
     }
@@ -117,24 +157,39 @@ class FirebasePhoneAuthHelper {
     cleanPhoneNumber(phoneNumber) {
         if (!phoneNumber) return null;
         
-        // Remover caracteres no numéricos
-        const clean = phoneNumber.replace(/\D/g, '');
+        console.log('Limpiando número de teléfono:', phoneNumber);
         
-        // Si empieza con 57 (Colombia), mantenerlo
+        // Remover caracteres no numéricos excepto +
+        let clean = phoneNumber.replace(/[^\d+]/g, '');
+        
+        // Si ya tiene +, mantenerlo
+        if (clean.startsWith('+')) {
+            console.log('Número ya tiene formato internacional:', clean);
+            return clean;
+        }
+        
+        // Si empieza con 57 (Colombia), agregar +
         if (clean.startsWith('57') && clean.length === 12) {
-            return `+${clean}`;
+            const result = `+${clean}`;
+            console.log('Número colombiano formateado:', result);
+            return result;
         }
         
-        // Si empieza con 3 y tiene 10 dígitos, agregar código de país
+        // Si empieza con 3 y tiene 10 dígitos, agregar código de país colombiano
         if (clean.startsWith('3') && clean.length === 10) {
-            return `+57${clean}`;
+            const result = `+57${clean}`;
+            console.log('Número colombiano con código agregado:', result);
+            return result;
         }
         
-        // Si ya tiene formato internacional
-        if (clean.startsWith('57') && clean.length >= 10) {
-            return `+${clean}`;
+        // Si tiene 10-15 dígitos, asumir que es un número local y agregar +57
+        if (clean.length >= 10 && clean.length <= 15) {
+            const result = `+57${clean}`;
+            console.log('Número local formateado como colombiano:', result);
+            return result;
         }
         
+        console.error('Número de teléfono inválido:', phoneNumber, '->', clean);
         return null;
     }
 
