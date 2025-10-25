@@ -218,6 +218,10 @@ GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 RESEND_API_KEY = config('RESEND_API_KEY', default='')
 RESEND_FROM_EMAIL = config('RESEND_FROM_EMAIL', default='noreply@agroconnect.com')
 
+# Error page templates
+handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'
+
 # Logging configuration
 LOGGING = {
     'version': 1,

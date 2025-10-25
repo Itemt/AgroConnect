@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Página no encontrada - AgroConnect{% endblock %}
+
+{% block description %}La página que buscas no existe. Regresa al inicio de AgroConnect para continuar navegando.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full text-center">
+        <!-- Error Code -->
+        <div class="mb-8">
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-red-100 to-red-200 rounded-full mb-6">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-600"></i>
+            </div>
+            <h1 class="text-8xl sm:text-9xl font-bold text-red-600 mb-4">404</h1>
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                ¡Oops! Página no encontrada
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
+                La página que buscas no existe o ha sido movida. No te preocupes, te ayudamos a encontrar lo que necesitas.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-home mr-3"></i>
+                Ir al Inicio
+            </a>
+            <a href="{% url 'marketplace' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-green-700 bg-white border-2 border-green-700 hover:bg-green-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-store mr-3"></i>
+                Explorar Marketplace
+            </a>
+        </div>
+
+        <!-- Helpful Links -->
+        <div class="mt-12 bg-white rounded-3xl shadow-lg p-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Enlaces útiles</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="{% url 'marketplace' %}" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors duration-200">
+                    <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-store text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-semibold text-gray-900">Marketplace</div>
+                        <div class="text-sm text-gray-600">Explora productos</div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'rankings' %}" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-trophy text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-semibold text-gray-900">Rankings</div>
+                        <div class="text-sm text-gray-600">Mejores productores</div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'core:documentation' %}" class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors duration-200">
+                    <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-book text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-semibold text-gray-900">Ayuda</div>
+                        <div class="text-sm text-gray-600">Documentación</div>
+                    </div>
+                </a>
+                
+                {% if user.is_authenticated %}
+                    {% if user.role == 'Productor' %}
+                    <a href="{% url 'producer_dashboard' %}" class="flex items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors duration-200">
+                        <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-seedling text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Dashboard</div>
+                            <div class="text-sm text-gray-600">Mis cultivos</div>
+                        </div>
+                    </a>
+                    {% elif user.role == 'Comprador' %}
+                    <a href="{% url 'buyer_dashboard' %}" class="flex items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors duration-200">
+                        <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-shopping-cart text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Dashboard</div>
+                            <div class="text-sm text-gray-600">Mis pedidos</div>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'profile' %}" class="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors duration-200">
+                        <div class="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Perfil</div>
+                            <div class="text-sm text-gray-600">Mi cuenta</div>
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors duration-200">
+                        <div class="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-sign-in-alt text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Iniciar Sesión</div>
+                            <div class="text-sm text-gray-600">Accede a tu cuenta</div>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'register' %}" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors duration-200">
+                        <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-user-plus text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Registrarse</div>
+                            <div class="text-sm text-gray-600">Crear cuenta</div>
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Search Suggestion -->
+        <div class="mt-8">
+            <p class="text-gray-600 mb-4">¿Buscas algo específico?</p>
+            <div class="max-w-md mx-auto">
+                <form action="{% url 'marketplace' %}" method="get" class="flex">
+                    <input type="text" name="search" placeholder="Buscar productos..." class="flex-1 px-4 py-3 border border-gray-300 rounded-l-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-r-2xl hover:bg-green-700 transition-colors duration-200">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Fun Illustration -->
+        <div class="mt-12 text-center">
+            <div class="inline-block">
+                <div class="flex items-center space-x-2 text-6xl">
+                    <span class="animate-bounce">🌱</span>
+                    <span class="animate-bounce" style="animation-delay: 0.1s">🥕</span>
+                    <span class="animate-bounce" style="animation-delay: 0.2s">🍅</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">¡Los productos frescos te esperan!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for animations -->
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .animate-float:nth-child(2) {
+        animation-delay: 0.5s;
+    }
+    
+    .animate-float:nth-child(3) {
+        animation-delay: 1s;
+    }
+</style>
+{% endblock %}
