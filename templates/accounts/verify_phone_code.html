@@ -66,6 +66,26 @@
                                     <i class="fas fa-check mr-2"></i>Verificar Código
                                 </button>
                             </div>
+                            
+                            <!-- Opciones adicionales -->
+                            <div class="mt-4 space-y-3">
+                                <!-- Reenviar OTP -->
+                                <div class="text-center">
+                                    <button type="button" id="resend-otp-btn" class="text-sm text-green-700 hover:text-green-800 transition-colors">
+                                        <i class="fas fa-redo mr-1"></i>¿No recibiste el código? Reenviar por SMS
+                                    </button>
+                                    <div id="resend-timer" class="text-xs text-gray-500 mt-1 hidden">
+                                        Puedes reenviar en <span id="countdown">60</span> segundos
+                                    </div>
+                                </div>
+                                
+                                <!-- Cambiar a email -->
+                                <div class="text-center">
+                                    <button type="button" id="switch-to-email-btn" class="text-sm text-blue-700 hover:text-blue-800 transition-colors">
+                                        <i class="fas fa-envelope mr-1"></i>Recibir código por correo electrónico
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Paso 2: Campos de contraseña (inicialmente ocultos) -->
@@ -203,6 +223,10 @@
         
         // Variables globales
         let otpVerified = false;
+        let resendTimer = null;
+        let resendCountdown = 60;
+        let currentPhoneNumber = '{{ phone_number }}';
+        let currentConfirmationResult = null; // Para invalidar códigos anteriores
         
         // Auto-focus en el campo de código
         document.getElementById('verification_code').focus();
@@ -251,41 +275,44 @@
             // Verificar código OTP con Firebase
             if (window.firebasePhoneAuth) {
                 console.log('Verificando código OTP con Firebase...');
-                window.firebasePhoneAuth.verifyOTP(verificationCode)
+                
+                // Usar la confirmación actual si existe, sino usar la del helper
+                let confirmationToUse = currentConfirmationResult || window.firebasePhoneAuth.confirmationResult;
+                
+                if (!confirmationToUse) {
+                    console.error('No hay confirmación disponible para verificar');
+                    alert('Error: No hay código de verificación disponible. Por favor reenvía el código.');
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Verificar Código';
+                    return;
+                }
+                
+                // Verificar con la confirmación actual
+                confirmationToUse.confirm(verificationCode)
                     .then(result => {
                         console.log('Resultado de verificación:', result);
-                        if (result.success) {
-                            console.log('✅ Código OTP verificado correctamente');
-                            otpVerified = true;
-                            
-                            // Mostrar campos de contraseña
-                            document.getElementById('otp-step').classList.add('hidden');
-                            document.getElementById('password-step').classList.remove('hidden');
-                            
-                            // Habilitar campos de contraseña
-                            document.getElementById('new_password').disabled = false;
-                            document.getElementById('confirm_password').disabled = false;
-                            
-                            // Actualizar botón de envío
-                            submitBtn.disabled = false;
-                            submitBtn.className = 'inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200';
-                            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Restablecer Contraseña';
-                            
-                            // Focus en el primer campo de contraseña
-                            document.getElementById('new_password').focus();
-                            
-                        } else {
-                            console.error('❌ Código OTP incorrecto:', result.message);
-                            alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
-                            
-                            // Rehabilitar botón
-                            verifyBtn.disabled = false;
-                            verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Verificar Código';
-                        }
+                        console.log('✅ Código OTP verificado correctamente');
+                        otpVerified = true;
+                        
+                        // Mostrar campos de contraseña
+                        document.getElementById('otp-step').classList.add('hidden');
+                        document.getElementById('password-step').classList.remove('hidden');
+                        
+                        // Habilitar campos de contraseña
+                        document.getElementById('new_password').disabled = false;
+                        document.getElementById('confirm_password').disabled = false;
+                        
+                        // Actualizar botón de envío
+                        submitBtn.disabled = false;
+                        submitBtn.className = 'inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200';
+                        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Restablecer Contraseña';
+                        
+                        // Focus en el primer campo de contraseña
+                        document.getElementById('new_password').focus();
                     })
                     .catch(error => {
                         console.error('Error verificando OTP:', error);
-                        alert('Error verificando código: ' + error.message);
+                        alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
                         
                         // Rehabilitar botón
                         verifyBtn.disabled = false;
@@ -301,8 +328,10 @@
             }
         }
         
-        // Event listener para el botón de verificar OTP
+        // Event listeners para los botones
         document.getElementById('verify-otp-btn').addEventListener('click', verifyOTP);
+        document.getElementById('resend-otp-btn').addEventListener('click', resendOTP);
+        document.getElementById('switch-to-email-btn').addEventListener('click', switchToEmail);
         
         // Permitir verificar con Enter en el campo OTP
         document.getElementById('verification_code').addEventListener('keypress', function(e) {
@@ -310,6 +339,123 @@
                 verifyOTP();
             }
         });
+        
+        // Función para reenviar OTP
+        function resendOTP() {
+            const resendBtn = document.getElementById('resend-otp-btn');
+            const timerDiv = document.getElementById('resend-timer');
+            const countdownSpan = document.getElementById('countdown');
+            
+            // Deshabilitar botón y mostrar timer
+            resendBtn.disabled = true;
+            resendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            timerDiv.classList.remove('hidden');
+            
+            // Iniciar countdown
+            resendCountdown = 60;
+            countdownSpan.textContent = resendCountdown;
+            
+            resendTimer = setInterval(() => {
+                resendCountdown--;
+                countdownSpan.textContent = resendCountdown;
+                
+                if (resendCountdown <= 0) {
+                    clearInterval(resendTimer);
+                    resendBtn.disabled = false;
+                    resendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    timerDiv.classList.add('hidden');
+                }
+            }, 1000);
+            
+            // Enviar nuevo OTP
+            if (window.firebasePhoneAuth && currentPhoneNumber) {
+                console.log('Reenviando código OTP a:', currentPhoneNumber);
+                
+                // Invalidar código anterior
+                if (currentConfirmationResult) {
+                    console.log('Invalidando código anterior...');
+                    currentConfirmationResult = null;
+                }
+                
+                window.firebasePhoneAuth.sendOTP(currentPhoneNumber)
+                    .then(result => {
+                        console.log('Resultado del reenvío:', result);
+                        if (result.success) {
+                            console.log('✅ Código OTP reenviado correctamente');
+                            
+                            // Guardar nueva confirmación para invalidar códigos anteriores
+                            if (window.firebasePhoneAuth.confirmationResult) {
+                                currentConfirmationResult = window.firebasePhoneAuth.confirmationResult;
+                            }
+                            
+                            // Limpiar campo de código para que ingrese el nuevo
+                            document.getElementById('verification_code').value = '';
+                            document.getElementById('verification_code').focus();
+                            
+                            // Mostrar mensaje de éxito
+                            showMessage('Código reenviado correctamente. El código anterior ya no es válido.', 'success');
+                        } else {
+                            console.error('❌ Error reenviando OTP:', result.message);
+                            showMessage('Error reenviando código: ' + result.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error reenviando OTP:', error);
+                        showMessage('Error reenviando código: ' + error.message, 'error');
+                    });
+            } else {
+                console.error('Firebase Phone Auth no disponible o número no encontrado');
+                showMessage('Error: Sistema de autenticación no disponible', 'error');
+            }
+        }
+        
+        // Función para cambiar a email
+        function switchToEmail() {
+            if (confirm('¿Estás seguro de que quieres recibir el código por correo electrónico? Esto invalidará el código SMS actual.')) {
+                // Redirigir a la página de recuperación por email
+                window.location.href = '{% url "password_reset_email" %}';
+            }
+        }
+        
+        // Función para mostrar mensajes
+        function showMessage(message, type) {
+            // Crear elemento de mensaje
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                messageDiv.className += ' bg-green-500 text-white';
+            } else if (type === 'error') {
+                messageDiv.className += ' bg-red-500 text-white';
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Animar entrada
+            setTimeout(() => {
+                messageDiv.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                messageDiv.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (messageDiv.parentElement) {
+                        messageDiv.remove();
+                    }
+                }, 300);
+            }, 5000);
+        }
         
         // Manejar envío del formulario (solo después de verificar OTP)
         document.getElementById('verify-form').addEventListener('submit', function(e) {
