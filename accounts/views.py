@@ -41,8 +41,6 @@ from core.forms import FarmForm
 
 # Create your views here.
 
-def firebase_debug_view(request):
-    return render(request, 'firebase_debug.html')
 
 def google_auth_callback(request):
     """Callback para Google OAuth que procesa el login directamente"""
@@ -690,16 +688,6 @@ def send_otp_ajax(request):
     return JsonResponse({'success': False, 'message': 'Método no permitido'})
 
 
-def firebase_test(request):
-    """Vista para probar la configuración de Firebase"""
-    return render(request, 'accounts/firebase_test.html', {
-        'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
-        'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
-        'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
-        'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
-        'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
-        'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
-    })
 
 
 def verify_phone_code(request):
