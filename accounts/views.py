@@ -775,3 +775,26 @@ def verify_phone_code(request):
         'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
         'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
     })
+
+
+def firebase_debug_view(request):
+    """Vista de diagnóstico para Firebase Phone Auth"""
+    context = {
+        'firebase_config': {
+            'api_key': settings.FIREBASE_API_KEY[:10] + '...' if settings.FIREBASE_API_KEY else 'No configurado',
+            'auth_domain': settings.FIREBASE_AUTH_DOMAIN,
+            'project_id': settings.FIREBASE_PROJECT_ID,
+            'storage_bucket': settings.FIREBASE_STORAGE_BUCKET,
+            'messaging_sender_id': settings.FIREBASE_MESSAGING_SENDER_ID,
+            'app_id': settings.FIREBASE_APP_ID[:10] + '...' if settings.FIREBASE_APP_ID else 'No configurado',
+        },
+        'phone_number': '+573001234567',  # Número de prueba
+        'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+        'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+        'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+        'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+        'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+        'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+    }
+    
+    return render(request, 'accounts/firebase_debug.html', context)
