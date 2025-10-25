@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Firebase Debug - AgroConnect{% endblock %}
+
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl w-full">
+            <div class="text-center mb-10">
+                <div class="flex mb-4 items-center justify-center">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="4" r="4" fill="#dc2626"></circle>
+                    </svg>
+                    <span class="inline-block ml-2 text-sm font-medium text-red-900">Diagnóstico</span>
+                </div>
+                <h1 class="font-heading text-4xl sm:text-5xl font-bold text-red-900 mb-4">
+                    Firebase Debug
+                </h1>
+                <p class="text-base text-gray-700">
+                    Página de diagnóstico para Firebase Phone Authentication
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-md p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Configuración de Firebase</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.api_key }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Auth Domain</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.auth_domain }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Project ID</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.project_id }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Storage Bucket</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.storage_bucket }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Messaging Sender ID</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.messaging_sender_id }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">App ID</label>
+                            <div class="px-4 py-3 bg-gray-100 rounded-lg font-mono text-sm">
+                                {{ firebase_config.app_id }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-md p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Prueba de Envío OTP</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Número de Teléfono de Prueba</label>
+                        <div class="px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg font-mono text-sm">
+                            {{ phone_number }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button id="test-send-btn" class="flex-1 py-3 px-6 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition duration-200">
+                            <i class="fas fa-paper-plane mr-2"></i>Enviar Código de Prueba
+                        </button>
+                        
+                        <button id="test-verify-btn" class="flex-1 py-3 px-6 text-base font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition duration-200" disabled>
+                            <i class="fas fa-check mr-2"></i>Verificar Código
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Código OTP</label>
+                        <input type="text" 
+                               id="otp-input"
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition text-center text-2xl font-mono tracking-widest"
+                               placeholder="000000"
+                               maxlength="6"
+                               pattern="[0-9]{6}"
+                               disabled>
+                    </div>
+                    
+                    <div id="status-messages" class="space-y-2">
+                        <!-- Los mensajes aparecerán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK v11+ -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Phone Auth Helper -->
+    <script src="{% static 'js/firebase-phone-auth.js' %}"></script>
+    
+    <!-- reCAPTCHA container (invisible) -->
+    <div id="recaptcha-container"></div>
+    
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "{{ FIREBASE_API_KEY }}",
+            authDomain: "{{ FIREBASE_AUTH_DOMAIN }}",
+            projectId: "{{ FIREBASE_PROJECT_ID }}",
+            storageBucket: "{{ FIREBASE_STORAGE_BUCKET }}",
+            messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
+            appId: "{{ FIREBASE_APP_ID }}"
+        };
+        
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        // Variables globales
+        let confirmationResult = null;
+        let testPhoneNumber = '{{ phone_number }}';
+        
+        // Función para mostrar mensajes de estado
+        function showStatusMessage(message, type = 'info') {
+            const messagesContainer = document.getElementById('status-messages');
+            const messageDiv = document.createElement('div');
+            
+            let bgColor = 'bg-blue-50 border-blue-200 text-blue-800';
+            let icon = 'fas fa-info-circle';
+            
+            if (type === 'success') {
+                bgColor = 'bg-green-50 border-green-200 text-green-800';
+                icon = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-50 border-red-200 text-red-800';
+                icon = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                bgColor = 'bg-yellow-50 border-yellow-200 text-yellow-800';
+                icon = 'fas fa-exclamation-triangle';
+            }
+            
+            messageDiv.className = `px-4 py-3 rounded-lg border ${bgColor}`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="${icon} mr-2"></i>
+                    <span class="text-sm font-medium">${message}</span>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Auto-remover después de 10 segundos
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.remove();
+                }
+            }, 10000);
+        }
+        
+        // Función para limpiar mensajes
+        function clearStatusMessages() {
+            document.getElementById('status-messages').innerHTML = '';
+        }
+        
+        // Inicializar Firebase Phone Auth
+        console.log('Inicializando Firebase Phone Auth para diagnóstico...');
+        
+        if (window.firebasePhoneAuth) {
+            const initialized = window.firebasePhoneAuth.initialize();
+            console.log('Firebase Phone Auth inicializado:', initialized);
+            
+            if (initialized) {
+                showStatusMessage('Firebase Phone Auth inicializado correctamente', 'success');
+            } else {
+                showStatusMessage('Error inicializando Firebase Phone Auth', 'error');
+            }
+        } else {
+            showStatusMessage('Firebase Phone Auth no está disponible', 'error');
+        }
+        
+        // Event listeners
+        document.getElementById('test-send-btn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            // Deshabilitar botón y mostrar loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+            
+            clearStatusMessages();
+            showStatusMessage('Iniciando envío de código OTP...', 'info');
+            
+            try {
+                if (window.firebasePhoneAuth) {
+                    console.log('Enviando código OTP a:', testPhoneNumber);
+                    
+                    const result = await window.firebasePhoneAuth.sendOTP(testPhoneNumber);
+                    
+                    if (result.success) {
+                        console.log('✅ Código OTP enviado correctamente');
+                        showStatusMessage('Código OTP enviado correctamente', 'success');
+                        
+                        // Guardar confirmación para verificación
+                        confirmationResult = window.firebasePhoneAuth.confirmationResult;
+                        
+                        // Habilitar campo de código y botón de verificación
+                        document.getElementById('otp-input').disabled = false;
+                        document.getElementById('test-verify-btn').disabled = false;
+                        document.getElementById('otp-input').focus();
+                        
+                    } else {
+                        console.error('❌ Error enviando OTP:', result.message);
+                        showStatusMessage('Error enviando código: ' + result.message, 'error');
+                    }
+                } else {
+                    showStatusMessage('Firebase Phone Auth no está disponible', 'error');
+                }
+            } catch (error) {
+                console.error('Error en envío:', error);
+                showStatusMessage('Error inesperado: ' + error.message, 'error');
+            } finally {
+                // Rehabilitar botón
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+        
+        document.getElementById('test-verify-btn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            const otpCode = document.getElementById('otp-input').value;
+            
+            if (!otpCode || otpCode.length !== 6) {
+                showStatusMessage('Por favor ingresa un código de 6 dígitos', 'warning');
+                return;
+            }
+            
+            // Deshabilitar botón y mostrar loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verificando...';
+            
+            showStatusMessage('Verificando código OTP...', 'info');
+            
+            try {
+                if (confirmationResult) {
+                    console.log('Verificando código:', otpCode);
+                    
+                    const result = await confirmationResult.confirm(otpCode);
+                    
+                    console.log('✅ Código OTP verificado correctamente');
+                    showStatusMessage('Código OTP verificado correctamente', 'success');
+                    
+                    // Mostrar información del usuario verificado
+                    if (result.user) {
+                        showStatusMessage(`Usuario verificado: ${result.user.phoneNumber}`, 'success');
+                    }
+                    
+                } else {
+                    showStatusMessage('No hay confirmación disponible para verificar', 'error');
+                }
+            } catch (error) {
+                console.error('Error verificando OTP:', error);
+                showStatusMessage('Error verificando código: ' + error.message, 'error');
+            } finally {
+                // Rehabilitar botón
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+        
+        // Solo permitir números en el campo OTP
+        document.getElementById('otp-input').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Permitir verificar con Enter
+        document.getElementById('otp-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('test-verify-btn').disabled) {
+                document.getElementById('test-verify-btn').click();
+            }
+        });
+    </script>
+{% endblock %}

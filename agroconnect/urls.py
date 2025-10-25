@@ -58,6 +58,7 @@ urlpatterns = [
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
     path('ajax/send-otp/', accounts_views.send_otp_ajax, name='send_otp_ajax'),
+    path('accounts/firebase-debug/', accounts_views.firebase_debug_view, name='firebase_debug'),
 
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),
