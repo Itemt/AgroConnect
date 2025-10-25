@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Acceso denegado - AgroConnect{% endblock %}
+
+{% block description %}No tienes permisos para acceder a esta página.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-yellow-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full text-center">
+        <!-- Error Code -->
+        <div class="mb-8">
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full mb-6">
+                <i class="fas fa-lock text-6xl text-orange-600"></i>
+            </div>
+            <h1 class="text-8xl sm:text-9xl font-bold text-orange-600 mb-4">403</h1>
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                Acceso denegado
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
+                No tienes permisos para acceder a esta página. Verifica que tengas la autorización necesaria.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-home mr-3"></i>
+                Ir al Inicio
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 bg-white border-2 border-orange-700 hover:bg-orange-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-user mr-3"></i>
+                    Mi Perfil
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 bg-white border-2 border-orange-700 hover:bg-orange-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-sign-in-alt mr-3"></i>
+                    Iniciar Sesión
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Helpful Information -->
+        <div class="mt-12 bg-white rounded-3xl shadow-lg p-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">¿Por qué veo este error?</h3>
+            <div class="space-y-4 text-left">
+                <div class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-user-check text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">No has iniciado sesión</h4>
+                        <p class="text-gray-600 text-sm">Algunas páginas requieren que estés autenticado.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-user-shield text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Permisos insuficientes</h4>
+                        <p class="text-gray-600 text-sm">Tu cuenta no tiene los permisos necesarios para esta acción.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-info-circle text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Página restringida</h4>
+                        <p class="text-gray-600 text-sm">Esta página puede estar disponible solo para ciertos roles de usuario.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Information -->
+        {% if user.is_authenticated %}
+        <div class="mt-8 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Tu cuenta actual</h3>
+            <div class="flex items-center justify-center space-x-4">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                        {% if user.profile_image %}
+                            <img class="w-12 h-12 rounded-full" src="{{ user.profile_image.url }}" alt="Avatar">
+                        {% else %}
+                            <i class="fas fa-user text-white text-xl"></i>
+                        {% endif %}
+                    </div>
+                    <p class="font-semibold text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                    <p class="text-sm text-gray-600">{{ user.role|default:"Usuario" }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Fun Illustration -->
+        <div class="mt-12 text-center">
+            <div class="inline-block">
+                <div class="flex items-center space-x-2 text-6xl">
+                    <span class="animate-bounce">🔒</span>
+                    <span class="animate-bounce" style="animation-delay: 0.2s">🛡️</span>
+                    <span class="animate-bounce" style="animation-delay: 0.4s">🔑</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">¡La seguridad es importante!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
