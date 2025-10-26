@@ -5,6 +5,9 @@ import mercadopago
 from django.conf import settings
 import uuid
 from decouple import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MercadoPagoService:
@@ -386,26 +389,24 @@ class MercadoPagoService:
                     'error': 'El email del pagador es requerido'
                 }
             
-            print(f"=== DEBUG PREFERENCE DATA ===")
-            print(f"Transaction amount: {payment_data['transaction_amount']}")
-            print(f"Currency: {payment_data['currency_id']}")
-            print(f"Description: {payment_data['description']}")
-            print(f"External reference: {payment_data['external_reference']}")
-            print(f"Base URL: {base_url}")
-            print("=============================")
+            logger.info("Preference data prepared")
+            logger.info(f"Transaction amount: {payment_data['transaction_amount']}")
+            logger.info(f"Currency: {payment_data['currency_id']}")
+            logger.info(f"Description: {payment_data['description']}")
+            logger.info(f"External reference: {payment_data['external_reference']}")
+            logger.info(f"Base URL: {base_url}")
             
             # Crear preferencia
             preference_response = self.sdk.preference().create(payment_data)
             
-            print(f"=== DEBUG PREFERENCE RESPONSE ===")
-            print(f"Status: {preference_response.get('status')}")
-            print(f"Response keys: {list(preference_response.keys())}")
+            logger.info("Preference response received")
+            logger.info(f"Status: {preference_response.get('status')}")
+            logger.info(f"Response keys: {list(preference_response.keys())}")
             if 'response' in preference_response:
-                print(f"Response ID: {preference_response['response'].get('id')}")
-                print(f"Init Point: {preference_response['response'].get('init_point')}")
+                logger.info(f"Response ID: {preference_response['response'].get('id')}")
+                logger.info(f"Init Point: {preference_response['response'].get('init_point')}")
             if 'error' in preference_response:
-                print(f"Error: {preference_response['error']}")
-            print("================================")
+                logger.error(f"Error: {preference_response['error']}")
             
             if preference_response.get("status") == 201 and "response" in preference_response:
                 response_data = preference_response["response"]
@@ -436,10 +437,9 @@ class MercadoPagoService:
                 }
                 
         except Exception as e:
-            print(f"=== DEBUG EXCEPTION ===")
-            print(f"Exception type: {type(e)}")
-            print(f"Exception message: {str(e)}")
-            print("======================")
+            logger.error(f"Exception in MercadoPago service: {str(e)}")
+            logger.error(f"Exception type: {type(e)}")
+            logger.error(f"Exception message: {str(e)}")
             return {
                 'success': False,
                 'error': str(e)

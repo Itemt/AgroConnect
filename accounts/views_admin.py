@@ -569,14 +569,13 @@ def admin_dashboard_preview(request):
     
     return render(request, 'accounts/admin_dashboard_tailadmin.html', context)
 
-# Funciones auxiliares para compatibilidad - Debug views removed
+# Funciones auxiliares para compatibilidad
 
 # Funciones CRUD para usuarios
 @user_passes_test(is_admin)
 def admin_user_create(request):
     """Crear usuario"""
     if request.method == 'POST':
-        print("DEBUG: POST request recibido")
         # Obtener datos del formulario
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -602,11 +601,9 @@ def admin_user_create(request):
         finca_descripcion = request.POST.get('finca_descripcion', '')
         finca_cultivos = request.POST.get('finca_cultivos', '')
         
-        print(f"DEBUG: username={username}, email={email}, role={role}, password={'***' if password else 'None'}")
         
         # Validaciones básicas
         if not username or not email or not role or not password:
-            print("DEBUG: Validación fallida - campos obligatorios")
             messages.error(request, 'Todos los campos obligatorios deben ser completados.')
             return render(request, 'accounts/admin_user_form.html', {
                 'role_choices': User.ROLE_CHOICES,
@@ -617,7 +614,6 @@ def admin_user_create(request):
         # Validaciones específicas para Productores
         if role == 'Productor':
             if not finca_nombre or not finca_departamento or not finca_ciudad:
-                print("DEBUG: Validación fallida - campos de finca obligatorios")
                 messages.error(request, 'Los productores deben tener información completa de la finca.')
                 return render(request, 'accounts/admin_user_form.html', {
                     'role_choices': User.ROLE_CHOICES,
@@ -627,7 +623,6 @@ def admin_user_create(request):
         
         # Validar que las contraseñas coincidan
         if password != password2:
-            print("DEBUG: Validación fallida - contraseñas no coinciden")
             messages.error(request, 'Las contraseñas no coinciden.')
             return render(request, 'accounts/admin_user_form.html', {
                 'role_choices': User.ROLE_CHOICES,
@@ -637,7 +632,6 @@ def admin_user_create(request):
         
         # Verificar si el usuario ya existe
         if User.objects.filter(username=username).exists():
-            print("DEBUG: Usuario ya existe")
             messages.error(request, 'El nombre de usuario ya existe.')
             return render(request, 'accounts/admin_user_form.html', {
                 'role_choices': User.ROLE_CHOICES,
@@ -646,7 +640,6 @@ def admin_user_create(request):
             })
         
         if User.objects.filter(email=email).exists():
-            print("DEBUG: Email ya existe")
             messages.error(request, 'El email ya está registrado.')
             return render(request, 'accounts/admin_user_form.html', {
                 'role_choices': User.ROLE_CHOICES,
@@ -655,7 +648,6 @@ def admin_user_create(request):
             })
         
         try:
-            print("DEBUG: Intentando crear usuario")
             # Crear el usuario
             user = User.objects.create_user(
                 username=username,
@@ -673,7 +665,6 @@ def admin_user_create(request):
                 ciudad=ciudad if ciudad else None,
                 can_sell=(role == 'Productor')  # Solo los productores pueden vender por defecto
             )
-            print(f"DEBUG: Usuario creado exitosamente: {user.username}")
             
             # Si es Productor, crear la finca
             if role == 'Productor':
@@ -689,7 +680,6 @@ def admin_user_create(request):
                     cultivos_principales=finca_cultivos if finca_cultivos else None,
                     activa=True
                 )
-                print(f"DEBUG: Finca creada exitosamente: {farm.nombre}")
             
             # Registrar la acción de creación
             from .admin_audit import log_user_action
@@ -715,7 +705,6 @@ def admin_user_create(request):
             messages.success(request, f'Usuario "{user.username}" creado exitosamente.')
             return redirect('admin_user_list')
         except Exception as e:
-            print(f"DEBUG: Error al crear usuario: {str(e)}")
             messages.error(request, f'Error al crear el usuario: {str(e)}')
     
     context = {

@@ -157,7 +157,6 @@ def producer_sales_view(request):
     # Obtener o crear perfil de productor
     from accounts.models import ProducerProfile
     profile, created = ProducerProfile.objects.get_or_create(user=request.user)
-    # TODO: Re-implementar la lógica para actualizar las estadísticas en el modelo ProducerProfile
     
     # Filtros de búsqueda
     from sales.forms import OrderSearchForm

@@ -905,10 +905,9 @@ def cart_checkout_summary(request):
     
     order_ids = request.session.get('pending_payment_orders', [])
     
-    print(f"=== DEBUG CART CHECKOUT ===")
-    print(f"Order IDs from session: {order_ids}")
-    print(f"User: {request.user}")
-    print("===========================")
+    logger.info("Cart checkout process started")
+    logger.info(f"Order IDs from session: {order_ids}")
+    logger.info(f"User: {request.user}")
     
     if not order_ids:
         messages.info(request, 'No hay pedidos pendientes de pago.')
@@ -948,11 +947,10 @@ def cart_checkout_summary(request):
         # Crear preferencia de MercadoPago
         preference_result = mercadopago_service.create_preference(order, request.user)
         
-        print(f"=== DEBUG PREFERENCE RESULT ===")
-        print(f"Order ID: {order.id}")
-        print(f"Success: {preference_result.get('success', False)}")
-        print(f"Error: {preference_result.get('error', 'No error')}")
-        print("================================")
+        logger.info("Preference result received")
+        logger.info(f"Order ID: {order.id}")
+        logger.info(f"Success: {preference_result.get('success', False)}")
+        logger.info(f"Error: {preference_result.get('error', 'No error')}")
         
         if preference_result['success']:
             payment.mercadopago_id = preference_result['preference_id']

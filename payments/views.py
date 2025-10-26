@@ -108,7 +108,7 @@ def checkout_view(request, order_id):
     if not preference_result['success']:
         # Si falla MercadoPago, procesar automáticamente para demo
         messages.info(request, 'Procesando pago automáticamente para demo...')
-        print(f"DEBUG: MercadoPago falló: {preference_result.get('error')}")
+        logger.error(f"MercadoPago falló: {preference_result.get('error')}")
         
         # Simular pago automático
         simulated_result = mercadopago_service.simulate_automatic_payment(order, request.user)
@@ -183,11 +183,11 @@ def payment_success_view(request):
     preference_id = request.GET.get('preference_id')
     external_reference = request.GET.get('external_reference')
     
-    print(f"=== DEBUG PAYMENT SUCCESS ===")
-    print(f"Payment ID: {payment_id}")
-    print(f"Preference ID: {preference_id}")
-    print(f"External Reference: {external_reference}")
-    print(f"All GET params: {dict(request.GET)}")
+    logger.info("Payment success callback received")
+    logger.info(f"Payment ID: {payment_id}")
+    logger.info(f"Preference ID: {preference_id}")
+    logger.info(f"External Reference: {external_reference}")
+    logger.info(f"All GET params: {dict(request.GET)}")
     
     if not payment_id and not preference_id and not external_reference:
         messages.error(request, 'No se encontró la información del pago.')

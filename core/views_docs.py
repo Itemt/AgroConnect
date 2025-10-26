@@ -7,7 +7,7 @@ def documentation_view(request):
         'title': 'Documentación y Ayuda',
         'sections': [
             {
-                'title': 'Para Compradores',
+                'title': '👥 Para Compradores',
                 'icon': 'fas fa-shopping-cart',
                 'color': 'blue',
                 'content': [
@@ -30,11 +30,15 @@ def documentation_view(request):
                     {
                         'question': '¿Cómo me comunico con vendedores?',
                         'answer': 'Puedes iniciar conversaciones desde las publicaciones o desde tus pedidos. Ve a "Mensajes" para ver todas tus conversaciones activas.'
+                    },
+                    {
+                        'question': '¿Cómo funciona el sistema de conversión de unidades?',
+                        'answer': 'Si un vendedor publica en arrobas y tú quieres comprar en kilogramos, el sistema convierte automáticamente el precio y la cantidad disponible. Solo funciona con medidas de peso (kg, libras, arrobas, toneladas).'
                     }
                 ]
             },
             {
-                'title': 'Para Vendedores',
+                'title': '🏪 Para Vendedores',
                 'icon': 'fas fa-store',
                 'color': 'green',
                 'content': [
@@ -57,11 +61,15 @@ def documentation_view(request):
                     {
                         'question': '¿Cómo manejo mis ventas?',
                         'answer': 'Ve a "Ventas" para ver todas tus transacciones, confirmar pedidos, gestionar el estado de tus ventas y ver estadísticas por finca.'
+                    },
+                    {
+                        'question': '¿Qué debo saber sobre las unidades de medida?',
+                        'answer': 'Si publicas en medidas de peso (kg, libras, arrobas, etc.), los compradores podrán elegir su unidad preferida. Si publicas en Unidades, Cajas o Bultos, los compradores SOLO podrán comprar en esa unidad fija.'
                     }
                 ]
             },
             {
-                'title': 'Las Fincas: El Centro de Todo para Vendedores',
+                'title': '🏡 Las Fincas: El Centro de Todo',
                 'icon': 'fas fa-home',
                 'color': 'green',
                 'content': [
@@ -84,11 +92,15 @@ def documentation_view(request):
                     {
                         'question': '¿Puedo tener múltiples fincas?',
                         'answer': '¡Sí! Puedes registrar y gestionar múltiples fincas. Cada finca puede tener diferentes cultivos y ubicaciones. Esto es ideal si tienes terrenos en diferentes lugares.'
+                    },
+                    {
+                        'question': '¿Cómo organizo mis productos por finca?',
+                        'answer': 'Cada finca tiene sus propios cultivos. Al crear publicaciones, seleccionas la finca y luego el cultivo específico de esa finca. Así mantienes todo organizado.'
                     }
                 ]
             },
             {
-                'title': 'Gestión de Cultivos desde Fincas',
+                'title': '🌾 Gestión de Cultivos',
                 'icon': 'fas fa-seedling',
                 'color': 'green',
                 'content': [
@@ -107,52 +119,14 @@ def documentation_view(request):
                     {
                         'question': '¿Puedo tener diferentes cultivos en cada finca?',
                         'answer': '¡Sí! Cada finca puede tener sus propios cultivos. Esto te permite organizar mejor tu producción y mostrar a los compradores la diversidad de tus productos.'
-                    }
-                ]
-            },
-            {
-                'title': '🛒 Publicaciones desde Fincas',
-                'icon': 'fas fa-store',
-                'color': 'blue',
-                'content': [
-                    {
-                        'question': '¿Cómo publico productos desde mi finca?',
-                        'answer': 'Ve a "Mis Publicaciones" y haz clic en "Nueva Publicación". Selecciona la finca, el cultivo de esa finca, cantidad disponible y precio. La ubicación se toma automáticamente de la finca.'
                     },
                     {
-                        'question': '¿Por qué debo seleccionar una finca al publicar?',
-                        'answer': 'Para mostrar a los compradores la ubicación exacta del producto. Esto genera confianza y permite que vean de dónde viene lo que compran.'
+                        'question': '¿Qué estados pueden tener mis cultivos?',
+                        'answer': 'Los cultivos pueden estar en: Sembrado, En Crecimiento, Listo para Cosecha, o Cosechado. Esto ayuda a planificar cuándo estarán disponibles para la venta.'
                     },
                     {
-                        'question': '¿Cómo manejo mis ventas?',
-                        'answer': 'En "Ventas" puedes ver todas tus transacciones, confirmar pedidos y gestionar el estado de tus ventas. Todo está organizado por finca para mejor control.'
-                    },
-                    {
-                        'question': '¿Puedo publicar el mismo cultivo de diferentes fincas?',
-                        'answer': '¡Sí! Puedes tener el mismo cultivo en diferentes fincas y crear publicaciones separadas para cada una. Esto te permite mostrar la diversidad de tus ubicaciones.'
-                    }
-                ]
-            },
-            {
-                'title': '🔄 Flujo de Trabajo Completo',
-                'icon': 'fas fa-sync-alt',
-                'color': 'purple',
-                'content': [
-                    {
-                        'question': '¿Cuál es el flujo correcto para empezar a vender?',
-                        'answer': '1) Registrarse como comprador → 2) "¿Quieres ser vendedor?" → 3) Crear primera finca → 4) Agregar cultivos → 5) Crear publicaciones → 6) Gestionar ventas'
-                    },
-                    {
-                        'question': '¿Cuál es el flujo para comprar?',
-                        'answer': '1) Registrarse como comprador → 2) Explorar marketplace → 3) Agregar al carrito → 4) Hacer pedido → 5) Comunicarse con vendedor → 6) Recibir producto'
-                    },
-                    {
-                        'question': '¿Por qué no puedo publicar sin finca?',
-                        'answer': 'Las fincas son OBLIGATORIAS porque garantizan trazabilidad. Los compradores necesitan saber de dónde viene el producto para confiar en la calidad y frescura.'
-                    },
-                    {
-                        'question': '¿Cómo organizo mis productos por finca?',
-                        'answer': 'Cada finca tiene sus propios cultivos. Al crear publicaciones, seleccionas la finca y luego el cultivo específico de esa finca. Así mantienes todo organizado.'
+                        'question': '¿Cómo controlo el área ocupada?',
+                        'answer': 'El sistema te permite especificar cuánta área de tu finca está ocupada por cada cultivo, ayudándote a gestionar mejor el espacio disponible.'
                     }
                 ]
             },
@@ -188,21 +162,95 @@ def documentation_view(request):
                 ]
             },
             {
+                'title': '🔐 Autenticación y Seguridad',
+                'icon': 'fas fa-shield-alt',
+                'color': 'purple',
+                'content': [
+                    {
+                        'question': '¿Qué métodos de autenticación están disponibles?',
+                        'answer': 'Puedes registrarte con email y contraseña, usar Google Sign-In, o recuperar tu contraseña por SMS. Todos los métodos son seguros y están integrados.'
+                    },
+                    {
+                        'question': '¿Cómo funciona el inicio de sesión con Google?',
+                        'answer': 'Haz clic en "Iniciar sesión con Google" en la página de login. Si es tu primera vez, se creará automáticamente una cuenta como comprador. Luego puedes completar tu perfil.'
+                    },
+                    {
+                        'question': '¿Cómo recupero mi contraseña por SMS?',
+                        'answer': 'En la página de login, haz clic en "¿Olvidaste tu contraseña? Recuperar por SMS". Ingresa tu número de teléfono registrado y recibirás un código de 6 dígitos para restablecer tu contraseña.'
+                    },
+                    {
+                        'question': '¿Es seguro usar Firebase Authentication?',
+                        'answer': 'Sí, Firebase es una plataforma de Google con altos estándares de seguridad. Tus datos están protegidos y no se almacenan contraseñas en nuestros servidores cuando usas Google Sign-In.'
+                    },
+                    {
+                        'question': '¿Qué pasa si no tengo acceso a mi teléfono?',
+                        'answer': 'Si no puedes recibir SMS, puedes contactar al soporte técnico para recuperar tu cuenta. También puedes usar Google Sign-In si lo configuraste previamente.'
+                    },
+                    {
+                        'question': '¿Puedo cambiar mi método de autenticación?',
+                        'answer': 'Sí, puedes agregar una contraseña a tu cuenta de Google o viceversa. Ve a tu perfil para gestionar tus métodos de autenticación.'
+                    }
+                ]
+            },
+            {
+                'title': '🤖 Asistente IA y Sugerencias',
+                'icon': 'fas fa-robot',
+                'color': 'purple',
+                'content': [
+                    {
+                        'question': '¿Qué es el asistente IA?',
+                        'answer': 'Es un asistente inteligente que puede responder preguntas sobre agricultura, precios de mercado, y darte consejos para mejorar tus publicaciones. Está alimentado por Google Gemini.'
+                    },
+                    {
+                        'question': '¿Cómo uso el asistente IA?',
+                        'answer': 'Haz clic en el ícono del chatbot en la esquina inferior derecha de la pantalla. Puedes hacer preguntas sobre agricultura, precios, o cualquier duda que tengas sobre la plataforma.'
+                    },
+                    {
+                        'question': '¿Qué tipo de sugerencias puedo obtener?',
+                        'answer': 'El asistente puede sugerir títulos atractivos para tus publicaciones, precios competitivos basados en el mercado local, descripciones optimizadas, y consejos agrícolas específicos para Colombia.'
+                    },
+                    {
+                        'question': '¿El asistente IA es gratuito?',
+                        'answer': 'Sí, el asistente IA es completamente gratuito para todos los usuarios. No hay límites en el número de consultas que puedes hacer.'
+                    },
+                    {
+                        'question': '¿Qué pasa si el asistente IA no está disponible?',
+                        'answer': 'Si hay problemas con el servicio de IA, el sistema automáticamente usa sugerencias predeterminadas basadas en mejores prácticas agrícolas y de marketing.'
+                    },
+                    {
+                        'question': '¿El asistente conoce el contexto colombiano?',
+                        'answer': 'Sí, el asistente está configurado para entender el contexto agrícola colombiano, incluyendo precios en COP, ubicaciones geográficas, y prácticas agrícolas locales.'
+                    }
+                ]
+            },
+            {
                 'title': '💰 Pagos y Transacciones',
                 'icon': 'fas fa-credit-card',
                 'color': 'purple',
                 'content': [
                     {
                         'question': '¿Qué métodos de pago aceptan?',
-                        'answer': 'Aceptamos tarjetas de crédito y débito, transferencias bancarias y pagos en efectivo a través de MercadoPago.'
+                        'answer': 'Aceptamos tarjetas de crédito y débito (Visa, MasterCard, AmEx, Diners), transferencias bancarias PSE, y pagos en efectivo a través de MercadoPago (Baloto, Efecty, Gana, etc.).'
                     },
                     {
                         'question': '¿Es seguro pagar en AgroConnect?',
-                        'answer': 'Sí, usamos MercadoPago que es una plataforma de pagos certificada y segura. Tus datos financieros están protegidos.'
+                        'answer': 'Sí, usamos MercadoPago que es una plataforma de pagos certificada y segura. Tus datos financieros están protegidos y no se almacenan en nuestros servidores.'
                     },
                     {
                         'question': '¿Cuándo recibo mi dinero como vendedor?',
-                        'answer': 'El dinero se libera automáticamente cuando el comprador confirma la recepción del producto.'
+                        'answer': 'El dinero se libera automáticamente cuando el comprador confirma la recepción del producto. Esto garantiza que ambos estén satisfechos con la transacción.'
+                    },
+                    {
+                        'question': '¿Qué pasa si el pago falla?',
+                        'answer': 'Si hay problemas con el pago, el sistema automáticamente simula el pago para proyectos universitarios. En producción, MercadoPago maneja los reintentos y notificaciones.'
+                    },
+                    {
+                        'question': '¿Puedo ver el historial de mis pagos?',
+                        'answer': 'Sí, puedes ver el historial completo de tus pagos en la sección "Historial de Pagos" de tu perfil. Incluye todos los detalles de cada transacción.'
+                    },
+                    {
+                        'question': '¿Hay comisiones por usar la plataforma?',
+                        'answer': 'Para proyectos universitarios, no hay comisiones. En producción, las comisiones son manejadas por MercadoPago según sus tarifas estándar.'
                     }
                 ]
             },
@@ -213,34 +261,120 @@ def documentation_view(request):
                 'content': [
                     {
                         'question': '¿Cómo me comunico con otros usuarios?',
-                        'answer': 'Usa el sistema de mensajes integrado. Ve a "Mensajes" para ver tus conversaciones activas.'
+                        'answer': 'Usa el sistema de mensajes integrado. Puedes iniciar conversaciones desde las publicaciones o desde tus pedidos. Ve a "Mensajes" para ver todas tus conversaciones activas.'
                     },
                     {
                         'question': '¿Recibo notificaciones?',
-                        'answer': 'Sí, recibirás notificaciones por nuevos pedidos, mensajes, cambios de estado y pagos procesados.'
+                        'answer': 'Sí, recibirás notificaciones por nuevos pedidos, mensajes, cambios de estado y pagos procesados. Puedes gestionarlas desde la sección "Notificaciones".'
                     },
                     {
                         'question': '¿Cómo gestiono mis notificaciones?',
-                        'answer': 'Ve a "Notificaciones" para ver todas tus alertas. Puedes marcarlas como leídas o eliminarlas.'
+                        'answer': 'Ve a "Notificaciones" para ver todas tus alertas. Puedes marcarlas como leídas, eliminarlas, o filtrarlas por categoría (Pedido, Pago, Sistema).'
+                    },
+                    {
+                        'question': '¿Las conversaciones se guardan?',
+                        'answer': 'Sí, todas las conversaciones se guardan para que puedas revisar el historial completo. Esto es útil para resolver disputas o recordar acuerdos previos.'
+                    },
+                    {
+                        'question': '¿Puedo enviar archivos en los mensajes?',
+                        'answer': 'Actualmente el sistema de mensajes es de texto. Para compartir imágenes o documentos, puedes usar enlaces o contactar al soporte técnico.'
+                    },
+                    {
+                        'question': '¿Cómo reporto problemas con otros usuarios?',
+                        'answer': 'Si tienes problemas con otro usuario, puedes usar el sistema de calificaciones para dejar comentarios o contactar al soporte técnico para casos más serios.'
                     }
                 ]
             },
             {
-                'title': 'Soporte y Ayuda',
+                'title': '⭐ Sistema de Calificaciones',
+                'icon': 'fas fa-star',
+                'color': 'yellow',
+                'content': [
+                    {
+                        'question': '¿Cómo funciona el sistema de calificaciones?',
+                        'answer': 'Es un sistema bidireccional donde tanto compradores como vendedores pueden calificarse mutuamente después de completar una transacción.'
+                    },
+                    {
+                        'question': '¿Qué aspectos puedo calificar?',
+                        'answer': 'Puedes calificar: comunicación, puntualidad, calidad del producto, y dar una calificación general. También puedes dejar comentarios y recomendar al usuario.'
+                    },
+                    {
+                        'question': '¿Cuándo puedo calificar a alguien?',
+                        'answer': 'Solo puedes calificar después de que el pedido esté marcado como "Completado". Esto asegura que ambos hayan tenido la experiencia completa.'
+                    },
+                    {
+                        'question': '¿Puedo ver las calificaciones de otros usuarios?',
+                        'answer': 'Sí, puedes ver las calificaciones públicas de otros usuarios en sus perfiles. Esto te ayuda a tomar decisiones informadas sobre con quién hacer negocios.'
+                    },
+                    {
+                        'question': '¿Qué pasa si recibo una calificación injusta?',
+                        'answer': 'Si crees que recibiste una calificación injusta, puedes contactar al soporte técnico. Revisamos casos especiales y podemos ayudar a resolver disputas.'
+                    },
+                    {
+                        'question': '¿Las calificaciones afectan mi ranking?',
+                        'answer': 'Sí, las calificaciones contribuyen a tu ranking público. Los usuarios con mejores calificaciones aparecen en los rankings de "Top Productores" y "Top Compradores".'
+                    }
+                ]
+            },
+            {
+                'title': '🔄 Flujo de Trabajo Completo',
+                'icon': 'fas fa-sync-alt',
+                'color': 'purple',
+                'content': [
+                    {
+                        'question': '¿Cuál es el flujo correcto para empezar a vender?',
+                        'answer': '1) Registrarse como comprador → 2) "¿Quieres ser vendedor?" → 3) Crear primera finca → 4) Agregar cultivos → 5) Crear publicaciones → 6) Gestionar ventas'
+                    },
+                    {
+                        'question': '¿Cuál es el flujo para comprar?',
+                        'answer': '1) Registrarse como comprador → 2) Explorar marketplace → 3) Agregar al carrito → 4) Hacer pedido → 5) Comunicarse con vendedor → 6) Recibir producto'
+                    },
+                    {
+                        'question': '¿Por qué no puedo publicar sin finca?',
+                        'answer': 'Las fincas son OBLIGATORIAS porque garantizan trazabilidad. Los compradores necesitan saber de dónde viene el producto para confiar en la calidad y frescura.'
+                    },
+                    {
+                        'question': '¿Cómo organizo mis productos por finca?',
+                        'answer': 'Cada finca tiene sus propios cultivos. Al crear publicaciones, seleccionas la finca y luego el cultivo específico de esa finca. Así mantienes todo organizado.'
+                    },
+                    {
+                        'question': '¿Qué estados puede tener un pedido?',
+                        'answer': 'Los pedidos pasan por: Pendiente → Confirmado → En Preparación → Enviado → En Tránsito → Recibido → Completado. Cada estado tiene acciones específicas para compradores y vendedores.'
+                    },
+                    {
+                        'question': '¿Cómo cancelo un pedido?',
+                        'answer': 'Los pedidos se pueden cancelar en estados tempranos (Pendiente, Confirmado). Al cancelar, el stock se devuelve automáticamente a la publicación.'
+                    }
+                ]
+            },
+            {
+                'title': '🛠️ Soporte y Ayuda Técnica',
                 'icon': 'fas fa-question-circle',
                 'color': 'gray',
                 'content': [
                     {
                         'question': '¿Cómo contacto soporte técnico?',
-                        'answer': 'Puedes contactarnos a través del sistema de mensajes o enviando un email a soporte@agroconnect.com'
+                        'answer': 'Puedes contactarnos a través del sistema de mensajes integrado, enviando un email a soporte@agroconnect.com, o usando el asistente IA para consultas generales.'
                     },
                     {
                         'question': '¿Qué hago si tengo problemas técnicos?',
-                        'answer': 'Primero intenta cerrar sesión y volver a entrar. Si el problema persiste, contacta al soporte técnico.'
+                        'answer': 'Primero intenta cerrar sesión y volver a entrar. Si el problema persiste, contacta al soporte técnico con detalles específicos del error.'
                     },
                     {
                         'question': '¿Hay tutoriales disponibles?',
-                        'answer': 'Esta documentación incluye guías paso a paso. También puedes explorar la plataforma usando las funciones de ayuda integradas.'
+                        'answer': 'Esta documentación incluye guías paso a paso. También puedes explorar la plataforma usando las funciones de ayuda integradas y el asistente IA.'
+                    },
+                    {
+                        'question': '¿Cómo reporto un bug?',
+                        'answer': 'Si encuentras un bug, puedes reportarlo a través de GitHub Issues o contactar al soporte técnico con detalles específicos sobre cómo reproducir el problema.'
+                    },
+                    {
+                        'question': '¿Ofrecen capacitación para usuarios?',
+                        'answer': 'Para proyectos universitarios, ofrecemos sesiones de capacitación. Contacta al soporte técnico para coordinar una sesión de entrenamiento.'
+                    },
+                    {
+                        'question': '¿Qué información necesito para reportar un problema?',
+                        'answer': 'Incluye: descripción del problema, pasos para reproducirlo, navegador usado, capturas de pantalla si aplica, y cualquier mensaje de error que hayas visto.'
                     }
                 ]
             }

@@ -58,7 +58,6 @@ urlpatterns = [
     # Ajax
     path('ajax/cities/', accounts_ajax.get_cities_by_department, name='ajax_get_cities'),
     path('ajax/send-otp/', accounts_views.send_otp_ajax, name='send_otp_ajax'),
-    path('accounts/firebase-debug/', accounts_views.firebase_debug_view, name='firebase_debug'),
 
     # Marketplace
     path('marketplace/', marketplace_views.marketplace_view, name='marketplace'),
@@ -148,7 +147,7 @@ urlpatterns = [
     path('admin_dashboard/conversation/<int:pk>/', accounts_admin_views.admin_conversation_detail, name='admin_conversation_detail'),
     path('admin_dashboard/conversation/<int:pk>/delete/', accounts_admin_views.admin_conversation_delete, name='admin_conversation_delete'),
     path('admin_dashboard/audit-log/', accounts_admin_views.admin_audit_log, name='admin_audit_log'),
-    # Debug URLs removed - no longer needed
+    # Preview URLs
         path('admin_dashboard/preview/', accounts_admin_views.admin_dashboard_preview, name='admin_dashboard_preview'),
         path('admin_dashboard/publications/preview/', accounts_admin_views.admin_publication_list_preview, name='admin_publication_list_preview'),
         path('admin_dashboard/history/', accounts_admin_views.admin_history, name='admin_history'),

@@ -125,23 +125,23 @@ def get_ciudades(request):
     """AJAX endpoint para obtener ciudades de un departamento"""
     try:
         departamento = request.POST.get('departamento')
-        print(f"=== DEBUG get_ciudades ===")
-        print(f"Departamento recibido: {departamento}")
+        logger.info("Getting cities for department")
+        logger.info(f"Departamento recibido: {departamento}")
         
         if not departamento:
-            print("No se recibió departamento")
+            logger.warning("No se recibió departamento")
             return JsonResponse({'ciudades': []})
         
         from .colombia_locations import get_cities_by_department
         
         ciudades = get_cities_by_department(departamento)
-        print(f"Ciudades encontradas: {len(ciudades)}")
+        logger.info(f"Ciudades encontradas: {len(ciudades)}")
         
         ciudades_options = [{'value': ciudad[0], 'text': ciudad[1]} for ciudad in ciudades]
-        print(f"Opciones de ciudades: {ciudades_options[:3]}...")  # Mostrar solo las primeras 3
+        logger.info(f"Opciones de ciudades: {ciudades_options[:3]}...")  # Mostrar solo las primeras 3
         
         return JsonResponse({'ciudades': ciudades_options})
         
     except Exception as e:
-        print(f"Error en get_ciudades: {str(e)}")
+        logger.error(f"Error en get_ciudades: {str(e)}")
         return JsonResponse({'error': str(e), 'ciudades': []}, status=500)

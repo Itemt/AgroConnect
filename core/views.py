@@ -104,26 +104,26 @@ def assistant_reply(request):
     import json
     import os
     
-    print(f"=== CHATBOT CALLED ===")
-    print(f"Request body: {request.body}")
+    logger.info("Chatbot called")
+    logger.info(f"Request body: {request.body}")
 
     try:
         data = json.loads(request.body or '{}')
-        print(f"Parsed data: {data}")
+        logger.info(f"Parsed data: {data}")
     except Exception as e:
-        print(f"JSON parse error: {e}")
+        logger.error(f"JSON parse error: {e}")
         data = {}
 
     raw_message = (data.get('message') or '').strip()
-    print(f"Raw message: '{raw_message}'")
+    logger.info(f"Raw message: '{raw_message}'")
     
     if not raw_message:
         return JsonResponse({"success": False, "error": "No message provided"})
     
     # Verificar API key
     api_key = os.getenv('GOOGLE_API_KEY', '') or os.getenv('GEMINI_API_KEY', '')
-    print(f"API Key found: {bool(api_key)}")
-    print(f"API Key (first 10 chars): {api_key[:10] if api_key else 'NOT_SET'}")
+    logger.info(f"API Key found: {bool(api_key)}")
+    logger.info(f"API Key (first 10 chars): {api_key[:10] if api_key else 'NOT_SET'}")
     
     if not api_key:
         return JsonResponse({

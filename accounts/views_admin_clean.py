@@ -495,14 +495,5 @@ def admin_dashboard_preview(request):
 
 # Funciones auxiliares para compatibilidad
 
-def admin_dashboard_simple(request):
-    """Dashboard simple"""
-    return render(request, 'accounts/admin_dashboard_simple.html', {})
 
-def admin_dashboard_inline(request):
-    """Dashboard inline"""
-    return render(request, 'accounts/admin_dashboard_inline.html', {})
 
-def admin_debug(request):
-    """Vista de debug"""
-    return render(request, 'accounts/admin_debug.html', {})

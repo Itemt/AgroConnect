@@ -1,43 +1,36 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import login, logout
-from django.contrib.auth.views import LoginView
+from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.conf import settings
 import random
 import string
 import time
-from core.email_service import email_service
-from core.firebase_phone_auth import firebase_phone_auth
-from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm
-from .forms_farm import ProducerRegistrationForm
-from .forms import ProducerProfileEditForm
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import ProducerProfile, BuyerProfile, User
-from inventory.models import Crop
-from django.urls import reverse_lazy, reverse
 import logging
 
-# Configurar logger
-logger = logging.getLogger(__name__)
+from core.email_service import email_service
+from core.firebase_phone_auth import firebase_phone_auth
+from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm, ProducerProfileEditForm
+from .forms_farm import ProducerRegistrationForm
+from .models import ProducerProfile, BuyerProfile, User
+from inventory.models import Crop
 from marketplace.models import Publication
 from marketplace.forms import PublicationForm
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
 from sales.models import Order
 from core.models import Notification
 from core.forms import FarmForm
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -526,8 +519,8 @@ def password_reset_email(request):
                 expires_at=expires_at
             )
             
-            # Debug: Log para verificar que el código se creó
-            logger.info(f"DEBUG: Código creado - ID: {reset_code.id}, Código: {recovery_code}, Email: {email}, Expira: {expires_at}")
+            # Log para verificar que el código se creó
+            logger.info(f"Código creado - ID: {reset_code.id}, Email: {email}, Expira: {expires_at}")
             
             # Crear URL de reset (opcional, para el botón del email)
             reset_url = request.build_absolute_uri(
@@ -628,12 +621,12 @@ def password_reset_code_verification(request, email):
                 is_used=False
             ).first()
             
-            # Debug: Log para verificar qué está pasando
-            logger.info(f"DEBUG: Buscando código para email: {email}, código: {code}")
-            logger.info(f"DEBUG: Código encontrado: {reset_code}")
+            # Log para verificar qué está pasando
+            logger.info(f"Buscando código para email: {email}")
+            logger.info(f"Código encontrado: {reset_code}")
             if reset_code:
-                logger.info(f"DEBUG: Código válido: {reset_code.is_valid()}")
-                logger.info(f"DEBUG: Código expirado: {reset_code.is_expired()}")
+                logger.info(f"Código válido: {reset_code.is_valid()}")
+                logger.info(f"Código expirado: {reset_code.is_expired()}")
             
             if reset_code and reset_code.is_valid():
                 # Marcar código como usado
@@ -646,7 +639,7 @@ def password_reset_code_verification(request, email):
                 messages.error(request, 'Código inválido o expirado. Por favor, solicita un nuevo código.')
                 
         except Exception as e:
-            logger.error(f"DEBUG: Error en verificación: {e}")
+            logger.error(f"Error en verificación: {e}")
             messages.error(request, 'Error verificando el código. Inténtalo de nuevo.')
     
     return render(request, 'accounts/password_reset_code_verification.html', {'email': email})
@@ -777,24 +770,3 @@ def verify_phone_code(request):
     })
 
 
-def firebase_debug_view(request):
-    """Vista de diagnóstico para Firebase Phone Auth"""
-    context = {
-        'firebase_config': {
-            'api_key': settings.FIREBASE_API_KEY[:10] + '...' if settings.FIREBASE_API_KEY else 'No configurado',
-            'auth_domain': settings.FIREBASE_AUTH_DOMAIN,
-            'project_id': settings.FIREBASE_PROJECT_ID,
-            'storage_bucket': settings.FIREBASE_STORAGE_BUCKET,
-            'messaging_sender_id': settings.FIREBASE_MESSAGING_SENDER_ID,
-            'app_id': settings.FIREBASE_APP_ID[:10] + '...' if settings.FIREBASE_APP_ID else 'No configurado',
-        },
-        'phone_number': '+573001234567',  # Número de prueba
-        'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
-        'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
-        'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
-        'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
-        'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
-        'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
-    }
-    
-    return render(request, 'accounts/firebase_debug.html', context)
