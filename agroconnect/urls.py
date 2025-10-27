@@ -159,6 +159,7 @@ urlpatterns = [
         path('admin_dashboard/crops/preview/', accounts_admin_views.admin_crop_list_preview, name='admin_crop_list_preview'),
         path('admin_dashboard/history/preview/', accounts_admin_views.admin_history_preview, name='admin_history_preview'),
         path('admin_dashboard/config/preview/', accounts_admin_views.admin_config_preview, name='admin_config_preview'),
+        
 ]
 
 # Servir archivos media en desarrollo y producción
