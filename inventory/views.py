@@ -41,6 +41,39 @@ def producer_dashboard(request):
     # Pedidos recientes de COMPRAS
     recent_purchases = purchase_orders.select_related('publicacion__cultivo__productor', 'publicacion__cultivo').order_by('-created_at')[:5]
     
+    # Datos para gráficos - Ventas por mes (últimos 6 meses)
+    from django.utils import timezone
+    from datetime import timedelta
+    from django.db.models.functions import TruncMonth
+    
+    sales_by_month = sales_orders.filter(
+        created_at__gte=timezone.now() - timedelta(days=180)
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        count=Count('id'),
+        revenue=Sum('precio_total')
+    ).order_by('month')
+    
+    # Preparar datos para JSON
+    sales_chart_labels = [data['month'].strftime('%b %Y') for data in sales_by_month]
+    sales_chart_revenue = [float(data['revenue'] or 0) for data in sales_by_month]
+    
+    # Datos para gráfico de estados de pedidos
+    orders_by_status = sales_orders.values('estado').annotate(
+        count=Count('id')
+    ).order_by('estado')
+    
+    # Datos para gráfico de cultivos por categoría
+    from inventory.models import Crop
+    crops_by_category = request.user.cultivos.values('categoria').annotate(
+        count=Count('id')
+    ).order_by('categoria')
+    
+    # Obtener el display name de cada categoría
+    for item in crops_by_category:
+        item['display_name'] = dict(Crop.CATEGORIA_CHOICES).get(item['categoria'], item['categoria'])
+    
     context = {
         # Producción
         'total_crops': total_crops,
@@ -60,6 +93,13 @@ def producer_dashboard(request):
         
         # Otros
         'recent_crops': recent_crops,
+        
+        # Datos para gráficos
+        'sales_by_month': list(sales_by_month),
+        'sales_chart_labels': sales_chart_labels,
+        'sales_chart_revenue': sales_chart_revenue,
+        'orders_by_status': list(orders_by_status),
+        'crops_by_category': list(crops_by_category),
     }
     return render(request, 'inventory/producer_dashboard.html', context)
 
@@ -72,8 +112,68 @@ def crop_list_view(request):
     
     crops = request.user.cultivos.order_by('-created_at')
     
+    # Calcular estadísticas
+    total_crops = crops.count()
+    
+    # Fincas únicas
+    fincas_set = set()
+    for crop in crops:
+        if crop.finca:
+            fincas_set.add(crop.finca.id)
+    total_fincas = len(fincas_set)
+    
+    # Contar publicaciones
+    total_publicaciones = sum(1 for crop in crops if crop.publicacion)
+    
+    # Calcular cantidad total en kg (convertir todas las unidades)
+    from marketplace.models import Publication
+    CONVERSION_TO_KG = {
+        'kg': 1,
+        'toneladas': 1000,
+        'libras': 0.453592,
+        'arrobas': 11.502,
+        'unidades': None,  # No convertible
+        'cajas': None,     # No convertible
+        'bultos': None,    # No convertible
+    }
+    
+    cantidad_total_kg = 0
+    cantidad_no_convertible = {}
+    
+    for crop in crops:
+        factor = CONVERSION_TO_KG.get(crop.unidad_medida)
+        if factor is not None:
+            # Unidad convertible a kg
+            cantidad_total_kg += float(crop.cantidad_estimada) * factor
+        else:
+            # Unidad no convertible
+            unidad = crop.unidad_medida
+            cantidad = float(crop.cantidad_estimada)
+            if unidad not in cantidad_no_convertible:
+                cantidad_no_convertible[unidad] = 0
+            cantidad_no_convertible[unidad] += cantidad
+    
+    # Formatear unidades no convertibles
+    unidades_no_convertibles_str = ""
+    if cantidad_no_convertible:
+        partes = []
+        labels = {
+            'unidades': 'unidades',
+            'cajas': 'cajas',
+            'bultos': 'bultos'
+        }
+        for unidad, cantidad in cantidad_no_convertible.items():
+            partes.append(f"{cantidad:.0f} {labels.get(unidad, unidad)}")
+        unidades_no_convertibles_str = ", ".join(partes)
+    
     context = {
-        'crops': crops
+        'crops': crops,
+        'total_crops': total_crops,
+        'total_fincas': total_fincas,
+        'total_publicaciones': total_publicaciones,
+        'cantidad_total_kg': cantidad_total_kg,
+        'cantidad_no_convertible': cantidad_no_convertible,
+        'unidades_no_convertibles_str': unidades_no_convertibles_str
     }
     return render(request, 'inventory/crop_list.html', context)
 

@@ -1,9 +1,17 @@
-{% extends 'accounts/user_base.html' %}
+{% if user.role == 'Productor' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
+{% else %}
+{% extends 'accounts/buyer_base_tailadmin.html' %}
+{% endif %}
 {% load static %}
 
 {% block title %}Cancelar Pedido #{{ order.id }}{% endblock %}
 
-{% block user_content %}
+{% if user.role == 'Productor' %}
+{% block producer_content %}
+{% else %}
+{% block buyer_content %}
+{% endif %}
 <div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
         <!-- Header -->
@@ -121,4 +129,8 @@ document.getElementById('confirm-cancellation').addEventListener('change', funct
     document.getElementById('cancel-button').disabled = !this.checked;
 });
 </script>
+{% if user.role == 'Productor' %}
 {% endblock %}
+{% else %}
+{% endblock %}
+{% endif %}

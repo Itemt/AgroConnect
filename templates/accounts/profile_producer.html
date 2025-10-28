@@ -1,0 +1,120 @@
+{% extends 'accounts/producer_base_tailadmin.html' %}
+{% load static %}
+
+{% block producer_content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Profile Header Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 lg:p-8 mb-6">
+            <!-- Profile Header -->
+            <div class="flex flex-col lg:flex-row items-center lg:items-start gap-6">
+                <div>
+                    <div class="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-user text-white text-4xl lg:text-5xl"></i>
+                    </div>
+                </div>
+                <div class="text-center lg:text-left flex-grow">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">{{ user.get_full_name|default:user.username }}</h1>
+                    <div class="flex items-center justify-center lg:justify-start mb-3">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
+                            <i class="fas fa-user-tag mr-2"></i>
+                            {{ user.role }}
+                        </span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">Miembro desde {{ user.date_joined|date:"F Y" }}</p>
+                </div>
+                <div class="mt-4 lg:mt-0">
+                    <a href="{% url 'profile_edit' %}" class="inline-flex items-center py-2.5 px-5 bg-green-900 hover:bg-green-800 text-white rounded-lg transition text-sm font-medium">
+                        <i class="fas fa-edit mr-2"></i>
+                        Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 lg:p-8 mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-info-circle text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Información de la Cuenta</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Basic Information -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                            <i class="fas fa-user mr-2 text-green-600"></i>
+                            Usuario
+                        </label>
+                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            {{ user.username }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                            <i class="fas fa-envelope mr-2 text-green-600"></i>
+                            Email
+                        </label>
+                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            {{ user.email }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                            <i class="fas fa-id-card mr-2 text-green-600"></i>
+                            Cédula
+                        </label>
+                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            {{ user.cedula|default:"No especificada" }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role-specific Information -->
+                <div class="space-y-4">
+                    {% if user.producer_profile %}
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                                Ubicación
+                            </label>
+                            <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                                {{ user.producer_profile.ubicacion_completa|default:"No especificada" }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                                <i class="fas fa-seedling mr-2 text-green-600"></i>
+                                Cultivos Principales
+                            </label>
+                            <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                                {{ user.producer_profile.main_crops|default:"No especificados" }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description Section -->
+            {% if user.producer_profile.farm_description %}
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                    <i class="fas fa-tractor mr-2 text-green-600"></i>
+                    Descripción de la Finca
+                </label>
+                <div class="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl leading-relaxed">
+                    {{ user.producer_profile.farm_description }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

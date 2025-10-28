@@ -88,10 +88,18 @@ def notifications_page(request):
     total_notifications = notifications.count()
     unread_count = notifications.filter(is_read=False).count()
     
+    # Seleccionar plantilla base según rol del usuario
+    base_template = 'accounts/buyer_base_tailadmin.html'
+    if getattr(request.user, 'role', None) == 'Productor':
+        base_template = 'accounts/producer_base_tailadmin.html'
+    elif getattr(request.user, 'role', None) in ('Admin', 'Administrador'):
+        base_template = 'accounts/admin_base_tailadmin.html'
+    
     context = {
         'page_obj': page_obj,
         'total_notifications': total_notifications,
         'unread_count': unread_count,
+        'base_template': base_template,
     }
     
     return render(request, 'core/notifications.html', context)

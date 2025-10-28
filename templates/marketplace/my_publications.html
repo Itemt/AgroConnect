@@ -1,41 +1,42 @@
-{% extends 'accounts/user_base.html' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
 
 {% block title %}Mis Publicaciones{% endblock %}
 
-{% block user_content %}
+{% block producer_content %}
 <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Mis Publicaciones</h1>
-        <a href="{% url 'select_crop_for_publication' %}" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Publicaciones</h1>
+        <a href="{% url 'select_crop_for_publication' %}" class="bg-success-600 text-white px-6 py-3 rounded-lg hover:bg-success-700 transition-colors font-semibold text-sm">
             <i class="fas fa-plus mr-2"></i>Crear Publicación
         </a>
     </div>
 
     {% if publications %}
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div class="w-full overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cultivo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad Disponible</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Cultivo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creada</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cultivo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cantidad Disponible</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado Cultivo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Creada</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {% for publication in publications %}
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ publication.cultivo.nombre }}</div>
-                            <div class="text-sm text-gray-500">{{ publication.cultivo.get_categoria_display }}</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ publication.cultivo.nombre }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ publication.cultivo.get_categoria_display }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             ${{ publication.precio_por_unidad|floatformat:0 }} / {{ publication.cultivo.unidad_medida }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -54,7 +55,7 @@
                                 {{ publication.get_estado_display }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {{ publication.created_at|date:"d M Y" }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -80,6 +81,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     {% else %}
         <!-- Estado vacío mejorado -->
@@ -98,12 +100,12 @@
                     </div>
                     
                     <!-- Título -->
-                    <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                         No tienes publicaciones activas
                     </h3>
                     
                     <!-- Descripción -->
-                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                    <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
                         Para crear publicaciones en el marketplace, primero necesitas tener cultivos listos para cosechar.
                     </p>
                     
@@ -111,36 +113,36 @@
                     <div class="max-w-2xl mx-auto mb-8">
                         <div class="grid md:grid-cols-3 gap-4 text-left">
                             <!-- Paso 1 -->
-                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-primary-100 hover:border-primary-300 transition-all">
+                            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border-2 border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-500 transition-all">
                                 <div class="flex items-center mb-3">
-                                    <div class="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                    <div class="bg-success-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
                                         1
                                     </div>
-                                    <h4 class="font-semibold text-gray-800">Agregar Cultivo</h4>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Agregar Cultivo</h4>
                                 </div>
-                                <p class="text-sm text-gray-600">Registra tu cultivo con detalles de cantidad y fecha de cosecha.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Registra tu cultivo con detalles de cantidad y fecha de cosecha.</p>
                             </div>
                             
                             <!-- Paso 2 -->
-                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-accent-100 hover:border-accent-300 transition-all">
+                            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all">
                                 <div class="flex items-center mb-3">
-                                    <div class="bg-accent-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
                                         2
                                     </div>
-                                    <h4 class="font-semibold text-gray-800">Preparar Cultivo</h4>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Preparar Cultivo</h4>
                                 </div>
-                                <p class="text-sm text-gray-600">Marca tu cultivo como "Listo para cosechar".</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Marca tu cultivo como "Listo para cosechar".</p>
                             </div>
                             
                             <!-- Paso 3 -->
-                            <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-green-100 hover:border-green-300 transition-all">
+                            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border-2 border-gray-200 dark:border-gray-700 hover:border-green-400 dark:hover:border-green-500 transition-all">
                                 <div class="flex items-center mb-3">
-                                    <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
+                                    <div class="bg-success-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
                                         3
                                     </div>
-                                    <h4 class="font-semibold text-gray-800">Publicar</h4>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Publicar</h4>
                                 </div>
-                                <p class="text-sm text-gray-600">Crea tu publicación con precio e imagen.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Crea tu publicación con precio e imagen.</p>
                             </div>
                         </div>
                     </div>
@@ -148,11 +150,11 @@
                     <!-- Botón de acción -->
                     <div class="flex justify-center gap-3">
                         <a href="{% url 'crop_list' %}" 
-                           class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 font-semibold shadow-sm hover:shadow flex items-center">
+                           class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 font-semibold border border-gray-300 dark:border-gray-600 flex items-center">
                             <i class="fas fa-list mr-2"></i>Ver Mis Cultivos
                         </a>
                         <a href="{% url 'crop_add' %}" 
-                           class="bg-gradient-to-r from-primary-600 to-accent-600 text-white px-6 py-3 rounded-xl hover:from-primary-700 hover:to-accent-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center">
+                           class="bg-success-600 text-white px-6 py-3 rounded-xl hover:bg-success-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center">
                             <i class="fas fa-plus mr-2"></i>Agregar Cultivo
                         </a>
                     </div>

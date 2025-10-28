@@ -123,7 +123,12 @@ def order_history_view(request):
         'form': form,
         'user_role': request.user.role
     }
-    return render(request, 'sales/order_history.html', context)
+    
+    # Render different template based on user role to keep appropriate sidebar
+    if request.user.role == 'Productor':
+        return render(request, 'sales/order_history_producer.html', context)
+    else:
+        return render(request, 'sales/order_history_buyer.html', context)
 
 
 @login_required
@@ -168,7 +173,12 @@ def order_detail_view(request, order_id):
         'my_rating': my_rating,
         'user_role': request.user.role,
     }
-    return render(request, 'sales/order_detail.html', context)
+    
+    # Render different template based on user role to keep appropriate sidebar
+    if request.user.role == 'Productor':
+        return render(request, 'sales/order_detail_producer.html', context)
+    else:
+        return render(request, 'sales/order_detail_buyer.html', context)
 
 
 @login_required
@@ -532,7 +542,12 @@ def conversation_list(request):
     context = {
         'conversations': conversations
     }
-    return render(request, 'sales/conversation_list.html', context)
+    
+    # Render different template based on user role to keep appropriate sidebar
+    if request.user.role == 'Productor':
+        return render(request, 'sales/conversation_list_producer.html', context)
+    else:
+        return render(request, 'sales/conversation_list_buyer.html', context)
 
 
 @login_required
@@ -652,7 +667,12 @@ def conversation_detail_simple(request, conversation_id):
         'conversation': conversation,
         'form': form
     }
-    return render(request, 'sales/conversation_detail_simple.html', context)
+    
+    # Render different template based on user role to keep appropriate sidebar
+    if request.user.role == 'Productor':
+        return render(request, 'sales/conversation_detail_simple_producer.html', context)
+    else:
+        return render(request, 'sales/conversation_detail_simple_buyer.html', context)
 
 
 @login_required
@@ -814,7 +834,12 @@ def cancel_order_view(request, order_id):
         'order': order,
         'user_role': 'vendedor' if request.user == order.vendedor else 'comprador'
     }
-    return render(request, 'sales/cancel_order.html', context)
+    
+    # Render different template based on user role to keep appropriate sidebar
+    if request.user.role == 'Productor':
+        return render(request, 'sales/cancel_order_producer.html', context)
+    else:
+        return render(request, 'sales/cancel_order_buyer.html', context)
 
 
 @login_required

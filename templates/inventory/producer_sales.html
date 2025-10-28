@@ -1,280 +1,245 @@
-{% extends 'accounts/user_base.html' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
+{% load static %}
 
-{% block title %}Panel de Ventas - Productor{% endblock %}
+{% block title %}Ventas - Productor{% endblock %}
 
-{% block user_content %}
-<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900"><i class="fas fa-chart-bar mr-3 text-primary-600"></i>Panel de Ventas</h1>
-        <p class="mt-2 text-lg text-gray-600">Gestiona tus pedidos, analiza tus ventas y optimiza tu negocio</p>
-    </div>
+{% block page_title %}Panel de Ventas{% endblock %}
 
-    <!-- Main Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div class="bg-white rounded-lg shadow-lg p-6 flex items-center">
-            <i class="fas fa-dollar-sign text-5xl text-green-500"></i>
-            <div class="ml-6">
-                <h3 class="text-3xl font-bold text-gray-900">${{ total_revenue|floatformat:0 }}</h3>
-                <p class="text-gray-600">Ingresos Totales</p>
+{% block producer_content %}
+<div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
+
+    <!-- Main Stats Cards -->
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <!-- Total Revenue -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Totales</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ total_revenue|floatformat:0 }}</p>
+                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+                        <i class="fas fa-dollar-sign"></i>
+                        Generado
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-success-500 text-xl"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white rounded-lg shadow-lg p-6 flex items-center">
-            <i class="fas fa-hourglass-half text-5xl text-yellow-500"></i>
-            <div class="ml-6">
-                <h3 class="text-3xl font-bold text-gray-900">${{ pending_revenue|floatformat:0 }}</h3>
-                <p class="text-gray-600">Ingresos Pendientes</p>
+
+        <!-- Pending Revenue -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Pendientes</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ pending_revenue|floatformat:0 }}</p>
+                    <p class="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
+                        <i class="fas fa-hourglass-half"></i>
+                        Por cobrar
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-warning-50 dark:bg-warning-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-clock text-warning-500 text-xl"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white rounded-lg shadow-lg p-6 flex items-center">
-            <i class="fas fa-box text-5xl text-blue-500"></i>
-            <div class="ml-6">
-                <h3 class="text-3xl font-bold text-gray-900">{{ total_orders }}</h3>
-                <p class="text-gray-600">Total de Pedidos</p>
+
+        <!-- Total Orders -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Pedidos</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_orders }}</p>
+                    <p class="text-xs text-info-600 dark:text-info-400 flex items-center gap-1">
+                        <i class="fas fa-box"></i>
+                        Registrados
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-info-50 dark:bg-info-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-info-500 text-xl"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white rounded-lg shadow-lg p-6 flex items-center">
-            <i class="fas fa-star text-5xl text-yellow-400"></i>
-            <div class="ml-6">
-                <h3 class="text-3xl font-bold text-gray-900">{{ profile.calificacion_promedio_como_vendedor|floatformat:1 }}</h3>
-                <p class="text-gray-600">Calificación Promedio</p>
+
+        <!-- Average Rating -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Calificación</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ profile.calificacion_promedio_como_vendedor|floatformat:1 }}</p>
+                    <p class="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
+                        <i class="fas fa-star"></i>
+                        Promedio
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-warning-50 dark:bg-warning-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-star text-warning-500 text-xl"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Orders that require attention -->
     {% if orders_need_attention %}
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-lg mb-12">
-        <h2 class="text-2xl font-bold"><i class="fas fa-exclamation-triangle mr-3"></i>Pedidos que Requieren Atención</h2>
-        <div class="mt-4 space-y-4">
-            {% for order in orders_need_attention %}
-                <div class="bg-white p-4 rounded-lg shadow-md">
+    <div class="col-span-12">
+        <div class="bg-warning-50 dark:bg-warning-500/10 border-l-4 border-warning-500 rounded-lg p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-exclamation-triangle text-warning-600 dark:text-warning-400 text-xl"></i>
+                <h3 class="text-xl font-bold text-warning-900 dark:text-warning-200">Pedidos que Requieren Atención</h3>
+            </div>
+            <div class="space-y-4">
+                {% for order in orders_need_attention %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <h4 class="font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
-                            <p class="text-sm text-gray-600"><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | <strong>Estado:</strong> {{ order.get_estado_display }}</p>
+                            <h4 class="font-bold text-gray-900 dark:text-white">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                <strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | 
+                                <strong>Estado:</strong> {{ order.get_estado_display }}
+                            </p>
                         </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-warning-100 dark:bg-warning-500/20 text-warning-800 dark:text-warning-200">
                             Requiere Atención
                         </span>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium">
+                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-success-600 text-white rounded-lg hover:bg-success-700 text-sm font-medium">
                             <i class="fas fa-eye mr-1"></i>Ver Detalles
                         </a>
                         
                         {% if order.estado == 'pendiente' and order.is_paid %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm">
-                                    <option value="">Acción...</option>
-                                    <option value="confirmado">✓ Confirmar</option>
-                                    <option value="cancelado">✗ Cancelar</option>
-                                </select>
-                                <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
-                                    Confirmar
-                                </button>
-                            </form>
-                        {% elif order.estado == 'confirmado' %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm">
-                                    <option value="">Acción...</option>
-                                    <option value="en_preparacion">En Preparación</option>
-                                    <option value="cancelado">✗ Cancelar</option>
-                                </select>
-                                <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
-                                    Confirmar
-                                </button>
-                            </form>
-                        {% elif order.estado == 'en_preparacion' %}
-                            <a href="{% url 'mark_order_shipped' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                                <i class="fas fa-shipping-fast mr-1"></i>Marcar Enviado
-                            </a>
-                        {% elif order.estado == 'completado' %}
-                            {% if order.can_be_rated_by_seller %}
-                                <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-medium">
-                                    <i class="fas fa-star mr-1"></i>Calificar
-                                </a>
-                            {% endif %}
+                        <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                            {% csrf_token %}
+                            <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600">
+                                <option value="">Acción...</option>
+                                <option value="confirmado">✓ Confirmar</option>
+                                <option value="cancelado">✗ Cancelar</option>
+                            </select>
+                            <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                                Confirmar
+                            </button>
+                        </form>
                         {% endif %}
+                        
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="inline-flex items-center px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-medium">
+                            <i class="fas fa-comments mr-1"></i>Contactar
+                        </a>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- Analytics -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-2xl font-bold mb-4"><i class="fas fa-trophy text-yellow-400 mr-3"></i>Productos Más Vendidos</h3>
-            <div class="space-y-4">
-                {% for product in product_stats %}
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                        <div>
-                            <h4 class="font-semibold">{{ product.publicacion__cultivo__nombre }}</h4>
-                            <p class="text-sm text-gray-600">{{ product.num_pedidos }} pedidos • {{ product.total_vendido|floatformat:1 }} unidades</p>
-                        </div>
-                        <div class="text-lg font-bold text-green-600">${{ product.total_ingresos|floatformat:0 }}</div>
-                    </div>
-                {% empty %}
-                    <p class="text-gray-500">Aún no hay ventas completadas.</p>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-2xl font-bold mb-4"><i class="fas fa-users mr-3"></i>Mejores Compradores</h3>
-            <div class="space-y-4">
-                {% for buyer in top_buyers %}
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                        <div>
-                            <h4 class="font-semibold">{{ buyer.comprador__first_name }} {{ buyer.comprador__last_name }}</h4>
-                            <p class="text-sm text-gray-600">{{ buyer.total_pedidos }} pedidos realizados</p>
-                        </div>
-                        <div class="text-lg font-bold text-green-600">${{ buyer.total_gastado|floatformat:0 }}</div>
-                    </div>
-                {% empty %}
-                    <p class="text-gray-500">Aún no hay compradores frecuentes.</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
     <!-- All Orders -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-3xl font-bold mb-6"><i class="fas fa-clipboard-list mr-3"></i>Todos los Pedidos</h2>
-        <form method="get" class="mb-6 bg-gray-50 p-4 rounded-lg">
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex-grow">
-                    <label for="search" class="block text-sm font-medium text-gray-700">Buscar</label>
-                    <div class="flex">
-                        <input type="text" name="search" id="search" class="w-full px-4 py-2 border border-gray-300 rounded-l-lg" placeholder="Producto o comprador..." value="{{ request.GET.search }}">
-                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 hover:bg-primary-700 -ml-px">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <a href="{% url 'producer_sales' %}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-r-lg hover:bg-gray-400 -ml-px">
-                            <i class="fas fa-sync-alt"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="flex-grow">
-                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
-                    {{ form.estado }}
-                </div>
-                <div class="flex-grow">
-                    <label for="fecha_desde" class="block text-sm font-medium text-gray-700">Desde</label>
-                    <input type="date" name="fecha_desde" id="fecha_desde" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="{{ request.GET.fecha_desde }}">
-                </div>
-                <div class="flex-grow">
-                    <label for="fecha_hasta" class="block text-sm font-medium text-gray-700">Hasta</label>
-                    <input type="date" name="fecha_hasta" id="fecha_hasta" class="w-full px-4 py-2 border border-gray-300 rounded-lg" value="{{ request.GET.fecha_hasta }}">
-                </div>
+    <div class="col-span-12 flex-1">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Todos los Pedidos</h3>
+            
+            <!-- Filter Form -->
+            <div class="mb-6">
+                <form method="get" class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" name="search" value="{{ form.search.value|default:'' }}" placeholder="Buscar..." 
+                           class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 text-gray-900 dark:text-white min-w-0">
+                    <select name="estado" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 text-gray-900 dark:text-white sm:w-auto w-full flex-shrink-0">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="confirmado">Confirmado</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="entregado">Entregado</option>
+                        <option value="completado">Completado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                    <button type="submit" class="px-6 py-2 bg-success-600 text-white rounded-lg hover:bg-success-700 whitespace-nowrap flex-shrink-0 w-full sm:w-auto justify-center">
+                        <i class="fas fa-search mr-2"></i>Filtrar
+                    </button>
+                </form>
             </div>
-        </form>
-
-        <div class="space-y-6">
-            {% for order in orders %}
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
+            
+            <!-- Orders List -->
+            <div class="space-y-4 min-h-[calc(100vh-500px)]">
+                {% for order in orders_with_actions %}
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <div class="flex justify-between items-start mb-3">
                         <div>
-                            <h3 class="text-xl font-bold">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h3>
-                            <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y" }}</p>
+                            <h4 class="font-bold text-gray-900 dark:text-white">Pedido #{{ order.id }} - {{ order.publicacion.cultivo.nombre }}</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                <strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }} | 
+                                <strong>Estado:</strong> {{ order.get_estado_display }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                <strong>Precio:</strong> ${{ order.precio_total }} | 
+                                <strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.unidad_venta }}
+                            </p>
                         </div>
-                        <span class="px-3 py-1 text-sm font-semibold rounded-full {{ order.get_estado_display|lower|slugify }}">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full
+                            {% if order.estado == 'entregado' or order.estado == 'completado' %}bg-success-100 text-success-700 dark:bg-success-500/20 dark:text-success-400
+                            {% elif order.estado == 'pendiente' %}bg-warning-100 text-warning-700 dark:bg-warning-500/20 dark:text-warning-400
+                            {% elif order.estado == 'enviado' or order.estado == 'en_transito' %}bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400
+                            {% elif order.estado == 'cancelado' %}bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400
+                            {% else %}bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400{% endif %}">
                             {{ order.get_estado_display }}
                         </span>
                     </div>
-                    <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div><strong>Comprador:</strong> {{ order.comprador.first_name }} {{ order.comprador.last_name }}</div>
-                        <div><strong>Cantidad:</strong> {{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</div>
-                        <div><strong>Precio/unidad:</strong> ${{ order.publicacion.precio_por_unidad }}</div>
-                        <div class="font-bold text-lg"><strong>Total:</strong> ${{ order.precio_total }}</div>
-                    </div>
-                    
-                    <!-- Quick Status Update -->
-                    <div class="mt-4 flex flex-wrap items-center gap-3">
-                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
-                            <i class="fas fa-eye mr-2"></i>Ver Detalles
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-success-600 text-white rounded-lg hover:bg-success-700 text-sm font-medium">
+                            <i class="fas fa-eye mr-1"></i>Ver Detalles
                         </a>
                         
                         {% if order.estado == 'pendiente' and order.is_paid %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <option value="">Cambiar estado...</option>
-                                    <option value="confirmado">✓ Confirmar Pedido</option>
-                                    <option value="cancelado">✗ Cancelar</option>
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                                    <i class="fas fa-check mr-1"></i>Confirmar
-                                </button>
-                            </form>
+                        <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                            {% csrf_token %}
+                            <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600">
+                                <option value="">Cambiar estado...</option>
+                                <option value="confirmado">✓ Confirmar Pedido</option>
+                                <option value="cancelado">✗ Cancelar</option>
+                            </select>
+                            <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                                <i class="fas fa-check mr-1"></i>Confirmar
+                            </button>
+                        </form>
                         {% elif order.estado == 'confirmado' %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <option value="">Cambiar estado...</option>
-                                    <option value="en_preparacion">📦 En Preparación</option>
-                                    <option value="cancelado">✗ Cancelar</option>
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                                    <i class="fas fa-check mr-1"></i>Confirmar
-                                </button>
-                            </form>
+                        <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
+                            {% csrf_token %}
+                            <select name="estado" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600">
+                                <option value="">Cambiar estado...</option>
+                                <option value="en_preparacion">📦 En Preparación</option>
+                                <option value="cancelado">✗ Cancelar</option>
+                            </select>
+                            <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                                <i class="fas fa-check mr-1"></i>Confirmar
+                            </button>
+                        </form>
                         {% elif order.estado == 'en_preparacion' %}
-                            <a href="{% url 'mark_order_shipped' order.id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                                <i class="fas fa-shipping-fast mr-2"></i>Marcar como Enviado
-                            </a>
-                        {% elif order.estado == 'enviado' %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <option value="">Cambiar estado...</option>
-                                    <option value="en_transito">🚚 En Tránsito</option>
-                                    <option value="entregado">📬 Entregado</option>
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                                    <i class="fas fa-check mr-1"></i>Confirmar
-                                </button>
-                            </form>
-                        {% elif order.estado == 'en_transito' %}
-                            <form method="post" action="{% url 'quick_update_order_status' order.id %}" class="inline-flex items-center gap-2">
-                                {% csrf_token %}
-                                <select name="estado" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <option value="">Cambiar estado...</option>
-                                    <option value="entregado">📬 Entregado</option>
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                                    <i class="fas fa-check mr-1"></i>Confirmar
-                                </button>
-                            </form>
-                        {% elif order.estado == 'completado' %}
-                            {% if order.can_be_rated_by_seller %}
-                                <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium">
-                                    <i class="fas fa-star mr-2"></i>Calificar Comprador
-                                </a>
-                            {% endif %}
+                        <a href="{% url 'mark_order_shipped' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                            <i class="fas fa-shipping-fast mr-1"></i>Marcar como Enviado
+                        </a>
                         {% endif %}
                         
                         {% if order.can_be_cancelled_by_seller %}
-                            <a href="{% url 'cancel_order' order.id %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                                <i class="fas fa-times-circle mr-2"></i>Cancelar
-                            </a>
+                        <a href="{% url 'cancel_order' order.id %}" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
+                            <i class="fas fa-times-circle mr-1"></i>Cancelar
+                        </a>
                         {% endif %}
                         
-                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                            <i class="fas fa-comments mr-2"></i>Contactar
+                        <a href="{% url 'start_conversation' order.publicacion.id %}" class="inline-flex items-center px-3 py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-sm font-medium">
+                            <i class="fas fa-comments mr-1"></i>Contactar
                         </a>
                     </div>
                 </div>
-            {% empty %}
-                <div class="text-center py-16">
-                    <i class="fas fa-box-open text-6xl text-gray-300"></i>
-                    <h3 class="mt-4 text-xl font-semibold text-gray-800">No hay pedidos</h3>
-                    <p class="mt-2 text-sm text-gray-600">Aún no has recibido ningún pedido.</p>
+                {% empty %}
+                <div class="text-center py-16 flex items-center justify-center h-full min-h-[400px]">
+                    <div>
+                        <i class="fas fa-box-open text-6xl text-gray-300 dark:text-gray-600"></i>
+                        <h3 class="mt-4 text-xl font-semibold text-gray-800 dark:text-gray-200">No hay pedidos</h3>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Aún no has recibido ningún pedido.</p>
+                    </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
+

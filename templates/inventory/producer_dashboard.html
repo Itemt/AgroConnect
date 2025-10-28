@@ -1,304 +1,448 @@
-{% extends 'accounts/user_base.html' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
+{% load static %}
 
-{% block title %}Dashboard del Productor{% endblock %}
+{% block title %}Dashboard - Productor{% endblock %}
 
-{% block user_content %}
-<!-- Header -->
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Dashboard del Productor</h1>
-    <p class="text-gray-600 mt-1">Bienvenido, {{ user.first_name }}. Aquí tienes un resumen de tu actividad.</p>
-</div>
+{% block page_title %}Dashboard del Productor{% endblock %}
 
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6 mb-6">
-            <!-- Card 1 - Cultivos -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-seedling text-gray-800 text-xl"></i>
-                </div>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span class="text-sm text-gray-500">Cultivos Registrados</span>
-                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_crops }}</h4>
-                    </div>
-                </div>
-            </div>
+{% block producer_content %}
+<div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
 
-            <!-- Card 2 - Publicaciones -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-store text-gray-800 text-xl"></i>
+    <!-- Main Stats Cards -->
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <!-- Total Crops -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Mis Cultivos</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_crops }}</p>
+                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+                        <i class="fas fa-seedling"></i>
+                        Registrados
+                    </p>
                 </div>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span class="text-sm text-gray-500">Publicaciones Activas</span>
-                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ active_publications }}</h4>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3 - Ventas -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-shopping-cart text-gray-800 text-xl"></i>
-                </div>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span class="text-sm text-gray-500">Ventas Totales</span>
-                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_sales }}</h4>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4 - Ingresos -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-dollar-sign text-gray-800 text-xl"></i>
-                </div>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span class="text-sm text-gray-500">Ingresos Totales</span>
-                        <h4 class="mt-2 font-bold text-gray-900 text-3xl">${{ total_revenue|floatformat:0 }}</h4>
-                    </div>
+                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-leaf text-success-500 text-xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Additional Stats Row -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6 mb-6">
-            <!-- Ventas Pendientes -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-clock text-gray-800 text-xl"></i>
-                </div>
+        <!-- Active Publications -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
                 <div>
-                    <span class="text-sm text-gray-500">Ventas Pendientes</span>
-                    <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ pending_sales }}</h4>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicaciones Activas</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ active_publications }}</p>
+                    <p class="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
+                        <i class="fas fa-store"></i>
+                        En venta
+                    </p>
                 </div>
-            </div>
-
-            <!-- Compras Totales -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-shopping-bag text-gray-800 text-xl"></i>
-                </div>
-                <div>
-                    <span class="text-sm text-gray-500">Compras Totales</span>
-                    <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ total_purchases }}</h4>
-                </div>
-            </div>
-
-            <!-- Compras Pendientes -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl mb-5">
-                    <i class="fas fa-hourglass-half text-gray-800 text-xl"></i>
-                </div>
-                <div>
-                    <span class="text-sm text-gray-500">Compras Pendientes</span>
-                    <h4 class="mt-2 font-bold text-gray-900 text-3xl">{{ pending_purchases }}</h4>
+                <div class="w-12 h-12 bg-brand-50 dark:bg-brand-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-newspaper text-brand-500 text-xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <a href="{% url 'crop_add' %}" class="inline-flex items-center justify-center py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors">
-                    <i class="fas fa-plus mr-2"></i>
-                    Registrar Cultivo
-                </a>
-                <a href="{% url 'select_crop_for_publication' %}" class="inline-flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
-                    <i class="fas fa-bullhorn mr-2"></i>
-                    Nueva Publicación
-                </a>
-                <a href="{% url 'producer_sales' %}" class="inline-flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-xl transition-colors">
-                    <i class="fas fa-chart-line mr-2"></i>
-                    Ver Ventas
-                </a>
-                <a href="{% url 'conversation_list' %}" class="inline-flex items-center justify-center py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors">
-                    <i class="fas fa-comments mr-2"></i>
-                    Mensajes
-                </a>
+        <!-- Total Sales -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ventas Totales</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_sales }}</p>
+                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+                        <i class="fas fa-chart-line"></i>
+                        Realizadas
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-success-500 text-xl"></i>
+                </div>
             </div>
         </div>
 
-        <!-- Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Recent Crops -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">Cultivos Recientes</h2>
-                    <a href="{% url 'producer_dashboard' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                        Ver todos
+        <!-- Total Revenue -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Totales</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ total_revenue|floatformat:0 }}</p>
+                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+                        <i class="fas fa-dollar-sign"></i>
+                        Generado
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-coins text-success-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <!-- Pending Sales -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-warning-50 dark:bg-warning-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-warning-500 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Ventas Pendientes</p>
+                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ pending_sales }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Purchases -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-blue-50 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-blue-500 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Mis Compras</p>
+                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ total_purchases }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Purchases -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-info-50 dark:bg-info-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-hourglass-half text-info-500 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Compras Pendientes</p>
+                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ pending_purchases }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Acciones Rápidas</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                <a href="{% url 'crop_add' %}" class="flex flex-col items-center gap-3 p-4 bg-success-50 dark:bg-success-500/20 rounded-lg hover:bg-success-100 dark:hover:bg-success-500/30 transition-colors">
+                    <i class="fas fa-plus text-success-500 text-xl"></i>
+                    <span class="text-sm font-medium text-success-700 dark:text-success-300">Nuevo Cultivo</span>
+                </a>
+                <a href="{% url 'select_crop_for_publication' %}" class="flex flex-col items-center gap-3 p-4 bg-brand-50 dark:bg-brand-500/20 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/30 transition-colors">
+                    <i class="fas fa-bullhorn text-brand-500 text-xl"></i>
+                    <span class="text-sm font-medium text-brand-700 dark:text-brand-300">Nueva Publicación</span>
+                </a>
+                <a href="{% url 'crop_list' %}" class="flex flex-col items-center gap-3 p-4 bg-blue-50 dark:bg-blue-500/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/30 transition-colors">
+                    <i class="fas fa-seedling text-blue-500 text-xl"></i>
+                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Ver Cultivos</span>
+                </a>
+                <a href="{% url 'my_publications' %}" class="flex flex-col items-center gap-3 p-4 bg-purple-50 dark:bg-purple-500/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-500/30 transition-colors">
+                    <i class="fas fa-newspaper text-purple-500 text-xl"></i>
+                    <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Ver Publicaciones</span>
+                </a>
+                <a href="{% url 'producer_sales' %}" class="flex flex-col items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-500/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors">
+                    <i class="fas fa-chart-line text-indigo-500 text-xl"></i>
+                    <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">Ver Ventas</span>
+                </a>
+                <a href="{% url 'core:farm_list' %}" class="flex flex-col items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-500/30 transition-colors">
+                    <i class="fas fa-map-marker-alt text-emerald-500 text-xl"></i>
+                    <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Mis Fincas</span>
+                </a>
+                <a href="{% url 'order_history' %}" class="flex flex-col items-center gap-3 p-4 bg-teal-50 dark:bg-teal-500/20 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-500/30 transition-colors">
+                    <i class="fas fa-shopping-cart text-teal-500 text-xl"></i>
+                    <span class="text-sm font-medium text-teal-700 dark:text-teal-300">Mis Compras</span>
+                </a>
+                <a href="{% url 'conversation_list' %}" class="flex flex-col items-center gap-3 p-4 bg-rose-50 dark:bg-rose-500/20 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/30 transition-colors">
+                    <i class="fas fa-comments text-rose-500 text-xl"></i>
+                    <span class="text-sm font-medium text-rose-700 dark:text-rose-300">Mensajes</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphs Section -->
+    <div class="col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <!-- Sales Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div class="w-10 h-10 bg-success-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-chart-line text-white"></i>
+                </div>
+                Ventas por Mes
+            </h3>
+            <div style="height: 250px; position: relative;">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Orders Status Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-chart-pie text-white"></i>
+                </div>
+                Estado de Pedidos
+            </h3>
+            <div style="height: 250px; position: relative;">
+                <canvas id="ordersChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crops Chart -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <div class="w-10 h-10 bg-success-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-seedling text-white"></i>
+                </div>
+                Cultivos por Categoría
+            </h3>
+            <div style="height: 200px; position: relative;">
+                <canvas id="cropsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Recent Crops -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-h-[calc(100vh-500px)]">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Cultivos Recientes</h3>
+                <a href="{% url 'crop_list' %}" class="text-sm text-success-600 hover:text-success-700 font-medium">
+                    Ver todos
+                </a>
+            </div>
+            <div class="space-y-3">
+                {% for crop in recent_crops %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-success-100 dark:bg-success-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-seedling text-success-600 dark:text-success-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">{{ crop.crop_type|default:crop.nombre }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.quantity }} {{ crop.unit }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'crop_detail' crop.id %}" class="text-success-600 hover:text-success-700 dark:text-success-400 dark:hover:text-success-300">
+                        <i class="fas fa-chevron-right"></i>
                     </a>
                 </div>
-                <div class="space-y-3">
-                    {% for crop in recent_crops %}
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-seedling text-green-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">{{ crop.crop_type }}</p>
-                                <p class="text-sm text-gray-500">{{ crop.quantity }} {{ crop.unit }}</p>
-                            </div>
-                        </div>
-                        <a href="{% url 'crop_detail' crop.id %}" class="text-green-600 hover:text-green-700">
-                            <i class="fas fa-chevron-right"></i>
+                {% empty %}
+                <div class="text-center py-8 flex items-center justify-center h-full min-h-[400px]">
+                    <div>
+                        <i class="fas fa-seedling text-gray-300 dark:text-gray-600 text-4xl mb-3"></i>
+                        <p class="text-gray-500 dark:text-gray-400 mb-4">No hay cultivos registrados</p>
+                        <a href="{% url 'crop_add' %}" class="inline-block text-success-600 hover:text-success-700 font-medium">
+                            Agregar cultivo
                         </a>
                     </div>
-                    {% empty %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-seedling text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-500">No hay cultivos registrados</p>
-                    </div>
-                    {% endfor %}
                 </div>
-            </div>
-
-            <!-- Recent Sales -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">Ventas Recientes</h2>
-                    <a href="{% url 'producer_sales' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                        Ver todas
-                    </a>
-                </div>
-                <div class="space-y-3">
-                    {% for order in recent_sales %}
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-shopping-cart text-blue-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Orden #{{ order.id }}</p>
-                                <p class="text-sm text-gray-500">${{ order.total_price }}</p>
-                            </div>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full
-                            {% if order.status == 'delivered' %}bg-green-100 text-green-700
-                            {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-700
-                            {% else %}bg-gray-100 text-gray-700{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-shopping-cart text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-500">No hay ventas registradas</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Recent Purchases -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">Compras Recientes</h2>
-                    <a href="{% url 'order_history' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                        Ver todas
-                    </a>
-                </div>
-                <div class="space-y-3">
-                    {% for order in recent_purchases %}
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-shopping-bag text-purple-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Orden #{{ order.id }}</p>
-                                <p class="text-sm text-gray-500">${{ order.total_price }}</p>
-                            </div>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full
-                            {% if order.status == 'delivered' %}bg-green-100 text-green-700
-                            {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-700
-                            {% else %}bg-gray-100 text-gray-700{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-shopping-bag text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-500">No hay compras registradas</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Notifications -->
-            <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">Notificaciones</h2>
-                    <a href="{% url 'core:notifications_page' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                        Ver todas
-                    </a>
-                </div>
-                <div id="dashboard-notifications" class="space-y-3">
-                    <div class="text-center py-8">
-                        <i class="fas fa-bell text-gray-300 text-4xl mb-3"></i>
-                        <p class="text-gray-500">Cargando notificaciones...</p>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
+
+        <!-- Recent Sales -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-h-[calc(100vh-500px)]">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Ventas Recientes</h3>
+                <a href="{% url 'producer_sales' %}" class="text-sm text-success-600 hover:text-success-700 font-medium">
+                    Ver todas
+                </a>
+            </div>
+            <div class="space-y-3">
+                {% for order in recent_sales %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-brand-100 dark:bg-brand-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-brand-600 dark:text-brand-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">Orden #{{ order.id }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${{ order.precio_total }} - {{ order.comprador.get_full_name }}</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 text-xs font-medium rounded-full
+                        {% if order.estado == 'entregado' %}bg-success-100 text-success-700 dark:bg-success-500/20 dark:text-success-400
+                        {% elif order.estado == 'pendiente' %}bg-warning-100 text-warning-700 dark:bg-warning-500/20 dark:text-warning-400
+                        {% else %}bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400{% endif %}">
+                        {{ order.get_estado_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 flex items-center justify-center h-full min-h-[400px]">
+                    <div>
+                        <i class="fas fa-shopping-cart text-gray-300 dark:text-gray-600 text-4xl mb-3"></i>
+                        <p class="text-gray-500 dark:text-gray-400">No hay ventas recientes</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardNotifications();
-});
-
-function loadDashboardNotifications() {
-    fetch('{% url "core:notifications_list" %}')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.notifications.length > 0) {
-                renderDashboardNotifications(data.notifications.slice(0, 5));
-            } else {
-                showNoNotifications();
+    // Sales Chart
+    const salesCtx = document.getElementById('salesChart');
+    if (salesCtx) {
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_chart_labels|safe }},
+                datasets: [{
+                    label: 'Ingresos',
+                    data: {{ sales_chart_revenue|safe }},
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                        },
+                        ticks: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                        },
+                        ticks: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)'
+                        }
+                    }
+                }
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNoNotifications();
         });
-}
+    }
 
-function renderDashboardNotifications(notifications) {
-    const container = document.getElementById('dashboard-notifications');
-    container.innerHTML = '';
-    
-    notifications.forEach(notification => {
-        const div = document.createElement('div');
-        div.className = 'flex items-start space-x-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors';
-        div.innerHTML = `
-            <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-bell text-green-600 text-sm"></i>
-                </div>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900">${notification.title}</p>
-                <p class="text-xs text-gray-600 mt-1">${notification.message}</p>
-            </div>
-            ${!notification.is_read ? '<div class="flex-shrink-0"><div class="w-2 h-2 bg-green-500 rounded-full"></div></div>' : ''}
-        `;
-        container.appendChild(div);
-    });
-}
+    // Orders Status Chart
+    const ordersCtx = document.getElementById('ordersChart');
+    if (ordersCtx) {
+        const statusLabels = [];
+        const statusData = [];
+        const statusColors = [];
+        
+        {% for status in orders_by_status %}
+        statusLabels.push('{{ status.estado|title }}');
+        statusData.push({{ status.count }});
+        {% if status.estado == 'entregado' %}statusColors.push('rgb(34, 197, 94)');
+        {% elif status.estado == 'pendiente' %}statusColors.push('rgb(234, 179, 8)');
+        {% elif status.estado == 'cancelado' %}statusColors.push('rgb(239, 68, 68)');
+        {% else %}statusColors.push('rgb(59, 130, 246)');
+        {% endif %}
+        {% endfor %}
 
-function showNoNotifications() {
-    const container = document.getElementById('dashboard-notifications');
-    container.innerHTML = `
-        <div class="text-center py-8">
-            <i class="fas fa-bell text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No hay notificaciones</p>
-        </div>
-    `;
-}
+        new Chart(ordersCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: statusColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Crops Category Chart
+    const cropsCtx = document.getElementById('cropsChart');
+    if (cropsCtx) {
+        const categoryLabels = [];
+        const categoryData = [];
+        
+        {% for cat in crops_by_category %}
+        categoryLabels.push('{{ cat.display_name }}');
+        categoryData.push({{ cat.count }});
+        {% endfor %}
+
+        new Chart(cropsCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Cultivos',
+                    data: categoryData,
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(147, 51, 234, 0.8)',
+                        'rgba(234, 179, 8, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(20, 184, 166, 0.8)'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 3,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0,
+                            color: document.documentElement.classList.contains('dark') ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)'
+                        },
+                        grid: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
+

@@ -1,7 +1,15 @@
-{% extends 'accounts/user_base.html' %}
+{% if user.role == 'Productor' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
+{% else %}
+{% extends 'accounts/buyer_base_tailadmin.html' %}
+{% endif %}
 {% load static %}
 
-{% block user_content %}
+{% if user.role == 'Productor' %}
+{% block producer_content %}
+{% else %}
+{% block buyer_content %}
+{% endif %}
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Profile Header Card -->
@@ -147,4 +155,8 @@
     </div>
     </div>
 </div>
+{% if user.role == 'Productor' %}
 {% endblock %}
+{% else %}
+{% endblock %}
+{% endif %}

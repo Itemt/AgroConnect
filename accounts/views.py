@@ -274,7 +274,12 @@ def profile_view(request):
     context = {
         'crops': crops
     }
-    return render(request, 'accounts/profile.html', context)
+    
+    # Renderizar template apropiado según el rol
+    if request.user.role == 'Productor':
+        return render(request, 'accounts/profile_producer.html', context)
+    else:
+        return render(request, 'accounts/profile_buyer.html', context)
 
 @login_required
 def profile_edit_view(request):
@@ -322,7 +327,6 @@ def is_staff(user):
     return user.is_staff
 
 
-@user_passes_test(is_staff)
 @login_required
 def become_seller(request):
     """Vista para que un comprador se convierta en vendedor"""
@@ -363,7 +367,8 @@ def become_seller(request):
                 'user': request.user,
                 'farm_form': farm_form,
             }
-            return render(request, 'accounts/become_seller.html', context)
+            # Use TailAdmin template for buyers
+            return render(request, 'accounts/become_seller_tailadmin.html', context)
     
     # Crear formulario de finca para el primer paso
     farm_form = FarmForm()
@@ -373,58 +378,8 @@ def become_seller(request):
         'user': request.user,
         'farm_form': farm_form,
     }
-    return render(request, 'accounts/become_seller.html', context)
-    
-    if request.method == 'POST':
-        print("Processing POST request...")
-        # Procesar formulario de finca
-        farm_form = FarmForm(request.POST)
-        
-        if farm_form.is_valid():
-            # Crear perfil de productor
-            producer_profile, created = ProducerProfile.objects.get_or_create(
-                user=request.user,
-                defaults={
-                    'telefono': request.user.telefono,
-                    'direccion': request.user.direccion,
-                    'ciudad': request.user.ciudad,
-                    'departamento': request.user.departamento,
-                }
-            )
-            
-            # Cambiar rol del usuario
-            request.user.role = 'Productor'
-            request.user.save()
-            
-            # Crear la finca
-            finca = farm_form.save(commit=False)
-            finca.propietario = request.user
-            finca.save()
-            
-            messages.success(request, f'¡Felicidades! Ahora eres un vendedor. Tu finca "{finca.nombre}" ha sido creada exitosamente.')
-            return redirect('core:farm_detail', pk=finca.pk)
-        else:
-            # Si hay errores, mostrar el formulario con errores
-            context = {
-                'title': 'Convertirse en Vendedor',
-                'user': request.user,
-                'farm_form': farm_form,
-            }
-            return render(request, 'accounts/become_seller.html', context)
-    
-    # Crear formulario de finca para el primer paso
-    print("Creating FarmForm...")
-    farm_form = FarmForm()
-    print("FarmForm created successfully")
-    print(f"Departamento choices: {len(farm_form.fields['departamento'].choices)}")
-    
-    context = {
-        'title': 'Convertirse en Vendedor',
-        'user': request.user,
-        'farm_form': farm_form,
-    }
-    print("Rendering template...")
-    return render(request, 'accounts/become_seller.html', context)
+    # Use TailAdmin template for buyers
+    return render(request, 'accounts/become_seller_tailadmin.html', context)
 
 
 # Password Reset Views

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Admin - AgroConnect{% endblock %}</title>
+    <title>{% block title %}Panel del Productor - AgroConnect{% endblock %}</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -88,6 +88,12 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Critical CSS for theme - prevents flash -->
     <style>
         /* Critical theme styles - inline to prevent flash */
@@ -111,59 +117,30 @@
     
     <!-- Sidebar State Script - Execute before DOM render -->
     <script>
-        // Prevent sidebar flashing by setting initial state
         (function() {
-            // Load sidebar state
             const savedSidebarState = localStorage.getItem('sidebarCollapsed');
             if (savedSidebarState === 'true') {
-                // Add collapsed class to html element before render
                 document.documentElement.classList.add('sidebar-collapsed');
             }
             
-            // Load theme state - CRITICAL: Must be synchronous
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else if (savedTheme === 'light') {
                 document.documentElement.classList.remove('dark');
             } else {
-                // Default to system preference
                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     document.documentElement.classList.add('dark');
                 }
             }
             
-            // Show content after theme is applied
             document.addEventListener('DOMContentLoaded', function() {
                 document.body.classList.add('theme-loaded');
             });
         })();
     </script>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Additional theme script for extra safety -->
-    <script>
-        // Extra safety measure for theme loading
-        (function() {
-            // Force theme application immediately
-            const theme = localStorage.getItem('theme');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else if (theme === 'light') {
-                document.documentElement.classList.remove('dark');
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
-    
     <style>
-        /* Prevent sidebar flashing */
         .sidebar-collapsed #sidebar {
             width: 80px !important;
             padding-left: 0 !important;
@@ -184,7 +161,7 @@
         
         .sidebar-collapsed nav ul li a {
             justify-content: center !important;
-            padding-left: 0 !important; /* keep vertical space, trim sides via width */
+            padding-left: 0 !important;
             padding-right: 0 !important;
         }
         
@@ -202,7 +179,7 @@
             min-width: 40px !important; /* prevent shrinking */
             min-height: 40px !important; /* prevent shrinking */
             flex-shrink: 0 !important; /* prevent flexbox shrinking */
-            border-radius: 0.75rem;
+            border-radius: 0.75rem; /* rounded-xl */
             background: rgba(0, 0, 0, 0.06);
             margin: 0 !important; /* no margins */
             padding: 0 !important; /* no padding */
@@ -212,9 +189,10 @@
             background: rgba(255, 255, 255, 0.06);
         }
         
+        /* Perfect centering when collapsed */
         .sidebar-collapsed nav ul li a {
             text-align: center !important;
-            gap: 0 !important;
+            gap: 0 !important; /* remove gap between icon and hidden text */
             width: 54px !important; /* slightly narrower to avoid clipping */
             margin-left: auto !important;
             margin-right: auto !important;
@@ -255,11 +233,12 @@
                 margin-left: 0 !important;
                 margin-right: 0 !important;
             }
+            /* Cancel desktop centering of icons in mobile */
             .sidebar-collapsed #sidebar nav i { margin-left: 0 !important; margin-right: 0 !important; }
+            /* Extra scroll padding para que el último botón (Docs) no se corte */
             .sidebar-collapsed #sidebar .overflow-y-auto { padding-right: 8px !important; padding-bottom: 56px !important; }
         }
         
-        /* Ensure smooth transitions */
         * {
             transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
@@ -267,26 +246,25 @@
         /* Sidebar scroll comfort & hidden scrollbar */
         #sidebar,
         #sidebar .overflow-y-auto {
-            padding-right: 16px;
+            padding-right: 16px; /* keep touch area on the right */
             scrollbar-gutter: stable both-edges;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
         }
-        /* Keep pills centered when collapsed: symmetric horizontal padding */
+        #sidebar::-webkit-scrollbar,
+        #sidebar .overflow-y-auto::-webkit-scrollbar { width: 0; height: 0; } /* WebKit */
+        /* Header subtle shadow when sidebar overlay is open (mobile) */
+        .sidebar-overlay-open header.sticky { box-shadow: 0 6px 14px rgba(2, 6, 23, 0.18) !important; }
+        /* Keep pills centered when collapsed: symmetric padding */
         .sidebar-collapsed #sidebar,
         .sidebar-collapsed #sidebar .overflow-y-auto {
             padding-left: 10px !important;
             padding-right: 10px !important;
         }
-        #sidebar::-webkit-scrollbar,
-        #sidebar .overflow-y-auto::-webkit-scrollbar { width: 0; height: 0; }
-        /* Header subtle shadow when sidebar overlay is open (mobile) */
-        .sidebar-overlay-open header.sticky { box-shadow: 0 6px 14px rgba(2, 6, 23, 0.18) !important; }
-
         @media (min-width: 1024px) {
-            /* Ensure vertical list centers children when collapsed (desktop only) */
+            /* Ensure vertical list centers children when collapsed */
             .sidebar-collapsed #sidebar nav ul { align-items: center !important; }
-            /* Center section abbreviations when collapsed (desktop only) */
+            /* Center section abbreviations when collapsed */
             .sidebar-collapsed .sidebar-abbr {
                 margin-left: 0 !important;
                 text-align: center !important;
@@ -305,13 +283,13 @@
             
             <!-- Logo -->
             <div class="py-8 flex justify-start">
-                <a href="{% url 'admin_dashboard' %}" class="flex items-start gap-1.5 sm:items-center sm:gap-3">
-                    <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-seedling text-white text-lg"></i>
+                <a href="{% url 'producer_dashboard' %}" class="flex items-start gap-1.5 sm:items-center sm:gap-3">
+                    <div class="w-8 h-8 bg-success-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-tractor text-white text-lg"></i>
                     </div>
                     <div class="flex flex-col sidebar-text justify-center lg:h-8">
                         <span class="text-xl font-bold text-gray-900 dark:text-white">AgroConnect</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Admin Panel</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Panel Productor</span>
                     </div>
                 </a>
             </div>
@@ -326,107 +304,144 @@
                                 <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
                                     Menú
                                 </h2>
-                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-abbr hidden">
-                                    MENÚ
-                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">Menú</span>
                             </div>
                             <ul class="flex flex-col gap-4">
                                 <li>
                                     <a href="{% url 'index' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'index' %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-home text-lg"></i>
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'index' %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-home text-lg w-5"></i>
                                         <span class="sidebar-text">Inicio</span>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{% url 'marketplace' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'marketplace' %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-store text-lg"></i>
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'marketplace' %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-store text-lg w-5"></i>
                                         <span class="sidebar-text">Marketplace</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'admin_dashboard' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-tachometer-alt text-lg"></i>
+                                    <a href="{% url 'producer_dashboard' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'producer_dashboard' %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-tachometer-alt text-lg w-5"></i>
                                         <span class="sidebar-text">Dashboard</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_user_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_user' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-users text-lg"></i>
-                                        <span class="sidebar-text">Usuarios</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_publication_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_publication' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-newspaper text-lg"></i>
-                                        <span class="sidebar-text">Publicaciones</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_order_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_order' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-shopping-cart text-lg"></i>
-                                        <span class="sidebar-text">Pedidos</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_crop_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_crop' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-seedling text-lg"></i>
-                                        <span class="sidebar-text">Cultivos</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_farm_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_farm' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-map-marker-alt text-lg"></i>
-                                        <span class="sidebar-text">Fincas</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{% url 'admin_conversation_list' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_conversation' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-comments text-lg"></i>
-                                        <span class="sidebar-text">Conversaciones</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         
-                        <!-- Admin Tools Group -->
+                        <!-- Farm Group -->
                         <div>
                             <div class="mb-4 h-5 flex items-center">
                                 <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
-                                    Herramientas
+                                    Finca
                                 </h2>
-                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-abbr hidden">
-                                    HERR.
-                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">Finca</span>
                             </div>
                             <ul class="flex flex-col gap-4">
                                 <li>
-                                    <a href="{% url 'admin_history' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_history' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-history text-lg"></i>
-                                        <span class="sidebar-text">Historial</span>
+                                    <a href="{% url 'core:farm_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'farm_list' %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-map-marker-alt text-lg w-5"></i>
+                                        <span class="sidebar-text">Fincas</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'admin_audit_log' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_audit_log' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-clipboard-list text-lg"></i>
-                                        <span class="sidebar-text">Auditoría</span>
+                                    <a href="{% url 'crop_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'crop_list' or 'crop_detail' in request.resolver_match.url_name or 'crop_add' in request.resolver_match.url_name or 'crop_edit' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-seedling text-lg w-5"></i>
+                                        <span class="sidebar-text">Cultivos</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Publications Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Publicaciones
+                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">Publ.</span>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'my_publications' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'my_publications' or 'publication' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-newspaper text-lg w-5"></i>
+                                        <span class="sidebar-text">Publicaciones</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'admin_config' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_config' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-cog text-lg"></i>
-                                        <span class="sidebar-text">Configuración</span>
+                                    <a href="{% url 'producer_sales' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if request.resolver_match.url_name == 'producer_sales' %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-chart-line text-lg w-5"></i>
+                                        <span class="sidebar-text">Ventas</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Orders Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Pedidos
+                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">Ped.</span>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'order_history' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'order' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-shopping-cart text-lg w-5"></i>
+                                        <span class="sidebar-text">Compras</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Communication Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Comunicación
+                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">Conv.</span>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'conversation_list' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'conversation' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-comments text-lg w-5"></i>
+                                        <span class="sidebar-text">Mensajes</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'core:notifications_page' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'notifications' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-bell text-lg w-5"></i>
+                                        <span class="sidebar-text">Notificaciones</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Help Group -->
+                        <div>
+                            <div class="mb-4 h-5 flex items-center">
+                                <h2 class="text-xs uppercase leading-5 text-gray-400 font-semibold sidebar-text">
+                                    Ayuda
+                                </h2>
+                                <span class="sidebar-abbr hidden text-xs uppercase tracking-wider text-gray-400 ml-2 font-semibold">AYUDA</span>
+                            </div>
+                            <ul class="flex flex-col gap-4">
+                                <li>
+                                    <a href="{% url 'core:documentation' %}" 
+                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'documentation' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
+                                        <i class="fas fa-book text-lg w-5"></i>
+                                        <span class="sidebar-text">Docs</span>
                                     </a>
                                 </li>
                             </ul>
@@ -454,10 +469,10 @@
                         <!-- Page Title -->
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                                {% block page_title %}Panel de Administración{% endblock %}
+                                {% block page_title %}Panel del Productor{% endblock %}
                             </h1>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {% block page_description %}Panel de administración{% endblock %}
+                                {% block page_description %}Gestiona tus cultivos, fincas y publicaciones{% endblock %}
                             </p>
                         </div>
                     </div>
@@ -473,14 +488,14 @@
                         <!-- User Menu -->
                         <div class="relative">
                             <button id="user-menu-btn" class="flex items-center gap-3 p-2 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <div class="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
                                     <i class="fas fa-user text-white text-sm"></i>
                                 </div>
                                 <div class="hidden text-left lg:block">
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ user.get_full_name|default:user.username }}
                                     </p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrador</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Productor</p>
                                 </div>
                                 <i class="fas fa-chevron-down text-sm text-gray-500 dark:text-gray-400"></i>
                             </button>
@@ -489,16 +504,12 @@
                             <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-theme-lg border border-gray-200 dark:border-gray-700 hidden">
                                 <div class="p-3 border-b border-gray-200 dark:border-gray-700">
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.get_full_name|default:user.username }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrador</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Productor</p>
                                 </div>
                                 <div class="p-1">
-                                    <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 rounded-md">
+                                    <a href="{% url 'profile' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 rounded-md">
                                         <i class="fas fa-user text-sm"></i>
                                         <span>Perfil</span>
-                                    </a>
-                                    <a href="{% url 'admin_config' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 rounded-md">
-                                        <i class="fas fa-cog text-sm"></i>
-                                        <span class="sidebar-text">Configuración</span>
                                     </a>
                                     <hr class="my-1 border-gray-200 dark:border-gray-700">
                                     <a href="{% url 'logout' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md">
@@ -514,39 +525,36 @@
             
             <!-- Page Content -->
             <div class="p-4 mx-auto max-w-7xl md:p-6">
-                {% block admin_content %}{% endblock %}
+                {% block producer_content %}{% endblock %}
             </div>
             
             <!-- Footer -->
             <footer class="p-4 mx-auto max-w-7xl md:p-6 pt-0">
                 <p class="text-sm text-center text-gray-500 dark:text-gray-400">
-                    Diseñado y Desarrollado por 
-                    <a href="#" class="text-brand-500 hover:text-brand-600 transition-colors duration-200 font-medium">
+                    Panel del Productor - 
+                    <a href="{% url 'index' %}" class="text-success-500 hover:text-success-600 transition-colors duration-200 font-medium">
                         AgroConnect
                     </a>
-                    ~ Panel de Administración
                 </p>
             </footer>
         </div>
     </div>
     
     <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
     <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('backdrop');
-        const mainContent = document.getElementById('main-content');
         let isMobileOpen = false;
         let isCollapsed = false;
         const htmlRoot = document.documentElement;
         
-        // Function to save sidebar state
         function saveSidebarState() {
             localStorage.setItem('sidebarCollapsed', isCollapsed);
         }
         
-        // Function to load sidebar state
         function loadSidebarState() {
             const savedState = localStorage.getItem('sidebarCollapsed');
             if (savedState !== null) {
@@ -555,28 +563,20 @@
             }
         }
         
-        // Function to apply sidebar state
         function applySidebarState() {
             if (isCollapsed) {
-                // Add collapsed class to html element
                 document.documentElement.classList.add('sidebar-collapsed');
                 sidebar.setAttribute('data-collapsed', 'true');
             } else {
-                // Remove collapsed class from html element
                 document.documentElement.classList.remove('sidebar-collapsed');
                 sidebar.setAttribute('data-collapsed', 'false');
             }
         }
         
-        // Load sidebar state immediately to prevent flashing
         loadSidebarState();
         
         mobileMenuBtn.addEventListener('click', () => {
-            console.log('Hamburger clicked!');
-            
-            // Check if we're on mobile or desktop
             if (window.innerWidth < 1024) {
-                // Mobile behavior - show/hide sidebar
                 isMobileOpen = !isMobileOpen;
                 if (isMobileOpen) {
                     sidebar.classList.remove('-translate-x-full');
@@ -590,7 +590,6 @@
                     htmlRoot.classList.remove('sidebar-overlay-open');
                 }
             } else {
-                // Desktop behavior - collapse/expand sidebar
                 isCollapsed = !isCollapsed;
                 applySidebarState();
                 saveSidebarState();
@@ -619,7 +618,6 @@
             }
         });
         
-        // Close user menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
                 isUserMenuOpen = false;
@@ -632,7 +630,6 @@
         const html = document.documentElement;
         
         themeToggle.addEventListener('click', () => {
-            console.log('Theme toggle clicked!');
             const isDark = html.classList.contains('dark');
             if (isDark) {
                 html.classList.remove('dark');
@@ -646,32 +643,12 @@
         // Handle window resize
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
-                // Desktop - close mobile menu
                 isMobileOpen = false;
                 sidebar.classList.add('-translate-x-full');
                 sidebar.classList.remove('translate-x-0');
                 backdrop.classList.add('hidden');
-                
-                // Restore desktop sidebar behavior
                 applySidebarState();
-            } else {
-                // Mobile - reset desktop state
-                isCollapsed = false;
-                sidebar.classList.remove('lg:w-[80px]');
-                sidebar.classList.add('lg:w-[290px]');
-                mainContent.classList.remove('lg:ml-[80px]');
-                mainContent.classList.add('lg:ml-[290px]');
-                
-                // Show all text elements and hide abbreviations
-                const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
-                sidebarTexts.forEach(text => {
-                    text.classList.remove('hidden');
-                });
-                
-                const sidebarAbbrs = sidebar.querySelectorAll('.sidebar-abbr');
-                sidebarAbbrs.forEach(abbr => {
-                    abbr.classList.add('hidden');
-                });
+                htmlRoot.classList.remove('sidebar-overlay-open');
             }
         });
     </script>
@@ -679,3 +656,4 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+

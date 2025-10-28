@@ -1,93 +1,145 @@
-{% extends 'accounts/user_base.html' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
+
+{% block extra_css %}
+<style>
+/* Make this page use full available width */
+#main-content > .mx-auto.max-w-7xl { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+</style>
+{% endblock %}
 
 {% block title %}Mis Cultivos - AgroConnect{% endblock %}
 
-{% block user_content %}
+{% block producer_content %}
 <div class="min-h-screen">
-    <div class="max-w-7xl mx-auto">
+    <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         <!-- Header -->
-        <div class="card mb-8">
-            <div class="card-body p-8">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
-                            <i class="fas fa-seedling text-white text-2xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-5xl font-bold text-gradient">Mis Cultivos</h1>
-                            <p class="text-gray-600 mt-2 text-xl">Gestiona tus cultivos y publicaciones</p>
-                        </div>
-                    </div>
-                    <a href="{% url 'crop_add' %}" class="btn-primary group">
-                        <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
-                        Agregar Cultivo
-                    </a>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-seedling text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Cultivos</h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Gestiona tus cultivos y publicaciones</p>
                 </div>
             </div>
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-green-400 to-green-600">
-                    <i class="fas fa-seedling text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">{{ crops.count }}</h3>
-                    <p class="text-gray-600 font-medium">Cultivos Totales</p>
-                </div>
-            </div>
-
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600">
-                    <i class="fas fa-home text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-                        {% for crop in crops %}{% if crop.finca %}{{ crop.finca.nombre }}{% if not forloop.last %}, {% endif %}{% endif %}{% empty %}0{% endfor %}
-                    </h3>
-                    <p class="text-gray-600 font-medium">Fincas Asociadas</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-3 md:gap-4 mb-6 auto-rows-fr">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center min-w-0">
+                    <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-seedling text-success-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4 min-w-0">
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ crops.count }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm truncate">Cultivos Totales</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-purple-400 to-purple-600">
-                    <i class="fas fa-store text-white text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
-                        {% for crop in crops %}{% if crop.publicacion %}1{% endif %}{% empty %}0{% endfor %}
-                    </h3>
-                    <p class="text-gray-600 font-medium">Publicaciones</p>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center min-w-0">
+                    <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-home text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4 min-w-0">
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_fincas }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm truncate">Fincas Asociadas</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="stat-card group">
-                <div class="stat-icon bg-gradient-to-br from-orange-400 to-orange-600">
-                    <i class="fas fa-chart-line text-white text-2xl"></i>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center min-w-0">
+                    <div class="w-12 h-12 bg-purple-50 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-store text-purple-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4 min-w-0">
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_publicaciones }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm truncate">Publicaciones</p>
+                    </div>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-4xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300">
-                        {% for crop in crops %}{{ crop.cantidad_estimada|floatformat:0 }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
-                    </h3>
-                    <p class="text-gray-600 font-medium">Cantidad Total</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center min-w-0">
+                    <div class="w-12 h-12 bg-orange-50 dark:bg-orange-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-orange-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4 min-w-0">
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ cantidad_total_kg|floatformat:0 }} <span class="text-lg text-gray-500 dark:text-gray-400">kg</span></h3>
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm truncate">Cantidad en Kilogramos</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card: Unidades -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-cubes text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% if cantidad_no_convertible.unidades %}
+                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.unidades|floatformat:0 }}</h3>
+                        {% else %}
+                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
+                        {% endif %}
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Unidades</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Cajas -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-cyan-50 dark:bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-cyan-600 dark:text-cyan-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% if cantidad_no_convertible.cajas %}
+                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.cajas|floatformat:0 }}</h3>
+                        {% else %}
+                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
+                        {% endif %}
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Cajas</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Bultos -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-sack text-amber-600 dark:text-amber-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% if cantidad_no_convertible.bultos %}
+                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.bultos|floatformat:0 }}</h3>
+                        {% else %}
+                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
+                        {% endif %}
+                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Bultos</p>
+                    </div>
                 </div>
             </div>
         </div>
-
+        
         <!-- Cultivos List -->
         {% if crops %}
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
             {% for crop in crops %}
-            <div class="card group hover:shadow-strong transition-all duration-300">
-                <div class="card-body p-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 group hover:shadow-lg transition-all duration-300">
+                <div class="p-6">
                     <!-- Header del cultivo -->
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors duration-300">
                                 {{ crop.nombre }}
                             </h3>
-                            <p class="text-gray-600 text-sm mt-1">
+                            <p class="text-gray-700 dark:text-gray-300 text-sm mt-1 font-medium">
                                 <i class="fas fa-tag mr-1"></i>
                                 {{ crop.get_categoria_display }}
                             </p>
@@ -108,16 +160,16 @@
                     <!-- Información de la finca -->
                     <div class="mb-4">
                         {% if crop.finca %}
-                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                            <div class="flex items-center text-sm text-gray-700 dark:text-gray-300 mb-2 font-medium">
                                 <i class="fas fa-home text-green-600 mr-2"></i>
-                                <span class="font-medium">{{ crop.finca.nombre }}</span>
+                                <span>{{ crop.finca.nombre }}</span>
                             </div>
-                            <p class="text-xs text-gray-500 ml-6">
+                            <p class="text-xs text-gray-600 dark:text-gray-400 ml-6">
                                 <i class="fas fa-map-marker-alt mr-1"></i>
                                 {{ crop.finca.ciudad }}, {{ crop.finca.departamento }}
                             </p>
                         {% else %}
-                            <div class="flex items-center text-sm text-gray-400 italic">
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 italic">
                                 <i class="fas fa-home mr-2"></i>
                                 Sin asignar
                             </div>
@@ -126,13 +178,13 @@
 
                     <!-- Información del cultivo -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-lg font-bold text-gray-900">{{ crop.cantidad_estimada }}</div>
-                            <div class="text-xs text-gray-600">{{ crop.unidad_medida }}</div>
+                        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="text-lg font-bold text-gray-900 dark:text-white">{{ crop.cantidad_estimada }}</div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 font-medium">{{ crop.unidad_medida }}</div>
                         </div>
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-lg font-bold text-gray-900">{{ crop.fecha_disponibilidad|date:"d M" }}</div>
-                            <div class="text-xs text-gray-600">Disponible</div>
+                        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="text-lg font-bold text-gray-900 dark:text-white">{{ crop.fecha_disponibilidad|date:"d M" }}</div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 font-medium">Disponible</div>
                         </div>
                     </div>
 
@@ -167,23 +219,23 @@
 
                     <!-- Botones de acción -->
                     <div class="flex space-x-2">
-                        <a href="{% url 'crop_detail' crop.pk %}" class="flex-1 btn-secondary text-center group">
+                        <a href="{% url 'crop_detail' crop.pk %}" class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center group font-medium text-sm">
                             <i class="fas fa-eye mr-1 group-hover:scale-110 transition-transform duration-300"></i>
                             Ver
                         </a>
-                        <a href="{% url 'crop_edit' crop.pk %}" class="flex-1 btn-outline text-center group">
+                        <a href="{% url 'crop_edit' crop.pk %}" class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center group font-medium text-sm">
                             <i class="fas fa-edit mr-1 group-hover:scale-110 transition-transform duration-300"></i>
                             Editar
                         </a>
                         {% if crop.publicacion %}
-                            <a href="{% url 'publication_edit' crop.publicacion.pk %}" class="flex-1 btn-primary text-center group">
+                            <a href="{% url 'publication_edit' crop.publicacion.pk %}" class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-center group font-medium text-sm">
                                 <i class="fas fa-store mr-1 group-hover:scale-110 transition-transform duration-300"></i>
                                 Pub.
                             </a>
                         {% endif %}
                         <button onclick="showDeleteModal({{ crop.pk }}, '{{ crop.nombre|escapejs }}', '{{ crop.cantidad_estimada }}', '{{ crop.unidad_medida }}', {% if crop.publicacion %}true{% else %}false{% endif %})" 
-                                class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200 group">
-                            <i class="fas fa-trash mr-1 group-hover:scale-110 transition-transform duration-300"></i>
+                                class="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-200 group">
+                            <i class="fas fa-trash group-hover:scale-110 transition-transform duration-300"></i>
                         </button>
                     </div>
                 </div>
@@ -191,20 +243,18 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="card">
-            <div class="card-body p-12 text-center">
-                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-seedling text-gray-400 text-4xl"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-4">No tienes cultivos registrados</h3>
-                <p class="text-gray-600 mb-8 max-w-md mx-auto">
-                    Comienza agregando tu primer cultivo para poder venderlo en el marketplace.
-                </p>
-                <a href="{% url 'crop_add' %}" class="btn-primary group">
-                    <i class="fas fa-plus mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
-                    Agregar Primer Cultivo
-                </a>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-seedling text-gray-400 dark:text-gray-600 text-4xl"></i>
             </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No tienes cultivos registrados</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                Comienza agregando tu primer cultivo para poder venderlo en el marketplace.
+            </p>
+            <a href="{% url 'crop_add' %}" class="inline-flex items-center px-6 py-3 bg-success-600 text-white rounded-xl hover:bg-success-700 transition-colors font-semibold shadow-lg hover:shadow-xl">
+                <i class="fas fa-plus mr-2"></i>
+                Agregar Primer Cultivo
+            </a>
         </div>
         {% endif %}
     </div>

@@ -1,18 +1,10 @@
-{% if user.role == 'Productor' %}
 {% extends 'accounts/producer_base_tailadmin.html' %}
-{% else %}
-{% extends 'accounts/buyer_base_tailadmin.html' %}
-{% endif %}
 
 {% block title %}Historial de Pedidos{% endblock %}
 
 {% block page_title %}Historial de Pedidos{% endblock %}
 
-{% if user.role == 'Productor' %}
 {% block producer_content %}
-{% else %}
-{% block buyer_content %}
-{% endif %}
 <div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
 
     <!-- Search and Filter Section -->
@@ -200,9 +192,5 @@
         </div>
     </div>
 </div>
-{% if user.role == 'Productor' %}
 {% endblock %}
-{% else %}
-{% endblock %}
-{% endif %}
 

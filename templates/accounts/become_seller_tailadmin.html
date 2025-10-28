@@ -1,0 +1,274 @@
+{% extends 'accounts/buyer_base_tailadmin.html' %}
+{% load static %}
+
+{% block title %}Convertirse en Vendedor - AgroConnect{% endblock %}
+
+{% block page_title %}Convertirse en Vendedor{% endblock %}
+
+{% block buyer_content %}
+<div class="grid grid-cols-12 gap-4 md:gap-6">
+    <!-- Header -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-success-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-store text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">¿Quieres ser Vendedor?</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Conviértete en vendedor y comienza a vender tus productos agrícolas directamente a compradores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <div class="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-tractor text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Gestiona tus Fincas</h3>
+            <p class="text-gray-600 dark:text-gray-400">Registra y administra tus fincas, cultivos y ubicaciones</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <div class="w-16 h-16 bg-success-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-bullhorn text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Publica Productos</h3>
+            <p class="text-gray-600 dark:text-gray-400">Crea publicaciones de tus productos y llega a más compradores</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <div class="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-chart-line text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Gestiona Ventas</h3>
+            <p class="text-gray-600 dark:text-gray-400">Controla tus ventas, pedidos y ganancias en tiempo real</p>
+        </div>
+    </div>
+
+    <!-- Current User Info -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Tu Información Actual</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
+                    <p class="text-gray-900 dark:text-white font-medium">{{ user.first_name }} {{ user.last_name }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <p class="text-gray-900 dark:text-white font-medium">{{ user.email }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
+                    <p class="text-gray-900 dark:text-white font-medium">{{ user.telefono|default:"No especificado" }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ubicación</label>
+                    <p class="text-gray-900 dark:text-white font-medium">{{ user.ciudad|default:"No especificada" }}, {{ user.departamento|default:"No especificado" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Form -->
+    <div class="col-span-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Convertirse en Vendedor</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                Para convertirte en vendedor, necesitamos información sobre tu primera finca. Esta información es obligatoria para garantizar la trazabilidad de tus productos.
+            </p>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Información de la Finca -->
+                <div class="bg-success-50 dark:bg-success-500/10 border border-success-200 dark:border-success-800 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-tractor text-success-600 dark:text-success-400 mr-3"></i>
+                        <h3 class="text-lg font-semibold text-success-800 dark:text-success-200">Información de tu Primera Finca</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ farm_form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Nombre de la Finca *
+                            </label>
+                            {{ farm_form.nombre }}
+                            {% if farm_form.nombre.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.nombre.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Departamento *
+                            </label>
+                            {{ farm_form.departamento }}
+                            {% if farm_form.departamento.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.departamento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Ciudad/Municipio *
+                            </label>
+                            {{ farm_form.ciudad }}
+                            {% if farm_form.ciudad.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.ciudad.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Dirección *
+                            </label>
+                            {{ farm_form.direccion }}
+                            {% if farm_form.direccion.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.direccion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Área Total (hectáreas) *
+                            </label>
+                            {{ farm_form.area_total }}
+                            {% if farm_form.area_total.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.area_total.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Área Cultivable (hectáreas) *
+                            </label>
+                            {{ farm_form.area_cultivable }}
+                            {% if farm_form.area_cultivable.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.area_cultivable.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Tipo de Suelo *
+                            </label>
+                            {{ farm_form.tipo_suelo }}
+                            {% if farm_form.tipo_suelo.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.tipo_suelo.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Tipo de Riego *
+                            </label>
+                            {{ farm_form.tipo_riego }}
+                            {% if farm_form.tipo_riego.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.tipo_riego.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ farm_form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Descripción de la Finca
+                        </label>
+                        {{ farm_form.descripcion }}
+                        {% if farm_form.descripcion.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ farm_form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-3"></i>
+                        <div>
+                            <h3 class="text-blue-800 dark:text-blue-200 font-semibold">¿Por qué necesitamos esta información?</h3>
+                            <p class="text-blue-700 dark:text-blue-300 text-sm mt-1">
+                                Esta información garantiza la trazabilidad de tus productos y permite a los compradores conocer el origen exacto de lo que compran.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                    <a href="{% url 'buyer_dashboard' %}" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-center font-medium transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Volver al Dashboard
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-success-600 text-white rounded-lg hover:bg-success-700 font-medium transition-colors">
+                        <i class="fas fa-store mr-2"></i>
+                        ¡Convertirme en Vendedor!
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departamentoSelect = document.getElementById('id_departamento');
+    const ciudadSelect = document.getElementById('id_ciudad');
+    
+    if (departamentoSelect && ciudadSelect) {
+        departamentoSelect.addEventListener('change', function() {
+            const departamento = this.value;
+            
+            // Limpiar opciones de ciudad
+            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+            ciudadSelect.disabled = true;
+            
+            if (departamento) {
+                const url = '{% url "ajax_get_cities" %}';
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: 'departamento=' + encodeURIComponent(departamento)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                    
+                    if (data.ciudades && data.ciudades.length > 0) {
+                        data.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad.value;
+                            option.textContent = ciudad.text;
+                            ciudadSelect.appendChild(option);
+                        });
+                        ciudadSelect.disabled = false;
+                    } else {
+                        ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
+                    }
+                })
+                .catch(error => {
+                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    ciudadSelect.disabled = true;
+                });
+            } else {
+                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+                ciudadSelect.disabled = true;
+            }
+        });
+        
+        // Initialize city select state
+        if (!departamentoSelect.value) {
+            ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+            ciudadSelect.disabled = true;
+        }
+    }
+});
+</script>
+{% endblock %}
+

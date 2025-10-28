@@ -1,17 +1,9 @@
-{% if user.role == 'Productor' %}
 {% extends 'accounts/producer_base_tailadmin.html' %}
-{% else %}
-{% extends 'accounts/buyer_base_tailadmin.html' %}
-{% endif %}
 {% load custom_filters %}
 
 {% block title %}Conversación sobre {{ conversation.publication.cultivo.nombre }}{% endblock %}
 
-{% if user.role == 'Productor' %}
 {% block producer_content %}
-{% else %}
-{% block buyer_content %}
-{% endif %}
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <div class="bg-white rounded-lg shadow-lg">
         <div class="px-6 py-6 border-b border-gray-200">
@@ -161,8 +153,4 @@ document.addEventListener('DOMContentLoaded', function() {
     messageList.scrollTop = messageList.scrollHeight;
 });
 </script>
-{% if user.role == 'Productor' %}
 {% endblock %}
-{% else %}
-{% endblock %}
-{% endif %}

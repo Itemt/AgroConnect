@@ -1,16 +1,8 @@
-{% if user.role == 'Productor' %}
 {% extends 'accounts/producer_base_tailadmin.html' %}
-{% else %}
-{% extends 'accounts/buyer_base_tailadmin.html' %}
-{% endif %}
 
 {% block title %}Pedido #{{ order.id }}{% endblock %}
 
-{% if user.role == 'Productor' %}
 {% block producer_content %}
-{% else %}
-{% block buyer_content %}
-{% endif %}
 <div class="min-h-screen">
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
@@ -220,13 +212,13 @@
                             <!-- Vendedor -->
                             <div class="bg-primary-50 border border-primary-200 rounded-xl p-4">
                                 <div class="flex items-start">
-                                    <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                    <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
                                         <i class="fas fa-seedling text-white"></i>
                                     </div>
-                                    <div>
+                                    <div class="min-w-0 break-words">
                                         <h5 class="font-semibold text-gray-800">Vendedor</h5>
                                         <p class="text-gray-600">{{ order.vendedor.get_full_name }}</p>
-                                        <p class="text-sm text-gray-500">{{ order.vendedor.email }}</p>
+                                        <p class="text-sm text-gray-500 break-words">{{ order.vendedor.email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -234,13 +226,13 @@
                             <!-- Comprador -->
                             <div class="bg-accent-50 border border-accent-200 rounded-xl p-4">
                                 <div class="flex items-start">
-                                    <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                                    <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
                                         <i class="fas fa-shopping-cart text-white"></i>
                                     </div>
-                                    <div>
+                                    <div class="min-w-0 break-words">
                                         <h5 class="font-semibold text-gray-800">Comprador</h5>
                                         <p class="text-gray-600">{{ order.comprador.get_full_name }}</p>
-                                        <p class="text-sm text-gray-500">{{ order.comprador.email }}</p>
+                                        <p class="text-sm text-gray-500 break-words">{{ order.comprador.email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -559,8 +551,4 @@
         }
     }
 </script>
-{% if user.role == 'Productor' %}
 {% endblock %}
-{% else %}
-{% endblock %}
-{% endif %}

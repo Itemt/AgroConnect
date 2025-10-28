@@ -10,14 +10,14 @@ class FarmForm(forms.ModelForm):
     departamento = forms.ChoiceField(
         choices=[('', 'Seleccionar departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
             'id': 'id_departamento'
         })
     )
     ciudad = forms.ChoiceField(
         choices=[('', 'Primero seleccione un departamento')],
         widget=forms.Select(attrs={
-            'class': 'block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+            'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
             'id': 'id_ciudad'
         })
     )
@@ -32,46 +32,46 @@ class FarmForm(forms.ModelForm):
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'placeholder': 'Nombre de la finca'
             }),
             'descripcion': forms.Textarea(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'rows': 3,
                 'placeholder': 'Descripción de la finca'
             }),
             'direccion': forms.Textarea(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'rows': 2,
                 'placeholder': 'Dirección completa de la finca'
             }),
             'coordenadas_lat': forms.NumberInput(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'step': '0.0000001',
                 'placeholder': 'Latitud (opcional)'
             }),
             'coordenadas_lng': forms.NumberInput(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'step': '0.0000001',
                 'placeholder': 'Longitud (opcional)'
             }),
             'area_total': forms.NumberInput(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'step': '0.01',
                 'min': '0.01',
                 'placeholder': 'Área total en hectáreas'
             }),
             'area_cultivable': forms.NumberInput(attrs={
-                'class': 'form-input',
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400',
                 'step': '0.01',
                 'min': '0.01',
                 'placeholder': 'Área cultivable en hectáreas'
             }),
             'tipo_suelo': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
             }),
             'tipo_riego': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
             }),
             'certificacion_organica': forms.CheckboxInput(attrs={
                 'class': 'form-checkbox'
