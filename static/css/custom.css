@@ -67,9 +67,86 @@ body {
   min-height: 100vh;
 }
 
+/* Dark Mode Base Styles */
+body.dark {
+  color: #f1f5f9;
+  background: #0f172a;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #f9fafb;
+}
+
 /* Ensure gradient extends to footer */
 html, body {
   height: 100%;
+}
+
+/* Dark mode gradient override for homepage only */
+.dark body:has(.hero) {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+/* Force dark background for stats section in dark mode */
+.dark .py-20.lg\\:py-32.bg-gradient-to-br {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+/* Keep light mode gradient for homepage */
+body:has(.hero) {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 50%, #dcfce7 100%) !important;
+}
+
+/* Dark mode cards */
+.dark .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* Dark mode body background */
+.dark body {
+  background-color: #0f172a !important;
+}
+
+/* Dark mode sections */
+.dark section {
+  background: #0f172a;
+}
+
+/* Override gradient sections in dark mode */
+.dark .py-20 {
+  background-color: #0f172a !important;
+}
+
+.dark .card-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-bottom-color: #334155;
+}
+
+.dark .card-body {
+  background: #1e293b;
+}
+
+.dark .card-footer {
+  background: #0f172a;
+  border-top-color: #334155;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-500 {
+  color: #6b7280;
 }
 
 /* Typography improvements */
@@ -288,6 +365,27 @@ input[type="checkbox"] {
   top: 0;
   z-index: 50;
   transition: all 0.3s ease;
+}
+
+/* Navbar for main pages - transparent to show gradient */
+.navbar-main-page {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Navbar for other pages - white background in light mode */
+.navbar-other-pages {
+  background: white !important;
+}
+
+/* Dark mode navigation - solid background for all pages */
+.dark .navbar-main-page,
+.dark .navbar-other-pages {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-bottom-color: #334155 !important;
 }
 
 /* Navbar scroll effect */

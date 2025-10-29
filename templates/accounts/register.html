@@ -3,8 +3,51 @@
 
 {% block title %}Registro de Usuario{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Dark mode inputs in register form */
+    .dark input, .dark select, .dark textarea {
+        background-color: #334155 !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+    
+    .dark input::placeholder, .dark textarea::placeholder {
+        color: #94a3b8 !important;
+    }
+    
+    .dark label {
+        color: #e2e8f0 !important;
+    }
+    
+    /* Dark mode Google button */
+    .dark .google-btn {
+        background-color: #1e293b !important;
+        border-color: #475569 !important;
+        color: #e2e8f0 !important;
+    }
+    
+    .dark .google-btn:hover {
+        background-color: #334155 !important;
+    }
+    
+    /* Dark mode dividers */
+    .dark .border-gray-300 {
+        border-color: #475569 !important;
+    }
+    
+    .dark .text-gray-500 {
+        color: #94a3b8 !important;
+    }
+    
+    .dark .bg-white {
+        background-color: #1e293b !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 2rem !important;">
+    <div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 2rem !important;">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-10 lg:mb-12">
@@ -12,12 +55,12 @@
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
                     </svg>
-                    <span class="inline-block ml-2 text-sm font-medium text-green-900">Registro</span>
+                    <span class="inline-block ml-2 text-sm font-medium text-green-900 dark:text-green-300">Registro</span>
                 </div>
-                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 mb-4">
+                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 dark:text-gray-100 mb-4">
                     Crear Cuenta
                 </h1>
-                <p class="text-base lg:text-lg text-gray-700">
+                <p class="text-base lg:text-lg text-gray-700 dark:text-gray-300">
                     Únete a la comunidad de AgroConnect
                 </p>
             </div>
@@ -46,7 +89,7 @@
             {% endif %}
             
             <!-- Registration Form -->
-            <div class="bg-white rounded-3xl shadow-md p-6 lg:p-10">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-10">
                 <form method="post">
                     {% csrf_token %}
 
@@ -61,7 +104,7 @@
                     <div class="space-y-6">
                         <!-- Campos básicos -->
                         <div class="field-wrapper">
-                            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-user mr-2 text-green-600"></i>
                                 {{ form.username.label }}
                             </label>
@@ -76,7 +119,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="field-wrapper">
-                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <i class="fas fa-user mr-2 text-green-600"></i>
                                     {{ form.first_name.label }}
                                 </label>
@@ -87,7 +130,7 @@
                             </div>
 
                             <div class="field-wrapper">
-                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <i class="fas fa-user mr-2 text-green-600"></i>
                                     {{ form.last_name.label }}
                                 </label>
@@ -99,7 +142,7 @@
                         </div>
 
                         <div class="field-wrapper">
-                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-envelope mr-2 text-green-600"></i>
                                 {{ form.email.label }}
                             </label>
@@ -118,7 +161,7 @@
                         </div>
 
                         <div class="field-wrapper">
-                            <label for="{{ form.cedula.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.cedula.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-id-card mr-2 text-green-600"></i>
                                 {{ form.cedula.label }}
                             </label>
@@ -132,7 +175,7 @@
                         </div>
 
                         <div class="field-wrapper">
-                            <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-phone mr-2 text-green-600"></i>
                                 {{ form.telefono.label }}
                             </label>
@@ -257,7 +300,7 @@
                             <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-4 bg-white text-gray-500">o continúa con</span>
+                            <span class="px-4 bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-300">o continúa con</span>
                         </div>
                     </div>
 
@@ -265,7 +308,7 @@
                     <div class="pt-4">
                         <button type="button" 
                                 id="googleSignInBtn"
-                                class="inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-gray-700 bg-white hover:bg-gray-50 border-2 border-gray-300 rounded-full transition duration-200">
+                                class="inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 border-2 border-gray-300 dark:border-slate-600 rounded-full transition duration-200 google-btn">
                             <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -276,10 +319,10 @@
                         </button>
                     </div>
 
-                    <div class="text-center border-t border-gray-200 pt-6 mt-6 pb-4">
-                        <p class="text-gray-700">
+                    <div class="text-center border-t border-gray-200 dark:border-slate-700 pt-6 mt-6 pb-4">
+                        <p class="text-gray-700 dark:text-slate-300">
                             ¿Ya tienes cuenta? 
-                            <a href="{% url 'login' %}" class="font-medium text-green-700 hover:text-green-800 transition-colors duration-300">
+                            <a href="{% url 'login' %}" class="font-medium text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-500 transition-colors duration-300">
                                 Inicia sesión aquí
                             </a>
                         </p>

@@ -4,7 +4,7 @@
 {% block title %}Marketplace{% endblock %}
 
 {% block content %}
-    <div class="bg-white min-h-screen py-8">
+    <div class="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen py-8">
         <div class="w-full px-4 lg:px-8">
             <!-- Header -->
             <div class="text-center mb-12 lg:mb-16">
@@ -12,15 +12,15 @@
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
                     </svg>
-                    <span class="inline-block ml-2 text-sm font-medium text-green-900">Productos</span>
+                    <span class="inline-block ml-2 text-sm font-medium text-green-900 dark:text-green-300">Productos</span>
                 </div>
-                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 mb-6">Marketplace</h1>
-                <p class="text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto">Descubre los productos frescos ofrecidos directamente por agricultores locales</p>
+                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 dark:text-gray-100 mb-6">Marketplace</h1>
+                <p class="text-lg lg:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">Descubre los productos frescos ofrecidos directamente por agricultores locales</p>
             </div>
             
             <!-- Advanced Search and Filters -->
             <div class="max-w-6xl mx-auto mb-12">
-                <form method="get" class="bg-white rounded-3xl shadow-md p-6 lg:p-8">
+                <form method="get" class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-8">
                     <!-- Search Bar and Filter Toggle -->
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
                         <div class="relative flex-grow">
@@ -31,10 +31,10 @@
                                    name="search" 
                                    placeholder="Buscar productos, productores..." 
                                    value="{{ search_query }}" 
-                                   class="w-full pr-4 py-3 border-2 border-gray-300 rounded-full focus:border-green-500 focus:outline-none text-base transition relative z-0" 
+                                   class="w-full pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-full focus:border-green-500 dark:focus:border-green-400 focus:outline-none text-base transition relative z-0" 
                                    style="padding-left: 3rem;">
                         </div>
-                        <button type="button" id="toggle-filters-btn" class="inline-flex py-3 px-6 items-center justify-center text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+                        <button type="button" id="toggle-filters-btn" class="inline-flex py-3 px-6 items-center justify-center text-base font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 border-2 border-gray-300 dark:border-slate-600 rounded-full transition duration-200">
                             <i class="fas fa-filter mr-2"></i>Filtros
                         </button>
                     </div>
@@ -167,53 +167,53 @@
             <!-- Products Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
                 {% for pub in publications %}
-                    <div class="bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
                         <a href="{% url 'publication_detail' pub.id %}" class="block">
                             <!-- Product Image -->
                             <div class="relative h-56 overflow-hidden">
                                 {% if pub.imagen %}
                                     <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                 {% else %}
-                                    <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 dark:from-slate-400 dark:to-slate-600 flex items-center justify-center">
                                         <i class="fas fa-seedling text-white text-5xl opacity-80"></i>
                                     </div>
                                 {% endif %}
                                 <!-- Category Badge -->
                                 {% if pub.categoria_display %}
-                                <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-medium text-gray-700">
+                                <div class="absolute top-3 left-3 bg-white/90 dark:bg-slate-700 backdrop-blur px-3 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-white">
                                     {{ pub.categoria_display }}
                                 </div>
                                 {% endif %}
                                 <!-- Price Badge -->
-                                <div class="absolute top-3 right-3 bg-green-600 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg">
+                                <div class="absolute top-3 right-3 bg-green-600 dark:bg-slate-700 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg">
                                     ${{ pub.precio_por_unidad }}
                                 </div>
                             </div>
                         </a>
                         <div class="p-5">
                             <a href="{% url 'publication_detail' pub.id %}" class="block mb-4">
-                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-700 transition-colors">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
                                     {{ pub.cultivo.nombre }}
                                 </h3>
                             </a>
                             <div class="space-y-3 mb-5">
-                                <div class="flex items-center text-gray-600 text-sm">
-                                    <i class="fas fa-dollar-sign text-green-600 mr-3 w-5"></i>
+                                <div class="flex items-center text-gray-600 dark:text-gray-300 text-sm">
+                                    <i class="fas fa-dollar-sign text-green-600 dark:text-white mr-3 w-5"></i>
                                     <span>
-                                        <span class="font-bold text-green-700">${{ pub.precio_por_unidad }}</span> 
-                                        <span class="text-gray-500">/ {{ pub.cultivo.unidad_medida }}</span>
+                                        <span class="font-bold text-green-700 dark:text-white">${{ pub.precio_por_unidad }}</span> 
+                                        <span class="text-gray-500 dark:text-gray-400">/ {{ pub.cultivo.unidad_medida }}</span>
                                     </span>
                                 </div>
-                                <div class="flex items-center text-gray-600 text-sm">
-                                    <i class="fas fa-boxes text-green-600 mr-3 w-5"></i>
+                                <div class="flex items-center text-gray-600 dark:text-gray-300 text-sm">
+                                    <i class="fas fa-boxes text-green-600 dark:text-white mr-3 w-5"></i>
                                     <span>
-                                        <span class="font-semibold text-green-700">{{ pub.cantidad_disponible }}</span> 
-                                        {{ pub.cultivo.unidad_medida }} disponibles
+                                        <span class="font-semibold text-green-700 dark:text-white">{{ pub.cantidad_disponible }}</span> 
+                                        <span class="dark:text-gray-400">{{ pub.cultivo.unidad_medida }} disponibles</span>
                                     </span>
                                 </div>
                             </div>
                             
-                            <a href="{% url 'publication_detail' pub.id %}" class="inline-flex w-full py-3 px-4 items-center justify-center text-sm font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+                            <a href="{% url 'publication_detail' pub.id %}" class="inline-flex w-full py-3 px-4 items-center justify-center text-sm font-medium text-white bg-green-900 dark:bg-slate-700 hover:bg-green-800 dark:hover:bg-slate-600 rounded-full transition duration-200">
                                 <i class="fas fa-eye mr-2"></i>Ver Detalles
                             </a>
                         </div>
