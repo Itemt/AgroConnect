@@ -9,12 +9,16 @@
     <!-- Meta Description -->
     <meta name="description" content="{% block description %}AgroConnect - Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
     <meta property="og:title" content="{% block og_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.png' %}{% endblock %}">
+    <meta property="og:image:secure_url" content="{{ 'https' }}://{{ request.get_host }}{% static 'images/og-image.png' %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/png">
@@ -28,7 +32,7 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
     <meta name="twitter:title" content="{% block twitter_title %}AgroConnect - Del Campo a tu Hogar, Sin Intermediarios{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}Plataforma que conecta productores agrícolas con compradores. Compra y vende productos frescos directamente del campo.{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.png' %}{% endblock %}">
@@ -507,11 +511,11 @@
     
     <!-- Floating AI Assistant Bubble -->
     <div id="assistant-bubble" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40">
-        <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center hover:scale-105 transition-transform">
+        <button id="assistant-toggle" class="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-strong bg-gradient-to-br from-primary-500 to-primary-700 dark:from-slate-700 dark:to-slate-600 text-white flex items-center justify-center hover:scale-105 transition-transform">
             <i class="fas fa-robot text-lg md:text-xl"></i>
         </button>
-        <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white rounded-2xl shadow-strong border border-gray-200 overflow-hidden" style="height: 28rem;">
-            <div class="px-3 py-2 md:px-4 md:py-3 bg-primary-600 text-white">
+        <div id="assistant-panel" class="hidden mt-3 w-[calc(100vw-2rem)] max-w-[20rem] sm:w-[24rem] md:w-[28rem] lg:w-[32rem] bg-white dark:bg-slate-800 rounded-2xl shadow-strong border border-gray-200 dark:border-slate-700 overflow-hidden" style="height: 28rem;">
+            <div class="px-3 py-2 md:px-4 md:py-3 bg-primary-600 dark:bg-slate-700 text-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-robot text-sm md:text-base"></i>
@@ -520,42 +524,42 @@
                     <button id="assistant-close" class="text-white/80 hover:text-white"><i class="fas fa-times text-sm md:text-base"></i></button>
                 </div>
             </div>
-            <div class="border-b border-gray-200 flex">
-                <button id="tab-ai" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm font-medium bg-white">Asistente</button>
-                <button id="tab-chat" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm text-gray-600 bg-gray-100">Chats</button>
+            <div class="border-b border-gray-200 dark:border-slate-700 flex">
+                <button id="tab-ai" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm font-medium bg-white dark:bg-slate-800 dark:text-gray-100">Asistente</button>
+                <button id="tab-chat" class="flex-1 px-2 py-2 md:px-3 text-xs md:text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700">Chats</button>
             </div>
-            <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 bg-white border-b">Nueva conversación</div>
-            <div id="assistant-messages" class="overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50" style="height: 16rem;">
-                <div class="text-sm text-gray-700 bg-white rounded-xl p-3 shadow-soft">
+            <div id="assistant-title" class="px-3 py-1 md:px-4 md:py-2 text-xs text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-800 border-b dark:border-slate-700">Nueva conversación</div>
+            <div id="assistant-messages" class="overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-50 dark:bg-slate-800" style="height: 16rem;">
+                <div class="text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 rounded-xl p-3 shadow-soft">
                     Hola, ¿en qué te ayudo hoy?
                 </div>
             </div>
-            <div id="chat-pane" class="hidden bg-gray-50 flex flex-col" style="height: 16rem;">
+            <div id="chat-pane" class="hidden bg-gray-50 dark:bg-slate-800 flex flex-col" style="height: 16rem;">
                 <!-- View: conversations list only -->
                 <div id="chat-list-view" class="h-full flex flex-col">
-                    <div class="p-2 md:p-3 border-b bg-white flex-shrink-0">
-                        <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <div class="p-2 md:p-3 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                        <input id="chat-search" type="text" placeholder="Buscar..." class="w-full text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
-                    <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white"></div>
+                    <div id="chat-list" class="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 bg-white dark:bg-slate-800"></div>
                 </div>
                 <!-- View: thread with back button -->
                 <div id="chat-thread-view" class="hidden h-full flex flex-col">
-                    <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b bg-white flex-shrink-0">
-                        <button id="chat-back" class="text-primary-700 text-xs md:text-sm px-2 py-1 rounded hover:bg-primary-50"><i class="fas fa-arrow-left mr-1"></i>Atrás</button>
-                        <div id="chat-thread-title" class="text-xs md:text-sm text-gray-700 truncate ml-2 flex-1"></div>
+                    <div class="flex items-center justify-between px-2 md:px-3 py-2 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                        <button id="chat-back" class="text-primary-700 dark:text-primary-300 text-xs md:text-sm px-2 py-1 rounded hover:bg-primary-50 dark:hover:bg-slate-700"><i class="fas fa-arrow-left mr-1"></i>Atrás</button>
+                        <div id="chat-thread-title" class="text-xs md:text-sm text-gray-700 dark:text-gray-200 truncate ml-2 flex-1"></div>
                     </div>
-                    <div id="chat-thread" class="flex-1 overflow-y-auto p-2 md:p-3 space-y-1 md:space-y-2 bg-gray-50"></div>
-                    <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white flex-shrink-0">
-                        <input id="chat-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
-                        <button id="chat-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                    <div id="chat-thread" class="flex-1 overflow-y-auto p-2 md:p-3 space-y-1 md:space-y-2 bg-gray-50 dark:bg-slate-800"></div>
+                    <form id="chat-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                        <input id="chat-input" type="text" class="flex-1 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Escribe un mensaje..." required>
+                        <button id="chat-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 dark:bg-slate-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-slate-600">
                             <i class="fas fa-paper-plane text-xs md:text-sm"></i>
                         </button>
                     </form>
                 </div>
             </div>
-            <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 bg-white">
-                <input id="assistant-input" type="text" class="flex-1 text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-sm" placeholder="Pregunta sobre la plataforma..." required>
-                <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+            <form id="assistant-form" class="flex items-center p-2 md:p-3 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <input id="assistant-input" type="text" class="flex-1 text-sm px-2 md:px-3 py-1 md:py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-sm" placeholder="Pregunta sobre la plataforma..." required>
+                <button id="assistant-send" class="ml-2 md:ml-3 px-2 md:px-3 py-1 md:py-2 bg-primary-600 dark:bg-slate-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-slate-600">
                     <i class="fas fa-paper-plane text-xs md:text-sm"></i>
                 </button>
             </form>

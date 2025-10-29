@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block og_title %}{{ publication.cultivo.nombre }} • {{ publication.cultivo.productor.username }} en AgroConnect{% endblock %}
+{% block og_description %}{{ publication.descripcion|default:'Producto agrícola disponible en AgroConnect. Compra directo al productor con trazabilidad.' }}{% endblock %}
+{% block twitter_title %}{{ publication.cultivo.nombre }} • AgroConnect{% endblock %}
+{% block twitter_description %}Compra {{ publication.cultivo.nombre }} directo al productor en AgroConnect.{% endblock %}
+
 {% block title %}{{ publication.cultivo.nombre }}{% endblock %}
 
 {% block content %}
