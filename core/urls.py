@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 from . import views_farm
 from . import views_docs
-from . import views_admin
 
 app_name = 'core'
 
