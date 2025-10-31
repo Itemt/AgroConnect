@@ -32,7 +32,7 @@ def add_to_cart(request, publication_id):
         if minimo_convertido is None:
             minimo_convertido = float(publication.cantidad_minima)
         if quantity < float(minimo_convertido):
-            messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad_compra}')
+            messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.1f} {unidad_compra}')
             next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
             return redirect(next_url)
 
@@ -40,7 +40,7 @@ def add_to_cart(request, publication_id):
         disponible, cantidad_disponible = publication.verificar_disponibilidad(quantity, unidad_compra)
         
         if not disponible:
-            messages.error(request, f'❌ Cantidad no disponible. Solo hay {cantidad_disponible:.2f} {unidad_compra} disponibles')
+            messages.error(request, f'❌ Cantidad no disponible. Solo hay {cantidad_disponible:.1f} {unidad_compra} disponibles')
             next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
             return redirect(next_url)
         
@@ -56,19 +56,19 @@ def add_to_cart(request, publication_id):
             nueva_cantidad = float(cart_item.quantity) + quantity
             # Validar mínimo
             if nueva_cantidad < float(minimo_convertido):
-                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad_compra}')
+                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.1f} {unidad_compra}')
                 next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
                 return redirect(next_url)
             disponible, cantidad_disponible = publication.verificar_disponibilidad(nueva_cantidad, unidad_compra)
             
             if not disponible:
-                messages.error(request, f'❌ No puedes agregar esa cantidad. Solo hay {cantidad_disponible:.2f} {unidad_compra} disponibles y ya tienes {float(cart_item.quantity):.2f} en tu carrito')
+                messages.error(request, f'❌ No puedes agregar esa cantidad. Solo hay {cantidad_disponible:.1f} {unidad_compra} disponibles y ya tienes {float(cart_item.quantity):.1f} en tu carrito')
                 next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
                 return redirect(next_url)
             
             cart_item.quantity = nueva_cantidad
             cart_item.save()
-            messages.success(request, f'✓ Cantidad actualizada: {publication.cultivo.nombre} ({float(cart_item.quantity):.2f} {unidad_compra})')
+            messages.success(request, f'✓ Cantidad actualizada: {publication.cultivo.nombre} ({float(cart_item.quantity):.1f} {unidad_compra})')
         else:
             cart_item = CartItem.objects.create(
                 cart=cart,
@@ -76,7 +76,7 @@ def add_to_cart(request, publication_id):
                 quantity=quantity,
                 unidad_compra=unidad_compra
             )
-            messages.success(request, f'✓ Producto agregado al carrito: {publication.cultivo.nombre} ({quantity:.2f} {unidad_compra})')
+            messages.success(request, f'✓ Producto agregado al carrito: {publication.cultivo.nombre} ({quantity:.1f} {unidad_compra})')
         
     except ValueError:
         messages.error(request, '❌ Cantidad inválida')
@@ -115,20 +115,20 @@ def update_cart(request, item_id):
             if minimo_convertido is None:
                 minimo_convertido = float(cart_item.publication.cantidad_minima)
             if quantity < float(minimo_convertido):
-                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad}')
+                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.1f} {unidad}')
                 return redirect('cart:cart_detail')
 
             # Verificar disponibilidad
             disponible, cantidad_disponible = cart_item.publication.verificar_disponibilidad(quantity, unidad)
             
             if not disponible:
-                messages.error(request, f'❌ Cantidad no disponible. Solo hay {cantidad_disponible:.2f} {unidad} disponibles')
+                messages.error(request, f'❌ Cantidad no disponible. Solo hay {cantidad_disponible:.1f} {unidad} disponibles')
                 return redirect('cart:cart_detail')
             
             cart_item.quantity = quantity
             cart_item.unidad_compra = unidad
             cart_item.save()
-            messages.success(request, f'✓ Cantidad actualizada: {product_name} ({quantity:.2f} {unidad})')
+            messages.success(request, f'✓ Cantidad actualizada: {product_name} ({quantity:.1f} {unidad})')
         else:
             cart_item.delete()
             messages.success(request, f'✓ Producto eliminado del carrito: {product_name}')

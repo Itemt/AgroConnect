@@ -899,7 +899,7 @@ def create_order_from_cart(request):
         if minimo_convertido is None:
             minimo_convertido = float(publication.cantidad_minima)
         if float(item.quantity) < float(minimo_convertido):
-            messages.error(request, f"❌ {publication.cultivo.nombre}: mínimo {float(minimo_convertido):.3f} {item.unidad_compra}")
+            messages.error(request, f"❌ {publication.cultivo.nombre}: mínimo {float(minimo_convertido):.1f} {item.unidad_compra}")
             return redirect('cart:cart_detail')
 
         # Verificar disponibilidad considerando conversión
@@ -908,7 +908,7 @@ def create_order_from_cart(request):
             disponible_display = cantidad_disponible if cantidad_disponible is not None else publication.cantidad_disponible
             messages.error(
                 request,
-                f"❌ {publication.cultivo.nombre}: disponible {float(disponible_display):.3f} {item.unidad_compra}"
+                f"❌ {publication.cultivo.nombre}: disponible {float(disponible_display):.1f} {item.unidad_compra}"
             )
             return redirect('cart:cart_detail')
 
@@ -983,7 +983,7 @@ def cart_checkout_summary(request):
     for order in orders:
         unit = order.publicacion.unidad_medida
         totals_by_unit[unit] = totals_by_unit.get(unit, 0.0) + float(order.cantidad_acordada)
-    totals_by_unit_items = sorted(((u, round(q, 3)) for u, q in totals_by_unit.items()), key=lambda x: x[0])
+    totals_by_unit_items = sorted(((u, round(q, 1)) for u, q in totals_by_unit.items()), key=lambda x: x[0])
     
     # Crear datos de checkout para cada pedido
     mercadopago_service = MercadoPagoService()

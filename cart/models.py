@@ -29,8 +29,8 @@ class Cart(models.Model):
         for item in self.items.all():
             unit = item.unidad_compra
             totals[unit] = totals.get(unit, 0.0) + float(item.quantity)
-        # Redondear a 3 decimales
-        return {u: round(q, 3) for u, q in totals.items()}
+        # Redondear a 1 decimal
+        return {u: round(q, 1) for u, q in totals.items()}
 
     @property
     def totals_by_unit_items(self):
@@ -113,7 +113,7 @@ class CartItem(models.Model):
     def validation_error(self):
         """Mensaje de error amigable si el item es inválido, sino cadena vacía"""
         if self.is_below_minimum:
-            return f"Mínimo: {float(self.minimo_en_unidad_compra):.3f} {self.unidad_compra}"
+            return f"Mínimo: {float(self.minimo_en_unidad_compra):.1f} {self.unidad_compra}"
         if self.is_over_available:
-            return f"Disponible: {float(self.disponible_en_unidad_compra):.3f} {self.unidad_compra}"
+            return f"Disponible: {float(self.disponible_en_unidad_compra):.1f} {self.unidad_compra}"
         return ""

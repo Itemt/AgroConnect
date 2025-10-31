@@ -124,7 +124,7 @@
                             <div class="flex flex-wrap gap-2">
                                 {% for unidad, cantidad in totals_by_unit_items %}
                                 <span class="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-800">
-                                    <span class="font-semibold mr-1">{{ cantidad|floatformat:3 }}</span>
+                                    <span class="font-semibold mr-1">{{ cantidad|floatformat:1 }}</span>
                                     <span class="uppercase tracking-wide text-xs">{{ unidad }}</span>
                                 </span>
                                 {% endfor %}
