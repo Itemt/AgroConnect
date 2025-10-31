@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block og_title %}Rankings de Usuarios • AgroConnect{% endblock %}
 {% block og_description %}Conoce a los mejores vendedores y compradores de AgroConnect: reputación, transacciones y logros.{% endblock %}
@@ -8,198 +9,208 @@
 {% block title %}Rankings de Usuarios{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50/30 dark:from-slate-900 dark:to-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto overflow-visible">
+<div class="bg-gray-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
-        <div class="card mb-10 overflow-visible">
-            <div class="card-body p-8 py-10 overflow-visible">
-                <div class="text-center overflow-visible">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-accent-400 to-accent-600 rounded-2xl shadow-strong mb-6">
-                        <i class="fas fa-trophy text-white text-4xl"></i>
-                    </div>
-                    <div class="overflow-visible py-3">
-                        <h1 class="text-5xl font-bold text-gradient dark:text-gray-100 mb-4" style="padding-bottom: 0.3em;">Rankings de AgroConnect</h1>
-                    </div>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Descubre a los mejores vendedores y compradores de nuestra comunidad.</p>
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-200 dark:border-slate-700 p-8 lg:p-12 mb-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl shadow-lg mb-6">
+                    <i class="fas fa-trophy text-white text-4xl"></i>
                 </div>
+                <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    Rankings de AgroConnect
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    Descubre a los mejores vendedores y compradores de nuestra comunidad basados en su reputación y actividad.
+                </p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Top Sellers -->
-            <div class="card overflow-visible">
-                <div class="card-body p-8 overflow-visible">
-                    <div class="flex items-center mb-8 overflow-visible">
-                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
-                            <i class="fas fa-star text-white text-xl"></i>
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-200 dark:border-slate-700 p-6 lg:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-star text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Mejores Vendedores</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for profile in top_sellers %}
+                        <a href="{% url 'user_profile' profile.user.id %}" class="block bg-gradient-to-r from-gray-50 to-white dark:from-slate-700 dark:to-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex items-center">
+                                <!-- Rank Badge -->
+                                <div class="flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl
+                                    {% if forloop.counter == 1 %}bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-md
+                                    {% elif forloop.counter == 2 %}bg-gradient-to-br from-gray-300 to-gray-500 shadow-md
+                                    {% elif forloop.counter == 3 %}bg-gradient-to-br from-yellow-600 to-yellow-800 shadow-md
+                                    {% else %}bg-gradient-to-br from-green-400 to-green-600 shadow-md{% endif %}">
+                                    {% if forloop.counter <= 3 %}
+                                        <i class="fas fa-trophy text-white text-xl"></i>
+                                    {% else %}
+                                        <span class="text-white font-bold text-lg">{{ forloop.counter }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- User Info -->
+                                <div class="flex-grow ml-5 min-w-0">
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-lg group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300 truncate">
+                                        {{ profile.user.get_full_name|default:profile.user.username }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
+                                        <i class="fas fa-map-marker-alt mr-2 text-green-600 dark:text-green-400"></i>
+                                        {{ profile.ubicacion_completa|default:"Ubicación no disponible" }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Stats -->
+                                <div class="text-right ml-4 flex-shrink-0">
+                                    <div class="flex items-center justify-end gap-1 mb-2">
+                                        {% render_stars profile.calificacion_promedio 'xs' %}
+                                    </div>
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                                        {{ profile.calificacion_promedio|floatformat:1|default:"0.0" }}
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                        <i class="fas fa-shopping-bag mr-1"></i>{{ profile.total_ventas }} venta{{ profile.total_ventas|pluralize }}
+                                    </div>
+                                    {% if profile.ingresos_totales > 0 %}
+                                    <div class="text-sm text-green-600 dark:text-green-400 font-bold mt-1">
+                                        ${{ profile.ingresos_totales|floatformat:0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-seedling text-gray-400 dark:text-gray-500 text-3xl"></i>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 text-lg">Aún no hay vendedores calificados.</p>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 leading-tight">Mejores Vendedores</h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        {% for profile in top_sellers %}
-                            <div class="bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl
-                                        {% if forloop.counter == 1 %}bg-gradient-to-br from-yellow-400 to-yellow-600
-                                        {% elif forloop.counter == 2 %}bg-gradient-to-br from-gray-300 to-gray-500
-                                        {% elif forloop.counter == 3 %}bg-gradient-to-br from-yellow-600 to-yellow-800
-                                        {% else %}bg-gradient-to-br from-primary-400 to-primary-600{% endif %}
-                                        shadow-md">
-                                        {% if forloop.counter <= 3 %}
-                                            <i class="fas fa-trophy text-white text-2xl"></i>
-                                        {% else %}
-                                            <span class="text-white font-bold text-xl">{{ forloop.counter }}</span>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="flex-grow ml-5">
-                                        <h4 class="font-bold text-gray-900 text-lg group-hover:text-primary-600 transition-colors duration-300">
-                                            {{ profile.user.first_name }} {{ profile.user.last_name }}
-                                        </h4>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>{{ profile.ubicacion_completa|default:"Ubicación no disponible" }}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="text-right ml-4">
-                                        <div class="flex items-center justify-end mb-2">
-                                            <span class="font-bold text-2xl text-gray-900 mr-2">{{ profile.calificacion_promedio|floatformat:1 }}</span>
-                                            <i class="fas fa-star text-yellow-400 text-xl"></i>
-                                        </div>
-                                        <div class="text-sm text-gray-600 font-medium">
-                                            <i class="fas fa-shopping-bag mr-1"></i>{{ profile.total_ventas }} venta{{ profile.total_ventas|pluralize }}
-                                        </div>
-                                        <div class="text-sm text-primary-600 font-bold mt-1">
-                                            ${{ profile.ingresos_totales|floatformat:0 }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="text-center py-12">
-                                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-seedling text-gray-400 text-3xl"></i>
-                                </div>
-                                <p class="text-gray-500 text-lg">Aún no hay vendedores calificados.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
             <!-- Top Buyers -->
-            <div class="card overflow-visible">
-                <div class="card-body p-8 overflow-visible">
-                    <div class="flex items-center mb-8 overflow-visible">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
-                            <i class="fas fa-shopping-cart text-white text-xl"></i>
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-200 dark:border-slate-700 p-6 lg:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-shopping-cart text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Mejores Compradores</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for profile in top_buyers %}
+                        <a href="{% url 'user_profile' profile.user.id %}" class="block bg-gradient-to-r from-gray-50 to-white dark:from-slate-700 dark:to-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex items-center">
+                                <!-- Rank Badge -->
+                                <div class="flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl
+                                    {% if forloop.counter == 1 %}bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-md
+                                    {% elif forloop.counter == 2 %}bg-gradient-to-br from-gray-300 to-gray-500 shadow-md
+                                    {% elif forloop.counter == 3 %}bg-gradient-to-br from-yellow-600 to-yellow-800 shadow-md
+                                    {% else %}bg-gradient-to-br from-blue-400 to-blue-600 shadow-md{% endif %}">
+                                    {% if forloop.counter <= 3 %}
+                                        <i class="fas fa-trophy text-white text-xl"></i>
+                                    {% else %}
+                                        <span class="text-white font-bold text-lg">{{ forloop.counter }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- User Info -->
+                                <div class="flex-grow ml-5 min-w-0">
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300 truncate">
+                                        {{ profile.user.get_full_name|default:profile.user.username }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
+                                        <i class="fas fa-building mr-2 text-blue-600 dark:text-blue-400"></i>
+                                        {{ profile.company_name|default:"Empresa no disponible" }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Stats -->
+                                <div class="text-right ml-4 flex-shrink-0">
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-2">
+                                        <i class="fas fa-shopping-cart mr-1"></i>{{ profile.total_compras }} compra{{ profile.total_compras|pluralize }}
+                                    </div>
+                                    {% if profile.gastos_totales > 0 %}
+                                    <div class="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                        ${{ profile.gastos_totales|floatformat:0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-shopping-bag text-gray-400 dark:text-gray-500 text-3xl"></i>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 text-lg">Aún no hay compradores calificados.</p>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 leading-tight">Mejores Compradores</h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        {% for profile in top_buyers %}
-                            <div class="bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-xl
-                                        {% if forloop.counter == 1 %}bg-gradient-to-br from-yellow-400 to-yellow-600
-                                        {% elif forloop.counter == 2 %}bg-gradient-to-br from-gray-300 to-gray-500
-                                        {% elif forloop.counter == 3 %}bg-gradient-to-br from-yellow-600 to-yellow-800
-                                        {% else %}bg-gradient-to-br from-blue-400 to-blue-600{% endif %}
-                                        shadow-md">
-                                        {% if forloop.counter <= 3 %}
-                                            <i class="fas fa-trophy text-white text-2xl"></i>
-                                        {% else %}
-                                            <span class="text-white font-bold text-xl">{{ forloop.counter }}</span>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="flex-grow ml-5">
-                                        <h4 class="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors duration-300">
-                                            {{ profile.user.first_name }} {{ profile.user.last_name }}
-                                        </h4>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            <i class="fas fa-building mr-2 text-blue-600"></i>{{ profile.company_name|default:"Empresa no disponible" }}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="text-right ml-4">
-                                        <div class="text-sm text-gray-600 font-medium mb-2">
-                                            <i class="fas fa-shopping-cart mr-1"></i>{{ profile.total_compras }} compra{{ profile.total_compras|pluralize }}
-                                        </div>
-                                        <div class="text-sm text-blue-600 font-bold">
-                                            ${{ profile.gastos_totales|floatformat:0 }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="text-center py-12">
-                                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-shopping-bag text-gray-400 text-3xl"></i>
-                                </div>
-                                <p class="text-gray-500 text-lg">Aún no hay compradores calificados.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
 
-        <!-- Info -->
-        <div class="card overflow-visible">
-            <div class="card-body p-8 bg-gradient-to-r from-blue-50 to-white overflow-visible">
-                <div class="flex items-center mb-6 overflow-visible">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
-                        <i class="fas fa-info-circle text-white text-xl"></i>
+        <!-- Info Section -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-200 dark:border-slate-700 p-6 lg:p-8">
+            <div class="flex items-center mb-6">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mr-4 flex-shrink-0">
+                    <i class="fas fa-info-circle text-white text-xl"></i>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Sobre los Rankings</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 border border-gray-200 dark:border-slate-600 hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-bullseye text-white"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-gray-900 dark:text-white">Criterios</h4>
                     </div>
-                    <h3 class="text-3xl font-bold text-gray-800 leading-tight">Sobre los Rankings</h3>
+                    <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-2 mt-1"></i>
+                            <span>Calificación promedio de clientes</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-2 mt-1"></i>
+                            <span>Número de transacciones completadas</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-2 mt-1"></i>
+                            <span>Volumen total de ventas/compras</span>
+                        </li>
+                    </ul>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-bullseye text-white"></i>
-                            </div>
-                            <h4 class="font-bold text-lg text-gray-900">Criterios</h4>
+                <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 border border-gray-200 dark:border-slate-600 hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-pie text-white"></i>
                         </div>
-                        <ul class="space-y-2 text-gray-700">
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-primary-600 mr-2 mt-1"></i>
-                                <span>Calificación promedio</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-primary-600 mr-2 mt-1"></i>
-                                <span>Número de transacciones</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-primary-600 mr-2 mt-1"></i>
-                                <span>Volumen de ventas/compras</span>
-                            </li>
-                        </ul>
+                        <h4 class="font-bold text-lg text-gray-900 dark:text-white">Actualización</h4>
                     </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-chart-pie text-white"></i>
-                            </div>
-                            <h4 class="font-bold text-lg text-gray-900">Actualización</h4>
+                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        Los rankings se actualizan automáticamente en tiempo real basándose en las calificaciones y transacciones más recientes de los usuarios.
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 border border-gray-200 dark:border-slate-600 hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-trophy text-white"></i>
                         </div>
-                        <p class="text-gray-700 leading-relaxed">Los rankings se actualizan en tiempo real basándose en las calificaciones y transacciones más recientes.</p>
+                        <h4 class="font-bold text-lg text-gray-900 dark:text-white">Beneficios</h4>
                     </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-trophy text-white"></i>
-                            </div>
-                            <h4 class="font-bold text-lg text-gray-900">Beneficios</h4>
-                        </div>
-                        <p class="text-gray-700 leading-relaxed">Mayor visibilidad y confianza en la comunidad, atrayendo más oportunidades de negocio.</p>
-                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        Los usuarios destacados disfrutan de mayor visibilidad y confianza en la comunidad, atrayendo más oportunidades de negocio.
+                    </p>
                 </div>
             </div>
         </div>

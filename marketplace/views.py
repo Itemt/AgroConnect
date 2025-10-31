@@ -28,6 +28,7 @@ def marketplace_view(request):
     precio_min = request.GET.get('precio_min', '')
     precio_max = request.GET.get('precio_max', '')
     ubicacion_filter = request.GET.get('ubicacion', '')
+    vendedor_filter = request.GET.get('vendedor', '')
     orden = request.GET.get('orden', '-created_at')
     
     # Aplicar filtros
@@ -60,6 +61,14 @@ def marketplace_view(request):
     if ubicacion_filter:
         publications = publications.filter(
             cultivo__productor__producer_profile__location__icontains=ubicacion_filter
+        )
+    
+    # Filtrar por vendedor
+    if vendedor_filter:
+        publications = publications.filter(
+            Q(cultivo__productor__username__icontains=vendedor_filter) |
+            Q(cultivo__productor__first_name__icontains=vendedor_filter) |
+            Q(cultivo__productor__last_name__icontains=vendedor_filter)
         )
     
     # Ordenar resultados

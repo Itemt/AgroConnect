@@ -239,20 +239,42 @@ def update_rating_stats(sender, instance, created, **kwargs):
             if instance.tipo == 'comprador_a_vendedor':
                 # Calificación de comprador a vendedor
                 try:
-                    seller_profile = ProducerProfile.objects.get(user=instance.calificado)
+                    seller_profile, _ = ProducerProfile.objects.get_or_create(
+                        user=instance.calificado,
+                        defaults={
+                            'total_ventas': 0,
+                            'ingresos_totales': 0,
+                            'calificacion_promedio': 0,
+                            'total_calificaciones': 0,
+                        }
+                    )
                     
-                    # Recalcular promedio de calificaciones
+                    # Recalcular promedio de calificaciones basado en calificado (más preciso)
                     ratings = Rating.objects.filter(
-                        pedido__vendedor=instance.calificado,
+                        calificado=instance.calificado,
                         tipo='comprador_a_vendedor'
                     )
                     
                     if ratings.exists():
                         avg_rating = ratings.aggregate(avg=Avg('calificacion_general'))['avg']
-                        seller_profile.calificacion_promedio = round(avg_rating, 2)
+                        seller_profile.calificacion_promedio = round(avg_rating, 1)  # Usar 1 decimal
                         seller_profile.total_calificaciones = ratings.count()
                         seller_profile.save()
+                    else:
+                        # Si no hay calificaciones, resetear a 0
+                        seller_profile.calificacion_promedio = 0
+                        seller_profile.total_calificaciones = 0
+                        seller_profile.save()
                         
+                except ProducerProfile.DoesNotExist:
+                    # Si no existe el perfil, crearlo con valores por defecto
+                    ProducerProfile.objects.create(
+                        user=instance.calificado,
+                        total_ventas=0,
+                        ingresos_totales=0,
+                        calificacion_promedio=0,
+                        total_calificaciones=0,
+                    )
                 except Exception as e:
                     print(f"Error updating rating stats: {e}")
         except Exception as e:
