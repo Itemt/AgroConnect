@@ -14,8 +14,8 @@
                             <i class="fas fa-receipt text-white text-2xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-5xl font-bold text-gradient">Pedido #{{ order.id }}</h1>
-                            <p class="text-gray-600 mt-2 text-xl">Realizado el: {{ order.created_at|date:"d M Y" }}</p>
+                            <h1 class="text-5xl font-bold text-gray-900 dark:text-white">Pedido #{{ order.id }}</h1>
+                            <p class="text-gray-600 dark:text-gray-300 mt-2 text-xl">Realizado el: {{ order.created_at|date:"d M Y" }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
@@ -43,9 +43,9 @@
         </div>
 
         <!-- Acciones Disponibles -->
-        <div class="card mb-8">
-            <div class="card-body p-6">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                     <i class="fas fa-tasks text-primary-600 mr-3"></i>
                     Acciones Disponibles
                 </h3>
@@ -116,79 +116,79 @@
             <div class="lg:col-span-2">
                 <div class="card mb-6">
                     <div class="card-body p-6">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                             <i class="fas fa-box text-primary-600 mr-3"></i>
                             Detalles del Producto
                         </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Información del Producto -->
-                            <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                            <div class="bg-green-50 border border-green-200 dark:bg-green-500/20 dark:border-gray-700 rounded-xl p-6">
                                 <div class="flex items-start">
                                     <div class="bg-green-500 rounded-lg p-3 mr-4">
                                         <i class="fas fa-seedling text-white text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Producto</h4>
-                                        <p class="text-gray-600">{{ order.publicacion.cultivo.nombre }}</p>
-                                        <p class="text-sm text-gray-500 mt-1">{{ order.publicacion.cultivo.get_categoria_display }}</p>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-2">Producto</h4>
+                                        <p class="text-gray-800 dark:text-gray-200">{{ order.publicacion.cultivo.nombre }}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ order.publicacion.cultivo.get_categoria_display }}</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Cantidad -->
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <div class="bg-blue-50 border border-blue-200 dark:bg-blue-500/20 dark:border-gray-700 rounded-xl p-6">
                                 <div class="flex items-start">
                                     <div class="bg-blue-500 rounded-lg p-3 mr-4">
                                         <i class="fas fa-weight text-white text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Cantidad</h4>
-                                        <p class="text-gray-600">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-2">Cantidad</h4>
+                                        <p class="text-gray-800 dark:text-gray-200">{{ order.cantidad_acordada }} {{ order.publicacion.cultivo.unidad_medida }}</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Precio Unitario -->
-                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                            <div class="bg-purple-50 border border-purple-200 dark:bg-purple-500/20 dark:border-gray-700 rounded-xl p-6">
                                 <div class="flex items-start">
                                     <div class="bg-purple-500 rounded-lg p-3 mr-4">
                                         <i class="fas fa-tag text-white text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Precio Unitario</h4>
-                                        <p class="text-gray-600">${{ order.publicacion.precio_unitario|floatformat:0 }} COP</p>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-2">Precio Unitario</h4>
+                                        <p class="text-gray-800 dark:text-gray-200">${{ order.publicacion.precio_unitario|floatformat:0 }} COP</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Total -->
-                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                            <div class="bg-amber-50 border border-amber-200 dark:bg-amber-500/20 dark:border-gray-700 rounded-xl p-6">
                                 <div class="flex items-start">
                                     <div class="bg-amber-500 rounded-lg p-3 mr-4">
                                         <i class="fas fa-dollar-sign text-white text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Total</h4>
-                                        <p class="text-gray-600 text-xl font-bold">${{ order.precio_total|floatformat:0 }} COP</p>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-2">Total</h4>
+                                        <p class="text-gray-800 dark:text-gray-200 text-xl font-bold">${{ order.precio_total|floatformat:0 }} COP</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Estado del Pago -->
-                        <div class="mt-6 {% if order.is_paid %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %} border rounded-xl p-6">
+                        <div class="mt-6 border rounded-xl p-6 {% if order.is_paid %}bg-green-50 border-green-200 dark:bg-green-500/20 dark:border-gray-700{% else %}bg-red-50 border-red-200 dark:bg-red-500/20 dark:border-gray-700{% endif %}">
                             <div class="flex items-center">
                                 <div class="{% if order.is_paid %}bg-green-500{% else %}bg-red-500{% endif %} rounded-lg p-3 mr-4">
                                     <i class="fas fa-{% if order.is_paid %}check-circle{% else %}exclamation-circle{% endif %} text-white text-xl"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-1">Estado del Pago</h4>
-                                    <p class="{% if order.is_paid %}text-green-700{% else %}text-red-700{% endif %} font-medium">
+                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-1">Estado del Pago</h4>
+                                    <p class="font-medium {% if order.is_paid %}text-green-700 dark:text-green-300{% else %}text-red-700 dark:text-red-300{% endif %}">
                                         {% if order.is_paid %}Pago Confirmado{% else %}Pendiente de confirmación{% endif %}
                                     </p>
                                     {% if order.payment %}
-                                        <p class="text-sm text-gray-600 mt-1">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                             ID de Transacción: {{ order.payment.transaction_id }}
                                         </p>
                                     {% endif %}
@@ -204,35 +204,35 @@
                 <!-- Participantes -->
                 <div class="card mb-6">
                     <div class="card-body p-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-users text-primary-600 mr-2"></i>
+                        <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-users text-success-600 mr-2"></i>
                             Participantes
                         </h4>
                         <div class="space-y-4">
                             <!-- Vendedor -->
-                            <div class="bg-primary-50 border border-primary-200 rounded-xl p-4">
+                            <div class="bg-success-50 border border-success-200 dark:bg-success-500/20 dark:border-gray-700 rounded-xl p-4">
                                 <div class="flex items-start">
-                                    <div class="bg-primary-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <div class="bg-success-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
                                         <i class="fas fa-seedling text-white"></i>
                                     </div>
                                     <div class="min-w-0 break-words">
-                                        <h5 class="font-semibold text-gray-800">Vendedor</h5>
-                                        <p class="text-gray-600">{{ order.vendedor.get_full_name }}</p>
-                                        <p class="text-sm text-gray-500 break-words">{{ order.vendedor.email }}</p>
+                                        <h5 class="font-semibold text-gray-900 dark:text-gray-200">Vendedor</h5>
+                                        <p class="text-gray-800 dark:text-gray-200">{{ order.vendedor.get_full_name }}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 break-words">{{ order.vendedor.email }}</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Comprador -->
-                            <div class="bg-accent-50 border border-accent-200 rounded-xl p-4">
+                            <div class="bg-blue-50 border border-blue-200 dark:bg-blue-500/20 dark:border-gray-700 rounded-xl p-4">
                                 <div class="flex items-start">
-                                    <div class="bg-accent-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <div class="bg-blue-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
                                         <i class="fas fa-shopping-cart text-white"></i>
                                     </div>
                                     <div class="min-w-0 break-words">
-                                        <h5 class="font-semibold text-gray-800">Comprador</h5>
-                                        <p class="text-gray-600">{{ order.comprador.get_full_name }}</p>
-                                        <p class="text-sm text-gray-500 break-words">{{ order.comprador.email }}</p>
+                                        <h5 class="font-semibold text-gray-900 dark:text-gray-200">Comprador</h5>
+                                        <p class="text-gray-800 dark:text-gray-200">{{ order.comprador.get_full_name }}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 break-words">{{ order.comprador.email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -243,58 +243,58 @@
                 <!-- Historial del Pedido -->
                 <div class="card">
                     <div class="card-body p-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
                             <i class="fas fa-history text-primary-600 mr-2"></i>
                             Historial del Pedido
                         </h4>
                         
                         <div class="space-y-3">
                             <!-- Pedido Creado -->
-                            <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center p-3 bg-green-50 border border-green-200 dark:bg-green-500/20 dark:border-gray-700 rounded-lg">
                                 <div class="bg-green-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                     <i class="fas fa-check text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">Pedido Creado</div>
-                                    <div class="text-sm text-gray-600">{{ order.created_at|date:"d M Y H:i" }}</div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-200">Pedido Creado</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ order.created_at|date:"d M Y H:i" }}</div>
                                 </div>
                             </div>
                             
                             {% if order.fecha_confirmacion %}
                             <!-- Pedido Confirmado -->
-                            <div class="flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center p-3 bg-blue-50 border border-blue-200 dark:bg-blue-500/20 dark:border-gray-700 rounded-lg">
                                 <div class="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                     <i class="fas fa-check-double text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">Pedido Confirmado</div>
-                                    <div class="text-sm text-gray-600">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-200">Pedido Confirmado</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ order.fecha_confirmacion|date:"d M Y H:i" }}</div>
                                 </div>
                             </div>
                             {% endif %}
                             
                             {% if order.fecha_envio %}
                             <!-- En Tránsito -->
-                            <div class="flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <div class="flex items-center p-3 bg-orange-50 border border-orange-200 dark:bg-orange-500/20 dark:border-gray-700 rounded-lg">
                                 <div class="bg-orange-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                     <i class="fas fa-truck text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">En Tránsito</div>
-                                    <div class="text-sm text-gray-600">{{ order.fecha_envio|date:"d M Y H:i" }}</div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-200">En Tránsito</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ order.fecha_envio|date:"d M Y H:i" }}</div>
                                 </div>
                             </div>
                             {% endif %}
                             
                             {% if order.estado == 'completado' %}
                             <!-- Completado -->
-                            <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center p-3 bg-green-50 border border-green-200 dark:bg-green-500/20 dark:border-gray-700 rounded-lg">
                                 <div class="bg-green-500 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                     <i class="fas fa-check-circle text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-800">Completado</div>
-                                    <div class="text-sm text-gray-600">Pedido finalizado exitosamente</div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-200">Completado</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">Pedido finalizado exitosamente</div>
                                 </div>
                             </div>
                             {% endif %}

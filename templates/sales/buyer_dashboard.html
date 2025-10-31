@@ -9,71 +9,71 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
 
     <!-- Main Stats Cards -->
-    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
         <!-- Total Orders -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pedidos</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_orders }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Total Pedidos</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ total_orders }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-shopping-cart"></i>
                         Realizados
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shopping-cart text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Pending Orders -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pedidos Pendientes</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pending_orders }}</p>
-                    <p class="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Pedidos Pendientes</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ pending_orders }}</p>
+                    <p class="text-[11px] sm:text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-clock"></i>
                         En proceso
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-warning-50 dark:bg-warning-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-hourglass-half text-warning-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-warning-50 dark:bg-warning-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-hourglass-half text-warning-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Completed Orders -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pedidos Completados</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ completed_orders }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Pedidos Completados</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ completed_orders }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-check-circle"></i>
                         Finalizados
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-check-circle text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check-circle text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Total Spent -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Gastado</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ total_spent|floatformat:0 }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Total Gastado</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">${{ total_spent|floatformat:0 }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-dollar-sign"></i>
                         Histórico
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-coins text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-coins text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>

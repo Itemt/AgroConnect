@@ -76,7 +76,7 @@
     <!-- Orders List -->
     <div class="col-span-12 flex-1">
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-theme-md min-h-[calc(100vh-300px)]">
-            {% if page_obj %}
+            {% if orders %}
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-50 dark:bg-gray-700">
@@ -91,7 +91,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        {% for order in page_obj %}
+                        {% for order in orders %}
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                 #{{ order.id }}
@@ -130,17 +130,17 @@
     </div>
 
     <!-- Pagination -->
-            {% if page_obj.has_other_pages %}
+            {% if orders.has_other_pages %}
             <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        {% if orders.has_previous %}
+                        <a href="?page={{ orders.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                             Anterior
                         </a>
                     {% endif %}
-                        {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ml-3">
+                        {% if orders.has_next %}
+                        <a href="?page={{ orders.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ml-3">
                             Siguiente
                         </a>
                     {% endif %}
@@ -148,18 +148,18 @@
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700 dark:text-gray-300">
-                                Mostrando <span class="font-medium">{{ page_obj.start_index }}</span> a <span class="font-medium">{{ page_obj.end_index }}</span> de <span class="font-medium">{{ page_obj.paginator.count }}</span> resultados
+                                Mostrando <span class="font-medium">{{ orders.start_index }}</span> a <span class="font-medium">{{ orders.end_index }}</span> de <span class="font-medium">{{ orders.paginator.count }}</span> resultados
                             </p>
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                {% if page_obj.has_previous %}
-                                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                {% if orders.has_previous %}
+                                <a href="?page={{ orders.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 {% endif %}
-                                {% for num in page_obj.paginator.page_range %}
-                                    {% if page_obj.number == num %}
+                                {% for num in orders.paginator.page_range %}
+                                    {% if orders.number == num %}
                                     <span class="relative inline-flex items-center px-4 py-2 border border-success-500 bg-success-50 text-sm font-medium text-success-600">
                                         {{ num }}
                                     </span>
@@ -169,8 +169,8 @@
                                     </a>
                                     {% endif %}
                                 {% endfor %}
-                                {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                {% if orders.has_next %}
+                                <a href="?page={{ orders.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                                 {% endif %}
