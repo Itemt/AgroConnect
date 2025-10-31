@@ -889,18 +889,47 @@ def create_order_from_cart(request):
     
     for item in cart_items:
         publication = item.publication
-        if item.quantity > publication.cantidad_disponible:
-            messages.error(request, f"La cantidad para {publication.cultivo.nombre} excede el stock disponible.")
+
+        # Validar mínimo en la unidad seleccionada
+        minimo_convertido = publication.convertir_unidad(
+            publication.cantidad_minima,
+            publication.unidad_medida,
+            item.unidad_compra,
+        )
+        if minimo_convertido is None:
+            minimo_convertido = float(publication.cantidad_minima)
+        if float(item.quantity) < float(minimo_convertido):
+            messages.error(request, f"❌ {publication.cultivo.nombre}: mínimo {float(minimo_convertido):.3f} {item.unidad_compra}")
+            return redirect('cart:cart_detail')
+
+        # Verificar disponibilidad considerando conversión
+        disponible, cantidad_disponible = publication.verificar_disponibilidad(float(item.quantity), item.unidad_compra)
+        if not disponible:
+            disponible_display = cantidad_disponible if cantidad_disponible is not None else publication.cantidad_disponible
+            messages.error(
+                request,
+                f"❌ {publication.cultivo.nombre}: disponible {float(disponible_display):.3f} {item.unidad_compra}"
+            )
+            return redirect('cart:cart_detail')
+
+        # Convertir la cantidad del carrito a la unidad del vendedor para guardar y descontar stock
+        cantidad_en_unidad_vendedor = publication.convertir_unidad(
+            float(item.quantity),
+            item.unidad_compra,
+            publication.unidad_medida,
+        )
+        if cantidad_en_unidad_vendedor is None:
+            messages.error(request, f"❌ {publication.cultivo.nombre}: unidad no convertible")
             return redirect('cart:cart_detail')
 
         order = Order.objects.create(
             publicacion=publication,
             comprador=request.user,
-            cantidad_acordada=item.quantity,
+            cantidad_acordada=round(float(cantidad_en_unidad_vendedor), 2),
             precio_total=item.get_item_price,
             estado='pendiente'
         )
-        publication.cantidad_disponible -= item.quantity
+        publication.cantidad_disponible = float(publication.cantidad_disponible) - float(cantidad_en_unidad_vendedor)
         publication.save()
         created_orders.append(order)
         # Notificar al vendedor sobre pedidos creados desde carrito
@@ -948,8 +977,13 @@ def cart_checkout_summary(request):
     for order in orders:
         print(f"Order {order.id}: {order.publicacion.cultivo.nombre} - ${order.precio_total}")
     
-    # Calcular total
+    # Calcular total y resumen por unidad de medida
     total = sum(order.precio_total for order in orders)
+    totals_by_unit = {}
+    for order in orders:
+        unit = order.publicacion.unidad_medida
+        totals_by_unit[unit] = totals_by_unit.get(unit, 0.0) + float(order.cantidad_acordada)
+    totals_by_unit_items = sorted(((u, round(q, 3)) for u, q in totals_by_unit.items()), key=lambda x: x[0])
     
     # Crear datos de checkout para cada pedido
     mercadopago_service = MercadoPagoService()
@@ -1004,5 +1038,6 @@ def cart_checkout_summary(request):
     context = {
         'orders_with_checkout': orders_with_checkout,
         'total': total,
+        'totals_by_unit_items': totals_by_unit_items,
     }
     return render(request, 'sales/cart_checkout_summary.html', context)

@@ -3,6 +3,7 @@ from django.conf import settings
 from core.models import BaseModel
 from sales.models import Order
 from core.models import create_notification
+from core.email_service import email_service
 
 
 class Payment(BaseModel):
@@ -135,6 +136,32 @@ class Payment(BaseModel):
         # La orden permanece en 'pendiente' hasta que el vendedor la confirme manualmente
         # Esto permite que el vendedor revise y acepte el pedido antes de empezar a prepararlo
         # Las notificaciones se manejan automáticamente a través de signals
+
+        # Enviar recibo por email al comprador (post-pago)
+        try:
+            buyer_email = self.user.email
+            buyer_name = getattr(self.user, 'first_name', None) or self.user.username
+            email_service.send_order_confirmation_email(
+                buyer_email,
+                self.order,
+                user_name=buyer_name,
+            )
+        except Exception:
+            # Evitar que un error de correo afecte el flujo de pago
+            pass
+
+        # Notificar al vendedor
+        try:
+            seller = self.order.vendedor
+            if seller and getattr(seller, 'email', None):
+                seller_name = getattr(seller, 'first_name', None) or seller.username
+                email_service.send_order_paid_seller_email(
+                    seller.email,
+                    self.order,
+                    seller_name=seller_name,
+                )
+        except Exception:
+            pass
     
     def mark_as_rejected(self):
         """Marca el pago como rechazado"""

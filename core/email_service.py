@@ -123,5 +123,31 @@ class EmailService:
             logger.error(f"Error sending order confirmation email to {user_email}: {str(e)}")
             return False, str(e)
 
+    def send_order_paid_seller_email(self, seller_email, order, seller_name=None):
+        """
+        Notifica al vendedor que recibió un pedido con pago aprobado
+        """
+        try:
+            context = {
+                'seller_name': seller_name or 'Productor',
+                'order': order,
+                'site_name': 'AgroConnect'
+            }
+            html_content = render_to_string('sales/order_paid_seller_email.html', context)
+            text_content = strip_tags(html_content)
+            params = {
+                "from": self.from_email,
+                "to": [seller_email],
+                "subject": f"Pago aprobado del pedido #{order.id} - AgroConnect",
+                "html": html_content,
+                "text": text_content,
+            }
+            email = resend.Emails.send(params)
+            logger.info(f"Seller order paid email sent successfully to {seller_email}")
+            return True, email
+        except Exception as e:
+            logger.error(f"Error sending seller order paid email to {seller_email}: {str(e)}")
+            return False, str(e)
+
 # Instancia global del servicio
 email_service = EmailService()

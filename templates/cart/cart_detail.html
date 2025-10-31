@@ -101,7 +101,7 @@
                                                 ${{ item.get_item_price|floatformat:2 }}
                                             </p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                ${{ item.publication.precio_por_unidad|floatformat:2 }} / {{ item.publication.cultivo.unidad_medida }}
+                                                ${{ item.precio_unitario_display|floatformat:2 }} / {{ item.unidad_compra }}
                                             </p>
                                         </div>
                                     </div>
@@ -116,15 +116,30 @@
                                                     <button type="button" onclick="decreaseQuantity(this)" class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                                                         <i class="fas fa-minus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
-                                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.publication.cantidad_disponible }}" 
-                                                           class="w-12 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100" 
+                                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="{{ item.minimo_en_unidad_compra|floatformat:3 }}" step="0.001"
+                                                           class="w-16 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100" 
                                                            onchange="this.form.submit()">
                                                     <button type="button" onclick="increaseQuantity(this)" class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                                                         <i class="fas fa-plus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
                                                 </div>
+                                                {% comment %} Selector de unidad de compra basado en conversiones disponibles {% endcomment %}
+                                                <select name="unidad" class="ml-3 text-sm border-2 border-gray-300 dark:border-slate-600 rounded-full px-3 py-1.5 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100" onchange="this.form.submit()">
+                                                    {% for u in item.publication.unidades_disponibles_para_conversion %}
+                                                        <option value="{{ u }}" {% if u == item.unidad_compra %}selected{% endif %}>{{ u }}</option>
+                                                    {% endfor %}
+                                                </select>
                                             </form>
                                         </div>
+                                        <div class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                                            <span class="mr-3">Mínimo: <strong>{{ item.minimo_en_unidad_compra|floatformat:3 }} {{ item.unidad_compra }}</strong></span>
+                                            <span>Disponible: <strong>{{ item.disponible_en_unidad_compra|floatformat:3 }} {{ item.unidad_compra }}</strong></span>
+                                        </div>
+                                        {% if item.validation_error %}
+                                        <div class="mt-2 text-xs text-red-600 dark:text-red-400">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ item.validation_error }}
+                                        </div>
+                                        {% endif %}
                                         
                                         <!-- Botón Eliminar -->
                                         <a href="{% url 'cart:remove_from_cart' item.id %}" 
@@ -161,12 +176,37 @@
                             <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Total</span>
                             <span class="text-2xl font-bold text-green-700 dark:text-green-400">${{ cart.get_total_price|floatformat:2 }}</span>
                         </div>
+
+                        <!-- Resumen de Cantidades por Unidad -->
+                        {% if cart.totals_by_unit_items %}
+                        <div class="mt-2 text-sm">
+                            <div class="text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                                <i class="fas fa-weight-hanging text-green-600 mr-2"></i>
+                                Cantidades por unidad
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                {% for unidad, cantidad in cart.totals_by_unit_items %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-100">
+                                    <span class="font-semibold mr-1">{{ cantidad|floatformat:3 }}</span>
+                                    <span class="uppercase tracking-wide text-xs">{{ unidad }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
                         
+                        {% if cart.has_invalid_items %}
+                        <div class="mb-4 p-3 rounded-xl border-2 border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Corrige las cantidades inválidas para continuar con el pago.
+                        </div>
+                        {% endif %}
+
                         <!-- Botón de Pago -->
                         <form action="{% url 'create_order_from_cart' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" 
-                                    class="w-full bg-green-900 hover:bg-green-800 text-white font-bold py-4 px-6 rounded-full transition duration-200 flex items-center justify-center">
+                            <button type="submit" {% if cart.has_invalid_items %}disabled title="Hay productos con cantidades inválidas"{% endif %}
+                                    class="w-full bg-green-900 hover:bg-green-800 text-white font-bold py-4 px-6 rounded-full transition duration-200 flex items-center justify-center {% if cart.has_invalid_items %}opacity-50 cursor-not-allowed hover:bg-green-900{% endif %}">
                                 <i class="fas fa-credit-card mr-2"></i>
                                 Proceder al Pago
                             </button>
@@ -209,24 +249,24 @@
 </div>
 
 <script>
-// Funciones para manejar cantidad
+// Funciones para manejar cantidad con decimales
 function increaseQuantity(button) {
     const input = button.parentElement.querySelector('input[type="number"]');
-    const max = parseInt(input.getAttribute('max'));
-    const current = parseInt(input.value);
-    if (current < max) {
-        input.value = current + 1;
-        input.dispatchEvent(new Event('change'));
-    }
+    const step = parseFloat(input.getAttribute('step') || '1');
+    const current = parseFloat(input.value || '0');
+    const next = (current + step);
+    input.value = next.toFixed(3);
+    input.dispatchEvent(new Event('change'));
 }
 
 function decreaseQuantity(button) {
     const input = button.parentElement.querySelector('input[type="number"]');
-    const current = parseInt(input.value);
-    if (current > 1) {
-        input.value = current - 1;
-        input.dispatchEvent(new Event('change'));
-    }
+    const step = parseFloat(input.getAttribute('step') || '1');
+    const min = parseFloat(input.getAttribute('min') || '0');
+    const current = parseFloat(input.value || '0');
+    const next = Math.max(min, current - step);
+    input.value = next.toFixed(3);
+    input.dispatchEvent(new Event('change'));
 }
 </script>
 {% endblock %}

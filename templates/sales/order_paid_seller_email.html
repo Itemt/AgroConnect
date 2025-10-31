@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido Pagado</title>
+  <style>
+    body{margin:0;padding:0;background:#0f172a;color:#e2e8f0;font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:640px;margin:0 auto;padding:24px}
+    .card{background:#0b1220;border-radius:16px;overflow:hidden;border:1px solid #1f2a44}
+    .header{background:linear-gradient(90deg,#14532d,#166534,#22c55e);color:#fff;padding:24px;text-align:center}
+    .header h1{margin:8px 0 0;font-size:20px}
+    .content{padding:24px}
+    .row{display:flex;justify-content:space-between;margin:6px 0;color:#cbd5e1}
+    .strong{color:#fff;font-weight:700}
+    .badge{display:inline-flex;align-items:center;border:1px solid #1f2a44;border-radius:999px;padding:6px 10px;background:#0b1220;color:#e2e8f0;margin-right:8px;font-size:12px}
+    .total{background:#052e1c;border:1px solid #166534;border-radius:12px;padding:14px;margin-top:8px}
+    .muted{color:#94a3b8;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div style="font-weight:700;letter-spacing:.02em">AgroConnect</div>
+        <h1>Nuevo pedido pagado</h1>
+        <div style="opacity:.9;font-size:13px">Listo para confirmar y preparar</div>
+      </div>
+      <div class="content">
+        <p>Hola {{ seller_name }},</p>
+        <p>El comprador ha pagado el <span class="strong">pedido #{{ order.id }}</span>. Revisa los detalles y confirma para iniciar la preparación.</p>
+
+        <div class="row"><span class="muted">Producto</span><span class="strong">{{ order.publicacion.cultivo.nombre }}</span></div>
+        <div class="row"><span class="muted">Cantidad</span><span class="strong">{{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</span></div>
+        <div class="row"><span class="muted">Precio unitario</span><span class="strong">${{ order.publicacion.precio_por_unidad|floatformat:0 }} COP</span></div>
+
+        <div class="total">
+          <div class="row"><span class="strong">Total pagado</span><span class="strong" style="color:#22c55e">${{ order.precio_total|floatformat:0 }} COP</span></div>
+        </div>
+
+        <p style="margin-top:12px">Resumen:</p>
+        <span class="badge"><span class="strong" style="margin-right:6px">{{ order.cantidad_acordada }}</span> {{ order.publicacion.unidad_medida }}</span>
+
+        <p class="muted" style="margin-top:16px">Ingresa a tu panel en AgroConnect para confirmar el pedido y coordinar la entrega.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

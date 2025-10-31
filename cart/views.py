@@ -23,6 +23,19 @@ def add_to_cart(request, publication_id):
         quantity = float(request.POST.get('quantity', 1))
         unidad_compra = request.POST.get('unidad', publication.unidad_medida)
         
+        # Verificar mínimo de venta en la unidad solicitada
+        minimo_convertido = publication.convertir_unidad(
+            publication.cantidad_minima,
+            publication.unidad_medida,
+            unidad_compra,
+        )
+        if minimo_convertido is None:
+            minimo_convertido = float(publication.cantidad_minima)
+        if quantity < float(minimo_convertido):
+            messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad_compra}')
+            next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
+            return redirect(next_url)
+
         # Verificar disponibilidad con conversión
         disponible, cantidad_disponible = publication.verificar_disponibilidad(quantity, unidad_compra)
         
@@ -41,6 +54,11 @@ def add_to_cart(request, publication_id):
         if cart_item:
             # Verificar nueva cantidad
             nueva_cantidad = float(cart_item.quantity) + quantity
+            # Validar mínimo
+            if nueva_cantidad < float(minimo_convertido):
+                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad_compra}')
+                next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
+                return redirect(next_url)
             disponible, cantidad_disponible = publication.verificar_disponibilidad(nueva_cantidad, unidad_compra)
             
             if not disponible:
@@ -88,6 +106,18 @@ def update_cart(request, item_id):
         unidad = request.POST.get('unidad', cart_item.unidad_compra)
         
         if quantity > 0:
+            # Validar mínimo de venta en la unidad seleccionada
+            minimo_convertido = cart_item.publication.convertir_unidad(
+                cart_item.publication.cantidad_minima,
+                cart_item.publication.unidad_medida,
+                unidad,
+            )
+            if minimo_convertido is None:
+                minimo_convertido = float(cart_item.publication.cantidad_minima)
+            if quantity < float(minimo_convertido):
+                messages.error(request, f'❌ Mínimo de compra: {float(minimo_convertido):.3f} {unidad}')
+                return redirect('cart:cart_detail')
+
             # Verificar disponibilidad
             disponible, cantidad_disponible = cart_item.publication.verificar_disponibilidad(quantity, unidad)
             

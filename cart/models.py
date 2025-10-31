@@ -14,6 +14,30 @@ class Cart(models.Model):
         total = sum(item.get_item_price for item in self.items.all())
         return round(total, 2)
 
+    @property
+    def has_invalid_items(self):
+        """Retorna True si algún item tiene cantidad por debajo del mínimo o supera disponibilidad"""
+        for item in self.items.all():
+            if item.is_below_minimum or item.is_over_available:
+                return True
+        return False
+
+    @property
+    def totals_by_unit(self):
+        """Suma de cantidades agrupadas por unidad de compra en el carrito"""
+        totals = {}
+        for item in self.items.all():
+            unit = item.unidad_compra
+            totals[unit] = totals.get(unit, 0.0) + float(item.quantity)
+        # Redondear a 3 decimales
+        return {u: round(q, 3) for u, q in totals.items()}
+
+    @property
+    def totals_by_unit_items(self):
+        """Lista [(unidad, cantidad)] útil para plantillas, ordenada por nombre de unidad"""
+        totals = self.totals_by_unit
+        return sorted(totals.items(), key=lambda x: x[0])
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
@@ -43,3 +67,53 @@ class CartItem(models.Model):
             if precio_convertido is not None:
                 return precio_convertido
         return float(self.publication.precio_por_unidad)
+
+    @property
+    def minimo_en_unidad_compra(self):
+        """Cantidad mínima de venta convertida a la unidad de compra del carrito"""
+        if self.unidad_compra == self.publication.unidad_medida:
+            return float(self.publication.cantidad_minima)
+        cantidad = self.publication.convertir_unidad(
+            self.publication.cantidad_minima,
+            self.publication.unidad_medida,
+            self.unidad_compra,
+        )
+        # Si no es convertible, al menos 1
+        return float(cantidad) if cantidad is not None else 1.0
+
+    @property
+    def disponible_en_unidad_compra(self):
+        """Cantidad disponible convertida a la unidad de compra del carrito"""
+        if self.unidad_compra == self.publication.unidad_medida:
+            return float(self.publication.cantidad_disponible)
+        cantidad = self.publication.convertir_unidad(
+            self.publication.cantidad_disponible,
+            self.publication.unidad_medida,
+            self.unidad_compra,
+        )
+        return float(cantidad) if cantidad is not None else float(self.publication.cantidad_disponible)
+
+    @property
+    def is_below_minimum(self):
+        """True si la cantidad actual está por debajo del mínimo permitido en la unidad de compra"""
+        try:
+            return float(self.quantity) + 1e-9 < float(self.minimo_en_unidad_compra)
+        except Exception:
+            return False
+
+    @property
+    def is_over_available(self):
+        """True si la cantidad actual supera la disponibilidad en la unidad de compra"""
+        try:
+            return float(self.quantity) - 1e-9 > float(self.disponible_en_unidad_compra)
+        except Exception:
+            return False
+
+    @property
+    def validation_error(self):
+        """Mensaje de error amigable si el item es inválido, sino cadena vacía"""
+        if self.is_below_minimum:
+            return f"Mínimo: {float(self.minimo_en_unidad_compra):.3f} {self.unidad_compra}"
+        if self.is_over_available:
+            return f"Disponible: {float(self.disponible_en_unidad_compra):.3f} {self.unidad_compra}"
+        return ""

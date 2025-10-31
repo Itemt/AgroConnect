@@ -89,10 +89,8 @@ def checkout_view(request, order_id):
         
         # Actualizar el pago con datos simulados
         payment.mercadopago_id = simulated_result['payment_id']
-        payment.status = 'approved'
         payment.response_data = simulated_result['raw_data']
-        payment.paid_at = timezone.now()
-        payment.save()
+        payment.mark_as_approved()
         
         # Actualizar estado del pedido
         # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
@@ -129,10 +127,8 @@ def checkout_view(request, order_id):
         
         # Actualizar el pago con datos simulados
         payment.mercadopago_id = simulated_result['payment_id']
-        payment.status = 'approved'
         payment.response_data = simulated_result['raw_data']
-        payment.paid_at = timezone.now()
-        payment.save()
+        payment.mark_as_approved()
         
         # Actualizar estado del pedido
         # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
@@ -235,10 +231,8 @@ def payment_success_view(request):
             
             # Actualizar el pago
             payment.mercadopago_id = simulated_result['payment_id']
-            payment.status = 'approved'
             payment.response_data = simulated_result['raw_data']
-            payment.paid_at = timezone.now()
-            payment.save()
+            payment.mark_as_approved()
             
             # Actualizar estado del pedido - mantener como 'pendiente' para que el vendedor pueda confirmar
             order = payment.order
@@ -438,10 +432,8 @@ def payment_failure_view(request):
         
         # Actualizar el pago
         payment.mercadopago_id = simulated_result['payment_id']
-        payment.status = 'approved'
         payment.response_data = simulated_result['raw_data']
-        payment.paid_at = timezone.now()
-        payment.save()
+        payment.mark_as_approved()
         
         # Actualizar estado del pedido
         order = payment.order
@@ -473,10 +465,8 @@ def payment_pending_view(request):
         
         # Actualizar el pago
         payment.mercadopago_id = simulated_result['payment_id']
-        payment.status = 'approved'
         payment.response_data = simulated_result['raw_data']
-        payment.paid_at = timezone.now()
-        payment.save()
+        payment.mark_as_approved()
         
         # Actualizar estado del pedido
         order = payment.order
