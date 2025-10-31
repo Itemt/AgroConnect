@@ -60,31 +60,84 @@
         </div>
 
         <div class="border-t border-gray-200 px-6 py-8">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="publication-form">
                 {% csrf_token %}
                 <div class="space-y-6">
                     {% for field in form %}
-                    <div class="field-wrapper">
-                        <div class="flex items-center justify-between">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                            {% if field.name == 'precio_por_unidad' or field.name == 'descripcion' %}
-                            <button type="button" onclick="getAiSuggestion('{{ field.name }}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-1 rounded-lg transition-colors duration-200 flex items-center">
-                                <i class="fas fa-magic mr-1"></i>
-                                IA
-                            </button>
+                        {% if field.name != 'images' %}
+                        <div class="field-wrapper">
+                            <div class="flex items-center justify-between">
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                                {% if field.name == 'precio_por_unidad' or field.name == 'descripcion' %}
+                                <button type="button" onclick="getAiSuggestion('{{ field.name }}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-1 rounded-lg transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-magic mr-1"></i>
+                                    IA
+                                </button>
+                                {% endif %}
+                            </div>
+                            <div class="mt-1">
+                                {{ field }}
+                            </div>
+                            {% if field.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
                             {% endif %}
+                            {% for error in field.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
                         </div>
-                        <div class="mt-1">
-                            {{ field }}
-                        </div>
-                        {% if field.help_text %}
-                        <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
                         {% endif %}
-                        {% for error in field.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                        {% endfor %}
-                    </div>
                     {% endfor %}
+                    
+                    <!-- Sección de imágenes mejorada -->
+                    <div class="field-wrapper bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <i class="fas fa-images mr-2 text-primary-600"></i>Imágenes del Producto (hasta 10)
+                        </label>
+                        <p class="text-sm text-gray-600 mb-4">La primera imagen será la principal. Puedes subir hasta 10 imágenes.</p>
+                        
+                        <!-- Imágenes existentes (solo en edición) -->
+                        {% if existing_images %}
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Imágenes actuales:</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="existing-images-grid">
+                                {% for image in existing_images %}
+                                <div class="existing-image-item relative group" data-image-id="{{ image.id }}">
+                                    <div class="aspect-square rounded-lg overflow-hidden border-2 {% if image.is_primary %}border-primary-600{% else %}border-gray-300{% endif %}">
+                                        <img src="{{ image.image.url }}" alt="Imagen {{ forloop.counter }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {% if not image.is_primary %}
+                                        <button type="button" onclick="setPrimaryImage({{ image.id }})" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg" title="Marcar como principal">
+                                            <i class="fas fa-star text-xs"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" onclick="deleteImage({{ image.id }})" class="bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg" title="Eliminar">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                    {% if image.is_primary %}
+                                    <div class="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
+                                        <i class="fas fa-star mr-1"></i>Principal
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Input para nuevas imágenes -->
+                        <div class="mt-4">
+                            {{ form.images }}
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Formatos aceptados: JPG, PNG, GIF. Tamaño máximo por imagen: 5MB
+                        </p>
+                        
+                        <!-- Preview de nuevas imágenes -->
+                        <div id="image-preview" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 hidden"></div>
+                    </div>
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
@@ -578,6 +631,113 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar al cargar
         checkUnidadMedida();
     }
+    
+    // ============================================
+    // Gestión de imágenes (nuevo/editar)
+    // ============================================
+    
+    // Preview de nuevas imágenes seleccionadas
+    const imagesInput = document.getElementById('id_images');
+    const imagePreview = document.getElementById('image-preview');
+    
+    if (imagesInput) {
+        imagesInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            imagePreview.innerHTML = '';
+            
+            if (files.length > 0) {
+                imagePreview.classList.remove('hidden');
+                
+                files.slice(0, 10).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative group';
+                        div.innerHTML = `
+                            <div class="aspect-square rounded-lg overflow-hidden border-2 ${index === 0 ? 'border-primary-600' : 'border-gray-300'}">
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
+                            </div>
+                            ${index === 0 ? '<div class="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded-full"><i class="fas fa-star mr-1"></i>Principal</div>' : ''}
+                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                                Nueva
+                            </div>
+                        `;
+                        imagePreview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                
+                if (files.length > 10) {
+                    const warning = document.createElement('p');
+                    warning.className = 'col-span-full text-sm text-orange-600';
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Solo se subirán las primeras 10 imágenes';
+                    imagePreview.appendChild(warning);
+                }
+            } else {
+                imagePreview.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Funciones globales para gestionar imágenes existentes
+    window.deleteImage = function(imageId) {
+        if (!confirm('¿Estás seguro de eliminar esta imagen?')) {
+            return;
+        }
+        
+        fetch(`/publication/image/${imageId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+                if (imageElement) {
+                    imageElement.remove();
+                }
+                
+                // Mostrar mensaje de éxito
+                const successDiv = document.createElement('div');
+                successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+                successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Imagen eliminada exitosamente';
+                document.body.appendChild(successDiv);
+                setTimeout(() => successDiv.remove(), 3000);
+            } else {
+                alert(data.error || 'Error al eliminar la imagen');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la imagen');
+        });
+    };
+    
+    window.setPrimaryImage = function(imageId) {
+        fetch(`/publication/image/${imageId}/set-primary/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Recargar para ver los cambios
+                location.reload();
+            } else {
+                alert(data.error || 'Error al establecer imagen principal');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al establecer imagen principal');
+        });
+    };
 });
 </script>
 {% endblock %}

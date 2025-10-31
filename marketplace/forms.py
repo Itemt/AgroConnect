@@ -1,5 +1,5 @@
 from django import forms
-from .models import Publication
+from .models import Publication, PublicationImage
 from core.colombia_locations import get_departments, COLOMBIA_LOCATIONS
 from core.models import Farm
 from inventory.models import Crop
@@ -7,7 +7,40 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
+class MultipleImageInput(forms.ClearableFileInput):
+    """Widget personalizado para permitir múltiples archivos"""
+    allow_multiple_selected = True
+
+
+class MultipleImageField(forms.ImageField):
+    """Campo personalizado para manejar múltiples imágenes"""
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleImageInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
+
+
 class PublicationForm(forms.ModelForm):
+    # Campo personalizado para múltiples imágenes
+    images = MultipleImageField(
+        required=False,
+        label="Imágenes del Producto",
+        help_text="Puedes subir hasta 10 imágenes. La primera será la imagen principal.",
+        widget=MultipleImageInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100',
+            'multiple': True,
+            'accept': 'image/*'
+        })
+    )
+    
     # Campos de ubicación solo para mostrar (no editables)
     departamento = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -31,7 +64,7 @@ class PublicationForm(forms.ModelForm):
         model = Publication
         fields = [
             'cultivo', 'finca', 'unidad_medida', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
-            'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen'
+            'departamento', 'ciudad', 'categoria', 'descripcion'
         ]
         widgets = {
             'cultivo': forms.Select(attrs={
@@ -64,10 +97,7 @@ class PublicationForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none', 
                 'rows': 3
-            }),
-            'imagen': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100'
-            }),
+            })
         }
 
     def __init__(self, *args, **kwargs):
@@ -92,6 +122,18 @@ class PublicationForm(forms.ModelForm):
 class AdminPublicationForm(forms.ModelForm):
     """Formulario para que los admins creen publicaciones asociadas a cualquier productor"""
     
+    # Campo personalizado para múltiples imágenes
+    images = MultipleImageField(
+        required=False,
+        label="Imágenes del Producto",
+        help_text="Puedes subir hasta 10 imágenes. La primera será la imagen principal.",
+        widget=MultipleImageInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100',
+            'multiple': True,
+            'accept': 'image/*'
+        })
+    )
+    
     # Campos de ubicación editables para admins
     departamento = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -115,7 +157,7 @@ class AdminPublicationForm(forms.ModelForm):
         model = Publication
         fields = [
             'cultivo', 'finca', 'unidad_medida', 'precio_por_unidad', 'cantidad_disponible', 'cantidad_minima',
-            'departamento', 'ciudad', 'categoria', 'descripcion', 'imagen', 'estado'
+            'departamento', 'ciudad', 'categoria', 'descripcion', 'estado'
         ]
         widgets = {
             'cultivo': forms.Select(attrs={
@@ -157,10 +199,7 @@ class AdminPublicationForm(forms.ModelForm):
                 'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white resize-none', 
                 'rows': 4,
                 'placeholder': 'Descripción detallada del producto, calidad, métodos de cultivo, etc.'
-            }),
-            'imagen': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100'
-            }),
+            })
         }
         labels = {
             'cultivo': 'Cultivo',
@@ -171,8 +210,7 @@ class AdminPublicationForm(forms.ModelForm):
             'cantidad_minima': 'Cantidad Mínima de Venta',
             'categoria': 'Categoría',
             'estado': 'Estado',
-            'descripcion': 'Descripción Adicional',
-            'imagen': 'Imagen del Producto'
+            'descripcion': 'Descripción Adicional'
         }
     
     def __init__(self, *args, **kwargs):

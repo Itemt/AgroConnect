@@ -17,10 +17,45 @@
                 </a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                <!-- Image Section -->
+                <!-- Image Section with Carousel -->
                 <div class="md:col-span-7">
-                    {% if publication.imagen %}
-                        <img src="{{ publication.imagen.url }}" alt="{{ publication.cultivo.nombre }}" class="w-full rounded-lg shadow-lg">
+                    {% if publication.all_images %}
+                        <!-- Carrusel principal -->
+                        <div class="carousel-detail-container relative w-full rounded-lg overflow-hidden shadow-lg bg-gray-900" id="mainCarousel">
+                            <div class="carousel-detail-track flex transition-transform duration-500 ease-in-out">
+                                {% for image in publication.all_images %}
+                                    <div class="carousel-detail-slide min-w-full flex-shrink-0">
+                                        <div class="aspect-w-16 aspect-h-12 bg-gray-900">
+                                            <img src="{{ image.image.url }}" alt="{{ publication.cultivo.nombre }}" class="w-full h-full object-contain">
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Navigation buttons (only if multiple images) -->
+                            {% if publication.all_images.count > 1 %}
+                                <button type="button" class="carousel-detail-prev absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full w-12 h-12 flex items-center justify-center transition-all shadow-lg z-10" onclick="carouselDetailPrev()">
+                                    <i class="fas fa-chevron-left text-lg"></i>
+                                </button>
+                                <button type="button" class="carousel-detail-next absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full w-12 h-12 flex items-center justify-center transition-all shadow-lg z-10" onclick="carouselDetailNext()">
+                                    <i class="fas fa-chevron-right text-lg"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Thumbnails (only if multiple images) -->
+                        {% if publication.all_images.count > 1 %}
+                            <div class="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                {% for image in publication.all_images %}
+                                    <button type="button" 
+                                            class="carousel-thumbnail aspect-square rounded-lg overflow-hidden border-2 transition-all {% if forloop.first %}border-primary-600{% else %}border-transparent hover:border-gray-300{% endif %}" 
+                                            onclick="carouselDetailGoTo({{ forloop.counter0 }})"
+                                            data-index="{{ forloop.counter0 }}">
+                                        <img src="{{ image.image.url }}" alt="Miniatura {{ forloop.counter }}" class="w-full h-full object-cover">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     {% else %}
                         <div class="w-full h-96 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 dark:from-slate-500 dark:to-slate-700 rounded-lg shadow-lg">
                             <i class="fas fa-seedling text-white text-6xl opacity-80"></i>
@@ -404,5 +439,63 @@
     
     // Inicializar
     actualizarPrecio();
+    
+    // ============================================
+    // Carrusel de detalle de publicación
+    // ============================================
+    const detailCarousel = {
+        currentIndex: 0,
+        track: null,
+        slides: [],
+        thumbnails: []
+    };
+    
+    function initDetailCarousel() {
+        const container = document.getElementById('mainCarousel');
+        if (!container) return;
+        
+        detailCarousel.track = container.querySelector('.carousel-detail-track');
+        detailCarousel.slides = container.querySelectorAll('.carousel-detail-slide');
+        detailCarousel.thumbnails = document.querySelectorAll('.carousel-thumbnail');
+    }
+    
+    function carouselDetailNext() {
+        detailCarousel.currentIndex = (detailCarousel.currentIndex + 1) % detailCarousel.slides.length;
+        updateDetailCarousel();
+    }
+    
+    function carouselDetailPrev() {
+        detailCarousel.currentIndex = (detailCarousel.currentIndex - 1 + detailCarousel.slides.length) % detailCarousel.slides.length;
+        updateDetailCarousel();
+    }
+    
+    function carouselDetailGoTo(index) {
+        detailCarousel.currentIndex = index;
+        updateDetailCarousel();
+    }
+    
+    function updateDetailCarousel() {
+        // Update track position
+        const offset = -detailCarousel.currentIndex * 100;
+        detailCarousel.track.style.transform = `translateX(${offset}%)`;
+        
+        // Update thumbnails
+        detailCarousel.thumbnails.forEach((thumb, index) => {
+            if (index === detailCarousel.currentIndex) {
+                thumb.classList.remove('border-transparent', 'hover:border-gray-300');
+                thumb.classList.add('border-primary-600');
+            } else {
+                thumb.classList.remove('border-primary-600');
+                thumb.classList.add('border-transparent', 'hover:border-gray-300');
+            }
+        });
+    }
+    
+    // Initialize carousel on load
+    initDetailCarousel();
+    // Make functions global for onclick handlers
+    window.carouselDetailNext = carouselDetailNext;
+    window.carouselDetailPrev = carouselDetailPrev;
+    window.carouselDetailGoTo = carouselDetailGoTo;
     </script>
 {% endblock %}

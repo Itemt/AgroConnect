@@ -1,6 +1,25 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Publication
+from .models import Publication, PublicationImage
+
+
+class PublicationImageInline(admin.TabularInline):
+    """Inline para gestionar imágenes de publicación"""
+    model = PublicationImage
+    extra = 1
+    max_num = 10
+    fields = ('image', 'is_primary', 'order', 'image_preview')
+    readonly_fields = ('image_preview',)
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 150px;" />',
+                obj.image.url
+            )
+        return "Sin imagen"
+    image_preview.short_description = 'Vista Previa'
+
 
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
@@ -11,6 +30,7 @@ class PublicationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
     raw_id_fields = ('cultivo',)
+    inlines = [PublicationImageInline]
     
     fieldsets = (
         ('Información del Cultivo', {

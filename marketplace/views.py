@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Publication
+from .models import Publication, PublicationImage
 from .forms import PublicationForm
 from inventory.models import Crop
 from accounts.models import User, ProducerProfile
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.core.paginator import Paginator
 
 # Create your views here.
@@ -175,6 +175,20 @@ def publication_create_view(request, crop_id):
                 publication.departamento = crop.finca.departamento
                 publication.ciudad = crop.finca.ciudad
             publication.save()
+            
+            # Manejar múltiples imágenes
+            images = request.FILES.getlist('images')
+            if images:
+                # Limitar a 10 imágenes
+                images = images[:10]
+                for index, image in enumerate(images):
+                    PublicationImage.objects.create(
+                        publication=publication,
+                        image=image,
+                        is_primary=(index == 0),  # La primera es la principal
+                        order=index
+                    )
+            
             messages.success(request, 'Publicación creada exitosamente.')
             return redirect('producer_dashboard')
     else:
@@ -199,6 +213,27 @@ def publication_edit_view(request, pk):
         form = PublicationForm(request.POST, request.FILES, instance=publication, user=request.user)
         if form.is_valid():
             form.save()
+            
+            # Manejar nuevas imágenes
+            images = request.FILES.getlist('images')
+            if images:
+                # Limitar a 10 imágenes totales
+                current_images_count = publication.images.count()
+                max_new_images = 10 - current_images_count
+                
+                if max_new_images > 0:
+                    images = images[:max_new_images]
+                    # Obtener el último orden
+                    last_order = publication.images.aggregate(max_order=Max('order'))['max_order'] or -1
+                    
+                    for index, image in enumerate(images):
+                        PublicationImage.objects.create(
+                            publication=publication,
+                            image=image,
+                            is_primary=(current_images_count == 0 and index == 0),  # Solo si no hay imágenes
+                            order=last_order + index + 1
+                        )
+            
             messages.success(request, 'Publicación actualizada exitosamente.')
             return redirect('producer_dashboard')
     else:
@@ -207,7 +242,8 @@ def publication_edit_view(request, pk):
     context = {
         'form': form,
         'publication': publication,
-        'title': 'Editar Publicación'
+        'title': 'Editar Publicación',
+        'existing_images': publication.images.all().order_by('order')
     }
     return render(request, 'marketplace/publication_form.html', context)
 
@@ -274,3 +310,55 @@ def my_publications_view(request):
         'publications': publications
     }
     return render(request, 'marketplace/my_publications.html', context)
+
+
+@login_required
+def delete_publication_image(request, image_id):
+    """Eliminar una imagen específica de una publicación"""
+    from django.http import JsonResponse
+    
+    image = get_object_or_404(PublicationImage, pk=image_id)
+    publication = image.publication
+    
+    # Verificar que el usuario sea el propietario
+    if publication.cultivo.productor != request.user:
+        return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+    
+    # No permitir eliminar si es la única imagen
+    if publication.images.count() <= 1:
+        return JsonResponse({'success': False, 'error': 'Debe mantener al menos una imagen'}, status=400)
+    
+    # Si la imagen es principal y hay otras, hacer que la siguiente sea principal
+    was_primary = image.is_primary
+    image.delete()
+    
+    if was_primary:
+        # Hacer que la primera imagen restante sea principal
+        first_image = publication.images.first()
+        if first_image:
+            first_image.is_primary = True
+            first_image.save()
+    
+    return JsonResponse({'success': True})
+
+
+@login_required  
+def set_primary_image(request, image_id):
+    """Marcar una imagen como principal"""
+    from django.http import JsonResponse
+    
+    image = get_object_or_404(PublicationImage, pk=image_id)
+    publication = image.publication
+    
+    # Verificar que el usuario sea el propietario
+    if publication.cultivo.productor != request.user:
+        return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+    
+    # Quitar el flag de principal de todas las otras imágenes
+    publication.images.update(is_primary=False)
+    
+    # Marcar esta como principal
+    image.is_primary = True
+    image.save()
+    
+    return JsonResponse({'success': True})

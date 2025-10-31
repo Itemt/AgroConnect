@@ -169,6 +169,66 @@ class Publication(BaseModel):
     @property
     def ciudad_display(self):
         return f"{self.ciudad}, {self.departamento}"
+    
+    @property
+    def primary_image(self):
+        """Retorna la imagen principal de la publicación"""
+        primary = self.images.filter(is_primary=True).first()
+        if primary:
+            return primary
+        # Si no hay imagen principal, retornar la primera
+        return self.images.first()
+    
+    @property
+    def all_images(self):
+        """Retorna todas las imágenes ordenadas"""
+        return self.images.all().order_by('order', 'id')
 
     def __str__(self):
         return f'{self.cultivo.nombre} por {self.cultivo.productor.username}'
+
+
+class PublicationImage(BaseModel):
+    """Modelo para almacenar múltiples imágenes por publicación"""
+    publication = models.ForeignKey(
+        Publication, 
+        on_delete=models.CASCADE, 
+        related_name='images',
+        verbose_name="Publicación"
+    )
+    image = models.ImageField(
+        upload_to='publications/', 
+        verbose_name="Imagen"
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        verbose_name="Imagen Principal",
+        help_text="Marca esta imagen como la principal para mostrar en el marketplace"
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Orden",
+        help_text="Orden de visualización en el carrusel"
+    )
+    
+    class Meta:
+        verbose_name = "Imagen de Publicación"
+        verbose_name_plural = "Imágenes de Publicación"
+        ordering = ['order', 'id']
+        indexes = [
+            models.Index(fields=['publication', 'order']),
+            models.Index(fields=['publication', 'is_primary']),
+        ]
+    
+    def __str__(self):
+        primary_text = " (Principal)" if self.is_primary else ""
+        return f"Imagen {self.order + 1} de {self.publication}{primary_text}"
+    
+    def save(self, *args, **kwargs):
+        # Si esta imagen se marca como principal, quitar el flag de las otras
+        if self.is_primary:
+            PublicationImage.objects.filter(
+                publication=self.publication, 
+                is_primary=True
+            ).exclude(pk=self.pk).update(is_primary=False)
+        super().save(*args, **kwargs)

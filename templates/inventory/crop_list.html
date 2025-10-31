@@ -40,14 +40,21 @@
     <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         <!-- Header -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-seedling text-white text-xl"></i>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-seedling text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Cultivos</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Gestiona tus cultivos y publicaciones</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Cultivos</h1>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Gestiona tus cultivos y publicaciones</p>
-                </div>
+                <a href="{% url 'crop_add' %}" class="inline-flex items-center px-4 py-2.5 bg-success-600 hover:bg-success-700 text-white rounded-lg transition-colors font-medium shadow-sm hover:shadow-md">
+                    <i class="fas fa-plus mr-2"></i>
+                    <span class="hidden sm:inline">Crear Cultivo</span>
+                    <span class="sm:hidden">Crear</span>
+                </a>
             </div>
         </div>
 

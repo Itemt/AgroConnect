@@ -67,6 +67,10 @@ urlpatterns = [
     path('publication/<int:pk>/edit/', marketplace_views.publication_edit_view, name='publication_edit'),
     path('publication/<int:pk>/delete/', marketplace_views.publication_delete_view, name='publication_delete'),
     path('my-publications/', marketplace_views.my_publications_view, name='my_publications'),
+    
+    # Gestión de imágenes de publicaciones
+    path('publication/image/<int:image_id>/delete/', marketplace_views.delete_publication_image, name='delete_publication_image'),
+    path('publication/image/<int:image_id>/set-primary/', marketplace_views.set_primary_image, name='set_primary_image'),
 
     # Sales and Conversations
     path('order/new/<int:publication_id>/', sales_views.create_order_view, name='create_order'),

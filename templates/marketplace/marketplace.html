@@ -174,10 +174,36 @@
                 {% for pub in publications %}
                     <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
                         <a href="{% url 'publication_detail' pub.id %}" class="block">
-                            <!-- Product Image -->
+                            <!-- Product Image Carousel -->
                             <div class="relative h-56 overflow-hidden">
-                                {% if pub.imagen %}
-                                    <img src="{{ pub.imagen.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                {% if pub.all_images %}
+                                    <!-- Carrusel de imágenes -->
+                                    <div class="carousel-container relative w-full h-full" data-publication-id="{{ pub.id }}">
+                                        <div class="carousel-track flex transition-transform duration-500 ease-in-out h-full">
+                                            {% for image in pub.all_images %}
+                                                <div class="carousel-slide min-w-full h-full flex-shrink-0">
+                                                    <img src="{{ image.image.url }}" alt="{{ pub.cultivo.nombre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        <!-- Navigation buttons (only if multiple images) -->
+                                        {% if pub.all_images.count > 1 %}
+                                            <button type="button" class="carousel-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-gray-800 dark:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10" onclick="event.preventDefault(); carouselPrev({{ pub.id }})">
+                                                <i class="fas fa-chevron-left text-sm"></i>
+                                            </button>
+                                            <button type="button" class="carousel-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-gray-800 dark:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10" onclick="event.preventDefault(); carouselNext({{ pub.id }})">
+                                                <i class="fas fa-chevron-right text-sm"></i>
+                                            </button>
+                                            
+                                            <!-- Dots indicator -->
+                                            <div class="carousel-dots absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                                                {% for image in pub.all_images %}
+                                                    <div class="carousel-dot w-1.5 h-1.5 rounded-full bg-white/60 transition-all {% if forloop.first %}!bg-white !w-6{% endif %}"></div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 {% else %}
                                     <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 dark:from-slate-400 dark:to-slate-600 flex items-center justify-center">
                                         <i class="fas fa-seedling text-white text-5xl opacity-80"></i>
@@ -185,12 +211,12 @@
                                 {% endif %}
                                 <!-- Category Badge -->
                                 {% if pub.categoria_display %}
-                                <div class="absolute top-3 left-3 bg-white/90 dark:bg-slate-700 backdrop-blur px-3 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-white">
+                                <div class="absolute top-3 left-3 bg-white/90 dark:bg-slate-700 backdrop-blur px-3 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-white z-20">
                                     {{ pub.categoria_display }}
                                 </div>
                                 {% endif %}
                                 <!-- Price Badge -->
-                                <div class="absolute top-3 right-3 bg-green-600 dark:bg-slate-700 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg">
+                                <div class="absolute top-3 right-3 bg-green-600 dark:bg-slate-700 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg z-20">
                                     ${{ pub.precio_por_unidad }}
                                 </div>
                             </div>

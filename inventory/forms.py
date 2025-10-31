@@ -11,41 +11,41 @@ class CropForm(forms.ModelForm):
         fields = ['finca', 'nombre', 'categoria', 'cantidad_estimada', 'unidad_medida', 'area_ocupada', 'estado', 'fecha_disponibilidad', 'notas']
         widgets = {
             'finca': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'nombre': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'placeholder': 'Ej: Tomate Chonto'
             }),
             'categoria': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'cantidad_estimada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-                'placeholder': 'Ej: 500'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
+                'placeholder': '0'
             }),
             'unidad_medida': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'area_ocupada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-                'placeholder': 'Ej: 0.5'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
+                'placeholder': '0'
             }),
             'estado': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'fecha_disponibilidad': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'notas': forms.Textarea(attrs={
-                'rows': 4, 
+                'rows': 6, 
                 'placeholder': 'Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
         }
         labels = {
@@ -103,46 +103,46 @@ class AdminCropForm(forms.ModelForm):
         fields = ['productor', 'finca', 'nombre', 'categoria', 'cantidad_estimada', 'unidad_medida', 'area_ocupada', 'estado', 'fecha_disponibilidad', 'notas']
         widgets = {
             'productor': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'id': 'id_productor'
             }),
             'finca': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'id': 'id_finca'
             }),
             'nombre': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'placeholder': 'Ej: Tomate Chonto'
             }),
             'categoria': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'cantidad_estimada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'placeholder': 'Ej: 500'
             }),
             'unidad_medida': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'area_ocupada': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'min': '0',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
                 'placeholder': 'Ej: 0.5'
             }),
             'estado': forms.Select(attrs={
-                'class': 'w-full px-4 py-4 text-lg pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none bg-white'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'fecha_disponibilidad': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
             'notas': forms.Textarea(attrs={
-                'rows': 4, 
+                'rows': 6, 
                 'placeholder': 'Información adicional sobre el cultivo, métodos de cultivo, calidad, etc.',
-                'class': 'w-full px-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-none'
+                'class': 'w-full px-5 py-4 text-base border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-300 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
             }),
         }
         labels = {
