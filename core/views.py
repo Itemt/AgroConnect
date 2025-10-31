@@ -6,6 +6,9 @@ from django.core.paginator import Paginator
 from .models import Notification
 from django.shortcuts import render
 from decouple import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -308,7 +311,7 @@ def assistant_reply(request):
             })
             
     except Exception as e:
-        print(f"Error en Gemini API: {e}")
+        logger.error(f"Error en Gemini API: {e}")
         return JsonResponse({
             "success": True, 
             "reply": f"**Error de API** ⚠️\n\nError: {str(e)}\n\nPor favor verifica la configuración de la API key.",
@@ -453,7 +456,7 @@ REGLAS:
                     used_model = 'gemini-1.5-flash'
                     
         except Exception as e:
-            print(f"Error en IA para sugerencias: {e}")
+            logger.debug(f"Error en IA para sugerencias: {e}")
             pass
     
     # Fallback si no hay IA

@@ -21,8 +21,8 @@ class MercadoPagoService:
         if not self.access_token:
             # Token de producción actualizado
             self.access_token = 'YOUR_MERCADOPAGO_ACCESS_TOKEN_HERE'
-            print("INFO: Usando credenciales de producción actualizadas")
-            print("INFO: Modo producción activado")
+            logger.info("Usando credenciales de producción actualizadas")
+            logger.info("Modo producción activado")
         
         if self.access_token:
             self.sdk = mercadopago.SDK(self.access_token)
@@ -362,19 +362,6 @@ class MercadoPagoService:
                     # Configuración adicional para mejorar compatibilidad con tarjetas
                     payment_data["processing_mode"] = "aggregator"
                     payment_data["merchant_account_id"] = None
-                
-                print("🧪 Configuración de sandbox aplicada")
-                if not settings.DEBUG:
-                    print("⚠️ Sandbox en producción - usando configuración especial")
-                print("📋 Para evitar el error 'Algo salió mal':")
-                print("   1. Usa un usuario de prueba de MercadoPago")
-                print("   2. Email de prueba: test_user_123456@testuser.com")
-                print("   3. Tarjetas de prueba que funcionan:")
-                print("      - Visa: 4509 9535 6623 3704")
-                print("      - Mastercard: 5031 7557 3453 0604")
-                print("      - CVV: 123, Vencimiento: 11/25, Nombre: APRO")
-                print("   4. Si no funciona, prueba con PSE o Efecty")
-                print("   5. En producción con sandbox, PSE y Efecty son más estables")
             
             # Validar datos antes de enviar
             if payment_data['transaction_amount'] <= 0:

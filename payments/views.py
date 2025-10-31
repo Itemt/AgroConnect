@@ -9,6 +9,9 @@ from sales.models import Order
 from .models import Payment
 from .mercadopago_service import MercadoPagoService
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -196,28 +199,24 @@ def payment_success_view(request):
         if payment_id:
             try:
                 payment = Payment.objects.get(mercadopago_id=payment_id)
-                print(f"Encontrado por payment_id: {payment.id}")
             except Payment.DoesNotExist:
                 pass
         
         if not payment and preference_id:
             try:
                 payment = Payment.objects.get(preference_id=preference_id)
-                print(f"Encontrado por preference_id: {payment.id}")
             except Payment.DoesNotExist:
                 pass
         
         if not payment and external_reference:
             try:
                 payment = Payment.objects.get(external_reference=external_reference)
-                print(f"Encontrado por external_reference: {payment.id}")
             except Payment.DoesNotExist:
                 pass
         
         # Si no se encuentra por ningún método, buscar el último pago del usuario
         if not payment:
             payment = Payment.objects.filter(user=request.user).order_by('-created_at').first()
-            print(f"Usando último pago del usuario: {payment.id if payment else 'None'}")
         
         if not payment:
             messages.error(request, 'No se encontró el pago.')
@@ -225,7 +224,6 @@ def payment_success_view(request):
         
         # Procesar automáticamente el pago para proyecto universitario
         if payment.status == 'pending':
-            print(f"Procesando pago automáticamente...")
             mercadopago_service = MercadoPagoService()
             simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
             
@@ -241,7 +239,6 @@ def payment_success_view(request):
             order.save()
             
             messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
-            print(f"Pago procesado exitosamente: {payment.id}")
         
         order = payment.order
         
@@ -254,7 +251,7 @@ def payment_success_view(request):
         return render(request, 'payments/payment_success.html', context)
     
     except Exception as e:
-        print(f"Error en payment_success_view: {str(e)}")
+        logger.error(f"Error en payment_success_view: {str(e)}")
         messages.error(request, f'Error al procesar el pago: {str(e)}')
         return redirect('order_history')
 
@@ -302,8 +299,7 @@ def payment_confirmation_webhook(request):
         return HttpResponse('OK', status=200)
     
     except Exception as e:
-        # Log del error (en producción usar logging real)
-        print(f"Error in payment confirmation: {str(e)}")
+        logger.error(f"Error in payment confirmation: {str(e)}")
         return HttpResponse('Error', status=500)
 
 
@@ -511,15 +507,15 @@ def payment_notification_webhook(request):
                         # order.estado = 'pendiente'  # Ya está en pendiente por defecto
                         order.save()
                     
-                    print(f"✅ Webhook procesado: Payment {payment.id} - Status: {payment.status}")
+                    logger.info(f"Webhook procesado: Payment {payment.id} - Status: {payment.status}")
                     
                 except Payment.DoesNotExist:
-                    print(f"❌ Payment not found for external_reference: {result['external_reference']}")
+                    logger.warning(f"Payment not found for external_reference: {result['external_reference']}")
             else:
-                print(f"❌ Webhook error: {result['error']}")
+                logger.error(f"Webhook error: {result['error']}")
                 
         except Exception as e:
-            print(f"❌ Webhook exception: {str(e)}")
+            logger.error(f"Webhook exception: {str(e)}")
     
     return HttpResponse(status=200)
 

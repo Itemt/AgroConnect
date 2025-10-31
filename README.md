@@ -194,10 +194,10 @@ pillow==11.3.0
 # AI & Authentication
 google-generativeai==0.7.2
 firebase-admin==6.5.0
-pyrebase4==4.8.0
+resend==2.17.0
 
-# Development & Testing
-Faker==37.8.0
+# Utils
+django-widget-tweaks==1.5.0
 ```
 
 ---
@@ -261,11 +261,11 @@ GEMINI_API_KEY=tu_gemini_api_key
 
 # 🔥 Firebase Authentication (OPCIONAL)
 FIREBASE_API_KEY=tu_firebase_api_key_aqui
-FIREBASE_AUTH_DOMAIN=agroconnect-b9b1c.firebaseapp.com
-FIREBASE_PROJECT_ID=agroconnect-b9b1c
-FIREBASE_STORAGE_BUCKET=agroconnect-b9b1c.firebasestorage.app
-FIREBASE_MESSAGING_SENDER_ID=90070952239
-FIREBASE_APP_ID=1:90070952239:web:c6486c84288c86f5ddd9da
+FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
+FIREBASE_PROJECT_ID=tu-proyecto-id
+FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=tu_messaging_sender_id
+FIREBASE_APP_ID=tu_app_id_completo
 FIREBASE_ADMIN_CREDENTIALS_PATH=serviceAccountKey.json
 # Para producción en Coolify, usa FIREBASE_ADMIN_CREDENTIALS_JSON
 
@@ -401,7 +401,7 @@ En Firebase Console → **Authentication** → **Settings** → **Authorized dom
 Agrega tus dominios:
 - `localhost` (ya viene por defecto)
 - `tu-dominio.com`
-- `agroconnect.itemt.tech` (o tu dominio real)
+- Tu dominio de producción
 
 #### 6️⃣ **Configurar OAuth en Google Cloud Console**
 
@@ -1004,9 +1004,8 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 
 ¿Tienes preguntas o sugerencias? No dudes en contactarnos:
 
-- 📧 Email: contacto@agroconnect.com
-- 🌐 Website: [agroconnect.itemt.tech](https://agroconnect.itemt.tech)
-- 💬 Issues: [GitHub Issues](https://github.com/Itemt/AgroConnect/issues)
+- � Issues: [GitHub Issues](https://github.com/Itemt/AgroConnect/issues)
+- 🌐 GitHub: [@Itemt](https://github.com/Itemt)
 
 ---
 

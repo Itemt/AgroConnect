@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.forms import PasswordResetForm
@@ -11,7 +11,6 @@ from django.urls import reverse_lazy, reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 import random
 import string
 import time
@@ -19,12 +18,11 @@ import logging
 
 from core.email_service import email_service
 from core.firebase_phone_auth import firebase_phone_auth
-from .forms import CustomUserCreationForm, BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm, ProducerProfileEditForm
+from .forms import BuyerRegistrationForm, UserEditForm, BuyerEditForm, ProducerProfileForm, BuyerProfileForm, ProducerProfileEditForm
 from .forms_farm import ProducerRegistrationForm
 from .models import ProducerProfile, BuyerProfile, User
 from inventory.models import Crop
 from marketplace.models import Publication
-from marketplace.forms import PublicationForm
 from sales.models import Order
 from core.models import Notification
 from core.forms import FarmForm
@@ -181,7 +179,6 @@ def clear_google_data(request):
     if request.method == 'POST':
         if 'google_user_data' in request.session:
             del request.session['google_user_data']
-            print("🧹 Datos de Google limpiados de la sesión")
         return JsonResponse({'success': True})
     return JsonResponse({'success': False})
 
@@ -598,10 +595,6 @@ def password_reset_code_verification(request, email):
             messages.error(request, 'Error verificando el código. Inténtalo de nuevo.')
     
     return render(request, 'accounts/password_reset_code_verification.html', {'email': email})
-
-
-class CustomPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = 'accounts/password_reset_complete.html'
 
 
 def send_otp_ajax(request):

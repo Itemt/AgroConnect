@@ -13,6 +13,9 @@ from django.views.decorators.http import require_POST
 from cart.models import Cart
 from core.models import create_notification
 from core.models import Notification
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -302,51 +305,6 @@ def mark_order_shipped_view(request, order_id):
     return render(request, 'sales/mark_shipped.html', context)
 
 
-@login_required
-def update_order_status_view(request, order_id):
-    """Vista para que el vendedor actualice el estado del pedido (legacy - mantener para compatibilidad)"""
-    order = get_object_or_404(Order, pk=order_id)
-    
-    # Solo el vendedor puede actualizar el estado
-    if request.user != order.vendedor:
-        messages.error(request, 'No tienes permisos para actualizar este pedido.')
-        return redirect('order_detail', order_id=order.id)
-    
-    # Si el estado actual permite marcar como enviado, redirigir a la vista especial
-    if order.estado in ['confirmado', 'en_preparacion']:
-        return redirect('mark_order_shipped', order_id=order.id)
-    
-    if request.method == 'POST':
-        form = OrderUpdateForm(request.POST, instance=order, user=request.user)
-        if form.is_valid():
-            updated_order = form.save(commit=False)
-            
-            # Actualizar fechas según el estado
-            if updated_order.estado == 'confirmado' and not updated_order.fecha_confirmacion:
-                updated_order.fecha_confirmacion = timezone.now()
-            elif updated_order.estado == 'enviado' and not updated_order.fecha_envio:
-                updated_order.fecha_envio = timezone.now()
-            
-            updated_order.save()
-            # Notificar al comprador sobre el cambio de estado
-            create_notification(
-                recipient=updated_order.comprador,
-                title='Estado de pedido actualizado',
-                message=f'Tu pedido #{updated_order.id} ahora está: {updated_order.get_estado_display()}.',
-                category='order',
-                order_id=updated_order.id,
-            )
-            messages.success(request, 'Estado del pedido actualizado exitosamente.')
-            return redirect('order_detail', order_id=order.id)
-    else:
-        form = OrderUpdateForm(instance=order, user=request.user)
-    
-    context = {
-        'form': form,
-        'order': order
-    }
-    return render(request, 'sales/order_update.html', context)
-
 
 @login_required
 def confirm_order_receipt_view(request, order_id):
@@ -585,48 +543,8 @@ def conversations_list_api(request):
     archived_count = request.user.conversations.filter(updated_at__lt=cutoff).count()
     return JsonResponse({'success': True, 'conversations': data, 'archived_count': archived_count})
 
-@login_required
-def conversation_detail(request, conversation_id):
-    conversation = get_object_or_404(Conversation.objects.prefetch_related('messages__sender'), pk=conversation_id)
-    
-    # Asegurarse que el usuario es parte de la conversación
-    if request.user not in conversation.participants.all():
-        return redirect('conversation_list')
-
-    if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.conversation = conversation
-            message.sender = request.user
-            message.save()
-            
-            # Si es una petición AJAX, devolver JSON
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                from django.http import JsonResponse
-                return JsonResponse({
-                    'success': True,
-                    'message': {
-                        'id': message.id,
-                        'sender_id': message.sender.id,
-                        'sender_name': message.sender.get_full_name() or message.sender.username,
-                        'content': message.content,
-                        'created_at': message.created_at.isoformat(),
-                    },
-                    'archived': False
-                })
-            
-            return redirect('conversation_detail', conversation_id=conversation.id)
-    else:
-        form = MessageForm()
-
-    context = {
-        'conversation': conversation,
-        'form': form
-    }
-    return render(request, 'sales/conversation_detail.html', context)
-
-
+# FUNCIÓN COMENTADA - No tiene template 'sales/conversation_detail.html' y no se usa (se reemplazó por conversation_detail_simple)
+# @login_required
 @login_required
 def conversation_detail_simple(request, conversation_id):
     """Vista simple con polling - NO necesita WebSockets ni Redis"""
@@ -972,10 +890,6 @@ def cart_checkout_summary(request):
         comprador=request.user,
         estado='pendiente'
     ).select_related('publicacion__cultivo__productor')
-    
-    print(f"Orders found: {orders.count()}")
-    for order in orders:
-        print(f"Order {order.id}: {order.publicacion.cultivo.nombre} - ${order.precio_total}")
     
     # Calcular total y resumen por unidad de medida
     total = sum(order.precio_total for order in orders)

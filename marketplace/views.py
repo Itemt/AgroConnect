@@ -247,13 +247,6 @@ def select_crop_for_publication_view(request):
         publicaciones__estado='Activa'
     ).select_related('finca').order_by('-created_at')
     
-    # Debug: mostrar información en la consola
-    print(f"Usuario: {request.user.username}")
-    print(f"Total cultivos del usuario: {all_crops.count()}")
-    print(f"Cultivos cosechados: {all_crops.filter(estado='cosechado').count()}")
-    print(f"Cultivos con publicaciones activas: {all_crops.filter(publicaciones__estado='Activa').count()}")
-    print(f"Cultivos disponibles para publicación: {crops.count()}")
-    
     # Si no hay cultivos cosechados, mostrar todos los cultivos del usuario para que pueda ver qué tiene
     if not crops.exists():
         # Mostrar todos los cultivos del usuario para que pueda ver el estado

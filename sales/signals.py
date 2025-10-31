@@ -6,6 +6,9 @@ from core.models import create_notification, Notification
 from payments.models import Payment
 from accounts.models import ProducerProfile, BuyerProfile
 from django.db.models import Avg
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Order)
@@ -205,7 +208,7 @@ def update_seller_stats_on_completion(sender, instance, created, **kwargs):
             seller_profile.save()
             
         except Exception as e:
-            print(f"Error updating seller stats: {e}")
+            logger.error(f"Error updating seller stats: {e}")
 
 
 @receiver(post_save, sender=Order)
@@ -228,7 +231,7 @@ def update_buyer_stats_on_completion(sender, instance, created, **kwargs):
             buyer_profile.save()
             
         except Exception as e:
-            print(f"Error updating buyer stats: {e}")
+            logger.error(f"Error updating buyer stats: {e}")
 
 
 @receiver(post_save, sender=Rating)
@@ -276,9 +279,9 @@ def update_rating_stats(sender, instance, created, **kwargs):
                         total_calificaciones=0,
                     )
                 except Exception as e:
-                    print(f"Error updating rating stats: {e}")
+                    logger.error(f"Error updating rating stats: {e}")
         except Exception as e:
-            print(f"Error in update_rating_stats: {e}")
+            logger.error(f"Error in update_rating_stats: {e}")
 
 
 @receiver(pre_delete, sender=Order)
@@ -288,6 +291,6 @@ def delete_order_notifications(sender, instance, **kwargs):
         # Eliminar notificaciones que referencian este pedido
         deleted_count = Notification.objects.filter(order_id=instance.id).count()
         Notification.objects.filter(order_id=instance.id).delete()
-        print(f"Deleted {deleted_count} notifications for order {instance.id}")
+        logger.info(f"Deleted {deleted_count} notifications for order {instance.id}")
     except Exception as e:
-        print(f"Error deleting notifications for order {instance.id}: {e}")
+        logger.error(f"Error deleting notifications for order {instance.id}: {e}")
