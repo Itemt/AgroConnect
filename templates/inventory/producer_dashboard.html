@@ -9,71 +9,71 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
 
     <!-- Main Stats Cards -->
-    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
         <!-- Total Crops -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Mis Cultivos</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_crops }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Mis Cultivos</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ total_crops }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-seedling"></i>
                         Registrados
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-leaf text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-leaf text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Active Publications -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicaciones Activas</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ active_publications }}</p>
-                    <p class="text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Publicaciones Activas</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ active_publications }}</p>
+                    <p class="text-[11px] sm:text-xs text-brand-600 dark:text-brand-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-store"></i>
                         En venta
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-brand-50 dark:bg-brand-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-newspaper text-brand-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-brand-50 dark:bg-brand-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-newspaper text-brand-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Total Sales -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ventas Totales</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_sales }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Ventas Totales</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ total_sales }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-chart-line"></i>
                         Realizadas
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shopping-cart text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Total Revenue -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Totales</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ total_revenue|floatformat:0 }}</p>
-                    <p class="text-xs text-success-600 dark:text-success-400 flex items-center gap-1">
+            <div class="flex items-start justify-between gap-3 min-w-0">
+                <div class="min-w-0 pr-2">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Ingresos Totales</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">${{ total_revenue|floatformat:0 }}</p>
+                    <p class="text-[11px] sm:text-xs text-success-600 dark:text-success-400 flex items-center gap-1 whitespace-normal">
                         <i class="fas fa-dollar-sign"></i>
                         Generado
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-coins text-success-500 text-xl"></i>
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-coins text-success-500 text-lg sm:text-xl"></i>
                 </div>
             </div>
         </div>
@@ -83,39 +83,39 @@
     <div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <!-- Pending Sales -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-warning-50 dark:bg-warning-500/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-clock text-warning-500 text-lg"></i>
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-warning-50 dark:bg-warning-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-warning-500 text-base sm:text-lg"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Ventas Pendientes</p>
-                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ pending_sales }}</p>
+                <div class="min-w-0">
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Ventas Pendientes</p>
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">{{ pending_sales }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Total Purchases -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-blue-50 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-shopping-bag text-blue-500 text-lg"></i>
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-blue-50 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-blue-500 text-base sm:text-lg"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Mis Compras</p>
-                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ total_purchases }}</p>
+                <div class="min-w-0">
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Mis Compras</p>
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">{{ total_purchases }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Pending Purchases -->
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-info-50 dark:bg-info-500/20 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-hourglass-half text-info-500 text-lg"></i>
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-info-50 dark:bg-info-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-hourglass-half text-info-500 text-base sm:text-lg"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Compras Pendientes</p>
-                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ pending_purchases }}</p>
+                <div class="min-w-0">
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Compras Pendientes</p>
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">{{ pending_purchases }}</p>
                 </div>
             </div>
         </div>
