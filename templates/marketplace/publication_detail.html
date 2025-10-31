@@ -118,33 +118,32 @@
                                 
                                 {% if publication.es_unidad_convertible %}
                                     <!-- Selector de Unidad (solo para medidas de peso) -->
-                                    <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                        <label for="unidad" class="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+                                    <div class="mb-4 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-gray-700 rounded-lg p-3">
+                                        <label for="unidad" class="text-sm font-semibold text-blue-900 dark:text-gray-100 mb-2 flex items-center">
                                             <i class="fas fa-balance-scale mr-2"></i>
                                             Selecciona tu unidad de compra:
                                         </label>
-                                        <select name="unidad" id="unidad" class="w-full mt-2 border-blue-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm">
+                                        <select name="unidad" id="unidad" class="w-full mt-2 h-12 px-4 border-blue-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-base bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                                             <option value="kg">Kilogramos (kg)</option>
-                                            <option value="g">Gramos (g)</option>
                                             <option value="libras">Libras (lb)</option>
                                             <option value="arrobas">Arrobas (@)</option>
                                             <option value="toneladas">Toneladas (t)</option>
                                         </select>
-                                        <p class="text-xs text-blue-700 mt-1">
+                                        <p class="text-xs text-blue-700 dark:text-gray-300 mt-1">
                                             <i class="fas fa-info-circle mr-1"></i>
-                                            El vendedor publica en <strong>{{ publication.unidad_medida }}</strong>, pero puedes comprar en cualquier unidad de peso
+                                            El vendedor publica en <strong class="dark:text-white">{{ publication.unidad_medida }}</strong>, pero puedes comprar en cualquier unidad de peso
                                         </p>
                                     </div>
                                 {% else %}
                                     <!-- Mensaje para unidades NO convertibles -->
                                     <input type="hidden" name="unidad" value="{{ publication.unidad_medida }}">
-                                    <div class="mb-4 bg-orange-50 border-2 border-orange-300 rounded-lg p-4">
+                                    <div class="mb-4 bg-orange-50 dark:bg-white/5 border-2 border-orange-300 dark:border-gray-700 rounded-lg p-4">
                                         <div class="flex items-start">
-                                            <i class="fas fa-lock text-orange-600 text-xl mr-3 mt-1"></i>
+                                            <i class="fas fa-lock text-orange-600 dark:text-orange-400 text-xl mr-3 mt-1"></i>
                                             <div>
-                                                <h4 class="text-sm font-bold text-orange-900 mb-1">Unidad de venta fija</h4>
-                                                <p class="text-xs text-orange-800">
-                                                    Este producto solo se vende por <strong class="text-orange-900 uppercase">{{ publication.get_unidad_medida_display }}</strong>.
+                                                <h4 class="text-sm font-bold text-orange-900 dark:text-orange-200 mb-1">Unidad de venta fija</h4>
+                                                <p class="text-xs text-orange-800 dark:text-orange-200">
+                                                    Este producto solo se vende por <strong class="text-orange-900 dark:text-orange-100 uppercase">{{ publication.get_unidad_medida_display }}</strong>.
                                                     No es posible cambiar la unidad de compra.
                                                 </p>
                                             </div>
@@ -154,17 +153,30 @@
                                 
                                 <!-- Cantidad y Precio -->
                                 <div class="mb-4">
-                                    <label for="quantity" class="text-sm font-medium text-gray-700 mb-2 block">Cantidad:</label>
-                                    <input type="number" name="quantity" id="quantity" value="1" min="0.001" step="0.001" 
-                                           class="w-full text-center border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg">
-                                    <div id="price-info" class="mt-2 p-2 bg-gray-50 rounded text-sm">
+                                    <label for="quantity" class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 block">Cantidad:</label>
+                                    <div class="relative">
+                                        <button type="button" id="qty-dec" class="absolute left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <input type="number" name="quantity" id="quantity" value="1" min="0.1" step="0.1" 
+                                               class="w-full text-center h-12 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-12">
+                                        <button type="button" id="qty-inc" class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <style>
+                                        #quantity::-webkit-outer-spin-button,
+                                        #quantity::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+                                        #quantity { -moz-appearance: textfield; }
+                                    </style>
+                                    <div id="price-info" class="mt-2 p-2 bg-gray-50 dark:bg-white/5 rounded text-sm border border-gray-200 dark:border-gray-700">
                                         <div class="flex justify-between">
-                                            <span class="text-gray-600">Precio por unidad:</span>
-                                            <span id="precio-unitario" class="font-bold text-green-600">$<span data-precio="{{ publication.precio_por_unidad }}">{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
+                                            <span class="text-gray-600 dark:text-gray-300">Precio por unidad:</span>
+                                            <span id="precio-unitario" class="font-bold text-green-600 dark:text-green-400">$<span data-precio="{{ publication.precio_por_unidad }}">{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
                                         </div>
-                                        <div class="flex justify-between mt-1 pt-1 border-t">
-                                            <span class="text-gray-700 font-medium">Total:</span>
-                                            <span id="precio-total" class="font-bold text-green-700 text-lg">$<span>{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
+                                        <div class="flex justify-between mt-1 pt-1 border-t border-gray-200 dark:border-slate-700">
+                                            <span class="text-gray-700 dark:text-gray-200 font-medium">Total:</span>
+                                            <span id="precio-total" class="font-bold text-green-700 dark:text-green-400 text-lg">$<span>{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -185,10 +197,20 @@
     </div>
     
     <script>
+    // Ajuste visual de flechas (spinners) para modo oscuro
+    (function(){
+      const style = document.createElement('style');
+      style.textContent = `
+        html.dark #quantity::-webkit-inner-spin-button,
+        html.dark #quantity::-webkit-outer-spin-button { filter: invert(1) grayscale(1) brightness(0.8); }
+        html.dark input[type=number] { color-scheme: dark; }
+      `;
+      document.head.appendChild(style);
+    })();
+
     // Sistema de conversión de unidades en tiempo real
     const CONVERSION_TO_KG = {
         'kg': 1,
-        'g': 0.001,
         'libras': 0.453592,
         'arrobas': 11.502,
         'toneladas': 1000,
@@ -247,8 +269,8 @@
         // Actualizar max del input
         const quantityInput = document.getElementById('quantity');
         if (esConvertible) {
-            quantityInput.setAttribute('max', disponibleEnUnidadSeleccionada.toFixed(3));
-            quantityInput.setAttribute('step', '0.001');
+            quantityInput.setAttribute('max', disponibleEnUnidadSeleccionada.toFixed(1));
+            quantityInput.setAttribute('step', '0.1');
         } else {
             quantityInput.setAttribute('max', cantidadDisponible);
             quantityInput.setAttribute('step', '1');
@@ -269,7 +291,7 @@
                 warning.className = 'text-red-600 text-xs mt-1';
                 document.getElementById('price-info').appendChild(warning);
             }
-            warning.textContent = `⚠️ Solo hay ${disponibleEnUnidadSeleccionada.toFixed(esConvertible ? 2 : 0)} ${unidadSeleccionada} disponibles`;
+            warning.textContent = `⚠️ Solo hay ${disponibleEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0)} ${unidadSeleccionada} disponibles`;
         } else {
             submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
             submitButton.disabled = false;
@@ -289,6 +311,25 @@
     }
     
     document.getElementById('quantity').addEventListener('input', actualizarPrecio);
+    // Controles TailAdmin-like
+    const incBtn = document.getElementById('qty-inc');
+    const decBtn = document.getElementById('qty-dec');
+    if (incBtn && decBtn) {
+        incBtn.addEventListener('click', function(){
+            const input = document.getElementById('quantity');
+            const step = parseFloat(input.step || '0.1');
+            input.value = (parseFloat(input.value || '0') + step).toFixed(1);
+            actualizarPrecio();
+        });
+        decBtn.addEventListener('click', function(){
+            const input = document.getElementById('quantity');
+            const step = parseFloat(input.step || '0.1');
+            const min = parseFloat(input.min || '0');
+            const next = Math.max(min, parseFloat(input.value || '0') - step).toFixed(1);
+            input.value = next;
+            actualizarPrecio();
+        });
+    }
     
     // Inicializar
     actualizarPrecio();

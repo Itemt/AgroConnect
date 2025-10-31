@@ -13,7 +13,6 @@ class Publication(BaseModel):
     UNIDAD_CHOICES = [
         # Medidas de peso (convertibles)
         ('kg', 'Kilogramos (kg)'),
-        ('g', 'Gramos (g)'),
         ('libras', 'Libras (lb)'),
         ('arrobas', 'Arrobas (@)'),
         ('toneladas', 'Toneladas (t)'),
@@ -64,7 +63,6 @@ class Publication(BaseModel):
     # Solo para unidades de peso
     CONVERSION_TO_KG = {
         'kg': 1,
-        'g': 0.001,
         'libras': 0.453592,
         'arrobas': 11.502,  # 1 arroba = 25 libras = 11.502 kg
         'toneladas': 1000,

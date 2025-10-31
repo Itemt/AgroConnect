@@ -141,7 +141,7 @@ def documentation_view(request):
                     },
                     {
                         'question': '¿Qué unidades son convertibles?',
-                        'answer': 'Las medidas de PESO son convertibles: Kilogramos (kg), Gramos (g), Libras (lb), Arrobas (@) y Toneladas (t). Puedes comprar en cualquiera si el vendedor publicó en alguna de estas.'
+                        'answer': 'Las medidas de PESO son convertibles: Kilogramos (kg), Libras (lb), Arrobas (@) y Toneladas (t). Puedes comprar en cualquiera si el vendedor publicó en alguna de estas.'
                     },
                     {
                         'question': '¿Qué unidades NO son convertibles?',

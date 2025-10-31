@@ -135,12 +135,12 @@
                 <div class="flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
                         {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             Anterior
                         </a>
                     {% endif %}
                         {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ml-3">
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 ml-3">
                             Siguiente
                         </a>
                     {% endif %}
@@ -154,23 +154,23 @@
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                                 {% if page_obj.has_previous %}
-                                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 {% endif %}
                                 {% for num in page_obj.paginator.page_range %}
                                     {% if page_obj.number == num %}
-                                    <span class="relative inline-flex items-center px-4 py-2 border border-success-500 bg-success-50 text-sm font-medium text-success-600">
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-success-500 dark:border-success-600 bg-success-50 dark:bg-success-900/30 text-sm font-medium text-success-600 dark:text-success-400">
                                         {{ num }}
                                     </span>
                                     {% else %}
-                                    <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         {{ num }}
                                     </a>
                                     {% endif %}
                                 {% endfor %}
                                 {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                                 {% endif %}

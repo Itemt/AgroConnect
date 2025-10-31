@@ -61,7 +61,7 @@
 - **💰 Precios dinámicos**: Con conversión automática de unidades
 
 ### ⚖️ **Sistema de Conversión de Unidades**
-- **Unidades de peso convertibles**: kg, g, libras, arrobas, toneladas (conversión automática)
+- **Unidades de peso convertibles**: kg, libras, arrobas, toneladas (conversión automática)
 - **Unidades discretas fijas**: unidades, cajas, bultos (sin conversión)
 - **Conversión automática de precios**: El sistema calcula el precio en la unidad elegida por el comprador
 - **Validación de disponibilidad**: Previene compras que excedan el stock disponible
@@ -80,7 +80,7 @@
 - ✅ **Validación automática**: El comprador no puede pedir más de 34.5 kg
 
 **Unidades soportadas:**
-- **Convertibles** (peso): Kilogramos (kg), Gramos (g), Libras (lb), Arrobas (@), Toneladas (t)
+- **Convertibles** (peso): Kilogramos (kg), Libras (lb), Arrobas (@), Toneladas (t)
 - **Fijas** (discretas): Unidades, Cajas, Bultos - solo se pueden comprar en la unidad publicada
 
 ### 📦 **Sistema Completo de Pedidos**
@@ -730,7 +730,7 @@ graph LR
 - precio_por_unidad: Decimal
 - cantidad_disponible: Decimal (con conversión de unidades)
 - cantidad_minima: Decimal
-- unidad_medida: choices (kg, g, libras, arrobas, toneladas, unidades, cajas, bultos)
+- unidad_medida: choices (kg, libras, arrobas, toneladas, unidades, cajas, bultos)
 - departamento, ciudad: str
 - categoria: choices
 - estado: choices (Activa, Pausada, Agotada)
