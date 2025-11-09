@@ -90,7 +90,7 @@ def order_history_view(request):
         
         if search:
             orders = orders.filter(
-                Q(publicacion__cultivo__nombre_producto__icontains=search) |
+                Q(publicacion__cultivo__nombre__icontains=search) |
                 Q(comprador__first_name__icontains=search) |
                 Q(comprador__last_name__icontains=search) |
                 Q(publicacion__cultivo__productor__first_name__icontains=search) |
@@ -808,18 +808,6 @@ def create_order_from_cart(request):
     for item in cart_items:
         publication = item.publication
 
-        # Validar mínimo en la unidad seleccionada
-        minimo_convertido = publication.convertir_unidad(
-            publication.cantidad_minima,
-            publication.unidad_medida,
-            item.unidad_compra,
-        )
-        if minimo_convertido is None:
-            minimo_convertido = float(publication.cantidad_minima)
-        if float(item.quantity) < float(minimo_convertido):
-            messages.error(request, f"❌ {publication.cultivo.nombre}: mínimo {float(minimo_convertido):.1f} {item.unidad_compra}")
-            return redirect('cart:cart_detail')
-
         # Verificar disponibilidad considerando conversión
         disponible, cantidad_disponible = publication.verificar_disponibilidad(float(item.quantity), item.unidad_compra)
         if not disponible:
@@ -949,9 +937,16 @@ def cart_checkout_summary(request):
     if 'pending_payment_orders' in request.session:
         del request.session['pending_payment_orders']
     
+    # Seleccionar template base según rol del usuario (sin cambiar el rol)
+    # Un vendedor también puede comprar, así que debe usar su template base
+    if request.user.role == 'Productor':
+        template = 'sales/cart_checkout_summary_producer.html'
+    else:
+        template = 'sales/cart_checkout_summary.html'
+    
     context = {
         'orders_with_checkout': orders_with_checkout,
         'total': total,
         'totals_by_unit_items': totals_by_unit_items,
     }
-    return render(request, 'sales/cart_checkout_summary.html', context)
+    return render(request, template, context)

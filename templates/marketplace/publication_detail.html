@@ -16,6 +16,15 @@
                     <i class="fas fa-arrow-left mr-2"></i>Volver al Marketplace
                 </a>
             </div>
+            <!-- Header con título -->
+            <div class="mb-8">
+                <span class="bg-primary-100 dark:bg-slate-700 text-primary-800 dark:text-white text-sm font-medium px-3 py-1 rounded-full">
+                    {{ publication.categoria_display }}
+                </span>
+                <h1 class="text-5xl font-bold text-gray-900 dark:text-white mt-3">{{ publication.cultivo.nombre }}</h1>
+            </div>
+
+            <!-- Grid con imagen y detalles -->
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <!-- Image Section with Carousel -->
                 <div class="md:col-span-7">
@@ -61,103 +70,104 @@
                             <i class="fas fa-seedling text-white text-6xl opacity-80"></i>
                         </div>
                     {% endif %}
-                </div>
 
-                    <!-- Details Section -->
-                <div class="md:col-span-5 flex flex-col">
-                    <div>
-                        <!-- Header -->
-                        <div class="mb-6">
-                            <span class="bg-primary-100 dark:bg-slate-700 text-primary-800 dark:text-white text-sm font-medium px-3 py-1 rounded-full">
-                                {{ publication.categoria_display }}
-                            </span>
-                            <h1 class="text-5xl font-bold text-gray-900 dark:text-white mt-3">{{ publication.cultivo.nombre }}</h1>
-                            
-                            <!-- Información del Vendedor -->
-                            {% with seller=publication.cultivo.productor %}
-                            <div class="mt-4 bg-gradient-to-r from-green-50 to-primary-50 dark:from-slate-800 dark:to-slate-700 border border-primary-200 dark:border-slate-600 rounded-lg p-4">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-start gap-3 flex-1">
-                                        <div class="flex-shrink-0">
-                                            {% if seller.profile_image %}
-                                                <img src="{{ seller.profile_image.url }}" alt="{{ seller.get_full_name|default:seller.username }}" class="w-12 h-12 rounded-full object-cover border-2 border-green-200 dark:border-slate-600">
-                                            {% else %}
-                                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
-                                                    <i class="fas fa-user text-white text-lg"></i>
-                                                </div>
-                                            {% endif %}
+                    <!-- Description -->
+                    {% if publication.descripcion %}
+                        <div class="mt-6 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg p-4">
+                            <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Descripción</h2>
+                            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ publication.descripcion }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Información del Vendedor -->
+                    {% with seller=publication.cultivo.productor %}
+                    <div class="mt-6 bg-gradient-to-r from-green-50 to-primary-50 dark:from-slate-800 dark:to-slate-700 border border-primary-200 dark:border-slate-600 rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start gap-3 flex-1">
+                                <div class="flex-shrink-0">
+                                    {% if seller.profile_image %}
+                                        <img src="{{ seller.profile_image.url }}" alt="{{ seller.get_full_name|default:seller.username }}" class="w-12 h-12 rounded-full object-cover border-2 border-green-200 dark:border-slate-600">
+                                    {% else %}
+                                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-lg"></i>
                                         </div>
-                                        <div class="flex-1 min-w-0">
-                                            <a href="{% url 'user_profile' seller.id %}" class="text-lg font-bold text-primary-700 dark:text-green-400 hover:text-primary-900 dark:hover:text-green-300 transition-colors">
-                                                {{ seller.get_full_name|default:seller.username }}
-                                            </a>
-                                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                                <i class="fas fa-map-marker-alt mr-1"></i>
-                                                {{ publication.display_location }}
-                                            </p>
-                                            
-                                            {% if seller.producer_profile %}
-                                            <div class="flex flex-wrap gap-3 mt-2">
-                                                <div class="flex items-center text-sm">
-                                                    <i class="fas fa-shopping-cart text-green-600 dark:text-green-400 mr-1.5"></i>
-                                                    <span class="text-gray-700 dark:text-gray-300">
-                                                        <strong>{{ seller.producer_profile.total_ventas|default:0 }}</strong> ventas
-                                                    </span>
-                                                </div>
-                                                <div class="flex items-center text-sm">
-                                                    <div class="flex items-center gap-0.5 mr-1.5" title="Reputación promedio: {{ seller.producer_profile.calificacion_promedio|floatformat:1|default:'0.0' }}">
-                                                        {% render_stars seller.producer_profile.calificacion_promedio 'xs' %}
-                                                    </div>
-                                                    <span class="text-gray-700 dark:text-gray-300">
-                                                        <strong>{{ seller.producer_profile.calificacion_promedio|floatformat:1|default:"0.0" }}</strong>
-                                                        {% if seller.producer_profile.total_calificaciones > 0 %}
-                                                            <span class="text-gray-500 dark:text-gray-400 text-xs">({{ seller.producer_profile.total_calificaciones }} calificación{{ seller.producer_profile.total_calificaciones|pluralize:"es" }})</span>
-                                                        {% else %}
-                                                            <span class="text-gray-500 dark:text-gray-400 text-xs">(Sin calificaciones)</span>
-                                                        {% endif %}
-                                                    </span>
-                                                </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <a href="{% url 'user_profile' seller.id %}" class="text-lg font-bold text-primary-700 dark:text-green-400 hover:text-primary-900 dark:hover:text-green-300 transition-colors">
+                                        {{ seller.get_full_name|default:seller.username }}
+                                    </a>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        {{ publication.display_location }}
+                                    </p>
+                                    
+                                    {% if seller.producer_profile %}
+                                    <div class="flex flex-wrap gap-3 mt-2">
+                                        <div class="flex items-center text-sm">
+                                            <i class="fas fa-shopping-cart text-green-600 dark:text-green-400 mr-1.5"></i>
+                                            <span class="text-gray-700 dark:text-gray-300">
+                                                <strong>{{ seller.producer_profile.total_ventas|default:0 }}</strong> ventas
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center text-sm">
+                                            <div class="flex items-center gap-0.5 mr-1.5" title="Reputación promedio: {{ seller.producer_profile.calificacion_promedio|floatformat:1|default:'0.0' }}">
+                                                {% render_stars seller.producer_profile.calificacion_promedio 'xs' %}
                                             </div>
-                                            {% else %}
-                                            <div class="flex flex-wrap gap-3 mt-2">
-                                                <div class="flex items-center text-sm">
-                                                    <i class="fas fa-shopping-cart text-green-600 dark:text-green-400 mr-1.5"></i>
-                                                    <span class="text-gray-700 dark:text-gray-300">
-                                                        <strong>0</strong> ventas
-                                                    </span>
-                                                </div>
-                                                <div class="flex items-center text-sm">
-                                                    <div class="flex items-center gap-0.5 mr-1.5" title="Reputación promedio: 0.0">
-                                                        {% render_stars 0.0 'xs' %}
-                                                    </div>
-                                                    <span class="text-gray-700 dark:text-gray-300">
-                                                        <strong>0.0</strong>
-                                                        <span class="text-gray-500 dark:text-gray-400 text-xs">(Sin calificaciones)</span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            {% endif %}
+                                            <span class="text-gray-700 dark:text-gray-300">
+                                                <strong>{{ seller.producer_profile.calificacion_promedio|floatformat:1|default:"0.0" }}</strong>
+                                                {% if seller.producer_profile.total_calificaciones > 0 %}
+                                                    <span class="text-gray-500 dark:text-gray-400 text-xs">({{ seller.producer_profile.total_calificaciones }} calificación{{ seller.producer_profile.total_calificaciones|pluralize:"es" }})</span>
+                                                {% else %}
+                                                    <span class="text-gray-500 dark:text-gray-400 text-xs">(Sin calificaciones)</span>
+                                                {% endif %}
+                                            </span>
                                         </div>
                                     </div>
-                                    <a href="{% url 'user_profile' seller.id %}" 
-                                       class="flex-shrink-0 ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors">
-                                        Ver Perfil
-                                    </a>
+                                    {% else %}
+                                    <div class="flex flex-wrap gap-3 mt-2">
+                                        <div class="flex items-center text-sm">
+                                            <i class="fas fa-shopping-cart text-green-600 dark:text-green-400 mr-1.5"></i>
+                                            <span class="text-gray-700 dark:text-gray-300">
+                                                <strong>0</strong> ventas
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center text-sm">
+                                            <div class="flex items-center gap-0.5 mr-1.5" title="Reputación promedio: 0.0">
+                                                {% render_stars 0.0 'xs' %}
+                                            </div>
+                                            <span class="text-gray-700 dark:text-gray-300">
+                                                <strong>0.0</strong>
+                                                <span class="text-gray-500 dark:text-gray-400 text-xs">(Sin calificaciones)</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
-                            {% endwith %}
-                            {% if publication.cultivo.finca %}
-                            <div class="mt-3 bg-gradient-to-r from-green-50 to-primary-50 dark:from-slate-800 dark:to-slate-700 border border-primary-200 dark:border-slate-600 rounded-lg p-3">
-                                <div class="flex items-center text-primary-700 dark:text-green-400">
-                                    <i class="fas fa-home mr-2"></i>
-                                    <span class="font-semibold">{{ publication.cultivo.finca.nombre }}</span>
-                                </div>
-                                <div class="text-sm text-gray-600 dark:text-gray-300 mt-1 ml-6">
-                                    {{ publication.cultivo.finca.ubicacion_completa }}
-                                </div>
-                            </div>
-                            {% endif %}
+                            <a href="{% url 'user_profile' seller.id %}" 
+                               class="flex-shrink-0 ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors">
+                                Ver Perfil
+                            </a>
                         </div>
+                    </div>
+                    {% endwith %}
+                    {% if publication.cultivo.finca %}
+                    <div class="mt-3 bg-gradient-to-r from-green-50 to-primary-50 dark:from-slate-800 dark:to-slate-700 border border-primary-200 dark:border-slate-600 rounded-lg p-3">
+                        <div class="flex items-center text-primary-700 dark:text-green-400">
+                            <i class="fas fa-home mr-2"></i>
+                            <span class="font-semibold">{{ publication.cultivo.finca.nombre }}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300 mt-1 ml-6">
+                            {{ publication.cultivo.finca.ubicacion_completa }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Details Section -->
+                <div class="md:col-span-5 flex flex-col">
+                    <div>
 
                         <!-- Price -->
                         <div class="mb-6">
@@ -165,23 +175,11 @@
                             <div class="text-gray-500 dark:text-gray-400 text-sm">por {{ publication.cultivo.unidad_medida }}</div>
                         </div>
 
-                        <!-- Description -->
-                        {% if publication.descripcion %}
-                            <div class="mb-6">
-                                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Descripción</h2>
-                                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ publication.descripcion }}</p>
-                            </div>
-                        {% endif %}
-
                         <!-- Product Stats -->
                         <div class="grid grid-cols-2 gap-4 mb-8 text-sm">
                             <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
                                 <label class="font-semibold text-gray-600 dark:text-gray-300">Disponible</label>
                                 <p class="text-gray-800 dark:text-white text-lg">{{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
-                            </div>
-                            <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
-                                <label class="font-semibold text-gray-600 dark:text-gray-300">Pedido Mínimo</label>
-                                <p class="text-gray-800 dark:text-white text-lg">{{ publication.cantidad_minima }} {{ publication.cultivo.unidad_medida }}</p>
                             </div>
                             <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
                                 <label class="font-semibold text-gray-600 dark:text-gray-300">Cosecha</label>
@@ -224,33 +222,32 @@
                                 
                                 {% if publication.es_unidad_convertible %}
                                     <!-- Selector de Unidad (solo para medidas de peso) -->
-                                    <div class="mb-4 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-gray-700 rounded-lg p-3">
-                                        <label for="unidad" class="text-sm font-semibold text-blue-900 dark:text-gray-100 mb-2 flex items-center">
-                                            <i class="fas fa-balance-scale mr-2"></i>
-                                            Selecciona tu unidad de compra:
+                                    <div class="mb-3 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-gray-700 rounded-lg p-2.5">
+                                        <label for="unidad" class="text-xs font-semibold text-blue-900 dark:text-gray-100 mb-1.5 flex items-center">
+                                            <i class="fas fa-balance-scale mr-1.5 text-sm"></i>
+                                            Unidad de compra:
                                         </label>
-                                        <select name="unidad" id="unidad" class="w-full mt-2 h-12 px-4 border-blue-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-base bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                                        <select name="unidad" id="unidad" class="w-full mt-1.5 h-9 px-3 border-blue-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                                             <option value="kg">Kilogramos (kg)</option>
                                             <option value="libras">Libras (lb)</option>
                                             <option value="arrobas">Arrobas (@)</option>
                                             <option value="toneladas">Toneladas (t)</option>
                                         </select>
-                                        <p class="text-xs text-blue-700 dark:text-gray-300 mt-1">
+                                        <p class="text-xs text-blue-700 dark:text-gray-300 mt-1.5">
                                             <i class="fas fa-info-circle mr-1"></i>
-                                            El vendedor publica en <strong class="dark:text-white">{{ publication.unidad_medida }}</strong>, pero puedes comprar en cualquier unidad de peso
+                                            El vendedor publica en <strong class="dark:text-white">{{ publication.unidad_medida }}</strong>
                                         </p>
                                     </div>
                                 {% else %}
                                     <!-- Mensaje para unidades NO convertibles -->
                                     <input type="hidden" name="unidad" value="{{ publication.unidad_medida }}">
-                                    <div class="mb-4 bg-orange-50 dark:bg-white/5 border-2 border-orange-300 dark:border-gray-700 rounded-lg p-4">
+                                    <div class="mb-3 bg-orange-50 dark:bg-white/5 border border-orange-300 dark:border-gray-700 rounded-lg p-2.5">
                                         <div class="flex items-start">
-                                            <i class="fas fa-lock text-orange-600 dark:text-orange-400 text-xl mr-3 mt-1"></i>
+                                            <i class="fas fa-lock text-orange-600 dark:text-orange-400 text-base mr-2 mt-0.5"></i>
                                             <div>
-                                                <h4 class="text-sm font-bold text-orange-900 dark:text-orange-200 mb-1">Unidad de venta fija</h4>
+                                                <h4 class="text-xs font-bold text-orange-900 dark:text-orange-200 mb-0.5">Unidad de venta fija</h4>
                                                 <p class="text-xs text-orange-800 dark:text-orange-200">
                                                     Este producto solo se vende por <strong class="text-orange-900 dark:text-orange-100 uppercase">{{ publication.get_unidad_medida_display }}</strong>.
-                                                    No es posible cambiar la unidad de compra.
                                                 </p>
                                             </div>
                                         </div>
@@ -258,15 +255,15 @@
                                 {% endif %}
                                 
                                 <!-- Cantidad y Precio -->
-                                <div class="mb-4">
-                                    <label for="quantity" class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 block">Cantidad:</label>
+                                <div class="mb-3">
+                                    <label for="quantity" class="text-xs font-medium text-gray-700 dark:text-gray-200 mb-1.5 block">Cantidad:</label>
                                     <div class="relative">
-                                        <button type="button" id="qty-dec" class="absolute left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
+                                        <button type="button" id="qty-dec" class="absolute left-1.5 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
                                             <i class="fas fa-minus text-xs"></i>
                                         </button>
-                                        <input type="number" name="quantity" id="quantity" value="1" min="0.1" step="0.1" 
-                                               class="w-full text-center h-12 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-12">
-                                        <button type="button" id="qty-inc" class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
+                                        <input type="number" name="quantity" id="quantity" value="1" min="0" step="0.1" 
+                                               class="w-full text-center h-9 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-base bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-10">
+                                        <button type="button" id="qty-inc" class="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent focus:outline-none">
                                             <i class="fas fa-plus text-xs"></i>
                                         </button>
                                     </div>
@@ -275,14 +272,14 @@
                                         #quantity::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
                                         #quantity { -moz-appearance: textfield; }
                                     </style>
-                                    <div id="price-info" class="mt-2 p-2 bg-gray-50 dark:bg-white/5 rounded text-sm border border-gray-200 dark:border-gray-700">
+                                    <div id="price-info" class="mt-2 p-2 bg-gray-50 dark:bg-white/5 rounded text-xs border border-gray-200 dark:border-gray-700">
                                         <div class="flex justify-between">
                                             <span class="text-gray-600 dark:text-gray-300">Precio por unidad:</span>
                                             <span id="precio-unitario" class="font-bold text-green-600 dark:text-green-400">$<span data-precio="{{ publication.precio_por_unidad }}">{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
                                         </div>
                                         <div class="flex justify-between mt-1 pt-1 border-t border-gray-200 dark:border-slate-700">
                                             <span class="text-gray-700 dark:text-gray-200 font-medium">Total:</span>
-                                            <span id="precio-total" class="font-bold text-green-700 dark:text-green-400 text-lg">$<span>{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
+                                            <span id="precio-total" class="font-bold text-green-700 dark:text-green-400 text-base">$<span>{{ publication.precio_por_unidad|floatformat:0 }}</span></span>
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,4 @@
-{% extends 'accounts/buyer_base_tailadmin.html' %}
+{% extends 'accounts/producer_base_tailadmin.html' %}
 {% load static %}
 
 {% block title %}Resumen de Pago - Carrito{% endblock %}
@@ -6,7 +6,7 @@
 {% block page_title %}Resumen de Pago{% endblock %}
 {% block page_description %}Revisa y completa el pago de tus pedidos{% endblock %}
 
-{% block buyer_content %}
+{% block producer_content %}
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <!-- Lista de Pedidos -->
     <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
@@ -144,3 +144,4 @@
     </div>
 </div>
 {% endblock %}
+

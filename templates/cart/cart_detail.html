@@ -65,7 +65,11 @@
                             <div class="flex items-start gap-4">
                                 <!-- Imagen del Producto -->
                                 <div class="flex-shrink-0">
-                                    {% if item.publication.imagen %}
+                                    {% if item.publication.all_images.first %}
+                                        <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover" 
+                                             src="{{ item.publication.all_images.first.image.url }}" 
+                                             alt="{{ item.publication.cultivo.nombre }}" />
+                                    {% elif item.publication.imagen %}
                                         <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover" 
                                              src="{{ item.publication.imagen.url }}" 
                                              alt="{{ item.publication.cultivo.nombre }}" />
@@ -107,46 +111,58 @@
                                     </div>
                                     
                                     <!-- Cantidad y Actualizar -->
-                                    <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-700">
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cantidad:</span>
-                                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="flex items-center">
-                                                {% csrf_token %}
-                                                <div class="flex items-center border-2 border-gray-300 dark:border-slate-600 rounded-full overflow-hidden">
-                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                                    <div class="pt-3 border-t border-gray-200 dark:border-slate-700">
+                                        <form action="{% url 'cart:update_cart' item.id %}" method="post">
+                                            {% csrf_token %}
+                                            
+                                            <!-- Primera línea: Label + Control de cantidad + Unidad (simétricos) -->
+                                            <div class="flex items-center gap-2 mb-2.5">
+                                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Cantidad:</span>
+                                                
+                                                <!-- Control de cantidad compacto -->
+                                                <div class="flex items-center border border-gray-300 dark:border-slate-600 rounded-md overflow-hidden h-8">
+                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
                                                         <i class="fas fa-minus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
-                                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="{{ item.minimo_en_unidad_compra }}" step="0.1"
-                                                           class="w-16 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100" 
-                                                           onchange="this.form.submit()">
-                                                    <button type="button" onclick="increaseQuantity(this)" class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                                                    <input type="number" name="quantity" value="{% if item.quantity %}{{ item.quantity|floatformat:1 }}{% else %}0.0{% endif %}" min="0" step="0.1"
+                                                           class="w-14 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100 h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                    <button type="button" onclick="increaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
                                                         <i class="fas fa-plus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
                                                 </div>
-                                                {% comment %} Selector de unidad de compra basado en conversiones disponibles {% endcomment %}
-                                                <select name="unidad" class="ml-3 text-sm border-2 border-gray-300 dark:border-slate-600 rounded-full px-3 py-1.5 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100" onchange="this.form.submit()">
+                                                
+                                                <!-- Selector de unidad al lado - mismo tamaño -->
+                                                <select name="unidad" class="text-sm border border-gray-300 dark:border-slate-600 rounded-md px-3 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 h-8 font-medium">
                                                     {% for u in item.publication.unidades_disponibles_para_conversion %}
                                                         <option value="{{ u }}" {% if u == item.unidad_compra %}selected{% endif %}>{{ u }}</option>
                                                     {% endfor %}
                                                 </select>
-                                            </form>
-                                        </div>
-                                        <div class="text-xs text-gray-600 dark:text-gray-300 mt-2">
-                                            <span class="mr-3">Mínimo: <strong>{{ item.minimo_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
-                                            <span>Disponible: <strong>{{ item.disponible_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
-                                        </div>
-                                        {% if item.validation_error %}
-                                        <div class="mt-2 text-xs text-red-600 dark:text-red-400">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ item.validation_error }}
-                                        </div>
-                                        {% endif %}
-                                        
-                                        <!-- Botón Eliminar -->
-                                        <a href="{% url 'cart:remove_from_cart' item.id %}" 
-                                           class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-200"
-                                           onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')">
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </a>
+                                            </div>
+                                            
+                                            <!-- Segunda línea: Botones Actualizar y Eliminar -->
+                                            <div class="flex items-center gap-2 mb-2.5">
+                                                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-semibold transition-colors shadow-sm">
+                                                    <i class="fas fa-check mr-1"></i>Actualizar
+                                                </button>
+                                                
+                                                <button type="button" 
+                                                   class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-all shadow-sm inline-flex items-center"
+                                                   onclick="showDeleteConfirm('{{ item.id }}', '{{ item.publication.cultivo.nombre }}')">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Tercera línea: Info de Disponible -->
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                <span>Disponible: <strong class="text-gray-700 dark:text-gray-300">{{ item.disponible_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
+                                            </div>
+                                            
+                                            {% if item.validation_error %}
+                                            <div class="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ item.validation_error }}
+                                            </div>
+                                            {% endif %}
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +264,93 @@
     </div>
 </div>
 
+<!-- Modal de confirmación de eliminación -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-2xl">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                </div>
+                <h3 class="ml-4 text-xl font-bold text-white">¿Eliminar producto?</h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-6">
+            <p class="text-gray-700 dark:text-gray-300 text-base mb-4">
+                ¿Estás seguro de que quieres eliminar <strong id="productName" class="text-gray-900 dark:text-white"></strong> de tu carrito?
+            </p>
+            
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-yellow-600 dark:text-yellow-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                            Esta acción eliminará el producto de tu carrito.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3">
+                <button id="cancelDelete" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 font-semibold transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <a id="confirmDelete" href="#" class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold transition-all text-center shadow-lg">
+                    <i class="fas fa-trash mr-2"></i>Sí, Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+// Modal de eliminación
+function showDeleteConfirm(itemId, productName) {
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('deleteModalContent');
+    const productNameEl = document.getElementById('productName');
+    const confirmBtn = document.getElementById('confirmDelete');
+    
+    productNameEl.textContent = productName;
+    confirmBtn.href = `/cart/remove/${itemId}/`;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('deleteModalContent');
+    
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
+
+// Cerrar al hacer clic fuera del modal
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+
 // Funciones para manejar cantidad con decimales
 function increaseQuantity(button) {
     const input = button.parentElement.querySelector('input[type="number"]');
@@ -256,7 +358,8 @@ function increaseQuantity(button) {
     const current = parseFloat(input.value || '0');
     const next = (current + step);
     input.value = next.toFixed(1);
-    input.dispatchEvent(new Event('change'));
+    // NO disparar el evento change automáticamente
+    // input.dispatchEvent(new Event('change'));
 }
 
 function decreaseQuantity(button) {
@@ -266,7 +369,8 @@ function decreaseQuantity(button) {
     const current = parseFloat(input.value || '0');
     const next = Math.max(min, current - step);
     input.value = next.toFixed(1);
-    input.dispatchEvent(new Event('change'));
+    // NO disparar el evento change automáticamente
+    // input.dispatchEvent(new Event('change'));
 }
 </script>
 {% endblock %}

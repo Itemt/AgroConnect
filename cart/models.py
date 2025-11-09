@@ -16,9 +16,9 @@ class Cart(models.Model):
 
     @property
     def has_invalid_items(self):
-        """Retorna True si algún item tiene cantidad por debajo del mínimo o supera disponibilidad"""
+        """Retorna True si algún item supera disponibilidad"""
         for item in self.items.all():
-            if item.is_below_minimum or item.is_over_available:
+            if item.is_over_available:
                 return True
         return False
 
@@ -95,11 +95,8 @@ class CartItem(models.Model):
 
     @property
     def is_below_minimum(self):
-        """True si la cantidad actual está por debajo del mínimo permitido en la unidad de compra"""
-        try:
-            return float(self.quantity) + 1e-9 < float(self.minimo_en_unidad_compra)
-        except Exception:
-            return False
+        """Siempre retorna False - no hay mínimos de compra"""
+        return False
 
     @property
     def is_over_available(self):
@@ -112,8 +109,6 @@ class CartItem(models.Model):
     @property
     def validation_error(self):
         """Mensaje de error amigable si el item es inválido, sino cadena vacía"""
-        if self.is_below_minimum:
-            return f"Mínimo: {float(self.minimo_en_unidad_compra):.1f} {self.unidad_compra}"
         if self.is_over_available:
             return f"Disponible: {float(self.disponible_en_unidad_compra):.1f} {self.unidad_compra}"
         return ""
