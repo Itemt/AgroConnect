@@ -3,63 +3,157 @@
 {% block title %}{% if form.instance.pk %}Editar Publicación{% else %}Publicar en el Marketplace{% endif %}{% endblock %}
 
 {% block producer_content %}
+<style>
+    /* Estilos para inputs, selects y textareas del formulario */
+    #publication-form input[type="text"],
+    #publication-form input[type="number"],
+    #publication-form input[type="email"],
+    #publication-form input[type="date"],
+    #publication-form select,
+    #publication-form textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #1f2937;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    /* Dark mode para inputs */
+    .dark #publication-form input[type="text"],
+    .dark #publication-form input[type="number"],
+    .dark #publication-form input[type="email"],
+    .dark #publication-form input[type="date"],
+    .dark #publication-form select,
+    .dark #publication-form textarea {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    /* Focus states */
+    #publication-form input[type="text"]:focus,
+    #publication-form input[type="number"]:focus,
+    #publication-form input[type="email"]:focus,
+    #publication-form input[type="date"]:focus,
+    #publication-form select:focus,
+    #publication-form textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark #publication-form input[type="text"]:focus,
+    .dark #publication-form input[type="number"]:focus,
+    .dark #publication-form input[type="email"]:focus,
+    .dark #publication-form input[type="date"]:focus,
+    .dark #publication-form select:focus,
+    .dark #publication-form textarea:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+    
+    /* Textarea específico */
+    #publication-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Select específico */
+    #publication-form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        appearance: none;
+    }
+    
+    .dark #publication-form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+    
+    /* File input */
+    #publication-form input[type="file"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: #1f2937;
+        background-color: #ffffff;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .dark #publication-form input[type="file"] {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    #publication-form input[type="file"]:hover {
+        border-color: #9ca3af;
+    }
+    
+    .dark #publication-form input[type="file"]:hover {
+        border-color: #6b7280;
+    }
+</style>
+
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-lg shadow-lg">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
         <div class="px-6 py-8">
-            <h1 class="text-3xl font-bold text-gray-900">{% if form.instance.pk %}Editar Publicación{% else %}Publicar en el Marketplace{% endif %}</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% if form.instance.pk %}Editar Publicación{% else %}Publicar en el Marketplace{% endif %}</h1>
             {% if not form.instance.pk %}
-            <p class="mt-2 text-sm text-gray-600">Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre }}.</p>
-            <p class="mt-1 text-sm text-gray-600">Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre }}.</p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Por favor, define el precio y la cantidad que deseas poner a la venta.</p>
             {% endif %}
             
             <!-- Product Information Card -->
-            <div class="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-medium text-gray-900">
-                        <i class="fas fa-info-circle text-primary-600 mr-2"></i>Información del Producto
-                    </h3>
-                    <button type="button" id="ai-suggestions-btn" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm font-medium flex items-center">
-                        <i class="fas fa-magic mr-2"></i>
-                        Sugerencias IA
-                    </button>
-                </div>
+            <div class="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">
+                    <i class="fas fa-info-circle text-primary-600 dark:text-primary-400 mr-2"></i>Información del Producto
+                </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex items-center">
-                        <i class="fas fa-seedling text-green-600 mr-3"></i>
+                        <i class="fas fa-seedling text-green-600 dark:text-green-400 mr-3"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Producto</p>
-                            <p class="text-sm text-gray-600">{{ crop.nombre }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Producto</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.nombre }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-tags text-blue-600 mr-3"></i>
+                        <i class="fas fa-tags text-blue-600 dark:text-blue-400 mr-3"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Categoría</p>
-                            <p class="text-sm text-gray-600">{{ crop.categoria_display|default:"Sin categoría" }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Categoría</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.categoria_display|default:"Sin categoría" }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-weight text-orange-600 mr-3"></i>
+                        <i class="fas fa-weight text-orange-600 dark:text-orange-400 mr-3"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Cantidad Total del Cultivo</p>
-                            <p class="text-sm text-gray-600">{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Cantidad Total del Cultivo</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-calendar text-purple-600 mr-3"></i>
+                        <i class="fas fa-calendar text-purple-600 dark:text-purple-400 mr-3"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Fecha de Disponibilidad</p>
-                            <p class="text-sm text-gray-600">{{ crop.fecha_disponibilidad|date:"d/m/Y" }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Fecha de Disponibilidad</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.fecha_disponibilidad|date:"d/m/Y" }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="border-t border-gray-200 px-6 py-8">
+        <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-8">
             <form method="post" enctype="multipart/form-data" id="publication-form">
                 {% csrf_token %}
                 <div class="space-y-6">
@@ -67,9 +161,9 @@
                         {% if field.name != 'images' %}
                         <div class="field-wrapper">
                             <div class="flex items-center justify-between">
-                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ field.label }}</label>
                                 {% if field.name == 'precio_por_unidad' or field.name == 'descripcion' %}
-                                <button type="button" onclick="getAiSuggestion('{{ field.name }}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-1 rounded-lg transition-colors duration-200 flex items-center">
+                                <button type="button" onclick="getAiSuggestion('{{ field.name }}')" class="text-xs bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-lg transition-colors duration-200 flex items-center">
                                     <i class="fas fa-magic mr-1"></i>
                                     IA
                                 </button>
@@ -79,30 +173,30 @@
                                 {{ field }}
                             </div>
                             {% if field.help_text %}
-                            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>
                             {% endif %}
                             {% for error in field.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
                             {% endfor %}
                         </div>
                         {% endif %}
                     {% endfor %}
                     
                     <!-- Sección de imágenes mejorada -->
-                    <div class="field-wrapper bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            <i class="fas fa-images mr-2 text-primary-600"></i>Imágenes del Producto (hasta 10)
+                    <div class="field-wrapper bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-600">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            <i class="fas fa-images mr-2 text-primary-600 dark:text-primary-400"></i>Imágenes del Producto (hasta 10)
                         </label>
-                        <p class="text-sm text-gray-600 mb-4">La primera imagen será la principal. Puedes subir hasta 10 imágenes.</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">La primera imagen será la principal. Puedes subir hasta 10 imágenes.</p>
                         
                         <!-- Imágenes existentes (solo en edición) -->
                         {% if existing_images %}
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Imágenes actuales:</h4>
+                            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Imágenes actuales:</h4>
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="existing-images-grid">
                                 {% for image in existing_images %}
                                 <div class="existing-image-item relative group" data-image-id="{{ image.id }}">
-                                    <div class="aspect-square rounded-lg overflow-hidden border-2 {% if image.is_primary %}border-primary-600{% else %}border-gray-300{% endif %}">
+                                    <div class="aspect-square rounded-lg overflow-hidden border-2 {% if image.is_primary %}border-primary-600 dark:border-primary-400{% else %}border-gray-300 dark:border-gray-600{% endif %}">
                                         <img src="{{ image.image.url }}" alt="Imagen {{ forloop.counter }}" class="w-full h-full object-cover">
                                     </div>
                                     <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -130,7 +224,7 @@
                         <div class="mt-4">
                             {{ form.images }}
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                             <i class="fas fa-info-circle mr-1"></i>
                             Formatos aceptados: JPG, PNG, GIF. Tamaño máximo por imagen: 5MB
                         </p>
@@ -140,8 +234,8 @@
                     </div>
                 </div>
 
-                <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end items-center space-x-4">
-                    <a href="{% url 'my_publications' %}" class="text-sm font-medium text-gray-600 hover:text-gray-800">Cancelar</a>
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end items-center space-x-4">
+                    <a href="{% url 'my_publications' %}" class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Cancelar</a>
                     <button type="submit" id="publish-btn" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm">
                         {% if form.instance.pk %}Guardar Cambios{% else %}Publicar en el Marketplace{% endif %}
                     </button>
@@ -151,100 +245,31 @@
     </div>
 </div>
 
-<!-- AI Suggestions Modal -->
-<div id="ai-suggestions-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-strong max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="ai-modal">
-        <div class="p-8">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-magic text-purple-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Sugerencias de IA</h3>
-                        <p class="text-gray-600 text-sm">Optimiza tu publicación con inteligencia artificial</p>
-                    </div>
-                </div>
-                <button id="close-ai-modal" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div id="ai-loading" class="text-center py-8 hidden">
-                <div class="inline-flex items-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                    <span class="ml-3 text-gray-600">Generando sugerencias...</span>
-                </div>
-            </div>
-            
-            <div id="ai-suggestions-content" class="hidden">
-                <!-- Títulos sugeridos -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-heading text-blue-600 mr-2"></i>Títulos Sugeridos
-                    </h4>
-                    <div id="title-suggestions" class="space-y-2"></div>
-                </div>
-                
-                <!-- Precios sugeridos -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-dollar-sign text-green-600 mr-2"></i>Precios Sugeridos
-                    </h4>
-                    <div id="price-suggestions" class="bg-gray-50 rounded-lg p-4"></div>
-                </div>
-                
-                <!-- Descripciones sugeridas -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-align-left text-orange-600 mr-2"></i>Descripciones Sugeridas
-                    </h4>
-                    <div id="description-suggestions" class="space-y-2"></div>
-                </div>
-                
-                <!-- Tips de marketing -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>Tips de Marketing
-                    </h4>
-                    <div id="marketing-tips" class="space-y-2"></div>
-                </div>
-            </div>
-            
-            <div class="flex justify-end space-x-3 mt-6">
-                <button id="close-ai-modal-btn" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Custom Alert Modal -->
 <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-strong max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="alert-modal">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-strong max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="alert-modal">
         <div class="p-8">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                    <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900">Confirmar Publicación</h3>
-                    <p class="text-gray-600 text-sm">Esta acción hará visible tu producto en el marketplace</p>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Confirmar Publicación</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Esta acción hará visible tu producto en el marketplace</p>
                 </div>
             </div>
             
-            <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                <p class="text-gray-700 text-sm">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-6">
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
                     <strong>¿Estás seguro de que quieres publicar este producto en el marketplace?</strong>
                 </p>
-                <p class="text-gray-600 text-xs mt-2">
+                <p class="text-gray-600 dark:text-gray-400 text-xs mt-2">
                     Una vez publicado, estará disponible para que otros usuarios puedan verlo y hacer pedidos.
                 </p>
             </div>
             
             <div class="flex justify-end space-x-3">
-                <button id="cancel-alert" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                <button id="cancel-alert" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors">
                     Cancelar
                 </button>
                 <button id="confirm-publish" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
@@ -264,15 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelBtn = document.getElementById('cancel-alert');
     const confirmBtn = document.getElementById('confirm-publish');
     const form = document.querySelector('form');
-    
-    // AI Suggestions functionality
-    const aiSuggestionsBtn = document.getElementById('ai-suggestions-btn');
-    const aiModal = document.getElementById('ai-suggestions-modal');
-    const aiModalContent = document.getElementById('ai-modal');
-    const closeAiModal = document.getElementById('close-ai-modal');
-    const closeAiModalBtn = document.getElementById('close-ai-modal-btn');
-    const aiLoading = document.getElementById('ai-loading');
-    const aiContent = document.getElementById('ai-suggestions-content');
     
     // Form fields
     const precioField = document.querySelector('input[name="precio_por_unidad"]');
@@ -364,197 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    aiSuggestionsBtn.addEventListener('click', function() {
-        showAiModal();
-        getAiSuggestions();
-    });
-    
-    closeAiModal.addEventListener('click', hideAiModal);
-    closeAiModalBtn.addEventListener('click', hideAiModal);
-    
-    // Cerrar al hacer clic fuera del modal
-    aiModal.addEventListener('click', function(e) {
-        if (e.target === aiModal) {
-            hideAiModal();
-        }
-    });
-    
-    function showAiModal() {
-        aiModal.classList.remove('hidden');
-        setTimeout(() => {
-            aiModalContent.classList.remove('scale-95', 'opacity-0');
-            aiModalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-    
-    function hideAiModal() {
-        aiModalContent.classList.remove('scale-100', 'opacity-100');
-        aiModalContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            aiModal.classList.add('hidden');
-        }, 300);
-    }
-    
-    function getAiSuggestions() {
-        // Mostrar loading
-        aiLoading.classList.remove('hidden');
-        aiContent.classList.add('hidden');
-        
-        // Obtener datos del cultivo
-        const cropName = '{{ crop.nombre }}';
-        const cropCategory = '{{ crop.categoria }}';
-        const cropQuantity = {{ crop.cantidad_estimada }};
-        const cropUnit = '{{ crop.unidad_medida }}';
-        const location = '{{ request.user.producer_profile.ciudad|default:"" }}';
-        
-        // Enviar solicitud a la API
-        fetch('/ai/suggestions/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                crop_name: cropName,
-                crop_category: cropCategory,
-                crop_quantity: cropQuantity,
-                crop_unit: cropUnit,
-                location: location
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displaySuggestions(data.suggestions);
-            } else {
-                showError(data.error || 'Error al generar sugerencias');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError('Error de conexión');
-        });
-    }
-    
-    function displaySuggestions(suggestions) {
-        // Ocultar loading y mostrar contenido
-        aiLoading.classList.add('hidden');
-        aiContent.classList.remove('hidden');
-        
-        // Títulos sugeridos
-        const titleContainer = document.getElementById('title-suggestions');
-        titleContainer.innerHTML = '';
-        if (suggestions.title_suggestions) {
-            suggestions.title_suggestions.forEach((title, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer';
-                div.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-800">${title}</span>
-                        <button onclick="useSuggestion('title', '${title.replace(/'/g, "\\'")}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Usar
-                        </button>
-                    </div>
-                `;
-                titleContainer.appendChild(div);
-            });
-        }
-        
-        // Precios sugeridos
-        const priceContainer = document.getElementById('price-suggestions');
-        if (suggestions.price_suggestions) {
-            const price = suggestions.price_suggestions;
-            priceContainer.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-green-600">$${price.recommended_price?.toLocaleString() || 'N/A'}</div>
-                        <div class="text-sm text-gray-600">Precio Recomendado</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-lg font-semibold text-gray-700">$${price.min_price?.toLocaleString() || 'N/A'}</div>
-                        <div class="text-sm text-gray-600">Precio Mínimo</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-lg font-semibold text-gray-700">$${price.max_price?.toLocaleString() || 'N/A'}</div>
-                        <div class="text-sm text-gray-600">Precio Máximo</div>
-                    </div>
-                </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div class="text-sm text-blue-800">
-                        <strong>Explicación:</strong> ${price.reasoning || 'Precio basado en mercado local'}
-                    </div>
-                </div>
-                <div class="mt-3 text-center">
-                    <button onclick="useSuggestion('price', ${price.recommended_price})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                        Usar Precio Recomendado
-                    </button>
-                </div>
-            `;
-        }
-        
-        // Descripciones sugeridas
-        const descContainer = document.getElementById('description-suggestions');
-        descContainer.innerHTML = '';
-        if (suggestions.description_suggestions) {
-            suggestions.description_suggestions.forEach((desc, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-white border border-gray-200 rounded-lg p-3 hover:border-orange-300 transition-colors cursor-pointer';
-                div.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <span class="text-gray-800 text-sm">${desc}</span>
-                        <button onclick="useSuggestion('description', '${desc.replace(/'/g, "\\'")}')" class="text-orange-600 hover:text-orange-800 text-sm font-medium ml-2">
-                            Usar
-                        </button>
-                    </div>
-                `;
-                descContainer.appendChild(div);
-            });
-        }
-        
-        // Tips de marketing
-        const tipsContainer = document.getElementById('marketing-tips');
-        tipsContainer.innerHTML = '';
-        if (suggestions.marketing_tips) {
-            suggestions.marketing_tips.forEach((tip, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-yellow-50 border border-yellow-200 rounded-lg p-3';
-                div.innerHTML = `
-                    <div class="flex items-start">
-                        <i class="fas fa-lightbulb text-yellow-600 mr-2 mt-1"></i>
-                        <span class="text-yellow-800 text-sm">${tip}</span>
-                    </div>
-                `;
-                tipsContainer.appendChild(div);
-            });
-        }
-    }
-    
-    function showError(message) {
-        aiLoading.classList.add('hidden');
-        aiContent.classList.remove('hidden');
-        aiContent.innerHTML = `
-            <div class="text-center py-8">
-                <div class="text-red-600 mb-4">
-                    <i class="fas fa-exclamation-triangle text-3xl"></i>
-                </div>
-                <h4 class="text-lg font-semibold text-gray-900 mb-2">Error</h4>
-                <p class="text-gray-600">${message}</p>
-            </div>
-        `;
-    }
-    
-    // Función global para usar sugerencias
-    window.useSuggestion = function(type, value) {
-        if (type === 'price' && precioField) {
-            precioField.value = value;
-            precioField.focus();
-        } else if (type === 'description' && descripcionField) {
-            descripcionField.value = value;
-            descripcionField.focus();
-        }
-        hideAiModal();
-    };
-    
     publishBtn.addEventListener('click', function(e) {
         e.preventDefault();
         showCustomAlert();
@@ -600,11 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Crear div para el warning
         const warningDiv = document.createElement('div');
         warningDiv.id = 'unidad-warning';
-        warningDiv.className = 'hidden mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-lg';
+        warningDiv.className = 'hidden mt-2 p-3 bg-orange-50 dark:bg-orange-900/30 border-2 border-orange-300 dark:border-orange-700 rounded-lg';
         warningDiv.innerHTML = `
             <div class="flex items-start">
-                <i class="fas fa-exclamation-triangle text-orange-600 text-lg mr-2 mt-0.5"></i>
-                <div class="text-sm text-orange-800">
+                <i class="fas fa-exclamation-triangle text-orange-600 dark:text-orange-400 text-lg mr-2 mt-0.5"></i>
+                <div class="text-sm text-orange-800 dark:text-orange-200">
                     <strong class="font-semibold">Unidad Fija:</strong> 
                     Los compradores solo podrán comprar en esta unidad específica. 
                     No habrá opción de conversión a otras medidas.
@@ -654,11 +479,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         const div = document.createElement('div');
                         div.className = 'relative group';
                         div.innerHTML = `
-                            <div class="aspect-square rounded-lg overflow-hidden border-2 ${index === 0 ? 'border-primary-600' : 'border-gray-300'}">
+                            <div class="aspect-square rounded-lg overflow-hidden border-2 ${index === 0 ? 'border-primary-600 dark:border-primary-400' : 'border-gray-300 dark:border-gray-600'}">
                                 <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
                             </div>
                             ${index === 0 ? '<div class="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded-full"><i class="fas fa-star mr-1"></i>Principal</div>' : ''}
-                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                            <div class="absolute bottom-2 right-2 bg-black/70 dark:bg-black/80 text-white text-xs px-2 py-1 rounded-full">
                                 Nueva
                             </div>
                         `;
@@ -669,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (files.length > 10) {
                     const warning = document.createElement('p');
-                    warning.className = 'col-span-full text-sm text-orange-600';
+                    warning.className = 'col-span-full text-sm text-orange-600 dark:text-orange-400';
                     warning.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Solo se subirán las primeras 10 imágenes';
                     imagePreview.appendChild(warning);
                 }

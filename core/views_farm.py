@@ -8,6 +8,9 @@ from .models import Farm
 from .forms import FarmForm
 from .colombia_locations import get_departments
 from inventory.models import Crop
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def farm_list(request):

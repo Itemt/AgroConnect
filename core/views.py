@@ -358,51 +358,73 @@ def ai_publication_suggestions(request):
         try:
             import google.generativeai as genai
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            
+            # Configurar modelo con herramienta de búsqueda en web
+            model = genai.GenerativeModel(
+                'gemini-2.0-flash-exp',
+                tools='google_search_retrieval'  # Habilita búsqueda en internet
+            )
             
             # Prompt optimizado para sugerencias específicas por campo
             if field_type == 'precio_por_unidad':
-                prompt = f"""Eres un experto en precios agrícolas colombianos. Genera un precio recomendado para:
+                prompt = f"""Eres un experto en precios agrícolas colombianos. Busca información REAL y ACTUAL en internet sobre el precio de mercado para:
 
 PRODUCTO: {crop_name}
 CATEGORÍA: {crop_category}
-CANTIDAD: {crop_quantity} {crop_unit}
+UNIDAD: {crop_unit}
 UBICACIÓN: {location}
 
-GENERA SOLO EL PRECIO EN FORMATO JSON:
+INSTRUCCIONES:
+1. Busca en internet los precios actuales de "{crop_name}" en Colombia
+2. Si el nombre del producto no está bien escrito, interpreta cuál es el producto correcto (ejemplo: "banano" o "platano" -> "plátano")
+3. Busca precios en centrales de abasto, mercados mayoristas, y portales agrícolas colombianos
+4. Considera la ubicación y temporada actual
+5. Convierte los precios a la unidad solicitada ({crop_unit})
+
+GENERA LA RESPUESTA EN FORMATO JSON:
 {{
     "price_suggestions": {{
-        "min_price": 0.0,
-        "max_price": 0.0,
-        "recommended_price": 0.0,
-        "reasoning": "Explicación del precio basado en mercado colombiano"
+        "min_price": [precio_mínimo_en_COP],
+        "max_price": [precio_máximo_en_COP],
+        "recommended_price": [precio_promedio_recomendado_en_COP],
+        "reasoning": "Precio basado en [fuentes consultadas]. Rango actual en el mercado colombiano para {crop_name} es de $[min] a $[max] por {crop_unit}. Se recomienda $[recommended] considerando calidad y ubicación."
     }}
 }}
 
-REGLAS:
-- Precio en COP por {crop_unit}
-- Basado en precios actuales del mercado colombiano
-- Considera la ubicación y categoría del producto
-- Incluye rango de precios (mínimo, máximo, recomendado)"""
+IMPORTANTE:
+- Los precios deben ser REALES basados en búsquedas de internet ACTUALES
+- Precio en COP (pesos colombianos) por {crop_unit}
+- Si no encuentras información exacta, busca productos similares
+- El reasoning debe mencionar las fuentes consultadas"""
             elif field_type == 'descripcion':
-                prompt = f"""Eres un experto en marketing agrícola colombiano. Genera una descripción atractiva para:
+                prompt = f"""Eres un experto en marketing agrícola y copywriting para e-commerce colombiano. 
+
+Si el nombre del producto no está bien escrito, interpreta cuál es el producto correcto (ejemplo: "banano" o "platano" -> "plátano", "papa" -> "papa", etc.)
+
+Genera UNA descripción comercial atractiva para:
 
 PRODUCTO: {crop_name}
 CATEGORÍA: {crop_category}
-CANTIDAD: {crop_quantity} {crop_unit}
-UBICACIÓN: {location}
+CANTIDAD DISPONIBLE: {crop_quantity} {crop_unit}
+ORIGEN: {location}
 
-GENERA SOLO LA DESCRIPCIÓN EN FORMATO JSON:
+GENERA LA RESPUESTA EN FORMATO JSON:
 {{
-    "description_suggestions": ["Descripción atractiva y detallada del producto"]
+    "description_suggestions": ["Tu descripción aquí"]
 }}
 
-REGLAS:
-- Destaca la calidad y frescura
-- Menciona el origen colombiano
-- Incluye beneficios del producto
-- Lenguaje comercial atractivo
-- Máximo 1 descripción sugerida"""
+LA DESCRIPCIÓN DEBE:
+- Ser persuasiva y destacar la calidad y frescura del producto
+- Mencionar el origen colombiano como valor diferencial
+- Incluir 2-3 beneficios del producto (nutricionales, usos culinarios)
+- Usar lenguaje comercial atractivo pero natural
+- Tener entre 40-80 palabras
+- Crear confianza mencionando que es directo del productor
+- NO usar emojis
+
+EJEMPLO:
+"Plátano verde de primera calidad, cultivado en las fértiles tierras de Quindío. Producto fresco directo del productor, ideal para preparar patacones, sopas y frituras. Rico en potasio y fibra, perfecto para una alimentación saludable. Garantizamos frescura y excelente sabor en cada unidad."
+"""
             else:
                 # Prompt completo para el botón general
                 prompt = f"""Eres un experto en mercado agrícola colombiano. Genera sugerencias para una publicación de cultivo.
@@ -434,26 +456,51 @@ REGLAS:
 - Tips de marketing específicos para Colombia
 - Máximo 3 sugerencias por categoría"""
             
-            result = model.generate_content(
-                prompt,
-                generation_config={
-                    'max_output_tokens': 400,
-                    'temperature': 0.6,
+            # Configuración según el tipo de sugerencia
+            if field_type == 'precio_por_unidad':
+                # Para precios necesitamos búsqueda en web y respuesta más detallada
+                generation_config = {
+                    'max_output_tokens': 800,
+                    'temperature': 0.3,  # Más determinístico para datos numéricos
+                    'top_k': 20,
+                    'top_p': 0.85,
+                }
+            else:
+                # Para descripciones
+                generation_config = {
+                    'max_output_tokens': 600,
+                    'temperature': 0.7,  # Más creativo para texto
                     'top_k': 30,
                     'top_p': 0.85,
                 }
+            
+            result = model.generate_content(
+                prompt,
+                generation_config=generation_config
             )
             
             text = (getattr(result, 'text', None) or getattr(result, 'candidates', [None])[0].content.parts[0].text)
             if text:
                 # Intentar parsear JSON
                 try:
-                    suggestions = json.loads(text.strip())
-                    used_model = 'gemini-1.5-flash'
-                except:
+                    # Limpiar el texto antes de parsear
+                    clean_text = text.strip()
+                    # Remover markdown code blocks si existen
+                    if clean_text.startswith('```json'):
+                        clean_text = clean_text[7:]
+                    if clean_text.startswith('```'):
+                        clean_text = clean_text[3:]
+                    if clean_text.endswith('```'):
+                        clean_text = clean_text[:-3]
+                    clean_text = clean_text.strip()
+                    
+                    suggestions = json.loads(clean_text)
+                    used_model = 'gemini-2.0-flash-exp+search'
+                except Exception as parse_error:
+                    logger.debug(f"Error parseando JSON: {parse_error}. Texto recibido: {text[:200]}")
                     # Si no es JSON válido, usar como texto
                     suggestions = {'raw_response': text.strip()}
-                    used_model = 'gemini-1.5-flash'
+                    used_model = 'gemini-2.0-flash-exp+search'
                     
         except Exception as e:
             logger.debug(f"Error en IA para sugerencias: {e}")
