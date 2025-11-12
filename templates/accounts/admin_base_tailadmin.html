@@ -420,13 +420,6 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'admin_audit_log' %}" 
-                                       class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_audit_log' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-clipboard-list text-lg"></i>
-                                        <span class="sidebar-text">Auditoría</span>
-                                    </a>
-                                </li>
-                                <li>
                                     <a href="{% url 'admin_config' %}" 
                                        class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'admin_config' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/12 dark:text-brand-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
                                         <i class="fas fa-cog text-lg"></i>
@@ -518,6 +511,47 @@
             
             <!-- Page Content -->
             <div class="p-4 mx-auto max-w-7xl md:p-6">
+                <!-- Django Messages / Alerts -->
+                {% if messages %}
+                <div class="mb-6 space-y-4">
+                    {% for message in messages %}
+                    <div class="alert-message flex items-start p-4 rounded-lg border 
+                        {% if message.tags == 'success' %}
+                            bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400
+                        {% elif message.tags == 'warning' %}
+                            bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400
+                        {% elif message.tags == 'info' %}
+                            bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400
+                        {% else %}
+                            bg-gray-50 border-gray-200 text-gray-800 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-400
+                        {% endif %}
+                        shadow-sm">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle text-xl"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="fas fa-exclamation-circle text-xl"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            {% elif message.tags == 'info' %}
+                                <i class="fas fa-info-circle text-xl"></i>
+                            {% else %}
+                                <i class="fas fa-bell text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium">{{ message }}</p>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="ml-4 flex-shrink-0 text-current opacity-60 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
                 {% block admin_content %}{% endblock %}
             </div>
             
@@ -536,6 +570,21 @@
     
     <!-- JavaScript -->
     <script>
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-message');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    alert.style.transition = 'all 0.3s ease-out';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 300);
+                }, 5000); // 5 segundos
+            });
+        });
+        
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');

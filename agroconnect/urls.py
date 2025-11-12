@@ -148,7 +148,6 @@ urlpatterns = [
     path('admin_dashboard/conversations/', accounts_admin_views.admin_conversation_list, name='admin_conversation_list'),
     path('admin_dashboard/conversation/<int:pk>/', accounts_admin_views.admin_conversation_detail, name='admin_conversation_detail'),
     path('admin_dashboard/conversation/<int:pk>/delete/', accounts_admin_views.admin_conversation_delete, name='admin_conversation_delete'),
-    path('admin_dashboard/audit-log/', accounts_admin_views.admin_audit_log, name='admin_audit_log'),
     # Preview URLs
         path('admin_dashboard/preview/', accounts_admin_views.admin_dashboard_preview, name='admin_dashboard_preview'),
         path('admin_dashboard/publications/preview/', accounts_admin_views.admin_publication_list_preview, name='admin_publication_list_preview'),

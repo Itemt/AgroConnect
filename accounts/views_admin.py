@@ -832,6 +832,21 @@ def admin_user_edit(request, pk):
                 # Si cambió de Productor a otro rol, eliminar fincas
                 user.farms.all().delete()
             
+            # Registrar la acción de actualización
+            from .admin_audit import log_user_action
+            log_user_action(
+                admin_user=request.user,
+                action_type='update',
+                user=user,
+                request=request,
+                changes={
+                    'username': user.username,
+                    'email': user.email,
+                    'role': user.role,
+                    'is_active': user.is_active,
+                }
+            )
+            
             messages.success(request, f'Usuario "{user.username}" actualizado exitosamente.')
             return redirect('admin_user_list')
         except Exception as e:
@@ -883,6 +898,21 @@ def admin_crop_create(request):
         form = AdminCropForm(request.POST)
         if form.is_valid():
             crop = form.save()
+            
+            # Registrar la acción de creación
+            from .admin_audit import log_crop_action
+            log_crop_action(
+                admin_user=request.user,
+                action_type='create',
+                crop=crop,
+                request=request,
+                changes={
+                    'nombre': crop.nombre,
+                    'categoria': crop.categoria,
+                    'estado': crop.estado,
+                }
+            )
+            
             messages.success(request, f'Cultivo "{crop.nombre}" creado exitosamente para {crop.productor.get_full_name() or crop.productor.username}.')
             return redirect('admin_crop_list')
         else:
@@ -906,6 +936,20 @@ def admin_crop_edit(request, pk):
         form = AdminCropForm(request.POST, instance=crop)
         if form.is_valid():
             crop = form.save()
+            
+            # Registrar la acción de actualización
+            from .admin_audit import log_crop_action
+            log_crop_action(
+                admin_user=request.user,
+                action_type='update',
+                crop=crop,
+                request=request,
+                changes={
+                    'nombre': crop.nombre,
+                    'estado': crop.estado,
+                }
+            )
+            
             messages.success(request, f'Cultivo "{crop.nombre}" actualizado exitosamente.')
             return redirect('admin_crop_list')
         else:
@@ -926,6 +970,20 @@ def admin_crop_delete(request, pk):
     """Eliminar cultivo"""
     crop = get_object_or_404(Crop, pk=pk)
     if request.method == 'POST':
+        # Registrar la acción antes de eliminar
+        from .admin_audit import log_crop_action
+        log_crop_action(
+            admin_user=request.user,
+            action_type='delete',
+            crop=crop,
+            request=request,
+            changes={
+                'crop_id': crop.id,
+                'nombre': crop.nombre,
+                'productor': crop.productor.username,
+            }
+        )
+        
         crop.delete()
         messages.success(request, 'Cultivo eliminado exitosamente.')
         return redirect('admin_crop_list')
@@ -946,9 +1004,29 @@ def admin_order_edit(request, order_id):
     """Editar pedido"""
     order = get_object_or_404(Order, id=order_id)
     if request.method == 'POST':
-        # Lógica para editar pedido
-        messages.success(request, 'Pedido actualizado exitosamente.')
-        return redirect('admin_order_list')
+        # Guardar el estado anterior para registrar el cambio
+        old_status = order.estado
+        new_status = request.POST.get('estado')
+        
+        if new_status and new_status != old_status:
+            order.estado = new_status
+            order.save()
+            
+            # Registrar la acción de actualización
+            from .admin_audit import log_order_action
+            log_order_action(
+                admin_user=request.user,
+                action_type='update',
+                order=order,
+                request=request,
+                changes={
+                    'estado_anterior': old_status,
+                    'estado_nuevo': new_status,
+                }
+            )
+            
+            messages.success(request, 'Pedido actualizado exitosamente.')
+            return redirect('admin_order_list')
     
     context = {
         'order': order,
@@ -1003,6 +1081,21 @@ def admin_publication_create(request):
         form = AdminPublicationForm(request.POST, request.FILES)
         if form.is_valid():
             publication = form.save()
+            
+            # Registrar la acción de creación
+            from .admin_audit import log_publication_action
+            log_publication_action(
+                admin_user=request.user,
+                action_type='create',
+                publication=publication,
+                request=request,
+                changes={
+                    'cultivo': publication.cultivo.nombre,
+                    'precio': str(publication.precio),
+                    'estado': publication.estado,
+                }
+            )
+            
             messages.success(request, f'Publicación "{publication.cultivo.nombre}" creada exitosamente para {publication.cultivo.productor.get_full_name() or publication.cultivo.productor.username}.')
             return redirect('admin_publication_list')
         else:
@@ -1030,6 +1123,20 @@ def admin_publication_edit(request, pk):
         form = AdminPublicationForm(request.POST, request.FILES, instance=publication)
         if form.is_valid():
             publication = form.save()
+            
+            # Registrar la acción de actualización
+            from .admin_audit import log_publication_action
+            log_publication_action(
+                admin_user=request.user,
+                action_type='update',
+                publication=publication,
+                request=request,
+                changes={
+                    'cultivo': publication.cultivo.nombre,
+                    'estado': publication.estado,
+                }
+            )
+            
             messages.success(request, f'Publicación "{publication.cultivo.nombre}" actualizada exitosamente.')
             return redirect('admin_publication_list')
         else:
@@ -1054,6 +1161,20 @@ def admin_publication_delete(request, pk):
     """Eliminar publicación"""
     publication = get_object_or_404(Publication, pk=pk)
     if request.method == 'POST':
+        # Registrar la acción antes de eliminar
+        from .admin_audit import log_publication_action
+        log_publication_action(
+            admin_user=request.user,
+            action_type='delete',
+            publication=publication,
+            request=request,
+            changes={
+                'publication_id': publication.id,
+                'cultivo': publication.cultivo.nombre,
+                'productor': publication.cultivo.productor.username,
+            }
+        )
+        
         publication.delete()
         messages.success(request, 'Publicación eliminada exitosamente.')
         return redirect('admin_publication_list')
@@ -1068,42 +1189,73 @@ def admin_history(request):
     from accounts.models import AdminAction
     from django.core.paginator import Paginator
     
-    # Obtener acciones del admin
+    # Filtros
+    action_type = request.GET.get('action_type', '')
+    object_type = request.GET.get('object_type', '')
+    search_query = request.GET.get('search', '')
+    admin_filter = request.GET.get('admin', '')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    
+    # Obtener acciones
     actions = AdminAction.objects.select_related('admin').order_by('-created_at')
     
-    # Filtros
-    action_filter = request.GET.get('action_type')
-    if action_filter:
-        actions = actions.filter(action_type=action_filter)
+    # Aplicar filtros
+    if action_type:
+        actions = actions.filter(action_type=action_type)
     
-    admin_filter = request.GET.get('admin')
+    if object_type:
+        actions = actions.filter(object_type=object_type)
+    
     if admin_filter:
         actions = actions.filter(admin__username=admin_filter)
     
-    date_from = request.GET.get('date_from')
     if date_from:
         actions = actions.filter(created_at__date__gte=date_from)
     
-    date_to = request.GET.get('date_to')
     if date_to:
         actions = actions.filter(created_at__date__lte=date_to)
     
+    if search_query and search_query.strip():
+        actions = actions.filter(
+            Q(object_name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(admin__username__icontains=search_query)
+        )
+    
     # Paginación
-    paginator = Paginator(actions, 20)
+    paginator = Paginator(actions, 25)  # 25 acciones por página
     page_number = request.GET.get('page')
-    actions = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number)
+    
+    # Estadísticas
+    stats = {
+        'total_actions': AdminAction.objects.count(),
+        'actions_today': AdminAction.objects.filter(created_at__date=timezone.now().date()).count(),
+        'actions_this_week': AdminAction.objects.filter(
+            created_at__date__gte=timezone.now().date() - timedelta(days=7)
+        ).count(),
+        'most_active_admin': AdminAction.objects.values('admin__username').annotate(
+            count=Count('id')
+        ).order_by('-count').first(),
+    }
     
     # Obtener administradores para el filtro
     admins = User.objects.filter(role='Admin').values_list('username', flat=True)
     
     context = {
-        'actions': actions,
+        'page_obj': page_obj,
+        'actions': page_obj,
+        'stats': stats,
         'action_types': AdminAction.ACTION_TYPES,
-        'admins': admins,
-        'current_action': action_filter,
+        'object_types': AdminAction.OBJECT_TYPES,
+        'current_action_type': action_type,
+        'current_object_type': object_type,
         'current_admin': admin_filter,
+        'search_query': search_query,
         'date_from': date_from,
         'date_to': date_to,
+        'admins': admins,
     }
     return render(request, 'accounts/admin_history.html', context)
 
@@ -1298,6 +1450,22 @@ def admin_farm_create(request):
         form = AdminFarmForm(request.POST)
         if form.is_valid():
             farm = form.save()
+            
+            # Registrar la acción de creación
+            from .admin_audit import log_farm_action
+            log_farm_action(
+                admin_user=request.user,
+                action_type='create',
+                farm=farm,
+                request=request,
+                changes={
+                    'nombre': farm.nombre,
+                    'propietario': farm.propietario.username,
+                    'departamento': farm.departamento,
+                    'ciudad': farm.ciudad,
+                }
+            )
+            
             messages.success(request, f'Finca "{farm.nombre}" creada exitosamente.')
             return redirect('admin_farm_list')
         else:
@@ -1321,6 +1489,20 @@ def admin_farm_edit(request, pk):
         form = AdminFarmForm(request.POST, instance=farm)
         if form.is_valid():
             farm = form.save()
+            
+            # Registrar la acción de actualización
+            from .admin_audit import log_farm_action
+            log_farm_action(
+                admin_user=request.user,
+                action_type='update',
+                farm=farm,
+                request=request,
+                changes={
+                    'nombre': farm.nombre,
+                    'activa': farm.activa,
+                }
+            )
+            
             messages.success(request, f'Finca "{farm.nombre}" actualizada exitosamente.')
             return redirect('admin_farm_list')
         else:
@@ -1342,6 +1524,20 @@ def admin_farm_delete(request, pk):
     farm = get_object_or_404(Farm, pk=pk)
     
     if request.method == 'POST':
+        # Registrar la acción antes de eliminar
+        from .admin_audit import log_farm_action
+        log_farm_action(
+            admin_user=request.user,
+            action_type='delete',
+            farm=farm,
+            request=request,
+            changes={
+                'farm_id': farm.id,
+                'nombre': farm.nombre,
+                'propietario': farm.propietario.username,
+            }
+        )
+        
         farm_name = farm.nombre
         farm.delete()
         messages.success(request, f'Finca "{farm_name}" eliminada exitosamente.')
@@ -1433,6 +1629,24 @@ def admin_conversation_delete(request, pk):
         # Obtener información antes de eliminar
         participants = list(conversation.participants.all())
         message_count = conversation.messages.count()
+        participants_names = ', '.join([p.username for p in participants])
+        
+        # Registrar la acción antes de eliminar
+        from .admin_audit import log_admin_action
+        log_admin_action(
+            admin_user=request.user,
+            action_type='delete',
+            object_type='system',
+            object_name=f'Conversación entre {participants_names}',
+            description=f'Eliminó conversación con {message_count} mensajes',
+            request=request,
+            object_id=conversation.id,
+            changes={
+                'conversation_id': conversation.id,
+                'participants': participants_names,
+                'message_count': message_count,
+            }
+        )
         
         conversation.delete()
         
@@ -1454,57 +1668,3 @@ def admin_conversation_delete(request, pk):
     return render(request, 'accounts/admin_conversation_confirm_delete.html', context)
 
 
-@user_passes_test(is_admin)
-def admin_audit_log(request):
-    """Historial de acciones del administrador"""
-    # Filtros
-    action_type = request.GET.get('action_type', '')
-    object_type = request.GET.get('object_type', '')
-    search_query = request.GET.get('search', '')
-    
-    # Obtener acciones
-    actions = AdminAction.objects.select_related('admin').all()
-    
-    # Aplicar filtros
-    if action_type:
-        actions = actions.filter(action_type=action_type)
-    
-    if object_type:
-        actions = actions.filter(object_type=object_type)
-    
-    if search_query and search_query.strip():
-        actions = actions.filter(
-            Q(object_name__icontains=search_query) |
-            Q(description__icontains=search_query) |
-            Q(admin__username__icontains=search_query)
-        )
-    
-    # Paginación
-    paginator = Paginator(actions, 25)  # 25 acciones por página
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    # Estadísticas
-    stats = {
-        'total_actions': AdminAction.objects.count(),
-        'actions_today': AdminAction.objects.filter(created_at__date=timezone.now().date()).count(),
-        'actions_this_week': AdminAction.objects.filter(
-            created_at__date__gte=timezone.now().date() - timedelta(days=7)
-        ).count(),
-        'most_active_admin': AdminAction.objects.values('admin__username').annotate(
-            count=Count('id')
-        ).order_by('-count').first(),
-    }
-    
-    context = {
-        'page_obj': page_obj,
-        'actions': page_obj,
-        'stats': stats,
-        'action_types': AdminAction.ACTION_TYPES,
-        'object_types': AdminAction.OBJECT_TYPES,
-        'current_action_type': action_type,
-        'current_object_type': object_type,
-        'search_query': search_query,
-    }
-    
-    return render(request, 'accounts/admin_audit_log.html', context)
