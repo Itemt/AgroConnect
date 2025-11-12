@@ -44,7 +44,7 @@ class PublicationForm(forms.ModelForm):
     # Campos de ubicación solo para mostrar (no editables)
     departamento = forms.CharField(
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed',
+            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 cursor-not-allowed',
             'readonly': True
         }),
         label="Departamento de Origen",
@@ -53,7 +53,7 @@ class PublicationForm(forms.ModelForm):
     
     ciudad = forms.CharField(
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed',
+            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 cursor-not-allowed',
             'readonly': True
         }),
         label="Ciudad/Municipio de Origen",
@@ -110,13 +110,23 @@ class PublicationForm(forms.ModelForm):
             self.fields['finca'].queryset = Farm.objects.filter(propietario=user, activa=True)
             self.fields['finca'].empty_label = "Seleccionar finca (opcional)"
         
-        # Si hay un cultivo específico, establecer la ubicación automáticamente
+        # Si hay un cultivo específico (creación), establecer la ubicación automáticamente
         if crop and crop.finca:
             self.fields['departamento'].initial = crop.finca.departamento
             self.fields['ciudad'].initial = crop.finca.ciudad
             # Establecer el cultivo y finca automáticamente
             self.fields['cultivo'].initial = crop
             self.fields['finca'].initial = crop.finca
+        
+        # Si estamos editando (instance existe), establecer ubicación desde la publicación
+        elif self.instance and self.instance.pk:
+            if self.instance.cultivo and self.instance.cultivo.finca:
+                self.fields['departamento'].initial = self.instance.cultivo.finca.departamento
+                self.fields['ciudad'].initial = self.instance.cultivo.finca.ciudad
+            # Si la publicación tiene su propia ubicación guardada, usarla
+            elif self.instance.departamento and self.instance.ciudad:
+                self.fields['departamento'].initial = self.instance.departamento
+                self.fields['ciudad'].initial = self.instance.ciudad
 
 
 class AdminPublicationForm(forms.ModelForm):

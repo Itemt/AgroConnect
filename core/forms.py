@@ -92,19 +92,41 @@ class FarmForm(forms.ModelForm):
         # Configurar opciones de departamentos
         departments = get_departments()
         self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + departments
+
+        # Limpiar atributos previos
+        self.fields['departamento'].widget.attrs.pop('data-current', None)
+        self.fields['ciudad'].widget.attrs.pop('data-current', None)
         
         # Configurar ciudades basadas en el departamento seleccionado
         if self.data and 'departamento' in self.data:
-            departamento = self.data.get('departamento')
+            departamento = (self.data.get('departamento') or '').strip()
             if departamento:
                 ciudades = get_cities_by_department(departamento)
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
                 self.fields['ciudad'].widget.attrs.pop('disabled', None)
+                self.fields['departamento'].initial = departamento
+                self.initial['departamento'] = departamento
+                self.fields['departamento'].widget.attrs['data-current'] = departamento
         elif self.instance and self.instance.pk:
-            departamento = self.instance.departamento
+            departamento = (self.instance.departamento or '').strip()
+            ciudad_actual = (self.instance.ciudad or '').strip()
             if departamento:
                 ciudades = get_cities_by_department(departamento)
+                # Si la ciudad actual no está en el listado, agregarla
+                if ciudad_actual and (ciudad_actual, ciudad_actual) not in ciudades:
+                    ciudades.append((ciudad_actual, ciudad_actual))
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
+                # Habilitar el selector de ciudad cuando estamos editando
+                self.fields['ciudad'].widget.attrs.pop('disabled', None)
+                # Establecer el valor inicial de la ciudad
+                if ciudad_actual:
+                    self.fields['ciudad'].initial = ciudad_actual
+                    self.initial['ciudad'] = ciudad_actual
+                    self.fields['ciudad'].widget.attrs['data-current'] = ciudad_actual
+                # Asegurar que el departamento también se mantenga
+                self.fields['departamento'].initial = departamento
+                self.initial['departamento'] = departamento
+                self.fields['departamento'].widget.attrs['data-current'] = departamento
         else:
             self.fields['ciudad'].choices = [('', 'Primero seleccione un departamento')]
             self.fields['ciudad'].widget.attrs['disabled'] = True
@@ -234,19 +256,39 @@ class AdminFarmForm(forms.ModelForm):
         # Configurar opciones de departamentos
         departments = get_departments()
         self.fields['departamento'].choices = [('', 'Seleccionar departamento')] + departments
+
+        # Limpiar atributos previos
+        self.fields['departamento'].widget.attrs.pop('data-current', None)
+        self.fields['ciudad'].widget.attrs.pop('data-current', None)
         
         # Configurar ciudades basadas en el departamento seleccionado
         if self.data and 'departamento' in self.data:
-            departamento = self.data.get('departamento')
+            departamento = (self.data.get('departamento') or '').strip()
             if departamento:
                 ciudades = get_cities_by_department(departamento)
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
                 self.fields['ciudad'].widget.attrs.pop('disabled', None)
+                self.fields['departamento'].initial = departamento
+                self.initial['departamento'] = departamento
+                self.fields['departamento'].widget.attrs['data-current'] = departamento
         elif self.instance and self.instance.pk:
-            departamento = self.instance.departamento
+            departamento = (self.instance.departamento or '').strip()
+            ciudad_actual = (self.instance.ciudad or '').strip()
             if departamento:
                 ciudades = get_cities_by_department(departamento)
+                if ciudad_actual and (ciudad_actual, ciudad_actual) not in ciudades:
+                    ciudades.append((ciudad_actual, ciudad_actual))
                 self.fields['ciudad'].choices = [('', 'Seleccionar ciudad')] + ciudades
+                # Habilitar selector en modo edición
+                self.fields['ciudad'].widget.attrs.pop('disabled', None)
+                # Establecer el valor inicial de la ciudad
+                if ciudad_actual:
+                    self.fields['ciudad'].initial = ciudad_actual
+                    self.initial['ciudad'] = ciudad_actual
+                    self.fields['ciudad'].widget.attrs['data-current'] = ciudad_actual
+                self.fields['departamento'].initial = departamento
+                self.initial['departamento'] = departamento
+                self.fields['departamento'].widget.attrs['data-current'] = departamento
         else:
             self.fields['ciudad'].choices = [('', 'Primero seleccione un departamento')]
             self.fields['ciudad'].widget.attrs['disabled'] = True

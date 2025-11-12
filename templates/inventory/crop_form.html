@@ -3,6 +3,111 @@
 {% block title %}{% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %} - AgroConnect{% endblock %}
 
 {% block producer_content %}
+<style>
+    /* Estilos para inputs, selects y textareas del formulario */
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="email"],
+    form input[type="date"],
+    form select,
+    form textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #1f2937;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    /* Dark mode para inputs */
+    .dark form input[type="text"],
+    .dark form input[type="number"],
+    .dark form input[type="email"],
+    .dark form input[type="date"],
+    .dark form select,
+    .dark form textarea {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    /* Focus states */
+    form input[type="text"]:focus,
+    form input[type="number"]:focus,
+    form input[type="email"]:focus,
+    form input[type="date"]:focus,
+    form select:focus,
+    form textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark form input[type="text"]:focus,
+    .dark form input[type="number"]:focus,
+    .dark form input[type="email"]:focus,
+    .dark form input[type="date"]:focus,
+    .dark form select:focus,
+    .dark form textarea:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+    
+    /* Textarea específico */
+    form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Select específico */
+    form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        appearance: none;
+    }
+    
+    .dark form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+    
+    /* Labels en modo oscuro */
+    .dark label {
+        color: #e5e7eb !important;
+    }
+    
+    /* File input */
+    form input[type="file"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: #1f2937;
+        background-color: #ffffff;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .dark form input[type="file"] {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    form input[type="file"]:hover {
+        border-color: #9ca3af;
+    }
+    
+    .dark form input[type="file"]:hover {
+        border-color: #6b7280;
+    }
+</style>
+
 <div class="min-h-screen">
     <div class="max-w-5xl mx-auto">
         <!-- Header -->

@@ -242,6 +242,7 @@ def publication_edit_view(request, pk):
     context = {
         'form': form,
         'publication': publication,
+        'crop': publication.cultivo,  # Agregar el cultivo al contexto
         'title': 'Editar Publicación',
         'existing_images': publication.images.all().order_by('order')
     }

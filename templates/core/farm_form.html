@@ -3,130 +3,225 @@
 {% block title %}{{ title }} - AgroConnect{% endblock %}
 
 {% block producer_content %}
+<style>
+    /* Estilos para inputs, selects y textareas del formulario */
+    #farm-form input[type="text"],
+    #farm-form input[type="number"],
+    #farm-form input[type="email"],
+    #farm-form select,
+    #farm-form textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #1f2937;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    /* Dark mode para inputs */
+    .dark #farm-form input[type="text"],
+    .dark #farm-form input[type="number"],
+    .dark #farm-form input[type="email"],
+    .dark #farm-form select,
+    .dark #farm-form textarea {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    /* Focus states */
+    #farm-form input[type="text"]:focus,
+    #farm-form input[type="number"]:focus,
+    #farm-form input[type="email"]:focus,
+    #farm-form select:focus,
+    #farm-form textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark #farm-form input[type="text"]:focus,
+    .dark #farm-form input[type="number"]:focus,
+    .dark #farm-form input[type="email"]:focus,
+    .dark #farm-form select:focus,
+    .dark #farm-form textarea:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+    
+    /* Textarea específico */
+    #farm-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Select específico */
+    #farm-form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        appearance: none;
+    }
+    
+    .dark #farm-form select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+    
+    /* Labels en modo oscuro */
+    .dark label {
+        color: #e5e7eb !important;
+    }
+    
+    /* Headers en modo oscuro */
+    .dark h2 {
+        color: #f9fafb !important;
+    }
+    
+    /* Iconos de headers en modo oscuro */
+    .dark h2 i {
+        opacity: 0.9;
+    }
+    
+    /* Checkboxes */
+    #farm-form input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 0.25rem;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+    }
+    
+    .dark #farm-form input[type="checkbox"] {
+        border-color: #4b5563;
+        background-color: #374151;
+    }
+</style>
+
 <div class="min-h-screen">
     <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="card mb-8">
-            <div class="card-body p-8">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm mb-8">
+            <div class="p-8">
                 <div class="flex items-center mb-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-strong mr-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 dark:from-green-600 dark:to-green-700 rounded-2xl flex items-center justify-center shadow-lg mr-6">
                         <i class="fas fa-tractor text-white text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-5xl font-bold text-gradient">{{ title }}</h1>
-                        <p class="text-gray-600 mt-2 text-xl">Completa la información de tu finca</p>
+                        <h1 class="text-5xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-300 mt-2 text-xl">Completa la información de tu finca</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Form -->
-        <div class="card">
-            <div class="card-body p-8">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="p-8">
                 <form method="post" id="farm-form">
                     {% csrf_token %}
                     
                     <!-- Información Básica -->
                     <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 dark:text-green-400 mr-3"></i>
                             Información Básica
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Nombre de la Finca *
                                 </label>
                                 {{ form.nombre }}
                                 {% if form.nombre.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.nombre.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.nombre.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             
                             <div>
-                                <label for="{{ form.tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.tipo_suelo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Tipo de Suelo *
                                 </label>
                                 {{ form.tipo_suelo }}
                                 {% if form.tipo_suelo.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.tipo_suelo.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.tipo_suelo.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <div class="mt-6">
-                            <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Descripción
                             </label>
                             {{ form.descripcion }}
                             {% if form.descripcion.errors %}
-                                <div class="text-red-600 text-sm mt-1">{{ form.descripcion.errors.0 }}</div>
+                                <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.descripcion.errors.0 }}</div>
                             {% endif %}
                         </div>
                     </div>
 
                     <!-- Ubicación -->
                     <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-map-marker-alt text-blue-600 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-600 dark:text-blue-400 mr-3"></i>
                             Ubicación
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Departamento *
                                 </label>
-                                <!-- Debug: mostrar información del campo -->
-                                <div class="text-xs text-gray-500 mb-1">
-                                    Debug: Campo departamento - Choices: {{ form.departamento.field.choices|length }}
-                                </div>
                                 {{ form.departamento }}
                                 {% if form.departamento.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.departamento.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.departamento.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             
                             <div>
-                                <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Ciudad/Municipio *
                                 </label>
                                 {{ form.ciudad }}
                                 {% if form.ciudad.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.ciudad.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.ciudad.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <div class="mt-6">
-                            <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Dirección Completa *
                             </label>
                             {{ form.direccion }}
                             {% if form.direccion.errors %}
-                                <div class="text-red-600 text-sm mt-1">{{ form.direccion.errors.0 }}</div>
+                                <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.direccion.errors.0 }}</div>
                             {% endif %}
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
-                                <label for="{{ form.coordenadas_lat.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.coordenadas_lat.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Latitud (opcional)
                                 </label>
                                 {{ form.coordenadas_lat }}
                                 {% if form.coordenadas_lat.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.coordenadas_lat.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.coordenadas_lat.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             
                             <div>
-                                <label for="{{ form.coordenadas_lng.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.coordenadas_lng.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Longitud (opcional)
                                 </label>
                                 {{ form.coordenadas_lng }}
                                 {% if form.coordenadas_lng.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.coordenadas_lng.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.coordenadas_lng.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -134,41 +229,41 @@
 
                     <!-- Características de la Finca -->
                     <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-chart-area text-purple-600 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-chart-area text-purple-600 dark:text-purple-400 mr-3"></i>
                             Características de la Finca
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="{{ form.area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.area_total.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Área Total (hectáreas) *
                                 </label>
                                 {{ form.area_total }}
                                 {% if form.area_total.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.area_total.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.area_total.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             
                             <div>
-                                <label for="{{ form.area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.area_cultivable.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Área Cultivable (hectáreas) *
                                 </label>
                                 {{ form.area_cultivable }}
                                 {% if form.area_cultivable.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.area_cultivable.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.area_cultivable.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
-                                <label for="{{ form.tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="{{ form.tipo_riego.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Tipo de Riego *
                                 </label>
                                 {{ form.tipo_riego }}
                                 {% if form.tipo_riego.errors %}
-                                    <div class="text-red-600 text-sm mt-1">{{ form.tipo_riego.errors.0 }}</div>
+                                    <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.tipo_riego.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -176,45 +271,45 @@
 
                     <!-- Certificaciones -->
                     <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-certificate text-yellow-600 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-certificate text-yellow-600 dark:text-yellow-400 mr-3"></i>
                             Certificaciones
                         </h2>
                         
                         <div class="space-y-4">
                             <div class="flex items-center">
                                 {{ form.certificacion_organica }}
-                                <label for="{{ form.certificacion_organica.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                                <label for="{{ form.certificacion_organica.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Certificación Orgánica
                                 </label>
                             </div>
                             
                             <div class="flex items-center">
                                 {{ form.certificacion_bpa }}
-                                <label for="{{ form.certificacion_bpa.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                                <label for="{{ form.certificacion_bpa.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Certificación BPA (Buenas Prácticas Agrícolas)
                                 </label>
                             </div>
                         </div>
                         
                         <div class="mt-6">
-                            <label for="{{ form.otras_certificaciones.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="{{ form.otras_certificaciones.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Otras Certificaciones
                             </label>
                             {{ form.otras_certificaciones }}
                             {% if form.otras_certificaciones.errors %}
-                                <div class="text-red-600 text-sm mt-1">{{ form.otras_certificaciones.errors.0 }}</div>
+                                <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.otras_certificaciones.errors.0 }}</div>
                             {% endif %}
                         </div>
                     </div>
 
                     <!-- Botones -->
-                    <div class="flex justify-end space-x-4">
-                        <a href="{% url 'core:farm_list' %}" class="btn-secondary">
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end items-center space-x-4">
+                        <a href="{% url 'core:farm_list' %}" class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
                             <i class="fas fa-times mr-2"></i>
                             Cancelar
                         </a>
-                        <button type="submit" class="btn-primary">
+                        <button type="submit" class="bg-green-600 dark:bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors font-semibold text-sm shadow-lg">
                             <i class="fas fa-save mr-2"></i>
                             {% if finca %}Actualizar Finca{% else %}Crear Finca{% endif %}
                         </button>
@@ -229,117 +324,83 @@
 document.addEventListener('DOMContentLoaded', function() {
     const departamentoSelect = document.getElementById('id_departamento');
     const ciudadSelect = document.getElementById('id_ciudad');
-    
-    console.log('=== FARM FORM DEBUG ===');
-    console.log('Farm form JavaScript loaded');
-    console.log('Departamento select:', departamentoSelect);
-    console.log('Ciudad select:', ciudadSelect);
-    console.log('Departamento options count:', departamentoSelect ? departamentoSelect.options.length : 'No select found');
-    console.log('Ciudad options count:', ciudadSelect ? ciudadSelect.options.length : 'No select found');
-    
-    // Debug departamento options
-    if (departamentoSelect) {
-        console.log('Departamento options:');
-        for (let i = 0; i < departamentoSelect.options.length; i++) {
-            console.log(`  ${i}: ${departamentoSelect.options[i].value} - ${departamentoSelect.options[i].text}`);
-        }
-    }
-    
-    // Test if elements are found
-    if (!departamentoSelect) {
-        console.error('❌ Departamento select not found!');
+
+    if (!departamentoSelect || !ciudadSelect) {
+        console.error('❌ Selects not found', { departamentoSelect, ciudadSelect });
         return;
     }
-    if (!ciudadSelect) {
-        console.error('❌ Ciudad select not found!');
-        return;
-    }
-    
-    console.log('✅ Both selects found, proceeding with event listeners');
-    
-    // Test visual - make sure selects are visible
-    if (departamentoSelect) {
-        departamentoSelect.style.border = '2px solid red';
-        console.log('Departamento select styled with red border for visibility');
-    }
-    if (ciudadSelect) {
-        ciudadSelect.style.border = '2px solid blue';
-        console.log('Ciudad select styled with blue border for visibility');
-    }
-    
-    if (departamentoSelect && ciudadSelect) {
-        console.log('Adding event listener to departamento select');
-        departamentoSelect.addEventListener('change', function() {
-            const departamento = this.value;
-            console.log('Departamento changed to:', departamento);
-            
-            // Test simple first
-            if (departamento === 'Antioquia') {
-                console.log('Testing with Antioquia');
-                ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                ciudadSelect.innerHTML += '<option value="Medellín">Medellín</option>';
-                ciudadSelect.innerHTML += '<option value="Bello">Bello</option>';
-                ciudadSelect.disabled = false;
-                return;
-            }
-            
-            // Limpiar opciones de ciudad
-            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
-            ciudadSelect.disabled = true;
-            
-            if (departamento) {
-                const url = '{% url "core:get_ciudades" %}';
-                console.log('Fetching cities from:', url);
-                
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'departamento=' + encodeURIComponent(departamento)
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Cities data received:', data);
-                    ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                    
-                    if (data.ciudades && data.ciudades.length > 0) {
-                        data.ciudades.forEach(ciudad => {
-                            const option = document.createElement('option');
-                            option.value = ciudad.value;
-                            option.textContent = ciudad.text;
-                            ciudadSelect.appendChild(option);
-                        });
-                        ciudadSelect.disabled = false;
-                    } else {
-                        ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading cities:', error);
-                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
-                    ciudadSelect.disabled = true;
-                });
-            } else {
-                ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
-                ciudadSelect.disabled = true;
-            }
+
+    const departamentoCurrent = (departamentoSelect.getAttribute('data-current') || '').trim();
+    const ciudadCurrent = (ciudadSelect.getAttribute('data-current') || '').trim();
+
+    function setCityOptions(ciudades, selectedCity) {
+        ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+        ciudades.forEach(ciudad => {
+            const option = document.createElement('option');
+            option.value = ciudad.value || ciudad;
+            option.textContent = ciudad.text || ciudad;
+            ciudadSelect.appendChild(option);
         });
-        
-        // Initialize city select state
-        if (!departamentoSelect.value) {
+
+        if (selectedCity) {
+            ciudadSelect.value = selectedCity;
+        }
+
+        ciudadSelect.disabled = ciudadSelect.options.length <= 1;
+    }
+
+    function fetchCities(departamento, selectedCity=null) {
+        if (!departamento) {
             ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
             ciudadSelect.disabled = true;
+            return;
         }
-    } else {
-        console.error('Required form elements not found');
+
+        ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+        ciudadSelect.disabled = true;
+
+        const url = '{% url "core:get_ciudades" %}';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'departamento=' + encodeURIComponent(departamento)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const ciudades = (data.ciudades || []).map(c => ({ value: c.value, text: c.text }));
+            // Garantizar que la ciudad actual esté incluida
+            if (selectedCity && !ciudades.find(c => c.value === selectedCity)) {
+                ciudades.push({ value: selectedCity, text: selectedCity });
+            }
+            setCityOptions(ciudades, selectedCity);
+        })
+        .catch(error => {
+            console.error('Error loading cities:', error);
+            ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+            ciudadSelect.disabled = true;
+        });
     }
+
+    // Inicializar selects con valores actuales si existen
+    if (departamentoCurrent) {
+        departamentoSelect.value = departamentoCurrent;
+        fetchCities(departamentoCurrent, ciudadCurrent || null);
+    } else {
+        ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+        ciudadSelect.disabled = true;
+    }
+
+    departamentoSelect.addEventListener('change', function() {
+        const departamento = this.value;
+        fetchCities(departamento);
+    });
 });
 </script>
 {% endblock %}
