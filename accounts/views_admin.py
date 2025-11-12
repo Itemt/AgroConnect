@@ -1260,65 +1260,11 @@ def admin_history(request):
     return render(request, 'accounts/admin_history.html', context)
 
 @user_passes_test(is_admin)
-def admin_config(request):
-    """Configuración del sistema"""
-    import subprocess
-    import os
-    from django.conf import settings
-    from django.utils import timezone
-    
-    # Obtener información real del sistema
-    try:
-        # Última actualización del repositorio git
-        git_log = subprocess.check_output(
-            ['git', 'log', '-1', '--format=%cd', '--date=short'],
-            cwd=settings.BASE_DIR,
-            stderr=subprocess.DEVNULL
-        ).decode('utf-8').strip()
-        last_commit_date = git_log
-    except:
-        last_commit_date = timezone.now().strftime('%d %b %Y')
-    
-    # Información de la base de datos
-    db_engine = settings.DATABASES['default']['ENGINE']
-    if 'postgresql' in db_engine:
-        db_name = 'PostgreSQL'
-    elif 'mysql' in db_engine:
-        db_name = 'MySQL'
-    elif 'sqlite' in db_engine:
-        db_name = 'SQLite'
-    else:
-        db_name = 'Desconocida'
-    
-    # Estadísticas reales del sistema
-    system_stats = {
-        'total_users': User.objects.count(),
-        'total_crops': Crop.objects.count(),
-        'total_publications': Publication.objects.count(),
-        'total_orders': Order.objects.count(),
-        'active_users': User.objects.filter(is_active=True).count(),
-        'admin_users': User.objects.filter(role='Admin').count(),
-    }
-    
-    context = {
-        'last_commit_date': last_commit_date,
-        'db_name': db_name,
-        'system_stats': system_stats,
-        'django_version': '4.2.7',  # Puedes obtener esto dinámicamente
-        'python_version': os.sys.version.split()[0],
-    }
-    return render(request, 'accounts/admin_config.html', context)
-
 # Funciones de preview sin autenticación
 def admin_history_preview(request):
     """Vista de preview del historial sin autenticación"""
     context = {}
     return render(request, 'accounts/admin_history.html', context)
-
-def admin_config_preview(request):
-    """Vista de preview de configuración sin autenticación"""
-    context = {}
-    return render(request, 'accounts/admin_config.html', context)
 
 
 @user_passes_test(is_admin)

@@ -64,47 +64,26 @@ class EmailService:
         logger.info(f"OTP {otp_code} sent to phone {phone_number}")
         return True
     
-    def send_welcome_email(self, user_email, user_name=None):
-        """
-        Envía correo de bienvenida
-        """
-        try:
-            context = {
-                'user_name': user_name or 'Usuario',
-                'site_name': 'AgroConnect'
-            }
-            
-            html_content = render_to_string('accounts/welcome_email.html', context)
-            text_content = strip_tags(html_content)
-            
-            params = {
-                "from": self.from_email,
-                "to": [user_email],
-                "subject": "¡Bienvenido a AgroConnect!",
-                "html": html_content,
-                "text": text_content,
-            }
-            
-            email = resend.Emails.send(params)
-            logger.info(f"Welcome email sent successfully to {user_email}")
-            return True, email
-            
-        except Exception as e:
-            logger.error(f"Error sending welcome email to {user_email}: {str(e)}")
-            return False, str(e)
-    
     def send_order_confirmation_email(self, user_email, order, user_name=None):
         """
-        Envía confirmación de pedido
+        Envía confirmación de pedido (usa el nuevo template con QR)
         """
+        # Este método ahora usa send_order_buyer_confirmation_email con los nuevos templates
+        from sales.qr_utils import get_order_buyer_qr
+        
         try:
+            buyer_qr = get_order_buyer_qr(order)
+            buyer_url = order.get_buyer_qr_url()
+            
             context = {
                 'user_name': user_name or 'Usuario',
                 'order': order,
+                'qr_code': buyer_qr,
+                'order_url': buyer_url,
                 'site_name': 'AgroConnect'
             }
             
-            html_content = render_to_string('sales/order_confirmation_email.html', context)
+            html_content = render_to_string('sales/order_buyer_confirmation_email.html', context)
             text_content = strip_tags(html_content)
             
             params = {

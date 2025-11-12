@@ -153,14 +153,12 @@ urlpatterns = [
         path('admin_dashboard/preview/', accounts_admin_views.admin_dashboard_preview, name='admin_dashboard_preview'),
         path('admin_dashboard/publications/preview/', accounts_admin_views.admin_publication_list_preview, name='admin_publication_list_preview'),
         path('admin_dashboard/history/', accounts_admin_views.admin_history, name='admin_history'),
-        path('admin_dashboard/config/', accounts_admin_views.admin_config, name='admin_config'),
         
         # Preview URLs (sin autenticación)
         path('admin_dashboard/users/preview/', accounts_admin_views.admin_user_list_preview, name='admin_user_list_preview'),
         path('admin_dashboard/orders/preview/', accounts_admin_views.admin_order_list_preview, name='admin_order_list_preview'),
         path('admin_dashboard/crops/preview/', accounts_admin_views.admin_crop_list_preview, name='admin_crop_list_preview'),
         path('admin_dashboard/history/preview/', accounts_admin_views.admin_history_preview, name='admin_history_preview'),
-        path('admin_dashboard/config/preview/', accounts_admin_views.admin_config_preview, name='admin_config_preview'),
         
 ]
 
