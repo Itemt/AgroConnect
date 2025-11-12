@@ -183,6 +183,28 @@
                             <div class="text-red-600 text-sm mt-1">{{ farm_form.descripcion.errors.0 }}</div>
                         {% endif %}
                     </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label for="{{ farm_form.coordenadas_lat.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Latitud (opcional)
+                            </label>
+                            {{ farm_form.coordenadas_lat }}
+                            {% if farm_form.coordenadas_lat.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.coordenadas_lat.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ farm_form.coordenadas_lng.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Longitud (opcional)
+                            </label>
+                            {{ farm_form.coordenadas_lng }}
+                            {% if farm_form.coordenadas_lng.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ farm_form.coordenadas_lng.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">

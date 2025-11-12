@@ -269,40 +269,6 @@
                         </div>
                     </div>
 
-                    <!-- Certificaciones -->
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <i class="fas fa-certificate text-yellow-600 dark:text-yellow-400 mr-3"></i>
-                            Certificaciones
-                        </h2>
-                        
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                {{ form.certificacion_organica }}
-                                <label for="{{ form.certificacion_organica.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Certificación Orgánica
-                                </label>
-                            </div>
-                            
-                            <div class="flex items-center">
-                                {{ form.certificacion_bpa }}
-                                <label for="{{ form.certificacion_bpa.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Certificación BPA (Buenas Prácticas Agrícolas)
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <label for="{{ form.otras_certificaciones.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Otras Certificaciones
-                            </label>
-                            {{ form.otras_certificaciones }}
-                            {% if form.otras_certificaciones.errors %}
-                                <div class="text-red-600 dark:text-red-400 text-sm mt-1">{{ form.otras_certificaciones.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
                     <!-- Botones -->
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end items-center space-x-4">
                         <a href="{% url 'core:farm_list' %}" class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">

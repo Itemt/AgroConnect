@@ -27,8 +27,7 @@ class FarmForm(forms.ModelForm):
         fields = [
             'nombre', 'descripcion', 'departamento', 'ciudad', 'direccion',
             'coordenadas_lat', 'coordenadas_lng', 'area_total', 'area_cultivable',
-            'tipo_suelo', 'tipo_riego', 'certificacion_organica', 'certificacion_bpa',
-            'otras_certificaciones'
+            'tipo_suelo', 'tipo_riego'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={
@@ -72,17 +71,6 @@ class FarmForm(forms.ModelForm):
             }),
             'tipo_riego': forms.Select(attrs={
                 'class': 'block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-success-500 focus:border-success-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
-            }),
-            'certificacion_organica': forms.CheckboxInput(attrs={
-                'class': 'form-checkbox'
-            }),
-            'certificacion_bpa': forms.CheckboxInput(attrs={
-                'class': 'form-checkbox'
-            }),
-            'otras_certificaciones': forms.Textarea(attrs={
-                'class': 'form-input',
-                'rows': 2,
-                'placeholder': 'Otras certificaciones (opcional)'
             }),
         }
     
