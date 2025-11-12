@@ -182,6 +182,13 @@
                                 <p class="text-gray-800 dark:text-white text-lg">{{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
                             </div>
                             <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
+                                <label class="font-semibold text-gray-600 dark:text-gray-300">Cantidad Mínima</label>
+                                <p class="text-gray-800 dark:text-white text-lg">
+                                    <span id="cantidad-minima-display">{{ publication.cantidad_minima }}</span> 
+                                    <span id="unidad-minima-display">{{ publication.unidad_medida }}</span>
+                                </p>
+                            </div>
+                            <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
                                 <label class="font-semibold text-gray-600 dark:text-gray-300">Cosecha</label>
                                 <p class="text-gray-800 dark:text-white text-lg">{{ publication.cultivo.fecha_disponibilidad|date:"d M Y" }}</p>
                             </div>
@@ -267,6 +274,10 @@
                                             <i class="fas fa-plus text-xs"></i>
                                         </button>
                                     </div>
+                                    <p id="minimo-info" class="text-xs text-blue-600 dark:text-blue-400 mt-1.5">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Mínimo de compra: <strong><span id="cantidad-minima-compra">{{ publication.cantidad_minima }}</span> <span id="unidad-minima-compra">{{ publication.unidad_medida }}</span></strong>
+                                    </p>
                                     <style>
                                         #quantity::-webkit-outer-spin-button,
                                         #quantity::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -325,6 +336,7 @@
     const unidadVendedor = '{{ publication.unidad_medida }}';
     const precioOriginal = parseFloat('{{ publication.precio_por_unidad }}');
     const cantidadDisponible = parseFloat('{{ publication.cantidad_disponible }}');
+    const cantidadMinima = parseFloat('{{ publication.cantidad_minima }}');
     const esConvertible = {{ publication.es_unidad_convertible|yesno:"true,false" }};
     
     function convertirUnidad(cantidad, unidadOrigen, unidadDestino) {
@@ -344,6 +356,7 @@
         let unidadSeleccionada = unidadVendedor;
         let precioUnitario = precioOriginal;
         let disponibleEnUnidadSeleccionada = cantidadDisponible;
+        let minimoEnUnidadSeleccionada = cantidadMinima;
         
         // Solo hacer conversión si es unidad convertible y existe el selector
         if (esConvertible) {
@@ -358,6 +371,9 @@
                     
                     // Calcular cantidad disponible en unidad seleccionada
                     disponibleEnUnidadSeleccionada = convertirUnidad(cantidadDisponible, unidadVendedor, unidadSeleccionada);
+                    
+                    // Calcular cantidad mínima en unidad seleccionada
+                    minimoEnUnidadSeleccionada = convertirUnidad(cantidadMinima, unidadVendedor, unidadSeleccionada);
                 }
             }
         }
@@ -365,9 +381,28 @@
         // Calcular precio total
         const precioTotal = precioUnitario * cantidad;
         
-        // Actualizar UI
+        // Actualizar UI - precio
         document.querySelector('#precio-unitario span').textContent = precioUnitario.toLocaleString('es-CO', {maximumFractionDigits: 0});
         document.querySelector('#precio-total span').textContent = precioTotal.toLocaleString('es-CO', {maximumFractionDigits: 0});
+        
+        // Actualizar UI - cantidad mínima en múltiples lugares
+        const cantidadMinimaDisplay = document.getElementById('cantidad-minima-display');
+        const unidadMinimaDisplay = document.getElementById('unidad-minima-display');
+        const cantidadMinimaCompra = document.getElementById('cantidad-minima-compra');
+        const unidadMinimaCompra = document.getElementById('unidad-minima-compra');
+        
+        if (cantidadMinimaDisplay) {
+            cantidadMinimaDisplay.textContent = minimoEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0);
+        }
+        if (unidadMinimaDisplay) {
+            unidadMinimaDisplay.textContent = unidadSeleccionada;
+        }
+        if (cantidadMinimaCompra) {
+            cantidadMinimaCompra.textContent = minimoEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0);
+        }
+        if (unidadMinimaCompra) {
+            unidadMinimaCompra.textContent = unidadSeleccionada;
+        }
         
         // Actualizar max del input
         const quantityInput = document.getElementById('quantity');
@@ -379,9 +414,20 @@
             quantityInput.setAttribute('step', '1');
         }
         
-        // Validar si excede disponible
+        // Validar si excede disponible o está bajo el mínimo
         const submitButton = document.querySelector('button[type="submit"]');
+        let hasError = false;
+        let errorMessage = '';
+        
         if (cantidad > disponibleEnUnidadSeleccionada) {
+            hasError = true;
+            errorMessage = `⚠️ Solo hay ${disponibleEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0)} ${unidadSeleccionada} disponibles`;
+        } else if (cantidad > 0 && cantidad < minimoEnUnidadSeleccionada) {
+            hasError = true;
+            errorMessage = `⚠️ La compra mínima es ${minimoEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0)} ${unidadSeleccionada}`;
+        }
+        
+        if (hasError) {
             submitButton.classList.add('opacity-50', 'cursor-not-allowed');
             submitButton.disabled = true;
             document.getElementById('price-info').classList.add('border-2', 'border-red-500');
@@ -391,10 +437,10 @@
             if (!warning) {
                 warning = document.createElement('p');
                 warning.id = 'cantidad-warning';
-                warning.className = 'text-red-600 text-xs mt-1';
+                warning.className = 'text-red-600 dark:text-red-400 text-xs mt-1';
                 document.getElementById('price-info').appendChild(warning);
             }
-            warning.textContent = `⚠️ Solo hay ${disponibleEnUnidadSeleccionada.toFixed(esConvertible ? 1 : 0)} ${unidadSeleccionada} disponibles`;
+            warning.textContent = errorMessage;
         } else {
             submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
             submitButton.disabled = false;

@@ -23,6 +23,21 @@ def add_to_cart(request, publication_id):
         quantity = float(request.POST.get('quantity', 1))
         unidad_compra = request.POST.get('unidad', publication.unidad_medida)
         
+        # Convertir cantidad mínima a la unidad de compra
+        cantidad_minima_convertida = publication.convertir_unidad(
+            publication.cantidad_minima,
+            publication.unidad_medida,
+            unidad_compra
+        )
+        if cantidad_minima_convertida is None:
+            cantidad_minima_convertida = float(publication.cantidad_minima)
+        
+        # Verificar cantidad mínima
+        if quantity < cantidad_minima_convertida:
+            messages.error(request, f'❌ La cantidad mínima de compra es {cantidad_minima_convertida:.1f} {unidad_compra}')
+            next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'marketplace'))
+            return redirect(next_url)
+        
         # Verificar disponibilidad con conversión
         disponible, cantidad_disponible = publication.verificar_disponibilidad(quantity, unidad_compra)
         
@@ -88,6 +103,20 @@ def update_cart(request, item_id):
         unidad = request.POST.get('unidad', cart_item.unidad_compra)
         
         if quantity > 0:
+            # Convertir cantidad mínima a la unidad de compra
+            cantidad_minima_convertida = cart_item.publication.convertir_unidad(
+                cart_item.publication.cantidad_minima,
+                cart_item.publication.unidad_medida,
+                unidad
+            )
+            if cantidad_minima_convertida is None:
+                cantidad_minima_convertida = float(cart_item.publication.cantidad_minima)
+            
+            # Verificar cantidad mínima
+            if quantity < cantidad_minima_convertida:
+                messages.error(request, f'❌ La cantidad mínima de compra es {cantidad_minima_convertida:.1f} {unidad}')
+                return redirect('cart:cart_detail')
+            
             # Verificar disponibilidad
             disponible, cantidad_disponible = cart_item.publication.verificar_disponibilidad(quantity, unidad)
             

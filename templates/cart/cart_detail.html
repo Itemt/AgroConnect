@@ -152,9 +152,16 @@
                                                 </button>
                                             </div>
                                             
-                                            <!-- Tercera línea: Info de Disponible -->
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                <span>Disponible: <strong class="text-gray-700 dark:text-gray-300">{{ item.disponible_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
+                                            <!-- Tercera línea: Info de Disponible y Mínimo -->
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                <div>
+                                                    <i class="fas fa-box text-green-600 mr-1"></i>
+                                                    <span>Disponible: <strong class="text-gray-700 dark:text-gray-300">{{ item.disponible_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-info-circle text-blue-600 mr-1"></i>
+                                                    <span>Mínimo: <strong class="text-blue-700 dark:text-blue-300">{{ item.minimo_en_unidad_compra|floatformat:1 }} {{ item.unidad_compra }}</strong></span>
+                                                </div>
                                             </div>
                                             
                                             {% if item.validation_error %}
