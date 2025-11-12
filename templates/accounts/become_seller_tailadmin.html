@@ -228,31 +228,36 @@ document.addEventListener('DOMContentLoaded', function() {
             if (departamento) {
                 const url = '{% url "ajax_get_cities" %}';
                 
-                fetch(url, {
-                    method: 'POST',
+                fetch(`${url}?department=${encodeURIComponent(departamento)}`, {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: 'departamento=' + encodeURIComponent(departamento)
+                        'Content-Type': 'application/json'
+                    }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
                     
-                    if (data.ciudades && data.ciudades.length > 0) {
-                        data.ciudades.forEach(ciudad => {
+                    if (data.success && data.cities && data.cities.length > 0) {
+                        data.cities.forEach(ciudad => {
                             const option = document.createElement('option');
-                            option.value = ciudad.value;
-                            option.textContent = ciudad.text;
+                            option.value = ciudad;
+                            option.textContent = ciudad;
                             ciudadSelect.appendChild(option);
                         });
                         ciudadSelect.disabled = false;
                     } else {
                         ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
+                        ciudadSelect.disabled = true;
                     }
                 })
                 .catch(error => {
+                    console.error('Error loading cities:', error);
                     ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
                     ciudadSelect.disabled = true;
                 });
