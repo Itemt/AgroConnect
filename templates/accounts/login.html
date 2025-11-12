@@ -177,20 +177,17 @@ const firebaseConfig = {
     appId: "{{ FIREBASE_APP_ID }}"
 };
 
-// Configuración de Google OAuth (desde variables de entorno)
+// Configuración de Google OAuth (solo Client ID público)
 window.GOOGLE_CLIENT_ID = "{{ GOOGLE_CLIENT_ID }}";
-window.GOOGLE_CLIENT_SECRET = "{{ GOOGLE_CLIENT_SECRET }}";
 
 console.log('Google OAuth Config:', {
-    clientId: window.GOOGLE_CLIENT_ID,
-    clientSecret: window.GOOGLE_CLIENT_SECRET ? 'Present' : 'Missing'
+    clientId: window.GOOGLE_CLIENT_ID
 });
 
 // Verificar configuración
-if (!window.GOOGLE_CLIENT_ID || !window.GOOGLE_CLIENT_SECRET) {
-    console.error('❌ Google OAuth credentials missing!');
+if (!window.GOOGLE_CLIENT_ID) {
+    console.error('❌ Google OAuth Client ID missing!');
     console.error('Client ID:', window.GOOGLE_CLIENT_ID);
-    console.error('Client Secret:', window.GOOGLE_CLIENT_SECRET ? 'Present' : 'Missing');
     alert('Error: Configuración de Google OAuth incompleta. Verifica las variables de entorno.');
 }
 

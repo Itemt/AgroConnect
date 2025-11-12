@@ -162,7 +162,7 @@ def register(request):
         'google_data': google_data,
         'is_google_signup': bool(google_data),
         'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
-        'GOOGLE_CLIENT_SECRET': settings.GOOGLE_CLIENT_SECRET,
+        # NOTA: GOOGLE_CLIENT_SECRET no se incluye por seguridad (solo debe usarse en backend)
         'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
         'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
         'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
@@ -240,7 +240,7 @@ class CustomLoginView(LoginView):
             'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
             'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
             'GOOGLE_CLIENT_ID': settings.GOOGLE_CLIENT_ID,
-            'GOOGLE_CLIENT_SECRET': settings.GOOGLE_CLIENT_SECRET,
+            # NOTA: GOOGLE_CLIENT_SECRET no se incluye por seguridad (solo debe usarse en backend)
         })
         return context
 

@@ -88,6 +88,16 @@
 - **Gestión por roles**: Acciones específicas para compradores y vendedores
 - **Seguimiento en tiempo real**: Notificaciones automáticas de cambios de estado
 - **Cancelación inteligente**: Con devolución automática de stock
+- **📧 Confirmaciones por email**: 
+  - Email al comprador al realizar la compra
+  - Email al vendedor al recibir una nueva venta
+  - Email al comprador cuando el pedido está en tránsito
+  - Email al vendedor cuando el comprador recibe el producto
+- **🎯 Códigos QR únicos**: 
+  - QR personalizado para comprador y vendedor
+  - Acceso directo a detalles del pedido sin autenticación
+  - Tokens seguros UUID únicos por pedido
+  - Integrado en todos los emails de confirmación
 
 ### 💳 **Pagos con MercadoPago**
 - **Múltiples métodos**: Tarjetas de crédito/débito, PSE, efectivo (Baloto, Efecty)
@@ -114,13 +124,27 @@
 - **Categorías**: Pedido, Pago, Sistema
 - **Iconos diferenciados**: Íconos únicos para cada tipo de notificación (carrito, dólar, campana)
 
+### 📧 **Sistema de Emails con Resend**
+- **Servicio de email profesional**: Integración con Resend API
+- **Templates HTML personalizados**: Diseño FaunaFlora consistente
+- **Emails transaccionales**:
+  - Confirmación de registro
+  - Confirmación de pedido (comprador y vendedor)
+  - Pedido en tránsito
+  - Pedido recibido
+  - Recuperación de contraseña
+- **Códigos QR embebidos**: QR único en cada email de pedido
+- **Modo oscuro incluido**: Templates adaptables a preferencias del usuario
+
 ### 🔐 **Autenticación Avanzada con Firebase**
 - **🔑 Google Sign-In**: Inicio de sesión con cuenta de Google
-- **📱 SMS OTP**: Recuperación de contraseña por SMS (10,000 gratis/mes)
+- **📱 SMS OTP**: Recuperación de contraseña por SMS y teléfono (10,000 gratis/mes)
 - **🛡️ Seguridad robusta**: Tokens JWT y verificación de identidad
 - **🌐 Multi-plataforma**: Funciona en web y móvil
 - **⚡ Configuración opcional**: Fallback a autenticación tradicional
 - **🎓 Ideal para universidades**: Sin costo para proyectos académicos
+- **🔄 Recuperación por teléfono**: Opción de recuperar contraseña vía SMS con OTP
+- **🌙 Modo oscuro completo**: UI adaptable en todas las páginas de autenticación
 
 ### 🤖 **Asistente IA con Google Gemini**
 - **💬 Asistente inteligente**: Consultas generales sobre agricultura
@@ -158,6 +182,8 @@
 - **☁️ Cloudinary** - Almacenamiento de imágenes en producción
 - **🤖 Google Gemini** - IA para asistente y sugerencias (opcional)
 - **🔥 Firebase Authentication** - Autenticación con Google y SMS OTP
+- **📧 Resend** - Servicio de emails transaccionales profesional
+- **🎯 QRCode 8.0 + Pillow 11.3.0** - Generación de códigos QR personalizados
 
 ### 🎨 **Frontend**
 - **🌐 HTML5/CSS3** - Semántica moderna
@@ -190,10 +216,13 @@ python-decouple==3.8
 
 # Media & Images
 pillow==11.3.0
+qrcode==8.0
 
 # AI & Authentication
 google-generativeai==0.7.2
 firebase-admin==6.5.0
+
+# Email & Communications
 resend==2.17.0
 
 # Utils
@@ -269,6 +298,10 @@ FIREBASE_APP_ID=tu_app_id_completo
 FIREBASE_ADMIN_CREDENTIALS_PATH=serviceAccountKey.json
 # Para producción en Coolify, usa FIREBASE_ADMIN_CREDENTIALS_JSON
 
+# 📧 Resend Email Service (REQUERIDO para emails)
+RESEND_API_KEY=re_tu_api_key_aqui
+RESEND_FROM_EMAIL=noreply@tudominio.com  # En desarrollo puedes usar: onboarding@resend.dev
+
 # 🌍 Configuración Regional
 LANGUAGE_CODE=es-es
 TIME_ZONE=America/Bogota
@@ -334,6 +367,8 @@ python manage.py runserver
 | `FIREBASE_MESSAGING_SENDER_ID` | ❌ | Sender ID de Firebase | `123456789` |
 | `FIREBASE_APP_ID` | ❌ | App ID de Firebase | `1:123456789:web:abc123` |
 | `FIREBASE_ADMIN_CREDENTIALS_PATH` | ❌ | Path al archivo JSON de credenciales | `/path/to/serviceAccountKey.json` |
+| `RESEND_API_KEY` | ⚠️ | API Key de Resend (emails) | `re_abc123...` |
+| `RESEND_FROM_EMAIL` | ⚠️ | Email desde el que se envían los correos | `noreply@tudominio.com` |
 
 **Leyenda:** ✅ Obligatorio | ⚠️ Requerido para funcionalidad específica | ❌ Opcional
 
