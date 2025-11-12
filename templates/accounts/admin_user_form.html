@@ -222,11 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDepartments();
     loadFarmDepartments();
     
-    // Si estamos editando un usuario, cargar sus datos
-    {% if not is_create and user %}
-        loadUserData();
-    {% endif %}
-    
     // Manejar cambio de rol para mostrar/ocultar sección de finca
     document.getElementById('role').addEventListener('change', function() {
         const role = this.value;
@@ -267,6 +262,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Si estamos editando un usuario, cargar sus datos DESPUÉS de cargar departamentos
+    {% if not is_create and user %}
+        setTimeout(function() {
+            loadUserData();
+        }, 100);
+    {% endif %}
+    
     // Verificar rol inicial para mostrar sección de finca
     const initialRole = document.getElementById('role').value;
     if (initialRole === 'Productor') {
@@ -294,18 +296,39 @@ function loadDepartments() {
 }
 
 function loadCities(departamento) {
-    // Lista básica de ciudades por departamento
+    // Lista completa de ciudades por departamento
     const citiesByDepartment = {
-        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa'],
-        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera'],
-        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí'],
-        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga'],
-        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí'],
-        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia'],
-        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer'],
-        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento'],
-        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo'],
-        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña']
+        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa', 'Sabaneta', 'La Estrella', 'Caldas', 'Copacabana'],
+        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera', 'Fusagasugá', 'Cajicá', 'Funza', 'Cota'],
+        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí', 'Candelaria', 'Florida'],
+        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga', 'Barbosa', 'Vélez'],
+        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí', 'Baranoa', 'Juan de Acosta'],
+        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia', 'El Carmen de Bolívar', 'María la Baja'],
+        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer', 'Barbacoas', 'Sandoná'],
+        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento', 'Tierralta', 'Ayapel'],
+        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo', 'Gigante', 'Aipe'],
+        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña', 'Honda', 'Líbano'],
+        'Magdalena': ['Santa Marta', 'Ciénaga', 'Fundación', 'Zona Bananera', 'Plato', 'El Banco', 'Aracataca', 'Pueblo Viejo'],
+        'Boyacá': ['Tunja', 'Duitama', 'Sogamoso', 'Chiquinquirá', 'Paipa', 'Villa de Leyva', 'Moniquirá', 'Puerto Boyacá'],
+        'Norte de Santander': ['Cúcuta', 'Ocaña', 'Pamplona', 'Villa del Rosario', 'Los Patios', 'Tibú', 'El Zulia', 'Chinácota'],
+        'Cauca': ['Popayán', 'Santander de Quilichao', 'Puerto Tejada', 'Patía', 'Piendamó', 'Corinto', 'Miranda', 'Guapi'],
+        'Cesar': ['Valledupar', 'Aguachica', 'Bosconia', 'La Paz', 'Codazzi', 'Chiriguaná', 'San Diego', 'Curumaní'],
+        'Meta': ['Villavicencio', 'Acacías', 'Granada', 'Puerto López', 'San Martín', 'Cumaral', 'Restrepo', 'Puerto Gaitán'],
+        'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal', 'La Virginia', 'Marsella', 'Belén de Umbría', 'Apía', 'Pueblo Rico'],
+        'Quindío': ['Armenia', 'Calarcá', 'La Tebaida', 'Montenegro', 'Quimbaya', 'Circasia', 'Filandia', 'Salento'],
+        'Caldas': ['Manizales', 'Villamaría', 'Chinchiná', 'La Dorada', 'Riosucio', 'Anserma', 'Palestina', 'Aguadas'],
+        'Sucre': ['Sincelejo', 'Corozal', 'Sampués', 'Tolú', 'San Marcos', 'Majagual', 'Morroa', 'Sincé'],
+        'La Guajira': ['Riohacha', 'Maicao', 'Uribia', 'Manaure', 'Dibulla', 'Fonseca', 'Villanueva', 'San Juan del Cesar'],
+        'Casanare': ['Yopal', 'Aguazul', 'Villanueva', 'Monterrey', 'Tauramena', 'Paz de Ariporo', 'Maní', 'Trinidad'],
+        'Caquetá': ['Florencia', 'San Vicente del Caguán', 'Puerto Rico', 'El Paujil', 'Cartagena del Chairá', 'Belén de los Andaquíes', 'La Montañita', 'Albania'],
+        'Arauca': ['Arauca', 'Tame', 'Saravena', 'Arauquita', 'Fortul', 'Cravo Norte', 'Puerto Rondón'],
+        'Putumayo': ['Mocoa', 'Puerto Asís', 'Orito', 'Valle del Guamuez', 'Puerto Caicedo', 'Villa Garzón', 'San Miguel'],
+        'Chocó': ['Quibdó', 'Istmina', 'Condoto', 'Tadó', 'Acandí', 'Nuquí', 'Bahía Solano', 'Alto Baudó'],
+        'Amazonas': ['Leticia', 'Puerto Nariño', 'El Encanto', 'La Pedrera', 'Tarapacá'],
+        'Guainía': ['Inírida', 'Barranco Minas', 'Mapiripana', 'San Felipe', 'Puerto Colombia'],
+        'Guaviare': ['San José del Guaviare', 'Calamar', 'Miraflores', 'El Retorno'],
+        'Vaupés': ['Mitú', 'Carurú', 'Pacoa', 'Taraira'],
+        'Vichada': ['Puerto Carreño', 'La Primavera', 'Santa Rosalía', 'Cumaribo']
     };
     
     const select = document.getElementById('ciudad');
@@ -340,18 +363,39 @@ function loadFarmDepartments() {
 }
 
 function loadFarmCities(departamento) {
-    // Lista básica de ciudades por departamento para la finca
+    // Lista completa de ciudades por departamento para la finca (igual que para usuario)
     const citiesByDepartment = {
-        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa'],
-        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera'],
-        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí'],
-        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga'],
-        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí'],
-        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia'],
-        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer'],
-        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento'],
-        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo'],
-        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña']
+        'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Barbosa', 'Sabaneta', 'La Estrella', 'Caldas', 'Copacabana'],
+        'Cundinamarca': ['Bogotá', 'Soacha', 'Girardot', 'Zipaquirá', 'Facatativá', 'Chía', 'Madrid', 'Mosquera', 'Fusagasugá', 'Cajicá', 'Funza', 'Cota'],
+        'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura', 'Tuluá', 'Cartago', 'Buga', 'Yumbo', 'Jamundí', 'Candelaria', 'Florida'],
+        'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil', 'Socorro', 'Málaga', 'Barbosa', 'Vélez'],
+        'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanagrande', 'Puerto Colombia', 'Galapa', 'Tubará', 'Usiacurí', 'Baranoa', 'Juan de Acosta'],
+        'Bolívar': ['Cartagena', 'Magangué', 'Turbaco', 'Arjona', 'San Pablo', 'Santa Rosa', 'Mahates', 'Clemencia', 'El Carmen de Bolívar', 'María la Baja'],
+        'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres', 'Samaniego', 'La Unión', 'Consacá', 'Yacuanquer', 'Barbacoas', 'Sandoná'],
+        'Córdoba': ['Montería', 'Cereté', 'Sahagún', 'Lorica', 'Montelíbano', 'Planeta Rica', 'Ciénaga de Oro', 'San Andrés Sotavento', 'Tierralta', 'Ayapel'],
+        'Huila': ['Neiva', 'Pitalito', 'Garzón', 'La Plata', 'San Agustín', 'Timaná', 'Campoalegre', 'Palermo', 'Gigante', 'Aipe'],
+        'Tolima': ['Ibagué', 'Girardot', 'Espinal', 'Melgar', 'Guamo', 'Chaparral', 'Purificación', 'Saldaña', 'Honda', 'Líbano'],
+        'Magdalena': ['Santa Marta', 'Ciénaga', 'Fundación', 'Zona Bananera', 'Plato', 'El Banco', 'Aracataca', 'Pueblo Viejo'],
+        'Boyacá': ['Tunja', 'Duitama', 'Sogamoso', 'Chiquinquirá', 'Paipa', 'Villa de Leyva', 'Moniquirá', 'Puerto Boyacá'],
+        'Norte de Santander': ['Cúcuta', 'Ocaña', 'Pamplona', 'Villa del Rosario', 'Los Patios', 'Tibú', 'El Zulia', 'Chinácota'],
+        'Cauca': ['Popayán', 'Santander de Quilichao', 'Puerto Tejada', 'Patía', 'Piendamó', 'Corinto', 'Miranda', 'Guapi'],
+        'Cesar': ['Valledupar', 'Aguachica', 'Bosconia', 'La Paz', 'Codazzi', 'Chiriguaná', 'San Diego', 'Curumaní'],
+        'Meta': ['Villavicencio', 'Acacías', 'Granada', 'Puerto López', 'San Martín', 'Cumaral', 'Restrepo', 'Puerto Gaitán'],
+        'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal', 'La Virginia', 'Marsella', 'Belén de Umbría', 'Apía', 'Pueblo Rico'],
+        'Quindío': ['Armenia', 'Calarcá', 'La Tebaida', 'Montenegro', 'Quimbaya', 'Circasia', 'Filandia', 'Salento'],
+        'Caldas': ['Manizales', 'Villamaría', 'Chinchiná', 'La Dorada', 'Riosucio', 'Anserma', 'Palestina', 'Aguadas'],
+        'Sucre': ['Sincelejo', 'Corozal', 'Sampués', 'Tolú', 'San Marcos', 'Majagual', 'Morroa', 'Sincé'],
+        'La Guajira': ['Riohacha', 'Maicao', 'Uribia', 'Manaure', 'Dibulla', 'Fonseca', 'Villanueva', 'San Juan del Cesar'],
+        'Casanare': ['Yopal', 'Aguazul', 'Villanueva', 'Monterrey', 'Tauramena', 'Paz de Ariporo', 'Maní', 'Trinidad'],
+        'Caquetá': ['Florencia', 'San Vicente del Caguán', 'Puerto Rico', 'El Paujil', 'Cartagena del Chairá', 'Belén de los Andaquíes', 'La Montañita', 'Albania'],
+        'Arauca': ['Arauca', 'Tame', 'Saravena', 'Arauquita', 'Fortul', 'Cravo Norte', 'Puerto Rondón'],
+        'Putumayo': ['Mocoa', 'Puerto Asís', 'Orito', 'Valle del Guamuez', 'Puerto Caicedo', 'Villa Garzón', 'San Miguel'],
+        'Chocó': ['Quibdó', 'Istmina', 'Condoto', 'Tadó', 'Acandí', 'Nuquí', 'Bahía Solano', 'Alto Baudó'],
+        'Amazonas': ['Leticia', 'Puerto Nariño', 'El Encanto', 'La Pedrera', 'Tarapacá'],
+        'Guainía': ['Inírida', 'Barranco Minas', 'Mapiripana', 'San Felipe', 'Puerto Colombia'],
+        'Guaviare': ['San José del Guaviare', 'Calamar', 'Miraflores', 'El Retorno'],
+        'Vaupés': ['Mitú', 'Carurú', 'Pacoa', 'Taraira'],
+        'Vichada': ['Puerto Carreño', 'La Primavera', 'Santa Rosalía', 'Cumaribo']
     };
     
     const select = document.getElementById('finca_ciudad');
@@ -369,40 +413,52 @@ function loadFarmCities(departamento) {
 function loadUserData() {
     // Cargar datos del usuario en edición
     {% if not is_create and user %}
-        const user = {
+        const userData = {
             departamento: '{{ user.departamento|default:"" }}',
             ciudad: '{{ user.ciudad|default:"" }}',
             farm: {
-                departamento: '{{ user.farms.first.departamento|default:"" }}',
-                ciudad: '{{ user.farms.first.ciudad|default:"" }}'
+                departamento: '{% if user.farms.first %}{{ user.farms.first.departamento|default:"" }}{% endif %}',
+                ciudad: '{% if user.farms.first %}{{ user.farms.first.ciudad|default:"" }}{% endif %}'
             }
         };
         
         // Cargar datos de ubicación del usuario
-        if (user.departamento) {
+        if (userData.departamento) {
             const departamentoSelect = document.getElementById('departamento');
-            departamentoSelect.value = user.departamento;
-            loadCities(user.departamento);
+            departamentoSelect.value = userData.departamento;
             
-            if (user.ciudad) {
+            // Cargar ciudades del departamento
+            loadCities(userData.departamento);
+            
+            // Habilitar el select de ciudad
+            const ciudadSelect = document.getElementById('ciudad');
+            ciudadSelect.disabled = false;
+            
+            // Seleccionar la ciudad después de que se carguen
+            if (userData.ciudad) {
                 setTimeout(() => {
-                    const ciudadSelect = document.getElementById('ciudad');
-                    ciudadSelect.value = user.ciudad;
-                }, 100);
+                    ciudadSelect.value = userData.ciudad;
+                }, 200);
             }
         }
         
-        // Cargar datos de ubicación de la finca
-        if (user.farm.departamento) {
+        // Cargar datos de ubicación de la finca (solo si es productor)
+        if (userData.farm.departamento) {
             const farmDepartamentoSelect = document.getElementById('finca_departamento');
-            farmDepartamentoSelect.value = user.farm.departamento;
-            loadFarmCities(user.farm.departamento);
+            farmDepartamentoSelect.value = userData.farm.departamento;
             
-            if (user.farm.ciudad) {
+            // Cargar ciudades del departamento de la finca
+            loadFarmCities(userData.farm.departamento);
+            
+            // Habilitar el select de ciudad de la finca
+            const farmCiudadSelect = document.getElementById('finca_ciudad');
+            farmCiudadSelect.disabled = false;
+            
+            // Seleccionar la ciudad de la finca después de que se carguen
+            if (userData.farm.ciudad) {
                 setTimeout(() => {
-                    const farmCiudadSelect = document.getElementById('finca_ciudad');
-                    farmCiudadSelect.value = user.farm.ciudad;
-                }, 100);
+                    farmCiudadSelect.value = userData.farm.ciudad;
+                }, 200);
             }
         }
     {% endif %}

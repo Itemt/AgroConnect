@@ -305,9 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const ciudadSelect = document.getElementById('id_ciudad');
     
     if (departamentoSelect && ciudadSelect) {
-        departamentoSelect.addEventListener('change', function() {
-            const departamento = this.value;
-            
+        // Función para cargar ciudades
+        function loadCities(departamento, selectedCiudad = null) {
             if (departamento) {
                 // Habilitar el campo de ciudad
                 ciudadSelect.disabled = false;
@@ -322,6 +321,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             const option = document.createElement('option');
                             option.value = city[0];
                             option.textContent = city[1];
+                            // Si hay una ciudad preseleccionada, marcarla
+                            if (selectedCiudad && city[0] === selectedCiudad) {
+                                option.selected = true;
+                            }
                             ciudadSelect.appendChild(option);
                         });
                     })
@@ -334,7 +337,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 ciudadSelect.disabled = true;
                 ciudadSelect.innerHTML = '<option value="">Primero seleccione un departamento</option>';
             }
+        }
+        
+        // Manejar cambio de departamento
+        departamentoSelect.addEventListener('change', function() {
+            loadCities(this.value);
         });
+        
+        // Si estamos editando (hay departamento y ciudad seleccionados), cargar las ciudades
+        {% if not is_create and farm %}
+            const currentDepartamento = departamentoSelect.value;
+            const currentCiudad = ciudadSelect.value;
+            
+            if (currentDepartamento) {
+                // Cargar las ciudades con la ciudad actual preseleccionada
+                loadCities(currentDepartamento, currentCiudad);
+            }
+        {% endif %}
     }
 });
 </script>
