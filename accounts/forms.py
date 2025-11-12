@@ -1784,3 +1784,26 @@ class ProducerRegistrationForm(forms.ModelForm):
             )
         
         return user
+
+
+class PhonePasswordResetForm(forms.Form):
+    """Formulario para recuperación de contraseña por teléfono"""
+    telefono = forms.CharField(
+        max_length=15,
+        required=True,
+        label="Número de Teléfono",
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition',
+            'placeholder': '+57 300 123 4567',
+            'type': 'tel'
+        }),
+        help_text="Ingresa tu número de teléfono con código de país"
+    )
+    
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        # Remover espacios y caracteres especiales
+        telefono = ''.join(filter(str.isdigit, telefono.replace('+', '')))
+        if not telefono:
+            raise ValidationError('Por favor ingresa un número de teléfono válido.')
+        return '+' + telefono if not telefono.startswith('+') else telefono

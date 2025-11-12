@@ -382,41 +382,38 @@ def become_seller(request):
 # Password Reset Views
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
-    email_template_name = 'accounts/password_reset_email.html'
+    email_template_name = 'accounts/password_reset_email_template.html'
     subject_template_name = 'accounts/password_reset_subject.txt'
-    success_url = reverse_lazy('password_reset_done')
-    form_class = PasswordResetForm
+    success_url = reverse_lazy('verify_phone_code')
+    form_class = None  # Usaremos nuestro propio formulario
+    
+    def get_form_class(self):
+        from .forms import PhonePasswordResetForm
+        return PhonePasswordResetForm
 
     def form_valid(self, form):
-        # Obtener el email del formulario
-        email = form.cleaned_data['email']
+        # Obtener el teléfono del formulario
+        telefono = form.cleaned_data['telefono']
         
-        # Buscar el usuario por email
+        # Buscar el usuario por teléfono
         User = get_user_model()
+        
+        # Ocultar parte del número para mostrar en el mensaje
+        # Por ejemplo: +57 300 123 4567 -> +57 300 XXX XX67
+        phone_display = telefono
+        if len(telefono) > 6:
+            phone_display = telefono[:-4] + ' XXX XX' + telefono[-2:]
+        
         try:
-            user = User.objects.get(email=email)
-            
-            # Verificar que el usuario tenga teléfono
-            if not user.telefono:
-                messages.error(self.request, 'Tu cuenta no tiene un número de teléfono registrado. Contacta soporte.')
-                return self.form_invalid(form)
+            user = User.objects.get(telefono=telefono)
             
             # Generar código OTP de 6 dígitos
             otp_code = ''.join(random.choices(string.digits, k=6))
             
-            # Guardar el código OTP en la sesión temporalmente (5 minutos)
-            self.request.session['password_reset_otp'] = {
-                'code': otp_code,
-                'user_id': user.id,
-                'email': email,
-                'phone': user.telefono,
-                'timestamp': time.time()
-            }
-            
             # Preparar datos para Firebase Phone Auth
             phone_auth_data = firebase_phone_auth.create_phone_auth_data(user.telefono, otp_code)
             
-            # Guardar datos adicionales en la sesión para el frontend
+            # Guardar datos en la sesión para el frontend
             self.request.session['firebase_phone_auth'] = phone_auth_data
             self.request.session['password_reset_otp'] = {
                 'user_id': user.id,
@@ -426,14 +423,16 @@ class CustomPasswordResetView(PasswordResetView):
                 'timestamp': time.time()
             }
             
-            messages.success(self.request, f'Código de verificación enviado a {user.telefono}')
+            messages.success(self.request, f'Si el número {phone_display} está asociado a una cuenta, recibirás un código de verificación.')
             
             # Redirigir a la página de verificación de código
             return redirect('verify_phone_code')
             
         except User.DoesNotExist:
-            messages.error(self.request, 'No existe una cuenta con ese correo electrónico.')
-            return self.form_invalid(form)
+            # Mostrar el mismo mensaje aunque no exista el usuario (seguridad)
+            messages.success(self.request, f'Si el número {phone_display} está asociado a una cuenta, recibirás un código de verificación.')
+            # Redirigir al login después de un tiempo
+            return redirect('login')
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
