@@ -240,6 +240,32 @@
                     </div>
                 </div>
 
+                <!-- Código QR de Acceso -->
+                {% if buyer_qr_code %}
+                <div class="card mb-6">
+                    <div class="card-body p-6">
+                        <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-qrcode text-primary-600 mr-2"></i>
+                            Tu Código QR
+                        </h4>
+                        <div class="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-xl p-6 text-center">
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                                Escanea este código para acceder rápidamente al detalle de tu pedido desde cualquier dispositivo
+                            </p>
+                            <div class="flex justify-center">
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg inline-block">
+                                    <img src="{{ buyer_qr_code }}" alt="QR Code" class="w-48 h-48" />
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                                <i class="fas fa-shield-alt mr-1"></i>
+                                Este código es único y personal
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Historial del Pedido -->
                 <div class="card">
                     <div class="card-body p-4">

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Recibido por el Comprador</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"/>
+    <style>
+        body { margin:0; padding:0; background:#f6f9fc; font-family: 'Figtree', ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#022C22; }
+        .container { max-width:640px; margin:0 auto; padding:24px; }
+        .card { background:#ffffff; border-radius:24px; overflow:hidden; box-shadow:0 4px 12px rgba(2,44,34,0.1); }
+        .header { background:#022C22; color:#fff; padding:32px 24px; text-align:center; position:relative; }
+        .header::before { content:''; position:absolute; bottom:0; left:0; right:0; height:4px; background:#84cc16; }
+        .header h1 { margin:8px 0 0; font-size:24px; font-weight:700; }
+        .logo { font-weight:700; font-size:18px; letter-spacing:.02em; color:#84cc16; }
+        .content { padding:32px 24px; }
+        .row { display:flex; justify-content:space-between; align-items:center; margin:10px 0; padding:8px 0; }
+        .chip { display:inline-flex; align-items:center; padding:8px 14px; border-radius:999px; border:1px solid #022C22; background:#fff; margin-right:8px; font-size:13px; color:#022C22; }
+        .highlight-box { background: #f7fee7; border: 2px solid #84cc16; border-radius:16px; padding:20px; margin-top:12px; }
+        .qr-section { background: #f0fdfa; border: 2px solid #14b8a6; border-radius:16px; padding:24px; text-align:center; margin:24px 0; }
+        .qr-code { max-width:200px; margin:16px auto; border-radius:12px; }
+        .footer { color:#64748b; font-size:13px; margin-top:20px; line-height:1.6; }
+        .muted { color:#64748b; font-size:13px; }
+        .title { font-weight:700; font-size:18px; margin:0 0 16px; color:#022C22; }
+        .alert { background:#f7fee7; border-left:4px solid #84cc16; padding:16px; border-radius:12px; margin:20px 0; }
+        .success-box { background:#f7fee7; border:2px solid #84cc16; border-radius:16px; padding:24px; margin:20px 0; text-align:center; }
+        .divider { border-top:1px solid #e5e7eb; margin:24px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🌱 AgroConnect</div>
+                <h1>¡Venta Completada! ✅</h1>
+                <div style="opacity:.9; font-size:14px; margin-top:8px;">El comprador recibió el producto</div>
+            </div>
+            <div class="content">
+                <p>Hola <strong>{{ seller_name }}</strong>,</p>
+                <p>¡Felicitaciones! El comprador confirmó que recibió el pedido <strong>#{{ order.id }}</strong>. Tu venta se ha completado exitosamente.</p>
+
+                <div class="success-box">
+                    <p style="margin:0 0 12px; font-size:56px;">🎉</p>
+                    <p style="margin:0; font-weight:700; font-size:22px; color:#022C22;">Venta Completada</p>
+                    <p style="margin:8px 0 0; font-size:14px; color:#64748b;">Recibido el {{ order.fecha_recepcion|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                <p class="title">📦 Resumen de la venta</p>
+                <div class="row"><span class="muted">Producto</span><strong>{{ order.publicacion.cultivo.nombre }}</strong></div>
+                <div class="row"><span class="muted">Cantidad</span><strong>{{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</strong></div>
+                <div class="row"><span class="muted">Comprador</span><strong>{{ order.comprador.get_full_name }}</strong></div>
+
+                <div class="highlight-box">
+                    <div class="row"><span style="font-weight:600; color:#022C22;">💰 Monto total</span><span style="font-weight:800; color:#022C22; font-size:20px;">${{ order.precio_total|floatformat:2 }} COP</span></div>
+                </div>
+
+                {% if buyer_rating %}
+                <div style="background:#fef3c7; border:2px solid #fde047; border-radius:12px; padding:16px; margin:16px 0;">
+                    <p class="title" style="margin:0 0 8px;">⭐ Calificación del comprador</p>
+                    <div class="row">
+                        <span class="muted">Calificación general</span>
+                        <strong>{{ buyer_rating.calificacion_general }}/5 ⭐</strong>
+                    </div>
+                    {% if buyer_rating.comentario %}
+                    <p style="margin:12px 0 0; font-size:14px; font-style:italic; color:#64748b;">"{{ buyer_rating.comentario }}"</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="alert">
+                    <strong>⭐ Espera la calificación del comprador</strong>
+                    <p style="margin:8px 0 0;">El comprador aún no ha dejado una calificación. Puedes calificar al comprador desde tu panel de ventas.</p>
+                </div>
+                {% endif %}
+
+                <div class="alert">
+                    <strong>✅ Próximos pasos:</strong>
+                    <ul style="margin:8px 0; padding-left:20px;">
+                        <li>{% if not seller_rating %}Puedes calificar al comprador{% else %}Ya calificaste al comprador{% endif %}</li>
+                        <li>Revisa tus estadísticas de ventas</li>
+                        <li>Esta venta suma a tu historial y reputación</li>
+                    </ul>
+                </div>
+
+                <div class="qr-section">
+                    <p style="margin:0 0 8px; font-weight:700; color:#022C22; font-size:16px;">📱 Ver detalles de la venta</p>
+                    <p style="margin:0 0 16px; font-size:14px; color:#64748b;">Escanea para ver todos los detalles</p>
+                    {% if qr_code %}
+                    <div style="background:#fff; padding:16px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(2,44,34,0.1);">
+                        <img src="{{ qr_code }}" alt="QR Code" class="qr-code" style="max-width:200px; display:block; margin:0 auto;"/>
+                    </div>
+                    {% endif %}
+                    <p style="margin:16px 0 0; font-size:13px; color:#64748b;">
+                        <a href="{{ order_url }}" style="color:#022C22; text-decoration:none; font-weight:600; border-bottom:2px solid #84cc16; padding-bottom:2px;">Haz clic aquí para ver el pedido</a>
+                    </p>
+                </div>
+
+                <p class="footer">
+                    ¡Gracias por ser parte de AgroConnect! Sigue ofreciendo productos de calidad para crecer tu reputación y ventas.
+                </p>
+                <p class="muted">
+                    Equipo AgroConnect 🌾<br>
+                    Conectando el campo con la ciudad
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

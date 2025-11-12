@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Sum, Avg, Count
 from django.utils import timezone
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from .models import Conversation, Message, Order, Rating
 from marketplace.models import Publication
@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST
 from cart.models import Cart
 from core.models import create_notification
 from core.models import Notification
+from .qr_utils import get_order_buyer_qr, get_order_seller_qr
 import logging
 
 logger = logging.getLogger(__name__)
@@ -134,6 +135,62 @@ def order_history_view(request):
         return render(request, 'sales/order_history_buyer.html', context)
 
 
+def order_detail_qr_view(request, token):
+    """
+    Vista para acceder al detalle del pedido mediante QR code
+    No requiere autenticación ya que el token es único y seguro
+    """
+    try:
+        # Buscar el pedido por el token (puede ser de comprador o vendedor)
+        order = Order.objects.filter(
+            Q(token_comprador=token) | Q(token_vendedor=token)
+        ).select_related(
+            'publicacion__cultivo__productor', 'comprador'
+        ).first()
+        
+        if not order:
+            messages.error(request, 'Código QR inválido o pedido no encontrado.')
+            return render(request, '404.html', status=404)
+        
+        # Determinar el tipo de usuario que está accediendo
+        is_buyer_qr = str(order.token_comprador) == str(token)
+        is_seller_qr = str(order.token_vendedor) == str(token)
+        
+        # Obtener calificaciones existentes
+        rating_from_buyer = order.calificaciones.filter(tipo='comprador_a_vendedor').first()
+        rating_from_seller = order.calificaciones.filter(tipo='vendedor_a_comprador').first()
+        
+        # Obtener el payment asociado al order
+        payment = None
+        try:
+            payment = order.payment
+        except:
+            pass
+        
+        # Generar códigos QR
+        buyer_qr = get_order_buyer_qr(order) if is_buyer_qr else None
+        seller_qr = get_order_seller_qr(order) if is_seller_qr else None
+        
+        context = {
+            'order': order,
+            'payment': payment,
+            'rating_from_buyer': rating_from_buyer,
+            'rating_from_seller': rating_from_seller,
+            'is_buyer_qr': is_buyer_qr,
+            'is_seller_qr': is_seller_qr,
+            'buyer_qr_code': buyer_qr,
+            'seller_qr_code': seller_qr,
+            'accessed_via_qr': True,
+        }
+        
+        return render(request, 'sales/order_detail_qr.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error accediendo al pedido por QR: {e}")
+        messages.error(request, 'Error al acceder al pedido.')
+        return render(request, '404.html', status=404)
+
+
 @login_required
 def order_detail_view(request, order_id):
     """Vista detallada de un pedido"""
@@ -168,6 +225,10 @@ def order_detail_view(request, order_id):
     except:
         pass
     
+    # Generar códigos QR
+    buyer_qr = get_order_buyer_qr(order) if request.user == order.comprador else None
+    seller_qr = get_order_seller_qr(order) if request.user == order.vendedor else None
+    
     context = {
         'order': order,
         'payment': payment,
@@ -175,6 +236,8 @@ def order_detail_view(request, order_id):
         'rating_from_seller': rating_from_seller,
         'my_rating': my_rating,
         'user_role': request.user.role,
+        'buyer_qr_code': buyer_qr,
+        'seller_qr_code': seller_qr,
     }
     
     # Render different template based on user role to keep appropriate sidebar

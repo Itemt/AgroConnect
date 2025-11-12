@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from core.models import BaseModel
 from marketplace.models import Publication
+import uuid
 
 # Create your models here.
 
@@ -67,6 +68,12 @@ class Order(BaseModel):
                                                 verbose_name="Fecha de Entrega Estimada")
     fecha_recepcion = models.DateTimeField(null=True, blank=True, 
                                          verbose_name="Fecha de Recepción")
+    
+    # Tokens QR únicos para acceso al pedido
+    token_comprador = models.UUIDField(default=uuid.uuid4, editable=False, unique=True,
+                                       verbose_name="Token QR Comprador")
+    token_vendedor = models.UUIDField(default=uuid.uuid4, editable=False, unique=True,
+                                      verbose_name="Token QR Vendedor")
 
     class Meta:
         verbose_name = "Pedido"
@@ -130,6 +137,30 @@ class Order(BaseModel):
     def can_be_cancelled_by_seller(self):
         """Verifica si el vendedor puede cancelar el pedido"""
         return self.estado in ['pendiente', 'confirmado', 'en_preparacion'] and self.can_be_cancelled()
+    
+    def get_buyer_qr_url(self):
+        """Obtiene la URL para el QR del comprador"""
+        from django.urls import reverse
+        from django.contrib.sites.models import Site
+        try:
+            domain = Site.objects.get_current().domain
+        except:
+            domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
+        
+        path = reverse('order_detail_qr', kwargs={'token': self.token_comprador})
+        return f"https://{domain}{path}"
+    
+    def get_seller_qr_url(self):
+        """Obtiene la URL para el QR del vendedor"""
+        from django.urls import reverse
+        from django.contrib.sites.models import Site
+        try:
+            domain = Site.objects.get_current().domain
+        except:
+            domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
+        
+        path = reverse('order_detail_qr', kwargs={'token': self.token_vendedor})
+        return f"https://{domain}{path}"
 
     def get_available_actions_for_user(self, user):
         """Obtiene las acciones disponibles para un usuario específico"""

@@ -6,6 +6,8 @@ from core.models import create_notification, Notification
 from payments.models import Payment
 from accounts.models import ProducerProfile, BuyerProfile
 from django.db.models import Avg
+from core.email_service import email_service
+from .qr_utils import get_order_buyer_qr, get_order_seller_qr
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Order)
 def order_status_notifications(sender, instance, created, **kwargs):
-    """Envía notificaciones cuando cambia el estado de un pedido"""
+    """Envía notificaciones y emails cuando cambia el estado de un pedido"""
     if created:
         # Nuevo pedido creado - notificar al vendedor
         create_notification(
@@ -32,6 +34,36 @@ def order_status_notifications(sender, instance, created, **kwargs):
             category='order',
             order_id=instance.id,
         )
+        
+        # Enviar emails de confirmación con códigos QR
+        try:
+            # Email al comprador
+            buyer_qr = get_order_buyer_qr(instance)
+            buyer_url = instance.get_buyer_qr_url()
+            
+            if instance.comprador.email:
+                email_service.send_order_buyer_confirmation_email(
+                    buyer_email=instance.comprador.email,
+                    order=instance,
+                    buyer_name=instance.comprador.get_full_name(),
+                    qr_code=buyer_qr,
+                    order_url=buyer_url
+                )
+            
+            # Email al vendedor
+            seller_qr = get_order_seller_qr(instance)
+            seller_url = instance.get_seller_qr_url()
+            
+            if instance.vendedor.email:
+                email_service.send_order_seller_notification_email(
+                    seller_email=instance.vendedor.email,
+                    order=instance,
+                    seller_name=instance.vendedor.get_full_name(),
+                    qr_code=seller_qr,
+                    order_url=seller_url
+                )
+        except Exception as e:
+            logger.error(f"Error sending order creation emails: {e}")
     else:
         # Estado del pedido cambió - enviar notificaciones según el estado
         if instance.estado == 'confirmado':
@@ -74,6 +106,22 @@ def order_status_notifications(sender, instance, created, **kwargs):
                 order_id=instance.id,
             )
             
+            # Enviar email al comprador con QR
+            try:
+                buyer_qr = get_order_buyer_qr(instance)
+                buyer_url = instance.get_buyer_qr_url()
+                
+                if instance.comprador.email:
+                    email_service.send_order_in_transit_email(
+                        buyer_email=instance.comprador.email,
+                        order=instance,
+                        buyer_name=instance.comprador.get_full_name(),
+                        qr_code=buyer_qr,
+                        order_url=buyer_url
+                    )
+            except Exception as e:
+                logger.error(f"Error sending in transit email: {e}")
+            
             
         elif instance.estado == 'recibido':
             # Pedido recibido por el comprador
@@ -102,6 +150,28 @@ def order_status_notifications(sender, instance, created, **kwargs):
                 category='order',
                 order_id=instance.id,
             )
+            
+            # Enviar email al vendedor con QR
+            try:
+                seller_qr = get_order_seller_qr(instance)
+                seller_url = instance.get_seller_qr_url()
+                
+                # Obtener calificaciones
+                buyer_rating = instance.calificaciones.filter(tipo='comprador_a_vendedor').first()
+                seller_rating = instance.calificaciones.filter(tipo='vendedor_a_comprador').first()
+                
+                if instance.vendedor.email:
+                    email_service.send_order_received_seller_email(
+                        seller_email=instance.vendedor.email,
+                        order=instance,
+                        seller_name=instance.vendedor.get_full_name(),
+                        qr_code=seller_qr,
+                        order_url=seller_url,
+                        buyer_rating=buyer_rating,
+                        seller_rating=seller_rating
+                    )
+            except Exception as e:
+                logger.error(f"Error sending order received seller email: {e}")
             
         elif instance.estado == 'cancelado':
             # Pedido cancelado

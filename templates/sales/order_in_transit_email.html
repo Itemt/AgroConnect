@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu pedido está en camino</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"/>
+    <style>
+        body { margin:0; padding:0; background:#f6f9fc; font-family: 'Figtree', ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#022C22; }
+        .container { max-width:640px; margin:0 auto; padding:24px; }
+        .card { background:#ffffff; border-radius:24px; overflow:hidden; box-shadow:0 4px 12px rgba(2,44,34,0.1); }
+        .header { background:#022C22; color:#fff; padding:32px 24px; text-align:center; position:relative; }
+        .header::before { content:''; position:absolute; bottom:0; left:0; right:0; height:4px; background:#84cc16; }
+        .header h1 { margin:8px 0 0; font-size:24px; font-weight:700; }
+        .logo { font-weight:700; font-size:18px; letter-spacing:.02em; color:#84cc16; }
+        .content { padding:32px 24px; }
+        .row { display:flex; justify-content:space-between; align-items:center; margin:10px 0; padding:8px 0; }
+        .chip { display:inline-flex; align-items:center; padding:8px 14px; border-radius:999px; border:1px solid #022C22; background:#fff; margin-right:8px; font-size:13px; color:#022C22; }
+        .highlight-box { background: #fef3c7; border: 2px solid #fde047; border-radius:16px; padding:20px; margin-top:12px; }
+        .qr-section { background: #f0fdfa; border: 2px solid #14b8a6; border-radius:16px; padding:24px; text-align:center; margin:24px 0; }
+        .qr-code { max-width:200px; margin:16px auto; border-radius:12px; }
+        .footer { color:#64748b; font-size:13px; margin-top:20px; line-height:1.6; }
+        .muted { color:#64748b; font-size:13px; }
+        .title { font-weight:700; font-size:18px; margin:0 0 16px; color:#022C22; }
+        .alert { background:#f7fee7; border-left:4px solid #84cc16; padding:16px; border-radius:12px; margin:20px 0; }
+        .tracking { background:#f7fee7; border:2px dashed #84cc16; border-radius:16px; padding:24px; margin:20px 0; text-align:center; }
+        .divider { border-top:1px solid #e5e7eb; margin:24px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🌱 AgroConnect</div>
+                <h1>¡Tu pedido está en camino! 🚚</h1>
+                <div style="opacity:.9; font-size:14px; margin-top:8px;">Pronto lo recibirás</div>
+            </div>
+            <div class="content">
+                <p>Hola <strong>{{ user_name }}</strong>,</p>
+                <p>¡Buenas noticias! Tu pedido <strong>#{{ order.id }}</strong> ya está en camino hacia ti.</p>
+
+                <div class="tracking">
+                    <p style="margin:0 0 12px; font-size:48px;">🚛</p>
+                    <p style="margin:0; font-weight:700; font-size:20px; color:#022C22;">En Tránsito</p>
+                    <p style="margin:8px 0 0; font-size:14px; color:#64748b;">Enviado el {{ order.fecha_envio|date:"d/m/Y" }}</p>
+                </div>
+
+                <p class="title">📦 Detalle del envío</p>
+                <div class="row"><span class="muted">Producto</span><strong>{{ order.publicacion.cultivo.nombre }}</strong></div>
+                <div class="row"><span class="muted">Cantidad</span><strong>{{ order.cantidad_acordada }} {{ order.publicacion.unidad_medida }}</strong></div>
+                <div class="row"><span class="muted">Vendedor</span><strong>{{ order.vendedor.get_full_name }}</strong></div>
+                {% if order.fecha_entrega_estimada %}
+                <div class="row"><span class="muted">Entrega estimada</span><strong>{{ order.fecha_entrega_estimada|date:"d/m/Y" }}</strong></div>
+                {% endif %}
+
+                {% if order.direccion_entrega %}
+                <p class="title">📍 Dirección de entrega</p>
+                <p style="background:#f8fafc; padding:12px; border-radius:8px; margin:8px 0;">{{ order.direccion_entrega }}</p>
+                {% endif %}
+
+                {% if order.notas_vendedor %}
+                <p class="title">💬 Notas del vendedor</p>
+                <p style="background:#f8fafc; padding:12px; border-radius:8px; margin:8px 0;">{{ order.notas_vendedor }}</p>
+                {% endif %}
+
+                <div class="alert">
+                    <strong>📋 Información importante:</strong>
+                    <ul style="margin:8px 0; padding-left:20px;">
+                        <li>Mantente atento a tu puerta o buzón</li>
+                        <li>Una vez recibido, confirma la recepción en tu panel</li>
+                        <li>Podrás calificar al vendedor después de confirmar</li>
+                        <li>Si hay algún problema, contacta al vendedor</li>
+                    </ul>
+                </div>
+
+                <div class="qr-section">
+                    <p style="margin:0 0 8px; font-weight:700; color:#022C22; font-size:16px;">📱 Rastrea tu pedido con QR</p>
+                    <p style="margin:0 0 16px; font-size:14px; color:#64748b;">Escanea para ver el estado en tiempo real</p>
+                    {% if qr_code %}
+                    <div style="background:#fff; padding:16px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(2,44,34,0.1);">
+                        <img src="{{ qr_code }}" alt="QR Code" class="qr-code" style="max-width:200px; display:block; margin:0 auto;"/>
+                    </div>
+                    {% endif %}
+                    <p style="margin:16px 0 0; font-size:13px; color:#64748b;">
+                        <a href="{{ order_url }}" style="color:#022C22; text-decoration:none; font-weight:600; border-bottom:2px solid #84cc16; padding-bottom:2px;">Haz clic aquí para ver tu pedido</a>
+                    </p>
+                </div>
+
+                <p class="footer">
+                    Te notificaremos cuando tu pedido sea entregado. ¡Gracias por confiar en AgroConnect!
+                </p>
+                <p class="muted">
+                    Equipo AgroConnect 🌾<br>
+                    Conectando el campo con la ciudad
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
