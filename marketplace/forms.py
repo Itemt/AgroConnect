@@ -112,8 +112,14 @@ class PublicationForm(forms.ModelForm):
         
         # Si hay un cultivo específico (creación), establecer la ubicación automáticamente
         if crop and crop.finca:
-            self.fields['departamento'].initial = crop.finca.departamento
-            self.fields['ciudad'].initial = crop.finca.ciudad
+            departamento_val = crop.finca.departamento or ''
+            ciudad_val = crop.finca.ciudad or ''
+            self.fields['departamento'].initial = departamento_val
+            self.fields['departamento'].widget.attrs['value'] = departamento_val
+            self.initial['departamento'] = departamento_val
+            self.fields['ciudad'].initial = ciudad_val
+            self.fields['ciudad'].widget.attrs['value'] = ciudad_val
+            self.initial['ciudad'] = ciudad_val
             # Establecer el cultivo y finca automáticamente
             self.fields['cultivo'].initial = crop
             self.fields['finca'].initial = crop.finca
@@ -121,12 +127,24 @@ class PublicationForm(forms.ModelForm):
         # Si estamos editando (instance existe), establecer ubicación desde la publicación
         elif self.instance and self.instance.pk:
             if self.instance.cultivo and self.instance.cultivo.finca:
-                self.fields['departamento'].initial = self.instance.cultivo.finca.departamento
-                self.fields['ciudad'].initial = self.instance.cultivo.finca.ciudad
+                departamento_val = self.instance.cultivo.finca.departamento or ''
+                ciudad_val = self.instance.cultivo.finca.ciudad or ''
+                self.fields['departamento'].initial = departamento_val
+                self.fields['departamento'].widget.attrs['value'] = departamento_val
+                self.initial['departamento'] = departamento_val
+                self.fields['ciudad'].initial = ciudad_val
+                self.fields['ciudad'].widget.attrs['value'] = ciudad_val
+                self.initial['ciudad'] = ciudad_val
             # Si la publicación tiene su propia ubicación guardada, usarla
             elif self.instance.departamento and self.instance.ciudad:
-                self.fields['departamento'].initial = self.instance.departamento
-                self.fields['ciudad'].initial = self.instance.ciudad
+                departamento_val = self.instance.departamento or ''
+                ciudad_val = self.instance.ciudad or ''
+                self.fields['departamento'].initial = departamento_val
+                self.fields['departamento'].widget.attrs['value'] = departamento_val
+                self.initial['departamento'] = departamento_val
+                self.fields['ciudad'].initial = ciudad_val
+                self.fields['ciudad'].widget.attrs['value'] = ciudad_val
+                self.initial['ciudad'] = ciudad_val
 
 
 class AdminPublicationForm(forms.ModelForm):
