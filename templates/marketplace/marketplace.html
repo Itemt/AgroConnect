@@ -8,6 +8,51 @@
 
 {% block title %}Marketplace{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Estilos para inputs y selects del formulario de búsqueda */
+    form input[type="text"],
+    form input[type="search"],
+    form input[type="number"],
+    form select {
+        color: #1f2937;
+        background-color: #ffffff;
+        border-color: #d1d5db;
+    }
+    
+    .dark form input[type="text"],
+    .dark form input[type="search"],
+    .dark form input[type="number"],
+    .dark form select {
+        color: #f9fafb;
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    .dark form input[type="text"]::placeholder,
+    .dark form input[type="search"]::placeholder {
+        color: #9ca3af;
+    }
+    
+    form input[type="text"]:focus,
+    form input[type="search"]:focus,
+    form input[type="number"]:focus,
+    form select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark form input[type="text"]:focus,
+    .dark form input[type="search"]:focus,
+    .dark form input[type="number"]:focus,
+    .dark form select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen py-8">
         <div class="w-full px-4 lg:px-8">
