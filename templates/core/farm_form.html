@@ -132,7 +132,8 @@
         </div>
 
         <!-- Form -->
-        <form method="post" id="farm-form" class="space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-10">
+            <form method="post" id="farm-form" class="space-y-6">
             {% csrf_token %}
             
             <!-- Información Básica -->
@@ -278,7 +279,8 @@
                             </div>
                         </div>
             </div>
-        </form>
+            </form>
+        </div>
         
         <!-- Botones de acción -->
         <div class="flex flex-col sm:flex-row gap-4 pt-6 mt-6 justify-end">

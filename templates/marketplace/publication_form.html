@@ -183,7 +183,9 @@
             </div>
         {% endif %}
 
-        <form method="post" enctype="multipart/form-data" id="publication-form" class="space-y-6">
+        <!-- Formulario -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-10">
+            <form method="post" enctype="multipart/form-data" id="publication-form" class="space-y-6">
                 {% csrf_token %}
                 <div class="space-y-6">
                     {% for field in form %}
@@ -262,8 +264,8 @@
                         <div id="image-preview" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 hidden"></div>
                     </div>
                 </div>
-
-        </form>
+            </form>
+        </div>
         
         <!-- Botones de acción -->
         <div class="flex flex-col sm:flex-row gap-4 pt-6 mt-6 justify-end">
