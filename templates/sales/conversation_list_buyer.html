@@ -6,7 +6,7 @@
 {% block page_title %}Mis Conversaciones{% endblock %}
 
 {% block buyer_content %}
-<div class="grid grid-cols-12 gap-4 md:gap-6 h-full">
+<div class="grid grid-cols-12 gap-4 md:gap-6">
 
     <!-- Conversations List -->
     <div class="col-span-12 flex-1">
@@ -56,7 +56,7 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 h-full flex items-center justify-center min-h-[calc(100vh-300px)]">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 flex items-center justify-center">
             <div class="text-center">
                 <i class="fas fa-comments text-gray-300 dark:text-gray-600 text-6xl mb-4"></i>
                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No tienes conversaciones activas</h3>
@@ -70,10 +70,5 @@
     </div>
 </div>
 
-<style>
-    .min-h-screen {
-        min-height: calc(100vh - 200px);
-    }
-</style>
 {% endblock %}
 

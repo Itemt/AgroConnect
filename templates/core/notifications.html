@@ -1,5 +1,12 @@
 {% extends base_template %}
 
+{% block extra_css %}
+<style>
+/* Make this page use full available width */
+#main-content > .mx-auto.max-w-7xl { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+</style>
+{% endblock %}
+
 {% block title %}Notificaciones{% endblock %}
 
 {% block page_title %}Notificaciones{% endblock %}
