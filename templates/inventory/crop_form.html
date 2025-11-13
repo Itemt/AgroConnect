@@ -4,6 +4,18 @@
 
 {% block producer_content %}
 <style>
+    /* Forzar que el contenedor principal ocupe todo el ancho disponible */
+    #main-content > div.p-4.mx-auto.max-w-7xl.md\:p-6 {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    #main-content footer.p-4.mx-auto.max-w-7xl.md\:p-6 {
+        max-width: 100%;
+        margin: 0;
+    }
+    
     /* Estilos para inputs, selects y textareas del formulario */
     form input[type="text"],
     form input[type="number"],
@@ -108,47 +120,34 @@
     }
 </style>
 
-<div class="min-h-screen">
+<div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8 min-h-screen" style="padding-bottom: 2rem !important;">
     <div class="max-w-5xl mx-auto">
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm mb-6">
-            <div class="p-6 lg:p-8">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div class="flex items-center">
-                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                            <i class="fas fa-seedling text-white text-2xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                {% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}
-                            </h1>
-                            <p class="text-gray-600 dark:text-gray-400 mt-1">
-                                {% if form.instance.pk %}Actualiza los detalles de tu cultivo{% else %}Rellena el formulario para añadir un nuevo cultivo{% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    <a href="{% url 'crop_list' %}" class="inline-flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors font-medium">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Volver
-                    </a>
-                </div>
+        <div class="text-center mb-10 lg:mb-12">
+            <div class="flex mb-4 items-center justify-center">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
+                </svg>
+                <span class="inline-block ml-2 text-sm font-medium text-green-900 dark:text-green-300">Cultivos</span>
             </div>
+            <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 dark:text-gray-100 mb-4">
+                {% if form.instance.pk %}Editar Cultivo{% else %}Añadir Nuevo Cultivo{% endif %}
+            </h1>
+            <p class="text-base lg:text-lg text-gray-700 dark:text-gray-300">
+                {% if form.instance.pk %}Actualiza los detalles de tu cultivo{% else %}Rellena el formulario para añadir un nuevo cultivo{% endif %}
+            </p>
         </div>
 
         <!-- Formulario -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div class="p-6 lg:p-8">
-                <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="crop-form" class="space-y-6">
                     {% csrf_token %}
                     
                     <!-- Información Básica -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-info-circle text-green-600 dark:text-green-400 text-sm"></i>
-                            </div>
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 dark:text-green-400 mr-3"></i>
                             Información Básica
-                        </h3>
+                        </h2>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Finca -->
@@ -182,13 +181,11 @@
                     </div>
 
                     <!-- Características del Cultivo -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-leaf text-blue-600 dark:text-blue-400 text-sm"></i>
-                            </div>
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-leaf text-green-600 dark:text-green-400 mr-3"></i>
                             Características del Cultivo
-                        </h3>
+                        </h2>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Categoría -->
@@ -222,13 +219,11 @@
                     </div>
 
                     <!-- Cantidad y Medida -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-weight text-purple-600 dark:text-purple-400 text-sm"></i>
-                            </div>
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-weight text-green-600 dark:text-green-400 mr-3"></i>
                             Cantidad y Medida
-                        </h3>
+                        </h2>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Cantidad Estimada -->
@@ -262,13 +257,11 @@
                     </div>
 
                     <!-- Estado y Fechas -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-calendar text-orange-600 dark:text-orange-400 text-sm"></i>
-                            </div>
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-calendar text-green-600 dark:text-green-400 mr-3"></i>
                             Estado y Fechas
-                        </h3>
+                        </h2>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Estado -->
@@ -303,17 +296,15 @@
                     </div>
 
                     <!-- Notas Adicionales -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-sticky-note text-yellow-600 dark:text-yellow-500 text-sm"></i>
-                            </div>
+                    <div class="mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-sticky-note text-green-600 dark:text-green-400 mr-3"></i>
                             Notas Adicionales
-                        </h3>
+                        </h2>
                         
                         <div>
                             <label for="{{ form.notas.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                <i class="fas fa-comment text-yellow-600 dark:text-yellow-500 mr-2"></i>{{ form.notas.label }}
+                                <i class="fas fa-comment text-green-600 dark:text-green-400 mr-2"></i>{{ form.notas.label }}
                             </label>
                             {{ form.notas }}
                             {% if form.notas.help_text %}
@@ -324,20 +315,18 @@
                             {% endfor %}
                         </div>
                     </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{% url 'crop_list' %}" class="flex-1 inline-flex items-center justify-center px-6 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">
-                            <i class="fas fa-times mr-2"></i>
-                            Cancelar
-                        </a>
-                        <button type="submit" class="flex-1 inline-flex items-center justify-center px-6 py-3.5 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-xl font-medium shadow-sm hover:shadow-md transition-all">
-                            <i class="fas fa-save mr-2"></i>
-                            {% if form.instance.pk %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}
-                        </button>
-                    </div>
-                </form>
-            </div>
+        </form>
+        
+        <!-- Botones de acción -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-6 mt-6">
+            <a href="{% url 'crop_list' %}" class="flex-1 inline-flex items-center justify-center px-6 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">
+                <i class="fas fa-times mr-2"></i>
+                Cancelar
+            </a>
+            <button type="submit" form="crop-form" class="flex-1 inline-flex items-center justify-center py-3 px-8 text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+                <i class="fas fa-save mr-2"></i>
+                {% if form.instance.pk %}Guardar Cambios{% else %}Añadir Cultivo{% endif %}
+            </button>
         </div>
     </div>
 </div>
