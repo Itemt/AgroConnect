@@ -5,9 +5,26 @@ import resend
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.contrib.sites.models import Site
 import logging
 
 logger = logging.getLogger(__name__)
+
+def get_logo_url():
+    """Obtiene la URL absoluta del logo para usar en emails"""
+    try:
+        site = Site.objects.get_current()
+        domain = site.domain
+        # Asegurar que tenga protocolo
+        if not domain.startswith('http'):
+            domain = f"https://{domain}"
+        return f"{domain}/static/images/LOGO.png"
+    except:
+        # Fallback si no hay Site configurado
+        domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
+        if not domain.startswith('http'):
+            domain = f"https://{domain}"
+        return f"{domain}/static/images/LOGO.png"
 
 class EmailService:
     def __init__(self):
@@ -34,7 +51,8 @@ class EmailService:
                 'user_name': user_name or 'Usuario',
                 'reset_url': reset_url,
                 'recovery_code': recovery_code,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             # Renderizar template HTML del email
@@ -80,7 +98,8 @@ class EmailService:
                 'order': order,
                 'qr_code': buyer_qr,
                 'order_url': buyer_url,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             html_content = render_to_string('sales/order_buyer_confirmation_email.html', context)
@@ -110,7 +129,8 @@ class EmailService:
             context = {
                 'seller_name': seller_name or 'Productor',
                 'order': order,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             html_content = render_to_string('sales/order_paid_seller_email.html', context)
             text_content = strip_tags(html_content)
@@ -143,7 +163,8 @@ class EmailService:
                 'order': order,
                 'qr_code': qr_code,
                 'order_url': order_url,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             html_content = render_to_string('sales/order_buyer_confirmation_email.html', context)
@@ -180,7 +201,8 @@ class EmailService:
                 'order': order,
                 'qr_code': qr_code,
                 'order_url': order_url,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             html_content = render_to_string('sales/order_seller_notification_email.html', context)
@@ -217,7 +239,8 @@ class EmailService:
                 'order': order,
                 'qr_code': qr_code,
                 'order_url': order_url,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             html_content = render_to_string('sales/order_in_transit_email.html', context)
@@ -256,7 +279,8 @@ class EmailService:
                 'order_url': order_url,
                 'buyer_rating': buyer_rating,
                 'seller_rating': seller_rating,
-                'site_name': 'AgroConnect'
+                'site_name': 'AgroConnect',
+                'logo_url': get_logo_url()
             }
             
             html_content = render_to_string('sales/order_received_seller_email.html', context)

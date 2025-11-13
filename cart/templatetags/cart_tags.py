@@ -1,4 +1,5 @@
 from django import template
+from decimal import Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -22,3 +23,24 @@ class CaptureAsVarNode(template.Node):
         output = self.nodelist.render(context)
         context[self.var_name] = output.strip()
         return ''
+
+
+@register.filter
+def decimal_input(value, decimals=1):
+    """
+    Formatea un número para inputs HTML type=number garantizando punto decimal.
+    """
+    try:
+        decimals = int(decimals)
+    except (TypeError, ValueError):
+        decimals = 1
+
+    try:
+        number = Decimal(str(value))
+        formatted = format(number, f'.{decimals}f')
+    except (InvalidOperation, TypeError, ValueError):
+        try:
+            formatted = format(float(value), f'.{decimals}f')
+        except (TypeError, ValueError):
+            return ''
+    return formatted

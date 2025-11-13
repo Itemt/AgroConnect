@@ -4,7 +4,7 @@
 {% block og_description %}Revisa tus productos y procede al pago con MercadoPago. Compra directa al productor en AgroConnect.{% endblock %}
 {% block twitter_title %}Mi Carrito • AgroConnect{% endblock %}
 {% block twitter_description %}Tu carrito en AgroConnect listo para pagar de forma segura.{% endblock %}
-{% load cart_tags %}
+{% load cart_tags l10n %}
 
 {% block title %}Mi Carrito de Compras{% endblock %}
 
@@ -156,7 +156,7 @@
                                                     <button type="button" onclick="decreaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
                                                         <i class="fas fa-minus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
-                                                    <input type="number" name="quantity" value="{% if item.quantity %}{{ item.quantity|floatformat:1 }}{% else %}0.0{% endif %}" min="0" step="0.1"
+                                                    <input type="number" name="quantity" value="{{ item.quantity|decimal_input:1|default:'0.0' }}" min="0" step="0.1"
                                                            class="w-14 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100 h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                                                     <button type="button" onclick="increaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
                                                         <i class="fas fa-plus text-xs text-gray-600 dark:text-gray-300"></i>
@@ -231,24 +231,6 @@
                             <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Total</span>
                             <span class="text-2xl font-bold text-green-700 dark:text-green-400">${{ cart.get_total_price|floatformat:2 }}</span>
                         </div>
-
-                        <!-- Resumen de Cantidades por Unidad -->
-                        {% if cart.totals_by_unit_items %}
-                        <div class="mt-2 text-sm">
-                            <div class="text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
-                                <i class="fas fa-weight-hanging text-green-600 mr-2"></i>
-                                Cantidades por unidad
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                {% for unidad, cantidad in cart.totals_by_unit_items %}
-                                <span class="inline-flex items-center px-3 py-1 rounded-full border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-100">
-                                    <span class="font-semibold mr-1">{{ cantidad|floatformat:1 }}</span>
-                                    <span class="uppercase tracking-wide text-xs">{{ unidad }}</span>
-                                </span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
                         
                         {% if cart.has_invalid_items %}
                         <div class="mb-4 p-3 rounded-xl border-2 border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">
