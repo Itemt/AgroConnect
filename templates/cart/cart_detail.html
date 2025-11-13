@@ -37,6 +37,28 @@
         border-color: #60a5fa;
         box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
     }
+    
+    /* Estilos específicos para el input de cantidad en el control unificado */
+    .flex.items-center input[name="quantity"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    
+    .dark .flex.items-center input[name="quantity"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    
+    .flex.items-center input[name="quantity"]:focus {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -152,13 +174,13 @@
                                                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Cantidad:</span>
                                                 
                                                 <!-- Control de cantidad compacto -->
-                                                <div class="flex items-center border border-gray-300 dark:border-slate-600 rounded-md overflow-hidden h-8">
-                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
+                                                <div class="flex items-center h-8 border border-gray-300 dark:border-slate-600 rounded-md overflow-hidden">
+                                                    <button type="button" onclick="decreaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center border-r border-gray-300 dark:border-slate-600">
                                                         <i class="fas fa-minus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
                                                     <input type="number" name="quantity" value="{{ item.quantity|decimal_input:1|default:'0.0' }}" min="0" step="0.1"
-                                                           class="w-14 text-center border-0 focus:ring-0 focus:outline-none bg-white dark:bg-slate-700 text-sm font-medium text-gray-900 dark:text-gray-100 h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                                                    <button type="button" onclick="increaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center">
+                                                           class="w-14 text-center border-0 focus:ring-0 focus:outline-none bg-transparent text-sm font-medium text-gray-900 dark:text-gray-100 h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                    <button type="button" onclick="increaseQuantity(this)" class="px-2.5 h-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors flex items-center border-l border-gray-300 dark:border-slate-600">
                                                         <i class="fas fa-plus text-xs text-gray-600 dark:text-gray-300"></i>
                                                     </button>
                                                 </div>
