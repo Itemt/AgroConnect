@@ -171,7 +171,7 @@
 
 <!-- Modal de confirmación de eliminación -->
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
-    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="deleteModalContent">
         <!-- Header -->
         <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
             <div class="flex items-center">
@@ -183,18 +183,18 @@
         </div>
 
         <!-- Body -->
-        <div class="px-6 py-6">
-            <p class="text-gray-700 text-lg mb-4">
-                Estás a punto de eliminar permanentemente la publicación de <strong id="publicationName" class="text-gray-900"></strong>.
+        <div class="px-6 py-6 bg-white dark:bg-gray-800">
+            <p class="text-gray-700 dark:text-gray-300 text-lg mb-4">
+                Estás a punto de eliminar permanentemente la publicación de <strong id="publicationName" class="text-gray-900 dark:text-white"></strong>.
             </p>
             
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-4">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 p-4 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-blue-500"></i>
+                        <i class="fas fa-info-circle text-blue-500 dark:text-blue-400"></i>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-blue-700">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
                             <strong>Precio:</strong> $<span id="publicationPrice"></span><br>
                             <strong>Cantidad:</strong> <span id="publicationQuantity"></span>
                         </p>
@@ -202,16 +202,16 @@
                 </div>
             </div>
             
-            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-4">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 dark:border-yellow-600 p-4 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                        <i class="fas fa-exclamation-circle text-yellow-600 dark:text-yellow-400"></i>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-yellow-700 font-medium mb-2">
+                        <p class="text-sm text-yellow-700 dark:text-yellow-300 font-medium mb-2">
                             Consecuencias:
                         </p>
-                        <ul class="text-sm text-yellow-700 space-y-1">
+                        <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
                             <li><i class="fas fa-times-circle mr-1"></i> La publicación será eliminada del marketplace</li>
                             <li><i class="fas fa-check-circle mr-1"></i> El cultivo asociado se mantendrá en tu inventario</li>
                             <li><i class="fas fa-ban mr-1"></i> Esta acción es irreversible</li>
@@ -220,10 +220,10 @@
                 </div>
             </div>
 
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+            <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 p-4 rounded mb-4">
                 <label class="flex items-start cursor-pointer">
-                    <input type="checkbox" id="confirmDeletePublicationCheckbox" class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="ml-2 text-sm text-red-700 font-medium">
+                    <input type="checkbox" id="confirmDeletePublicationCheckbox" class="mt-1 h-4 w-4 text-red-600 border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded focus:ring-red-500">
+                    <span class="ml-2 text-sm text-red-700 dark:text-red-300 font-medium">
                         Confirmo que quiero eliminar esta publicación permanentemente.
                     </span>
                 </label>
@@ -232,7 +232,7 @@
             <!-- Botones -->
             <div class="flex gap-3">
                 <button onclick="closeDeleteModal()" 
-                        class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
                 <form id="deleteForm" method="post" class="flex-1">

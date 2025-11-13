@@ -300,6 +300,17 @@
                 width: 100%;
             }
         }
+        
+        /* Ocultar todas las barras de desplazamiento verticales */
+        * {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            -webkit-overflow-scrolling: touch; /* Mantener scroll funcional pero sin barra visible */
+        }
+        
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
     </style>
     
     {% block extra_css %}{% endblock %}

@@ -172,7 +172,7 @@
 
 <!-- Modal de confirmación de eliminación -->
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
-    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="deleteModalContent">
         <!-- Header -->
         <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
             <div class="flex items-center">
@@ -184,18 +184,18 @@
         </div>
 
         <!-- Body -->
-        <div class="px-6 py-6">
-            <p class="text-gray-700 text-lg mb-4">
-                Estás a punto de eliminar permanentemente la finca <strong id="farmName" class="text-gray-900"></strong>.
+        <div class="px-6 py-6 bg-white dark:bg-gray-800">
+            <p class="text-gray-700 dark:text-gray-300 text-lg mb-4">
+                Estás a punto de eliminar permanentemente la finca <strong id="farmName" class="text-gray-900 dark:text-white"></strong>.
             </p>
             
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+            <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 p-4 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                        <i class="fas fa-exclamation-circle text-red-500 dark:text-red-400"></i>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700">
+                        <p class="text-sm text-red-700 dark:text-red-300">
                             <strong>Se eliminarán también:</strong><br>
                             • <span id="cropsCount"></span> cultivo(s) asociado(s)<br>
                             • Todas las publicaciones de esta finca<br>
@@ -205,23 +205,23 @@
                 </div>
             </div>
             
-            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-4">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 dark:border-yellow-600 p-4 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-yellow-500"></i>
+                        <i class="fas fa-info-circle text-yellow-500 dark:text-yellow-400"></i>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-yellow-700">
+                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
                             <strong>Esta acción es irreversible.</strong> No podrás recuperar los datos eliminados.
                         </p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-50 border border-gray-200 rounded p-4 mb-6">
+            <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded p-4 mb-6">
                 <label class="flex items-center cursor-pointer">
-                    <input type="checkbox" id="confirmDeleteCheckbox" class="form-checkbox h-5 w-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="ml-3 text-sm font-medium text-gray-700">
+                    <input type="checkbox" id="confirmDeleteCheckbox" class="form-checkbox h-5 w-5 text-red-600 border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded focus:ring-red-500">
+                    <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                         Entiendo que esta acción eliminará permanentemente la finca y todos sus datos asociados.
                     </span>
                 </label>
@@ -232,7 +232,7 @@
                 {% csrf_token %}
                 <div class="flex space-x-3">
                     <button type="button" onclick="closeDeleteModal()" 
-                            class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200">
+                            class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
                         Cancelar
                     </button>
                     <button type="submit" id="confirmDeleteButton" 

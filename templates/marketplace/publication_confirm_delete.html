@@ -5,7 +5,7 @@
 {% block producer_content %}
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Header con gradiente -->
-    <div class="card mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 mb-6">
         <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-8 rounded-t-lg">
             <div class="flex items-center justify-center">
                 <div class="bg-white bg-opacity-20 rounded-full p-4 mr-4">
@@ -19,20 +19,20 @@
         </div>
 
         <!-- Contenido -->
-        <div class="px-6 py-8">
-            <p class="text-gray-700 text-lg mb-6">
-                ¿Estás seguro de que quieres eliminar la publicación de <strong class="text-gray-900">{{ publication.cultivo.nombre }}</strong>?
+        <div class="px-6 py-8 bg-white dark:bg-gray-800">
+            <p class="text-gray-700 dark:text-gray-300 text-lg mb-6">
+                ¿Estás seguro de que quieres eliminar la publicación de <strong class="text-gray-900 dark:text-white">{{ publication.cultivo.nombre }}</strong>?
             </p>
 
             <!-- Información de la publicación -->
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 p-4 rounded mb-6">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+                        <i class="fas fa-info-circle text-blue-500 dark:text-blue-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800 mb-2">Detalles de la publicación:</h3>
-                        <div class="text-sm text-blue-700 space-y-1">
+                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Detalles de la publicación:</h3>
+                        <div class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                             <p><strong>Cultivo:</strong> {{ publication.cultivo.nombre }}</p>
                             <p><strong>Precio:</strong> ${{ publication.precio_por_unidad }} por {{ publication.cultivo.unidad_medida }}</p>
                             <p><strong>Cantidad disponible:</strong> {{ publication.cantidad_disponible }} {{ publication.cultivo.unidad_medida }}</p>
@@ -43,14 +43,14 @@
             </div>
 
             <!-- Advertencia -->
-            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 dark:border-yellow-600 p-4 rounded mb-6">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                        <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800 mb-2">Ten en cuenta:</h3>
-                        <ul class="text-sm text-yellow-700 space-y-1 list-disc list-inside">
+                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-2">Ten en cuenta:</h3>
+                        <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1 list-disc list-inside">
                             <li>La publicación será eliminada del marketplace</li>
                             <li>El cultivo asociado se mantendrá en tu inventario</li>
                             <li>Los pedidos existentes no se verán afectados</li>
@@ -65,11 +65,11 @@
                 {% csrf_token %}
                 <div class="flex gap-4">
                     {% if user.is_staff %}
-                        <a href="{% url 'admin_publication_list' %}" class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-center">
+                        <a href="{% url 'admin_publication_list' %}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold text-center">
                             <i class="fas fa-arrow-left mr-2"></i>Cancelar
                         </a>
                     {% else %}
-                        <a href="{% url 'my_publications' %}" class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-center">
+                        <a href="{% url 'my_publications' %}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold text-center">
                             <i class="fas fa-arrow-left mr-2"></i>Cancelar
                         </a>
                     {% endif %}
