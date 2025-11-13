@@ -154,7 +154,7 @@
                             <!-- Finca -->
                             <div>
                                 <label for="{{ form.finca.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-tractor text-green-600 dark:text-green-400 mr-2"></i>{{ form.finca.label }}
+                                    <i class="fas fa-tractor text-green-600 dark:text-green-400 mr-2"></i>{{ form.finca.label }}{% if form.finca.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.finca }}
                                 {% if form.finca.help_text %}
@@ -168,7 +168,7 @@
                             <!-- Nombre -->
                             <div>
                                 <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-seedling text-green-600 dark:text-green-400 mr-2"></i>{{ form.nombre.label }}
+                                    <i class="fas fa-seedling text-green-600 dark:text-green-400 mr-2"></i>{{ form.nombre.label }}{% if form.nombre.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.nombre }}
                                 {% if form.nombre.help_text %}
@@ -194,7 +194,7 @@
                             <!-- Categoría -->
                             <div>
                                 <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-tag text-blue-600 dark:text-blue-400 mr-2"></i>{{ form.categoria.label }}
+                                    <i class="fas fa-tag text-blue-600 dark:text-blue-400 mr-2"></i>{{ form.categoria.label }}{% if form.categoria.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.categoria }}
                                 {% if form.categoria.help_text %}
@@ -208,7 +208,7 @@
                             <!-- Área Ocupada -->
                             <div>
                                 <label for="{{ form.area_ocupada.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-ruler text-blue-600 dark:text-blue-400 mr-2"></i>{{ form.area_ocupada.label }}
+                                    <i class="fas fa-ruler text-blue-600 dark:text-blue-400 mr-2"></i>{{ form.area_ocupada.label }}{% if form.area_ocupada.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.area_ocupada }}
                                 {% if form.area_ocupada.help_text %}
@@ -234,7 +234,7 @@
                             <!-- Cantidad Estimada -->
                             <div>
                                 <label for="{{ form.cantidad_estimada.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-calculator text-purple-600 dark:text-purple-400 mr-2"></i>{{ form.cantidad_estimada.label }}
+                                    <i class="fas fa-calculator text-purple-600 dark:text-purple-400 mr-2"></i>{{ form.cantidad_estimada.label }}{% if form.cantidad_estimada.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.cantidad_estimada }}
                                 {% if form.cantidad_estimada.help_text %}
@@ -248,7 +248,7 @@
                             <!-- Unidad de Medida -->
                             <div>
                                 <label for="{{ form.unidad_medida.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-balance-scale text-purple-600 dark:text-purple-400 mr-2"></i>{{ form.unidad_medida.label }}
+                                    <i class="fas fa-balance-scale text-purple-600 dark:text-purple-400 mr-2"></i>{{ form.unidad_medida.label }}{% if form.unidad_medida.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.unidad_medida }}
                                 {% if form.unidad_medida.help_text %}
@@ -274,7 +274,7 @@
                             <!-- Estado -->
                             <div>
                                 <label for="{{ form.estado.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
-                                    <i class="fas fa-info-circle text-orange-600 dark:text-orange-400 mr-2"></i>{{ form.estado.label }}
+                                    <i class="fas fa-info-circle text-orange-600 dark:text-orange-400 mr-2"></i>{{ form.estado.label }}{% if form.estado.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.estado }}
                                 {% if form.estado.help_text %}
@@ -289,6 +289,7 @@
                             <div>
                                 <label for="{{ form.fecha_disponibilidad.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2.5">
                                     <i class="fas fa-calendar text-orange-600 dark:text-orange-400 mr-2"></i>{{ form.fecha_disponibilidad.label }}
+                                    {% if form.fecha_disponibilidad.field.required %}<span class="text-red-500">*</span>{% endif %}
                                 </label>
                                 {{ form.fecha_disponibilidad }}
                                 {% if form.fecha_disponibilidad.help_text %}
@@ -340,4 +341,156 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleFechaDisponibilidad() {
+    const estadoSelect = document.getElementById('id_estado');
+    const fechaInput = document.getElementById('id_fecha_disponibilidad');
+    const fechaLabel = document.querySelector('label[for="id_fecha_disponibilidad"]');
+    
+    if (estadoSelect && fechaInput && fechaLabel) {
+        const estado = estadoSelect.value;
+        
+        if (estado === 'cosechado') {
+            // Si es cosechado, hacer el campo opcional
+            fechaInput.removeAttribute('required');
+            fechaInput.required = false;
+            // Remover el asterisco y agregar (Opcional)
+            let labelText = fechaLabel.innerHTML;
+            // Remover asterisco rojo si existe
+            labelText = labelText.replace(/<span class="text-red-500">\*<\/span>/g, '');
+            // Remover (Opcional) si ya existe
+            labelText = labelText.replace(/<span[^>]*>\(Opcional\)<\/span>/g, '');
+            // Agregar (Opcional)
+            fechaLabel.innerHTML = labelText.trim() + ' <span class="text-gray-500 dark:text-gray-400">(Opcional)</span>';
+        } else {
+            // Si no es cosechado, hacer el campo obligatorio
+            fechaInput.setAttribute('required', 'required');
+            fechaInput.required = true;
+            // Remover (Opcional) y agregar asterisco
+            let labelText = fechaLabel.innerHTML;
+            // Remover (Opcional) si existe
+            labelText = labelText.replace(/<span[^>]*>\(Opcional\)<\/span>/g, '');
+            // Agregar asterisco si no existe
+            if (!labelText.includes('text-red-500')) {
+                fechaLabel.innerHTML = labelText.trim() + ' <span class="text-red-500">*</span>';
+            } else {
+                fechaLabel.innerHTML = labelText.trim();
+            }
+        }
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFechaDisponibilidad();
+    
+    // Agregar listener al cambio de estado
+    const estadoSelect = document.getElementById('id_estado');
+    if (estadoSelect) {
+        estadoSelect.addEventListener('change', toggleFechaDisponibilidad);
+    }
+    
+    // Hacer scroll al primer campo con error después de que se renderice el formulario
+    setTimeout(function() {
+        scrollToFirstError();
+    }, 100);
+});
+
+// Función para hacer scroll al primer campo con error
+function scrollToFirstError() {
+    // Buscar todos los elementos con errores (Django usa .errorlist)
+    const errorLists = document.querySelectorAll('.errorlist, p.text-red-600, p.text-red-400');
+    
+    if (errorLists.length > 0) {
+        let targetElement = null;
+        
+        // Para cada lista de errores, buscar el campo asociado
+        for (let errorElement of errorLists) {
+            // Buscar el div padre que contiene el campo
+            const parentDiv = errorElement.closest('div');
+            if (parentDiv) {
+                // Buscar el input, select o textarea dentro del mismo div
+                const field = parentDiv.querySelector('input, select, textarea');
+                if (field) {
+                    targetElement = field;
+                    break;
+                }
+            }
+        }
+        
+        // Si no encontramos por el método anterior, buscar por el label
+        if (!targetElement) {
+            for (let errorElement of errorLists) {
+                const parentDiv = errorElement.closest('div');
+                if (parentDiv) {
+                    // Buscar el label anterior
+                    const label = parentDiv.querySelector('label');
+                    if (label && label.getAttribute('for')) {
+                        const fieldId = label.getAttribute('for');
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            targetElement = field;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Si encontramos un elemento, hacer scroll y enfocar
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(function() {
+                targetElement.focus();
+                // Agregar un borde rojo temporalmente para destacar el campo
+                targetElement.style.borderColor = '#ef4444';
+                targetElement.style.borderWidth = '2px';
+                setTimeout(function() {
+                    targetElement.style.borderColor = '';
+                    targetElement.style.borderWidth = '';
+                }, 3000);
+            }, 300);
+        } else if (errorLists.length > 0) {
+            // Si no encontramos el campo, hacer scroll al primer error
+            errorLists[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+// Interceptar el submit del formulario para validar antes de enviar
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Validar campos requeridos antes de enviar
+            const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let firstInvalidField = null;
+            
+            requiredFields.forEach(function(field) {
+                // Verificar si el campo está vacío
+                if (!field.value || field.value.trim() === '') {
+                    if (!firstInvalidField) {
+                        firstInvalidField = field;
+                    }
+                    // Agregar clase de error
+                    field.classList.add('border-red-500');
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+            
+            // Si hay campos inválidos, hacer scroll al primero
+            if (firstInvalidField) {
+                e.preventDefault();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+                firstInvalidField.style.borderColor = '#ef4444';
+                firstInvalidField.style.borderWidth = '2px';
+                return false;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

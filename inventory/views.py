@@ -110,7 +110,37 @@ def crop_list_view(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
+    from django.utils import timezone
+    from datetime import timedelta, date
+    
     crops = request.user.cultivos.order_by('-created_at')
+    
+    # Obtener cultivos prontos a cosechar
+    fecha_hoy = timezone.now().date()
+    fecha_limite = fecha_hoy + timedelta(days=30)  # Próximos 30 días
+    
+    # Cultivos con fecha de disponibilidad en los próximos 30 días (excluyendo cosechados)
+    crops_con_fecha = crops.filter(
+        fecha_disponibilidad__isnull=False,
+        fecha_disponibilidad__gte=fecha_hoy,
+        fecha_disponibilidad__lte=fecha_limite
+    ).exclude(estado='cosechado')
+    
+    # También incluir cultivos en estado "listo_para_cosechar" (con o sin fecha)
+    crops_listos = crops.filter(estado='listo_para_cosechar').exclude(estado='cosechado')
+    
+    # Combinar y ordenar por fecha
+    # Primero los que tienen fecha (ordenados por fecha), luego los que no tienen fecha
+    crops_prontos_cosechar = (crops_con_fecha | crops_listos).distinct()
+    
+    # Ordenar: primero los que tienen fecha (ascendente), luego los que no tienen fecha
+    crops_prontos_cosechar = sorted(
+        list(crops_prontos_cosechar),
+        key=lambda x: (x.fecha_disponibilidad is None, x.fecha_disponibilidad or date.max)
+    )
+    
+    # Obtener cultivos cosechados ordenados por fecha de disponibilidad (más recientes primero)
+    crops_cosechados = crops.filter(estado='cosechado').order_by('-fecha_disponibilidad', '-created_at')
     
     # Calcular estadísticas
     total_crops = crops.count()
@@ -168,6 +198,8 @@ def crop_list_view(request):
     
     context = {
         'crops': crops,
+        'crops_prontos_cosechar': crops_prontos_cosechar,
+        'crops_cosechados': crops_cosechados,
         'total_crops': total_crops,
         'total_fincas': total_fincas,
         'total_publicaciones': total_publicaciones,

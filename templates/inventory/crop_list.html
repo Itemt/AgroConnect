@@ -58,6 +58,26 @@
             </div>
         </div>
 
+        <!-- Cuadro Informativo TailAdmin -->
+        <div class="mb-6 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4 sm:p-5">
+            <div class="flex items-start">
+                <div class="shrink-0">
+                    <div class="inline-flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
+                        <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 text-sm sm:text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-3 sm:ml-4 flex-1">
+                    <h3 class="mb-1 sm:mb-1.5 text-sm sm:text-base font-semibold text-blue-900 dark:text-blue-300">
+                        Requisitos para Publicar
+                    </h3>
+                    <p class="text-xs sm:text-sm leading-relaxed text-blue-800 dark:text-blue-400">
+                        Solo los cultivos en estado <span class="font-bold">"Cosechado"</span> pueden ser publicados en el marketplace. 
+                        Cambia el estado de tu cultivo a "Cosechado" cuando esté listo para vender.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="metrics-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3 md:gap-4 mb-6 auto-rows-fr">
             <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
@@ -117,11 +137,13 @@
                         <i class="fas fa-cubes text-indigo-600 dark:text-indigo-400 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        {% if cantidad_no_convertible.unidades %}
-                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.unidades|floatformat:0 }}</h3>
-                        {% else %}
-                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
-                        {% endif %}
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            {% if cantidad_no_convertible.unidades %}
+                                {{ cantidad_no_convertible.unidades|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
                         <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Unidades</p>
                     </div>
                 </div>
@@ -134,11 +156,13 @@
                         <i class="fas fa-box text-cyan-600 dark:text-cyan-400 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        {% if cantidad_no_convertible.cajas %}
-                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.cajas|floatformat:0 }}</h3>
-                        {% else %}
-                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
-                        {% endif %}
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            {% if cantidad_no_convertible.cajas %}
+                                {{ cantidad_no_convertible.cajas|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
                         <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Cajas</p>
                     </div>
                 </div>
@@ -148,19 +172,111 @@
             <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-sack text-amber-600 dark:text-amber-400 text-xl"></i>
+                        <i class="fas fa-boxes text-amber-600 dark:text-amber-400 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        {% if cantidad_no_convertible.bultos %}
-                            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_no_convertible.bultos|floatformat:0 }}</h3>
-                        {% else %}
-                            <h3 class="text-3xl font-bold text-gray-300 dark:text-gray-600">0</h3>
-                        {% endif %}
+                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            {% if cantidad_no_convertible.bultos %}
+                                {{ cantidad_no_convertible.bultos|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
                         <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Bultos</p>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Sección: Cultivos Prontos a Cosechar / Cosechados -->
+        {% if crops_prontos_cosechar or crops_cosechados %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-calendar-check text-green-600 dark:text-green-400 mr-3"></i>
+                    Cultivos Prontos a Cosechar / Cosechados
+                </h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Cultivos Prontos a Cosechar -->
+                {% for crop in crops_prontos_cosechar %}
+                <div class="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-800 p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-lg mb-1">{{ crop.nombre }}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.get_categoria_display }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                            <i class="fas fa-clock mr-1"></i>
+                            Pronto
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-calendar text-green-600 dark:text-green-400 mr-2 w-4"></i>
+                            <span class="font-semibold">Cosecha:</span>
+                            <span class="ml-2">{{ crop.fecha_disponibilidad|date:"d M Y" }}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-weight text-blue-600 dark:text-blue-400 mr-2 w-4"></i>
+                            <span>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</span>
+                        </div>
+                        <div class="pt-2 border-t border-green-200 dark:border-green-800">
+                            <a href="{% url 'crop_detail' crop.pk %}" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium">
+                                Ver detalles <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Cultivos Cosechados -->
+                {% for crop in crops_cosechados %}
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-lg mb-1">{{ crop.nombre }}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.get_categoria_display }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            Cosechado
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-calendar-check text-purple-600 dark:text-purple-400 mr-2 w-4"></i>
+                            <span class="font-semibold">Cosechado:</span>
+                            <span class="ml-2">
+                                {% if crop.fecha_disponibilidad %}
+                                    {{ crop.fecha_disponibilidad|date:"d M Y" }}
+                                {% else %}
+                                    No registrada
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-weight text-blue-600 dark:text-blue-400 mr-2 w-4"></i>
+                            <span>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</span>
+                        </div>
+                        <div class="pt-2 border-t border-purple-200 dark:border-purple-800 flex gap-2">
+                            <a href="{% url 'crop_detail' crop.pk %}" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium">
+                                Ver detalles <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                            {% if not crop.publicacion %}
+                            <span class="text-gray-400 dark:text-gray-500">|</span>
+                            <a href="{% url 'publication_create' crop.pk %}" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium">
+                                Publicar <i class="fas fa-share ml-1"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
         
         <!-- Cultivos List -->
         {% if crops %}
@@ -242,7 +358,7 @@
                                     <i class="fas fa-store-slash text-gray-400 mr-2"></i>
                                     <span class="text-xs sm:text-sm font-medium text-gray-600">Sin publicar</span>
                                 </div>
-                                {% if crop.estado == 'listo_para_cosechar' or crop.estado == 'cosechado' %}
+                                {% if crop.estado == 'cosechado' %}
                                     <a href="{% url 'publication_create' crop.pk %}" 
                                        class="text-green-600 hover:text-green-700 text-xs sm:text-sm font-medium">
                                         <i class="fas fa-share mr-1"></i>Publicar

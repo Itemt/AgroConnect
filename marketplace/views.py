@@ -159,6 +159,11 @@ def publication_create_view(request, crop_id):
     
     crop = get_object_or_404(Crop, pk=crop_id, productor=request.user)
     
+    # Verificar que el cultivo esté en estado cosechado
+    if crop.estado != 'cosechado':
+        messages.error(request, 'Solo puedes publicar cultivos que estén en estado "Cosechado".')
+        return redirect('select_crop_for_publication')
+    
     # Verificar si ya existe una publicación activa para este cultivo
     existing_publication = Publication.objects.filter(cultivo=crop, estado='Activa').first()
     if existing_publication:

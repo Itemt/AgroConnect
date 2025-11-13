@@ -145,6 +145,19 @@ class PublicationForm(forms.ModelForm):
                 self.fields['ciudad'].initial = ciudad_val
                 self.fields['ciudad'].widget.attrs['value'] = ciudad_val
                 self.initial['ciudad'] = ciudad_val
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        cultivo = cleaned_data.get('cultivo')
+        
+        # Validar que el cultivo esté en estado 'cosechado' solo al crear (no al editar)
+        if cultivo and not self.instance.pk:
+            if cultivo.estado != 'cosechado':
+                raise forms.ValidationError(
+                    'Solo puedes crear publicaciones para cultivos que estén en estado "Cosechado".'
+                )
+        
+        return cleaned_data
 
 
 class AdminPublicationForm(forms.ModelForm):
@@ -269,6 +282,13 @@ class AdminPublicationForm(forms.ModelForm):
         finca = cleaned_data.get('finca')
         cantidad_disponible = cleaned_data.get('cantidad_disponible')
         cantidad_minima = cleaned_data.get('cantidad_minima')
+        
+        # Validar que el cultivo esté en estado 'cosechado' solo al crear (no al editar)
+        if cultivo and not self.instance.pk:
+            if cultivo.estado != 'cosechado':
+                raise forms.ValidationError(
+                    'Solo se pueden crear publicaciones para cultivos que estén en estado "Cosechado".'
+                )
         
         # Verificar que la finca pertenezca al productor del cultivo
         if cultivo and finca:

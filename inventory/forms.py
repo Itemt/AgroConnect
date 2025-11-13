@@ -56,13 +56,26 @@ class CropForm(forms.ModelForm):
             'unidad_medida': 'Unidad de Medida',
             'area_ocupada': 'Área Ocupada (hectáreas)',
             'estado': 'Estado del Cultivo',
-            'fecha_disponibilidad': 'Fecha de Disponibilidad',
+            'fecha_disponibilidad': 'Fecha aproximada de disponibilidad',
             'notas': 'Notas Adicionales'
+        }
+        
+        help_texts = {
+            'fecha_disponibilidad': 'Fecha estimada cuando el cultivo estará listo para cosechar. Obligatoria para todos los estados excepto "Cosechado".',
         }
     
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        
+        # Hacer todos los campos obligatorios excepto notas
+        self.fields['nombre'].required = True
+        self.fields['categoria'].required = True
+        self.fields['cantidad_estimada'].required = True
+        self.fields['unidad_medida'].required = True
+        self.fields['area_ocupada'].required = True
+        self.fields['estado'].required = True
+        # notas permanece opcional (no se establece required)
         
         # Filtrar solo las fincas activas del usuario
         if user:
@@ -73,24 +86,66 @@ class CropForm(forms.ModelForm):
             self.fields['finca'].required = True
         else:
             self.fields['finca'].queryset = Farm.objects.none()
+            self.fields['finca'].required = True
+        
+        # Hacer la fecha de disponibilidad obligatoria solo si el estado NO es "cosechado"
+        estado = self.initial.get('estado') or (self.instance.estado if self.instance.pk else None)
+        if estado != 'cosechado':
+            self.fields['fecha_disponibilidad'].required = True
+        else:
+            self.fields['fecha_disponibilidad'].required = False
+        
+        # Agregar JavaScript para cambiar la obligatoriedad dinámicamente
+        self.fields['estado'].widget.attrs['onchange'] = 'toggleFechaDisponibilidad()'
     
     def clean(self):
         cleaned_data = super().clean()
         finca = cleaned_data.get('finca')
+        nombre = cleaned_data.get('nombre')
+        categoria = cleaned_data.get('categoria')
+        cantidad_estimada = cleaned_data.get('cantidad_estimada')
+        unidad_medida = cleaned_data.get('unidad_medida')
         area_ocupada = cleaned_data.get('area_ocupada')
+        estado = cleaned_data.get('estado')
+        fecha_disponibilidad = cleaned_data.get('fecha_disponibilidad')
         user = getattr(self, 'user', None)
+        
+        errors = {}
+        
+        # Validar campos obligatorios
+        if not finca:
+            errors['finca'] = 'Este campo es obligatorio.'
+        if not nombre:
+            errors['nombre'] = 'Este campo es obligatorio.'
+        if not categoria:
+            errors['categoria'] = 'Este campo es obligatorio.'
+        if cantidad_estimada is None or cantidad_estimada == 0:
+            errors['cantidad_estimada'] = 'Este campo es obligatorio y debe ser mayor a 0.'
+        if not unidad_medida:
+            errors['unidad_medida'] = 'Este campo es obligatorio.'
+        if area_ocupada is None:
+            errors['area_ocupada'] = 'Este campo es obligatorio.'
+        if not estado:
+            errors['estado'] = 'Este campo es obligatorio.'
+        
+        # Validar que la fecha de disponibilidad sea obligatoria si el estado NO es "cosechado"
+        if estado and estado != 'cosechado' and not fecha_disponibilidad:
+            errors['fecha_disponibilidad'] = 'La fecha aproximada de disponibilidad es obligatoria para todos los estados excepto "Cosechado".'
         
         # Si se selecciona una finca, verificar que pertenezca al usuario
         if finca and user:
             if finca.propietario != user:
-                raise forms.ValidationError("La finca seleccionada no pertenece al usuario actual.")
+                errors['finca'] = "La finca seleccionada no pertenece al usuario actual."
             
             # Verificar que el área ocupada no exceda el área disponible
             if area_ocupada and finca.area_disponible < area_ocupada:
-                raise forms.ValidationError(
+                errors['area_ocupada'] = (
                     f"El área ocupada ({area_ocupada} ha) excede el área disponible "
                     f"en la finca ({finca.area_disponible} ha)."
                 )
+        
+        if errors:
+            raise forms.ValidationError(errors)
         
         return cleaned_data
 
@@ -154,45 +209,101 @@ class AdminCropForm(forms.ModelForm):
             'unidad_medida': 'Unidad de Medida',
             'area_ocupada': 'Área Ocupada (hectáreas)',
             'estado': 'Estado del Cultivo',
-            'fecha_disponibilidad': 'Fecha de Disponibilidad',
+            'fecha_disponibilidad': 'Fecha aproximada de disponibilidad',
             'notas': 'Notas Adicionales'
+        }
+        
+        help_texts = {
+            'fecha_disponibilidad': 'Fecha estimada cuando el cultivo estará listo para cosechar. Obligatoria para todos los estados excepto "Cosechado".',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        # Hacer todos los campos obligatorios excepto notas
+        self.fields['productor'].required = True
+        self.fields['finca'].required = True
+        self.fields['nombre'].required = True
+        self.fields['categoria'].required = True
+        self.fields['cantidad_estimada'].required = True
+        self.fields['unidad_medida'].required = True
+        self.fields['area_ocupada'].required = True
+        self.fields['estado'].required = True
+        # notas permanece opcional (no se establece required)
+        
         # Filtrar solo usuarios que son productores
         producers = User.objects.filter(role='Productor', is_active=True)
         self.fields['productor'].queryset = producers
         self.fields['productor'].empty_label = "Selecciona un productor"
-        self.fields['productor'].required = True
         
         # Inicialmente no hay fincas seleccionadas
         self.fields['finca'].queryset = Farm.objects.none()
         self.fields['finca'].empty_label = "Primero selecciona un productor"
-        self.fields['finca'].required = True
         
         # Si estamos editando, cargar las fincas del productor actual
         if self.instance and self.instance.pk and self.instance.productor:
             farms = Farm.objects.filter(propietario=self.instance.productor, activa=True)
             self.fields['finca'].queryset = farms
+        
+        # Hacer la fecha de disponibilidad obligatoria solo si el estado NO es "cosechado"
+        estado = self.initial.get('estado') or (self.instance.estado if self.instance.pk else None)
+        if estado != 'cosechado':
+            self.fields['fecha_disponibilidad'].required = True
+        else:
+            self.fields['fecha_disponibilidad'].required = False
+        
+        # Agregar JavaScript para cambiar la obligatoriedad dinámicamente
+        self.fields['estado'].widget.attrs['onchange'] = 'toggleFechaDisponibilidad()'
     
     def clean(self):
         cleaned_data = super().clean()
         productor = cleaned_data.get('productor')
         finca = cleaned_data.get('finca')
+        nombre = cleaned_data.get('nombre')
+        categoria = cleaned_data.get('categoria')
+        cantidad_estimada = cleaned_data.get('cantidad_estimada')
+        unidad_medida = cleaned_data.get('unidad_medida')
         area_ocupada = cleaned_data.get('area_ocupada')
+        estado = cleaned_data.get('estado')
+        fecha_disponibilidad = cleaned_data.get('fecha_disponibilidad')
+        
+        errors = {}
+        
+        # Validar campos obligatorios
+        if not productor:
+            errors['productor'] = 'Este campo es obligatorio.'
+        if not finca:
+            errors['finca'] = 'Este campo es obligatorio.'
+        if not nombre:
+            errors['nombre'] = 'Este campo es obligatorio.'
+        if not categoria:
+            errors['categoria'] = 'Este campo es obligatorio.'
+        if cantidad_estimada is None or cantidad_estimada == 0:
+            errors['cantidad_estimada'] = 'Este campo es obligatorio y debe ser mayor a 0.'
+        if not unidad_medida:
+            errors['unidad_medida'] = 'Este campo es obligatorio.'
+        if area_ocupada is None:
+            errors['area_ocupada'] = 'Este campo es obligatorio.'
+        if not estado:
+            errors['estado'] = 'Este campo es obligatorio.'
+        
+        # Validar que la fecha de disponibilidad sea obligatoria si el estado NO es "cosechado"
+        if estado and estado != 'cosechado' and not fecha_disponibilidad:
+            errors['fecha_disponibilidad'] = 'La fecha aproximada de disponibilidad es obligatoria para todos los estados excepto "Cosechado".'
         
         # Verificar que la finca pertenezca al productor seleccionado
         if productor and finca:
             if finca.propietario != productor:
-                raise forms.ValidationError("La finca seleccionada no pertenece al productor seleccionado.")
+                errors['finca'] = "La finca seleccionada no pertenece al productor seleccionado."
             
             # Verificar que el área ocupada no exceda el área disponible
             if area_ocupada and finca.area_disponible < area_ocupada:
-                raise forms.ValidationError(
+                errors['area_ocupada'] = (
                     f"El área ocupada ({area_ocupada} ha) excede el área disponible "
                     f"en la finca ({finca.area_disponible} ha)."
                 )
+        
+        if errors:
+            raise forms.ValidationError(errors)
         
         return cleaned_data

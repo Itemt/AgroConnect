@@ -1,4 +1,5 @@
 {% extends 'accounts/producer_base_tailadmin.html' %}
+{% load static %}
 
 {% block title %}Seleccionar Cultivo para Publicación{% endblock %}
 
@@ -19,6 +20,26 @@
                 <i class="fas fa-arrow-left mr-2"></i>
                 Volver a Publicaciones
             </a>
+        </div>
+    </div>
+
+    <!-- Cuadro Informativo TailAdmin -->
+    <div class="mb-6 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-5">
+        <div class="flex items-start">
+            <div class="shrink-0">
+                <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
+                    <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 text-lg"></i>
+                </div>
+            </div>
+            <div class="ml-4 flex-1">
+                <h3 class="mb-1.5 text-base font-semibold text-blue-900 dark:text-blue-300">
+                    Requisitos para Publicar
+                </h3>
+                <p class="text-sm leading-relaxed text-blue-800 dark:text-blue-400">
+                    Solo los cultivos en estado <span class="font-bold">"Cosechado"</span> pueden ser publicados en el marketplace. 
+                    Si tu cultivo no aparece en la lista o no puedes publicarlo, verifica que esté marcado como cosechado y que no tenga una publicación activa.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -149,7 +170,7 @@
                     
                     <!-- Descripción -->
                     <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                        Para crear publicaciones, necesitas tener cultivos marcados como "Listo para cosechar" que no tengan una publicación activa.
+                        Para crear publicaciones, necesitas tener cultivos marcados como "Cosechado" que no tengan una publicación activa.
                     </p>
                     
                     <!-- Pasos sugeridos -->
@@ -174,7 +195,7 @@
                                     </div>
                                     <h4 class="font-semibold text-gray-800 dark:text-white">Marcar como Listo</h4>
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Cambia el estado del cultivo a "Listo para cosechar".</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Cambia el estado del cultivo a "Cosechado".</p>
                             </div>
                             
                             <!-- Paso 3 -->
