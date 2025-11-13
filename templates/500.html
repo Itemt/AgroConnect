@@ -6,80 +6,80 @@
 {% block description %}Ha ocurrido un error interno del servidor. Nuestro equipo técnico ha sido notificado.{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 py-8 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-red-950 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl w-full text-center">
         <!-- Error Code -->
         <div class="mb-8">
-            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-red-100 to-red-200 rounded-full mb-6">
-                <i class="fas fa-exclamation-circle text-6xl text-red-600"></i>
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900 dark:to-red-800 rounded-full mb-6">
+                <i class="fas fa-exclamation-circle text-6xl text-red-600 dark:text-red-300"></i>
             </div>
-            <h1 class="text-8xl sm:text-9xl font-bold text-red-600 mb-4">500</h1>
-            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h1 class="text-8xl sm:text-9xl font-bold text-red-600 dark:text-red-400 mb-4">500</h1>
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Error del servidor
             </h2>
-            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto">
                 Algo salió mal en nuestro servidor. Nuestro equipo técnico ha sido notificado y está trabajando para solucionarlo.
             </p>
         </div>
 
         <!-- Action Buttons -->
         <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-            <button onclick="window.location.reload()" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <button onclick="window.location.reload()" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 dark:from-red-700 dark:to-red-800 dark:hover:from-red-800 dark:hover:to-red-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <i class="fas fa-redo mr-3"></i>
                 Intentar de nuevo
             </button>
-            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-red-700 bg-white border-2 border-red-700 hover:bg-red-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-red-700 dark:text-red-300 bg-white dark:bg-gray-800 border-2 border-red-700 dark:border-red-500 hover:bg-red-50 dark:hover:bg-gray-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <i class="fas fa-home mr-3"></i>
                 Ir al Inicio
             </a>
         </div>
 
         <!-- Status Information -->
-        <div class="mt-12 bg-white rounded-3xl shadow-lg p-8">
-            <h3 class="text-xl font-bold text-gray-900 mb-6">¿Qué puedes hacer?</h3>
+        <div class="mt-12 bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">¿Qué puedes hacer?</h3>
             <div class="space-y-4 text-left">
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-clock text-blue-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-clock text-blue-600 dark:text-blue-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Espera unos minutos</h4>
-                        <p class="text-gray-600 text-sm">El problema suele resolverse automáticamente en pocos minutos.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Espera unos minutos</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">El problema suele resolverse automáticamente en pocos minutos.</p>
                     </div>
                 </div>
                 
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-redo text-green-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-redo text-green-600 dark:text-green-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Recarga la página</h4>
-                        <p class="text-gray-600 text-sm">Haz clic en "Intentar de nuevo" o presiona F5 para recargar.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Recarga la página</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Haz clic en "Intentar de nuevo" o presiona F5 para recargar.</p>
                     </div>
                 </div>
                 
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-home text-purple-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-home text-purple-600 dark:text-purple-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Ve al inicio</h4>
-                        <p class="text-gray-600 text-sm">Navega desde la página principal para evitar el error.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Ve al inicio</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Navega desde la página principal para evitar el error.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Contact Information -->
-        <div class="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">¿El problema persiste?</h3>
-            <p class="text-gray-600 mb-4">Si el error continúa, contáctanos para que podamos ayudarte:</p>
+        <div class="mt-8 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">¿El problema persiste?</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">Si el error continúa, contáctanos para que podamos ayudarte:</p>
             <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6">
-                <a href="tel:+573203465135" class="flex items-center text-green-700 hover:text-green-800 font-semibold">
+                <a href="tel:+573203465135" class="flex items-center text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-semibold">
                     <i class="fas fa-phone mr-2"></i>
                     +57 320 346 5135
                 </a>
-                <a href="mailto:contacto@agroconnect.com" class="flex items-center text-green-700 hover:text-green-800 font-semibold">
+                <a href="mailto:contacto@agroconnect.com" class="flex items-center text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-semibold">
                     <i class="fas fa-envelope mr-2"></i>
                     contacto@agroconnect.com
                 </a>
@@ -94,7 +94,7 @@
                     <span class="animate-pulse" style="animation-delay: 0.5s">⚙️</span>
                     <span class="animate-pulse" style="animation-delay: 1s">🛠️</span>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">¡Estamos trabajando para solucionarlo!</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">¡Estamos trabajando para solucionarlo!</p>
             </div>
         </div>
     </div>

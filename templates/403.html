@@ -6,35 +6,35 @@
 {% block description %}No tienes permisos para acceder a esta página.{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-yellow-50 py-8 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-orange-950 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl w-full text-center">
         <!-- Error Code -->
         <div class="mb-8">
-            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full mb-6">
-                <i class="fas fa-lock text-6xl text-orange-600"></i>
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-full mb-6">
+                <i class="fas fa-lock text-6xl text-orange-600 dark:text-orange-300"></i>
             </div>
-            <h1 class="text-8xl sm:text-9xl font-bold text-orange-600 mb-4">403</h1>
-            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h1 class="text-8xl sm:text-9xl font-bold text-orange-600 dark:text-orange-400 mb-4">403</h1>
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Acceso denegado
             </h2>
-            <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto">
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto">
                 No tienes permisos para acceder a esta página. Verifica que tengas la autorización necesaria.
             </p>
         </div>
 
         <!-- Action Buttons -->
         <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <a href="{% url 'index' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 dark:from-orange-700 dark:to-orange-800 dark:hover:from-orange-800 dark:hover:to-orange-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <i class="fas fa-home mr-3"></i>
                 Ir al Inicio
             </a>
             {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 bg-white border-2 border-orange-700 hover:bg-orange-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <a href="{% url 'profile' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 dark:text-orange-300 bg-white dark:bg-gray-800 border-2 border-orange-700 dark:border-orange-500 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <i class="fas fa-user mr-3"></i>
                     Mi Perfil
                 </a>
             {% else %}
-                <a href="{% url 'login' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 bg-white border-2 border-orange-700 hover:bg-orange-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <a href="{% url 'login' %}" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-semibold text-orange-700 dark:text-orange-300 bg-white dark:bg-gray-800 border-2 border-orange-700 dark:border-orange-500 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <i class="fas fa-sign-in-alt mr-3"></i>
                     Iniciar Sesión
                 </a>
@@ -42,36 +42,36 @@
         </div>
 
         <!-- Helpful Information -->
-        <div class="mt-12 bg-white rounded-3xl shadow-lg p-8">
-            <h3 class="text-xl font-bold text-gray-900 mb-6">¿Por qué veo este error?</h3>
+        <div class="mt-12 bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">¿Por qué veo este error?</h3>
             <div class="space-y-4 text-left">
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-user-check text-blue-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-user-check text-blue-600 dark:text-blue-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">No has iniciado sesión</h4>
-                        <p class="text-gray-600 text-sm">Algunas páginas requieren que estés autenticado.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">No has iniciado sesión</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Algunas páginas requieren que estés autenticado.</p>
                     </div>
                 </div>
                 
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-user-shield text-purple-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-user-shield text-purple-600 dark:text-purple-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Permisos insuficientes</h4>
-                        <p class="text-gray-600 text-sm">Tu cuenta no tiene los permisos necesarios para esta acción.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Permisos insuficientes</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Tu cuenta no tiene los permisos necesarios para esta acción.</p>
                     </div>
                 </div>
                 
                 <div class="flex items-start space-x-4">
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-info-circle text-green-600 text-sm"></i>
+                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-info-circle text-green-600 dark:text-green-400 text-sm"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Página restringida</h4>
-                        <p class="text-gray-600 text-sm">Esta página puede estar disponible solo para ciertos roles de usuario.</p>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Página restringida</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Esta página puede estar disponible solo para ciertos roles de usuario.</p>
                     </div>
                 </div>
             </div>
@@ -79,19 +79,19 @@
 
         <!-- Role Information -->
         {% if user.is_authenticated %}
-        <div class="mt-8 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Tu cuenta actual</h3>
+        <div class="mt-8 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Tu cuenta actual</h3>
             <div class="flex items-center justify-center space-x-4">
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 dark:from-green-600 dark:to-green-800 rounded-full flex items-center justify-center mx-auto mb-2">
                         {% if user.profile_image %}
-                            <img class="w-12 h-12 rounded-full" src="{{ user.profile_image.url }}" alt="Avatar">
+                            <img class="w-12 h-12 rounded-full object-cover" src="{{ user.profile_image.url }}" alt="Avatar">
                         {% else %}
                             <i class="fas fa-user text-white text-xl"></i>
                         {% endif %}
                     </div>
-                    <p class="font-semibold text-gray-900">{{ user.get_full_name|default:user.username }}</p>
-                    <p class="text-sm text-gray-600">{{ user.role|default:"Usuario" }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ user.get_full_name|default:user.username }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ user.role|default:"Usuario" }}</p>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
                     <span class="animate-bounce" style="animation-delay: 0.2s">🛡️</span>
                     <span class="animate-bounce" style="animation-delay: 0.4s">🔑</span>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">¡La seguridad es importante!</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">¡La seguridad es importante!</p>
             </div>
         </div>
     </div>
