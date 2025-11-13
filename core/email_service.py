@@ -5,7 +5,6 @@ import resend
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.contrib.sites.models import Site
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,18 +12,31 @@ logger = logging.getLogger(__name__)
 def get_logo_url():
     """Obtiene la URL absoluta del logo para usar en emails"""
     try:
-        site = Site.objects.get_current()
-        domain = site.domain
-        # Asegurar que tenga protocolo
-        if not domain.startswith('http'):
+        # Intentar usar Site si está disponible
+        from django.contrib.sites.models import Site
+        try:
+            site = Site.objects.get_current()
+            domain = site.domain
+            # Asegurar que tenga protocolo
+            if not domain.startswith('http'):
+                domain = f"https://{domain}"
+            return f"{domain}/static/images/LOGO.png"
+        except (Site.DoesNotExist, Exception):
+            # Si Site no existe o hay error, usar fallback
+            pass
+    except ImportError:
+        # Si Site no está disponible, usar fallback
+        pass
+    
+    # Fallback si no hay Site configurado o no está disponible
+    domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
+    if not domain.startswith('http'):
+        # Detectar si es localhost para usar http, sino https
+        if 'localhost' in domain or '127.0.0.1' in domain:
+            domain = f"http://{domain}"
+        else:
             domain = f"https://{domain}"
-        return f"{domain}/static/images/LOGO.png"
-    except:
-        # Fallback si no hay Site configurado
-        domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
-        if not domain.startswith('http'):
-            domain = f"https://{domain}"
-        return f"{domain}/static/images/LOGO.png"
+    return f"{domain}/static/images/LOGO.png"
 
 class EmailService:
     def __init__(self):

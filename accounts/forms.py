@@ -646,7 +646,7 @@ class BuyerEditForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
             'placeholder': 'Ej: 12345678',
-            'type': 'number',
+            'type': 'text',
             'pattern': '[0-9]+',
             'title': 'Solo se permiten números',
             'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'
@@ -1190,7 +1190,7 @@ class ProducerProfileEditForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
             'placeholder': 'Ej: 12345678',
-            'type': 'number',
+            'type': 'text',
             'pattern': '[0-9]+',
             'title': 'Solo se permiten números',
             'oninput': 'this.value = this.value.replace(/[^0-9]/g, "")'

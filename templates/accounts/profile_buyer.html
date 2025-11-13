@@ -42,7 +42,7 @@
                 <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
                     <i class="fas fa-info-circle text-blue-600 dark:text-blue-400"></i>
                 </div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Información de la Cuenta</h2>
+                <h2 class="text-xl text-gray-900 dark:text-white">Información de la Cuenta</h2>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -53,7 +53,7 @@
                             <i class="fas fa-user mr-2 text-blue-600"></i>
                             Usuario
                         </label>
-                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                        <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
                             {{ user.username }}
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                             <i class="fas fa-envelope mr-2 text-blue-600"></i>
                             Email
                         </label>
-                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                        <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
                             {{ user.email }}
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                             <i class="fas fa-id-card mr-2 text-blue-600"></i>
                             Cédula
                         </label>
-                        <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                        <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
                             {{ user.cedula|default:"No especificada" }}
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                                 <i class="fas fa-building mr-2 text-blue-600"></i>
                                 Empresa
                             </label>
-                            <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
                                 {{ user.buyer_profile.company_name|default:"No especificado" }}
                             </div>
                         </div>
@@ -97,7 +97,7 @@
                                 <i class="fas fa-briefcase mr-2 text-blue-600"></i>
                                 Tipo de Negocio
                             </label>
-                            <div class="text-base font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
                                 {{ user.buyer_profile.business_type|default:"No especificado" }}
                             </div>
                         </div>
