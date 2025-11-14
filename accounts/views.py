@@ -153,30 +153,40 @@ def register(request):
     google_data = request.session.get('google_user_data', {})
     came_from_google = request.GET.get('from') == 'google'
     
+    print(f"[REGISTER] Inicio - google_data presente: {bool(google_data)}, came_from_google: {came_from_google}")
+    logger.info(f"Registro - google_data: {bool(google_data)}, came_from_google: {came_from_google}")
+    
     # Limpiar datos de Google si han pasado más de 10 minutos
     if google_data and 'timestamp' in google_data:
         import time
         if time.time() - google_data['timestamp'] > 600:  # 10 minutos
+            print(f"[REGISTER] Datos de Google expirados")
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
             google_data = {}
     
-    # Si no venimos del callback de Google, limpiar cualquier dato residual
-    if not came_from_google and google_data:
+    # NO limpiar datos de Google si venimos del callback - necesitamos mantenerlos para el POST
+    # Solo limpiar si NO venimos de Google y hay datos residuales
+    if not came_from_google and google_data and request.method == 'GET':
+        print(f"[REGISTER] Limpiando datos residuales de Google (no venimos de Google)")
         if 'google_user_data' in request.session:
             del request.session['google_user_data']
         google_data = {}
 
-    # Si no hay datos de Google, limpiar cualquier dato residual de seguridad
-    if not google_data:
+    # NO limpiar datos si estamos en POST - los necesitamos para el registro
+    if not google_data and request.method == 'GET':
         if 'google_user_data' in request.session:
             del request.session['google_user_data']
     
     if request.method == 'POST':
         form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
-            # Obtener photo_url de Google si existe
+            # Obtener photo_url de Google ANTES de limpiar la sesión
             google_photo_url = google_data.get('photo_url', '') if google_data else None
+            print(f"[REGISTER] google_data presente: {bool(google_data)}")
+            print(f"[REGISTER] google_photo_url: {google_photo_url}")
+            logger.info(f"Registro POST - google_data: {bool(google_data)}, photo_url: {google_photo_url}")
+            
             user = form.save(google_photo_url=google_photo_url)  # El formulario ya maneja la creación del perfil
             
             # Limpiar datos de Google de la sesión ANTES del login
@@ -200,14 +210,25 @@ def register(request):
                 
                 # Ahora descargar la imagen de Google DESPUÉS del login (en segundo plano)
                 if google_photo_url:
+                    print(f"[REGISTER] ✅ Photo URL disponible: {google_photo_url}")
+                    logger.info(f"Descargando imagen de Google después del login: {google_photo_url}")
                     try:
                         from accounts.forms import download_google_profile_image
-                        print(f"[REGISTER] Descargando imagen de Google después del login...")
+                        print(f"[REGISTER] Llamando a download_google_profile_image...")
                         # Descargar la imagen (esto puede tomar tiempo, pero ya estamos autenticados)
-                        download_google_profile_image(google_photo_url, user)
+                        result = download_google_profile_image(google_photo_url, user)
+                        if result:
+                            print(f"[REGISTER] ✅ Imagen descargada exitosamente")
+                            logger.info(f"Imagen descargada exitosamente después del registro")
+                        else:
+                            print(f"[REGISTER] ❌ La función retornó False")
+                            logger.error(f"La función download_google_profile_image retornó False")
                     except Exception as e:
-                        print(f"[REGISTER] Error descargando imagen: {e}")
-                        logger.error(f"Error descargando imagen después del registro: {e}")
+                        print(f"[REGISTER] ❌ Error descargando imagen: {e}")
+                        logger.error(f"Error descargando imagen después del registro: {e}", exc_info=True)
+                else:
+                    print(f"[REGISTER] ⚠️ No hay google_photo_url disponible")
+                    logger.warning(f"No hay google_photo_url disponible para descargar imagen")
             else:
                 print(f"[REGISTER] ❌ ERROR: Usuario NO autenticado después del login")
                 logger.error(f"Usuario NO autenticado después del login: {user.email}")
