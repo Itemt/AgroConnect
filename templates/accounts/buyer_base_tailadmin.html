@@ -986,8 +986,40 @@
     <script>
         (function(){
             let pollingInterval = null;
-            let lastNotificationIds = new Set();
             let isPollingActive = false;
+            const STORAGE_KEY = 'agroconnect_shown_notifications';
+            
+            // Cargar IDs de notificaciones ya mostradas desde localStorage
+            function getShownNotificationIds() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        return new Set(JSON.parse(stored));
+                    }
+                } catch (e) {
+                    console.warn('Error loading shown notifications from localStorage:', e);
+                }
+                return new Set();
+            }
+            
+            // Guardar IDs de notificaciones mostradas en localStorage
+            function saveShownNotificationIds(ids) {
+                try {
+                    // Mantener solo los últimos 100 IDs
+                    const idsArray = Array.from(ids);
+                    const limitedIds = idsArray.slice(-100);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedIds));
+                } catch (e) {
+                    console.warn('Error saving shown notifications to localStorage:', e);
+                }
+            }
+            
+            // Agregar un ID a la lista de notificaciones mostradas
+            function markNotificationAsShown(notificationId) {
+                const shownIds = getShownNotificationIds();
+                shownIds.add(notificationId);
+                saveShownNotificationIds(shownIds);
+            }
             
             function updateSidebarBadge(count){
                 const badge = document.getElementById('sidebar-notification-badge');
@@ -1002,6 +1034,9 @@
             function showNotificationPopup(notification){
                 const container = document.getElementById('notification-popup-container');
                 if (!container) return;
+                
+                // Marcar esta notificación como mostrada inmediatamente
+                markNotificationAsShown(notification.id);
                 
                 const popup = document.createElement('div');
                 popup.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm';
@@ -1085,19 +1120,15 @@
                             
                             updateSidebarBadge(unreadCount);
                             
-                            // Detectar notificaciones nuevas
+                            // Obtener IDs de notificaciones ya mostradas
+                            const shownIds = getShownNotificationIds();
+                            
+                            // Detectar notificaciones nuevas (no leídas y no mostradas antes)
                             notifications.forEach(n => {
-                                if (!n.is_read && !lastNotificationIds.has(n.id)) {
+                                if (!n.is_read && !shownIds.has(n.id)) {
                                     showNotificationPopup(n);
                                 }
-                                lastNotificationIds.add(n.id);
                             });
-                            
-                            // Limpiar IDs antiguos (mantener solo los últimos 50)
-                            if (lastNotificationIds.size > 50) {
-                                const idsArray = Array.from(lastNotificationIds);
-                                lastNotificationIds = new Set(idsArray.slice(-50));
-                            }
                         }
                     })
                     .catch(() => {});
