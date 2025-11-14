@@ -151,127 +151,47 @@ class MercadoPagoService:
             # Configuración específica para modo sandbox
             is_sandbox = self.access_token.startswith('TEST-')
             
-            # Datos para MercadoPago - configuración corregida para sandbox
-            # Usar email de prueba específico para sandbox
-            test_email = "test_user_123456@testuser.com" if is_sandbox else (user.email or "test@agroconnect.com")
+            # Preparar datos del pagador - CRÍTICO para evitar botón gris
+            # Asegurar que el email sea válido y esté presente
+            payer_email = user.email or "test@agroconnect.com"
+            if not payer_email or "@" not in payer_email:
+                payer_email = "test@agroconnect.com"
             
-            # Para proyecto universitario: usar datos específicos de sandbox
+            # Para modo sandbox, usar email de prueba específico
             if is_sandbox:
-                # Usar las cuentas específicas de MercadoPago Sandbox
-                test_email = "TESTUSER8283595198251736383@testuser.com"  # Comprador
-                payer_name = "Test User"
-                payer_surname = "University"
-            else:
-                # Para credenciales de producción de cuenta de prueba
-                # Usar datos completos para evitar botón gris
-                test_email = user.email or "test@agroconnect.com"
-                payer_name = user.get_full_name() or user.username or "Usuario"
-                payer_surname = user.last_name or "Prueba"
-                
-                # Asegurar que el email sea válido
-                if not test_email or "@" not in test_email:
-                    test_email = "test@agroconnect.com"
+                payer_email = "TESTUSER8283595198251736383@testuser.com"
             
-            # Forzar modo sandbox para proyecto universitario
-            if is_sandbox:
-                # Configuración específica para forzar sandbox
-                payment_data = {
-                    "transaction_amount": float(order.precio_total),
-                    "currency_id": "COP",
-                    "description": f"Compra orden #{order.id} - Proyecto Universitario",
-                    "payer": {
-                        "email": test_email,
-                        "name": payer_name,
-                        "surname": payer_surname
-                    },
-                    "external_reference": reference,
-                    "notification_url": f"{base_url}/payments/notification/",
-                    "auto_return": "approved",
-                    "back_urls": {
-                        "success": f"{base_url}/payments/success/",
-                        "failure": f"{base_url}/payments/failure/",
-                        "pending": f"{base_url}/payments/pending/"
-                    },
-                # Configuración específica para sandbox
-                "statement_descriptor": "AGROCONNECT",
-                "binary_mode": False,
-                "expires": False,
-                # Configuración para evitar botón gris
-                "differential_pricing_id": None,
-                "marketplace": "NONE",
-                "processing_mode": "aggregator",
-                    "metadata": {
-                        "test": True,
-                        "platform": "agroconnect",
-                        "version": "1.0",
-                        "university_project": True
-                    },
-                    # Configuración de métodos de pago para sandbox
-                    "payment_methods": {
-                        "excluded_payment_methods": [],
-                        "excluded_payment_types": [],
-                        "installments": 1,
-                        "default_installments": 1
-                    },
-                    "items": [
-                        {
-                            "id": str(order.publicacion.id),
-                            "title": order.publicacion.cultivo.nombre,
-                            "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
-                            "quantity": float(order.cantidad_acordada),
-                            "unit_price": float(order.publicacion.precio_por_unidad),
-                            "category_id": "food",
-                            "currency_id": "COP"
-                        }
-                    ]
-                }
-            else:
-                # Configuración normal para producción
-                payment_data = {
-                    "transaction_amount": float(order.precio_total),
-                    "currency_id": "COP",
-                    "description": f"Compra orden #{order.id}",
-                    "payer": {
-                        "email": test_email,
-                        "name": payer_name,
-                        "surname": payer_surname
-                    },
-                    "external_reference": reference,
-                    "notification_url": f"{base_url}/payments/notification/",
-                    "auto_return": "approved",
-                    "back_urls": {
-                        "success": f"{base_url}/payments/success/",
-                        "failure": f"{base_url}/payments/failure/",
-                        "pending": f"{base_url}/payments/pending/"
-                    },
-                    "items": [
-                        {
-                            "id": str(order.publicacion.id),
-                            "title": order.publicacion.cultivo.nombre,
-                            "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}",
-                            "quantity": float(order.cantidad_acordada),
-                            "unit_price": float(order.publicacion.precio_por_unidad),
-                            "category_id": "food",
-                            "currency_id": "COP"
-                        }
-                    ]
-                }
+            # Preparar nombre y apellido del pagador
+            full_name = user.get_full_name() or user.username or "Usuario"
+            name_parts = full_name.split(' ', 1) if ' ' in full_name else [full_name, '']
+            payer_name = name_parts[0] or "Usuario"
+            payer_surname = name_parts[1] if len(name_parts) > 1 else (user.last_name or "Prueba")
             
+            # Obtener identificación del usuario
+            user_cedula = getattr(user, 'cedula', '') or "12345678"
+            user_phone = getattr(user, 'telefono', '') or "3000000000"
+            
+            # Limpiar teléfono (solo números)
+            user_phone = ''.join(filter(str.isdigit, str(user_phone)))
+            if len(user_phone) < 10:
+                user_phone = "3000000000"
+            
+            # Preparar datos de la preferencia - estructura única y completa
             payment_data = {
                 "transaction_amount": float(order.precio_total),
                 "currency_id": "COP",
                 "description": f"Compra orden #{order.id}",
                 "payer": {
-                    "email": test_email,
+                    "email": payer_email,
                     "name": payer_name,
                     "surname": payer_surname,
                     "identification": {
                         "type": "CC",
-                        "number": "12345678"
+                        "number": str(user_cedula)[:20]  # Limitar longitud
                     },
                     "phone": {
                         "area_code": "57",
-                        "number": "3000000000"
+                        "number": user_phone[-10:]  # Últimos 10 dígitos
                     },
                     "address": {
                         "zip_code": "110111",
@@ -290,31 +210,25 @@ class MercadoPagoService:
                     "failure": f"{base_url}/payments/failure/",
                     "pending": f"{base_url}/payments/pending/"
                 },
-                # Configuración específica para sandbox en producción
                 "statement_descriptor": "AGROCONNECT",
-                # Configuración optimizada para sandbox
                 "binary_mode": False,
                 "expires": False,
-                # Configuración específica para sandbox
                 "metadata": {
                     "test": is_sandbox,
                     "platform": "agroconnect",
-                    "version": "1.0"
+                    "version": "1.0",
+                    "order_id": str(order.id)
                 },
-                # Configuración de métodos de pago para sandbox
                 "payment_methods": {
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
                     "installments": 1,
                     "default_installments": 1
                 },
-                # Configuración específica para tarjetas en sandbox
-                "card_token": None,
-                "capture": True,
                 "items": [
                     {
                         "id": str(order.publicacion.id),
-                        "title": order.publicacion.cultivo.nombre[:50],
+                        "title": str(order.publicacion.cultivo.nombre)[:50],  # Limitar longitud
                         "description": f"{order.cantidad_acordada} {order.publicacion.cultivo.unidad_medida}"[:100],
                         "quantity": float(order.cantidad_acordada),
                         "unit_price": float(order.publicacion.precio_por_unidad),
@@ -326,33 +240,9 @@ class MercadoPagoService:
             
             # Configuración adicional para sandbox
             if is_sandbox:
-                payment_data["test_mode"] = True
-                # Agregar información específica del comprador para sandbox
-                payment_data["payer"]["identification"] = {
-                    "type": "CC",
-                    "number": "12345678"
-                }
-                
-                # Configuración específica para sandbox en producción
-                if not settings.DEBUG:
-                    # En producción con sandbox, usar configuración más permisiva para tarjetas
-                    payment_data["payment_methods"] = {
-                        "excluded_payment_methods": [],
-                        "excluded_payment_types": [],
-                        "installments": 1,
-                        "default_installments": 1,
-                        # Configuración específica para mejorar compatibilidad con tarjetas
-                        "default_payment_method_id": None,
-                        "excluded_payment_methods": [],
-                        "excluded_payment_types": []
-                    }
-                    # Agregar configuración de mercado específica para Colombia
-                    payment_data["marketplace"] = "NONE"
-                    payment_data["differential_pricing_id"] = None
-                    
-                    # Configuración adicional para mejorar compatibilidad con tarjetas
-                    payment_data["processing_mode"] = "aggregator"
-                    payment_data["merchant_account_id"] = None
+                payment_data["payer"]["name"] = "Test User"
+                payment_data["payer"]["surname"] = "University"
+                payment_data["payer"]["identification"]["number"] = "12345678"
             
             # Validar datos antes de enviar
             if payment_data['transaction_amount'] <= 0:

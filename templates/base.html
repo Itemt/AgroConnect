@@ -186,6 +186,29 @@
         *::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera */
         }
+        
+        /* Animaciones para popups de notificaciones */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
     
     {% block extra_head %}{% endblock %}
@@ -687,6 +710,39 @@
             
             let pollingInterval = null;
             let isPollingActive = false;
+            const STORAGE_KEY = 'agroconnect_shown_notifications';
+            
+            // Cargar IDs de notificaciones ya mostradas desde localStorage
+            function getShownNotificationIds() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        return new Set(JSON.parse(stored));
+                    }
+                } catch (e) {
+                    console.warn('Error loading shown notifications from localStorage:', e);
+                }
+                return new Set();
+            }
+            
+            // Guardar IDs de notificaciones mostradas en localStorage
+            function saveShownNotificationIds(ids) {
+                try {
+                    // Mantener solo los últimos 100 IDs
+                    const idsArray = Array.from(ids);
+                    const limitedIds = idsArray.slice(-100);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedIds));
+                } catch (e) {
+                    console.warn('Error saving shown notifications to localStorage:', e);
+                }
+            }
+            
+            // Agregar un ID a la lista de notificaciones mostradas
+            function markNotificationAsShown(notificationId) {
+                const shownIds = getShownNotificationIds();
+                shownIds.add(notificationId);
+                saveShownNotificationIds(shownIds);
+            }
             
             function updateBadge(count){
                 const badge = document.getElementById('notifications-badge');
@@ -697,6 +753,101 @@
                 } else {
                     badge.classList.add('hidden');
                 }
+            }
+            
+            function showNotificationPopup(notification){
+                // Crear contenedor si no existe
+                let container = document.getElementById('notification-popup-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'notification-popup-container';
+                    container.className = 'fixed top-20 right-4 z-[100] space-y-2';
+                    document.body.appendChild(container);
+                }
+                
+                // Marcar esta notificación como mostrada inmediatamente
+                markNotificationAsShown(notification.id);
+                
+                const popup = document.createElement('div');
+                popup.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm';
+                popup.style.animation = 'slideInRight 0.3s ease-out';
+                
+                const icon = notification.category === 'payment' ? 'fa-credit-card' : 
+                            (notification.category === 'order' ? 'fa-box' : 'fa-info-circle');
+                let iconColorClass = 'text-gray-500';
+                let bgColorClass = 'bg-gray-50 dark:bg-gray-500/20';
+                if (notification.category === 'payment') {
+                    iconColorClass = 'text-blue-500';
+                    bgColorClass = 'bg-blue-50 dark:bg-blue-500/20';
+                } else if (notification.category === 'order') {
+                    iconColorClass = 'text-green-500';
+                    bgColorClass = 'bg-green-50 dark:bg-green-500/20';
+                }
+                
+                const orderLink = notification.order_id ? 
+                    '<a href="/order/' + notification.order_id + '/" class="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block">Ver pedido →</a>' : '';
+                
+                popup.innerHTML = 
+                    '<div class="flex items-start gap-3">' +
+                        '<div class="flex-shrink-0">' +
+                            '<div class="w-10 h-10 ' + iconColorClass + ' ' + bgColorClass + ' rounded-full flex items-center justify-center">' +
+                                '<i class="fas ' + icon + '"></i>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<p class="text-sm font-semibold text-gray-900 dark:text-white">' + (notification.title || 'Notificación') + '</p>' +
+                            '<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">' + (notification.message || '') + '</p>' +
+                            orderLink +
+                        '</div>' +
+                        '<button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">' +
+                            '<i class="fas fa-times"></i>' +
+                        '</button>' +
+                    '</div>';
+                
+                container.appendChild(popup);
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    popup.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => popup.remove(), 300);
+                }, 5000);
+                
+                // Marcar como leída al hacer click
+                if (notification.order_id) {
+                    const link = popup.querySelector('a');
+                    if (link) {
+                        link.addEventListener('click', function() {
+                            markAsRead(notification.id);
+                        });
+                    }
+                }
+            }
+            
+            function markAsRead(notificationId){
+                fetch('{% url "core:notifications_mark_read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ notification_id: notificationId }),
+                    credentials: 'same-origin'
+                }).catch(() => {});
+            }
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
             }
             
             function fetchNotifications() {
@@ -713,12 +864,23 @@
                     })
                     .then(res => {
                         if (res && res.success) {
-                            const unreadCount = res.notifications.filter(n => !n.is_read).length;
+                            const notifications = res.notifications || [];
+                            const unreadCount = notifications.filter(n => !n.is_read).length;
                             updateBadge(unreadCount);
+                            
+                            // Obtener IDs de notificaciones ya mostradas
+                            const shownIds = getShownNotificationIds();
+                            
+                            // Detectar notificaciones nuevas (no leídas y no mostradas antes)
+                            notifications.forEach(n => {
+                                if (!n.is_read && !shownIds.has(n.id)) {
+                                    showNotificationPopup(n);
+                                }
+                            });
                             
                             // Dispatch custom event for other components (like sidebar)
                             const event = new CustomEvent('notificationsUpdated', {
-                                detail: { unreadCount: unreadCount, notifications: res.notifications }
+                                detail: { unreadCount: unreadCount, notifications: notifications }
                             });
                             document.dispatchEvent(event);
                         }
