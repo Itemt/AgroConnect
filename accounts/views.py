@@ -222,7 +222,7 @@ def register(request):
         else:
             print(f"[REGISTER] POST - ⚠️ google_data está vacío o no existe en la sesión")
             # Intentar obtener directamente
-        if 'google_user_data' in request.session:
+            if 'google_user_data' in request.session:
                 print(f"[REGISTER] POST - 'google_user_data' existe en request.session pero está vacío")
             else:
                 print(f"[REGISTER] POST - 'google_user_data' NO existe en request.session")
