@@ -153,8 +153,24 @@ def register(request):
     google_data = request.session.get('google_user_data', {})
     came_from_google = request.GET.get('from') == 'google'
     
-    print(f"[REGISTER] Inicio - google_data presente: {bool(google_data)}, came_from_google: {came_from_google}")
-    logger.info(f"Registro - google_data: {bool(google_data)}, came_from_google: {came_from_google}")
+    # Si venimos de Google, marcar en la sesión para mantenerlo durante el POST
+    if came_from_google:
+        request.session['came_from_google'] = True
+        request.session.modified = True
+        request.session.save()
+        print(f"[REGISTER] GET - Guardando came_from_google en sesión")
+    
+    # Asegurar que la sesión se guarde si hay datos de Google
+    if google_data and request.method == 'GET':
+        request.session.modified = True
+        request.session.save()
+        print(f"[REGISTER] GET - Guardando google_data en sesión. Keys: {list(google_data.keys())}")
+    
+    # Verificar si venimos de Google (del GET o de la sesión)
+    came_from_google = came_from_google or request.session.get('came_from_google', False)
+    
+    print(f"[REGISTER] Inicio - Method: {request.method}, google_data presente: {bool(google_data)}, came_from_google: {came_from_google}")
+    logger.info(f"Registro - Method: {request.method}, google_data: {bool(google_data)}, came_from_google: {came_from_google}")
     
     # Limpiar datos de Google si han pasado más de 10 minutos
     if google_data and 'timestamp' in google_data:
@@ -163,22 +179,29 @@ def register(request):
             print(f"[REGISTER] Datos de Google expirados")
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
+            if 'came_from_google' in request.session:
+                del request.session['came_from_google']
             google_data = {}
     
-    # NO limpiar datos de Google si venimos del callback - necesitamos mantenerlos para el POST
-    # Solo limpiar si NO venimos de Google y hay datos residuales
+    # NO limpiar datos de Google si venimos del callback o estamos en POST
+    # Solo limpiar si NO venimos de Google, estamos en GET y hay datos residuales
     if not came_from_google and google_data and request.method == 'GET':
         print(f"[REGISTER] Limpiando datos residuales de Google (no venimos de Google)")
         if 'google_user_data' in request.session:
             del request.session['google_user_data']
+        if 'came_from_google' in request.session:
+            del request.session['came_from_google']
         google_data = {}
-
-    # NO limpiar datos si estamos en POST - los necesitamos para el registro
-    if not google_data and request.method == 'GET':
-        if 'google_user_data' in request.session:
-            del request.session['google_user_data']
     
     if request.method == 'POST':
+        # Re-obtener datos de Google de la sesión en caso de que se hayan perdido
+        google_data = request.session.get('google_user_data', {})
+        came_from_google = request.session.get('came_from_google', False)
+        print(f"[REGISTER] POST - Re-obteniendo google_data de sesión: {bool(google_data)}")
+        if google_data:
+            print(f"[REGISTER] POST - google_data keys: {list(google_data.keys())}")
+            print(f"[REGISTER] POST - photo_url: {google_data.get('photo_url', 'N/A')}")
+        
         form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
             # Obtener photo_url de Google ANTES de limpiar la sesión
@@ -189,9 +212,11 @@ def register(request):
             
             user = form.save(google_photo_url=google_photo_url)  # El formulario ya maneja la creación del perfil
             
-            # Limpiar datos de Google de la sesión ANTES del login
+            # Limpiar datos de Google de la sesión DESPUÉS de usarlos
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
+            if 'came_from_google' in request.session:
+                del request.session['came_from_google']
             
             # Asegurar que el usuario esté completamente guardado antes del login
             user.refresh_from_db()
