@@ -423,16 +423,28 @@ class CustomPasswordResetView(PasswordResetView):
                 'timestamp': time.time()
             }
             
-            messages.success(self.request, f'Si el número {phone_display} está asociado a una cuenta, recibirás un código de verificación.')
-            
-            # Redirigir a la página de verificación de código
-            return redirect('verify_phone_code')
+            messages.success(self.request, f'Se enviará un código de verificación al número registrado.')
             
         except User.DoesNotExist:
-            # Mostrar el mismo mensaje aunque no exista el usuario (seguridad)
-            messages.success(self.request, f'Si el número {phone_display} está asociado a una cuenta, recibirás un código de verificación.')
-            # Redirigir al login después de un tiempo
-            return redirect('login')
+            # Guardar datos ficticios en la sesión para no revelar que el usuario no existe
+            self.request.session['firebase_phone_auth'] = {
+                'phone_number': telefono,
+                'invalid_user': True
+            }
+            self.request.session['password_reset_otp'] = {
+                'user_id': None,
+                'phone': telefono,
+                'email': '',
+                'otp_code': '',
+                'timestamp': time.time(),
+                'invalid_user': True
+            }
+            
+            # Mostrar el mismo mensaje (seguridad)
+            messages.success(self.request, f'Se enviará un código de verificación al número registrado.')
+        
+        # Siempre redirigir a la página de verificación de código
+        return redirect('verify_phone_code')
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
@@ -643,6 +655,13 @@ def verify_phone_code(request):
         
         if not otp_data or not firebase_data:
             messages.error(request, 'Sesión expirada. Por favor, solicita un nuevo código.')
+            return redirect('password_reset')
+        
+        # Verificar si es un usuario inválido
+        if otp_data.get('invalid_user') or firebase_data.get('invalid_user'):
+            messages.error(request, 'El número de teléfono no está asociado a ninguna cuenta.')
+            del request.session['password_reset_otp']
+            del request.session['firebase_phone_auth']
             return redirect('password_reset')
         
         # Verificar que el código no haya expirado (5 minutos)
