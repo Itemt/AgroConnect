@@ -128,7 +128,7 @@ def google_auth_callback(request):
                     # Usuario no existe, redirigir a completar registro
                     # Guardar datos de Google en la sesión
                     import time
-                    request.session['google_user_data'] = {
+                    google_user_data = {
                         'email': user_info['email'],
                         'first_name': user_info.get('given_name', ''),
                         'last_name': user_info.get('family_name', ''),
@@ -136,6 +136,11 @@ def google_auth_callback(request):
                         'username_suggestion': user_info['email'].split('@')[0],  # Parte antes del @
                         'timestamp': time.time()  # Timestamp para expiración
                     }
+                    request.session['google_user_data'] = google_user_data
+                    request.session.modified = True
+                    request.session.save()
+                    print(f"[GOOGLE CALLBACK] Guardando datos de Google en sesión. Photo URL: {google_user_data.get('photo_url', 'N/A')}")
+                    logger.info(f"Guardando datos de Google en sesión para registro. Email: {user_info['email']}, Photo URL: {google_user_data.get('photo_url', 'N/A')}")
                     
                     return redirect('/accounts/register/?from=google')  # Completar registro
             else:
@@ -162,9 +167,16 @@ def register(request):
     
     # Asegurar que la sesión se guarde si hay datos de Google
     if google_data and request.method == 'GET':
+        # Verificar que los datos estén realmente en la sesión
+        session_google_data = request.session.get('google_user_data', {})
+        print(f"[REGISTER] GET - google_data en variable: {bool(google_data)}, en sesión: {bool(session_google_data)}")
+        if session_google_data:
+            print(f"[REGISTER] GET - Session google_data keys: {list(session_google_data.keys())}")
+            print(f"[REGISTER] GET - Session photo_url: {session_google_data.get('photo_url', 'N/A')}")
+        # Forzar guardado de sesión
         request.session.modified = True
         request.session.save()
-        print(f"[REGISTER] GET - Guardando google_data en sesión. Keys: {list(google_data.keys())}")
+        print(f"[REGISTER] GET - Sesión guardada. Session keys: {list(request.session.keys())}")
     
     # Verificar si venimos de Google (del GET o de la sesión)
     came_from_google = came_from_google or request.session.get('came_from_google', False)
@@ -195,12 +207,25 @@ def register(request):
     
     if request.method == 'POST':
         # Re-obtener datos de Google de la sesión en caso de que se hayan perdido
+        # IMPORTANTE: Obtener directamente de la sesión sin modificar
         google_data = request.session.get('google_user_data', {})
         came_from_google = request.session.get('came_from_google', False)
+        
+        # Debug: Verificar el estado completo de la sesión
+        print(f"[REGISTER] POST - Session keys: {list(request.session.keys())}")
         print(f"[REGISTER] POST - Re-obteniendo google_data de sesión: {bool(google_data)}")
+        print(f"[REGISTER] POST - came_from_google: {came_from_google}")
         if google_data:
-            print(f"[REGISTER] POST - google_data keys: {list(google_data.keys())}")
-            print(f"[REGISTER] POST - photo_url: {google_data.get('photo_url', 'N/A')}")
+            print(f"[REGISTER] POST - google_data type: {type(google_data)}")
+            print(f"[REGISTER] POST - google_data keys: {list(google_data.keys()) if isinstance(google_data, dict) else 'Not a dict'}")
+            print(f"[REGISTER] POST - photo_url: {google_data.get('photo_url', 'N/A') if isinstance(google_data, dict) else 'N/A'}")
+        else:
+            print(f"[REGISTER] POST - ⚠️ google_data está vacío o no existe en la sesión")
+            # Intentar obtener directamente
+            if 'google_user_data' in request.session:
+                print(f"[REGISTER] POST - 'google_user_data' existe en request.session pero está vacío")
+            else:
+                print(f"[REGISTER] POST - 'google_user_data' NO existe en request.session")
         
         form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
