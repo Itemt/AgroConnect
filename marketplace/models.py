@@ -164,7 +164,8 @@ class Publication(BaseModel):
 
     @property
     def categoria_display(self):
-        return self.get_categoria_display()
+        """Retorna la categoría del cultivo, no de la publicación"""
+        return self.cultivo.get_categoria_display() if self.cultivo else self.get_categoria_display()
 
     @property
     def ciudad_display(self):
