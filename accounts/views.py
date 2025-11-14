@@ -255,43 +255,63 @@ def register(request):
             # Hacer login PRIMERO para establecer la sesión
             login(request, user)
             
-            # Forzar el guardado de la sesión y asegurar que se mantenga
-            request.session.save()
-            request.session.modified = True
-            
             # Verificar que el usuario esté autenticado
-            if request.user.is_authenticated:
-                print(f"[REGISTER] Usuario autenticado correctamente: {request.user.email}")
-                logger.info(f"Usuario autenticado después del registro: {request.user.email}")
-                
-                # Ahora descargar la imagen de Google DESPUÉS del login (en segundo plano)
-                if google_photo_url:
-                    print(f"[REGISTER] ✅ Photo URL disponible: {google_photo_url}")
-                    logger.info(f"Descargando imagen de Google después del login: {google_photo_url}")
-                    try:
-                        from accounts.forms import download_google_profile_image
-                        print(f"[REGISTER] Llamando a download_google_profile_image...")
-                        # Descargar la imagen (esto puede tomar tiempo, pero ya estamos autenticados)
-                        result = download_google_profile_image(google_photo_url, user)
-                        if result:
-                            print(f"[REGISTER] ✅ Imagen descargada exitosamente")
-                            logger.info(f"Imagen descargada exitosamente después del registro")
-                        else:
-                            print(f"[REGISTER] ❌ La función retornó False")
-                            logger.error(f"La función download_google_profile_image retornó False")
-                    except Exception as e:
-                        print(f"[REGISTER] ❌ Error descargando imagen: {e}")
-                        logger.error(f"Error descargando imagen después del registro: {e}", exc_info=True)
-                else:
-                    print(f"[REGISTER] ⚠️ No hay google_photo_url disponible")
-                    logger.warning(f"No hay google_photo_url disponible para descargar imagen")
-            else:
+            if not request.user.is_authenticated:
                 print(f"[REGISTER] ❌ ERROR: Usuario NO autenticado después del login")
                 logger.error(f"Usuario NO autenticado después del login: {user.email}")
+                messages.error(request, 'Error al iniciar sesión. Por favor, intenta nuevamente.')
+                return redirect('login')
+            
+            print(f"[REGISTER] Usuario autenticado correctamente: {request.user.email}")
+            logger.info(f"Usuario autenticado después del registro: {request.user.email}")
+            
+            # Guardar la sesión INMEDIATAMENTE después del login
+            request.session.modified = True
+            request.session.save()
+            print(f"[REGISTER] Sesión guardada después del login. Session key: {request.session.session_key}")
+            
+            # Descargar la imagen de Google DESPUÉS del login (pero no bloquear el redirect)
+            if google_photo_url:
+                print(f"[REGISTER] ✅ Photo URL disponible: {google_photo_url}")
+                logger.info(f"Descargando imagen de Google después del login: {google_photo_url}")
+                try:
+                    from accounts.forms import download_google_profile_image
+                    print(f"[REGISTER] Llamando a download_google_profile_image...")
+                    # Descargar la imagen
+                    result = download_google_profile_image(google_photo_url, user)
+                    if result:
+                        print(f"[REGISTER] ✅ Imagen descargada exitosamente")
+                        logger.info(f"Imagen descargada exitosamente después del registro")
+                    else:
+                        print(f"[REGISTER] ❌ La función retornó False")
+                        logger.error(f"La función download_google_profile_image retornó False")
+                except Exception as e:
+                    print(f"[REGISTER] ❌ Error descargando imagen: {e}")
+                    logger.error(f"Error descargando imagen después del registro: {e}", exc_info=True)
+            else:
+                print(f"[REGISTER] ⚠️ No hay google_photo_url disponible")
+                logger.warning(f"No hay google_photo_url disponible para descargar imagen")
+            
+            # CRÍTICO: Guardar la sesión DESPUÉS de todo para asegurar que persista
+            # Esto debe hacerse después de la descarga de la imagen
+            request.session.modified = True
+            request.session.save()
+            
+            # Verificar nuevamente que el usuario esté autenticado antes del redirect
+            if not request.user.is_authenticated:
+                print(f"[REGISTER] ❌ ERROR: Usuario perdió autenticación después de descargar imagen")
+                logger.error(f"Usuario perdió autenticación después de descargar imagen: {user.email}")
+                messages.error(request, 'Error al mantener la sesión. Por favor, inicia sesión nuevamente.')
+                return redirect('login')
+            
+            print(f"[REGISTER] Sesión guardada. Usuario autenticado: {request.user.is_authenticated}, User ID: {request.user.id}, Session key: {request.session.session_key}")
+            logger.info(f"Sesión guardada correctamente. Usuario: {request.user.email}, Autenticado: {request.user.is_authenticated}, Session key: {request.session.session_key}")
             
             messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
             # Redirigir a la página principal (index) en lugar del dashboard
-            return redirect('index')
+            # Usar HttpResponseRedirect en lugar de redirect para asegurar que la sesión se mantenga
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(reverse('index'))
     else:
         # Pre-llenar formulario con datos de Google solo si existen
         initial_data = {}

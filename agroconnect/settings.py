@@ -214,6 +214,16 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = False  # Let Coolify handle SSL
     SESSION_COOKIE_SECURE = False  # Let Coolify handle SSL
 
+# Session configuration
+SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar sesión en cada request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar al cerrar el navegador
+SESSION_COOKIE_HTTPONLY = True  # Prevenir acceso desde JavaScript
+SESSION_COOKIE_SAMESITE = 'Lax'  # Protección CSRF
+# Usar base de datos para sesiones en producción para mejor persistencia
+if not DEBUG:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 # MercadoPago Configuration
 MERCADOPAGO_ACCESS_TOKEN = config('MERCADOPAGO_ACCESS_TOKEN', default='')
 
