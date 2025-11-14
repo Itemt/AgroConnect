@@ -711,6 +711,24 @@
             let pollingInterval = null;
             let isPollingActive = false;
             const STORAGE_KEY = 'agroconnect_shown_notifications';
+            const POPUP_SHOWING_KEY = 'agroconnect_popup_showing';
+            let currentlyShowingPopups = new Set(); // Set en memoria para verificación rápida
+            
+            // Inicializar: cargar notificaciones que están siendo mostradas desde localStorage
+            function initializePopupState() {
+                try {
+                    const showing = localStorage.getItem(POPUP_SHOWING_KEY);
+                    if (showing) {
+                        const showingIds = JSON.parse(showing);
+                        currentlyShowingPopups = new Set(showingIds);
+                    }
+                } catch (e) {
+                    console.warn('Error initializing popup state from localStorage:', e);
+                }
+            }
+            
+            // Inicializar al cargar
+            initializePopupState();
             
             // Cargar IDs de notificaciones ya mostradas desde localStorage
             function getShownNotificationIds() {
@@ -737,8 +755,56 @@
                 }
             }
             
-            // Agregar un ID a la lista de notificaciones mostradas
+            // Verificar si una notificación ya está siendo mostrada (verificación atómica)
+            function isNotificationCurrentlyShowing(notificationId) {
+                // Verificar en memoria primero (más rápido)
+                if (currentlyShowingPopups.has(notificationId)) {
+                    return true;
+                }
+                // Verificar en localStorage (para sincronización entre pestañas)
+                try {
+                    const showing = localStorage.getItem(POPUP_SHOWING_KEY);
+                    if (showing) {
+                        const showingIds = new Set(JSON.parse(showing));
+                        if (showingIds.has(notificationId)) {
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    // Ignorar errores
+                }
+                return false;
+            }
+            
+            // Marcar una notificación como "mostrándose ahora" (temporal)
+            function markNotificationAsShowing(notificationId) {
+                currentlyShowingPopups.add(notificationId);
+                try {
+                    const showing = localStorage.getItem(POPUP_SHOWING_KEY);
+                    const showingIds = showing ? new Set(JSON.parse(showing)) : new Set();
+                    showingIds.add(notificationId);
+                    localStorage.setItem(POPUP_SHOWING_KEY, JSON.stringify(Array.from(showingIds)));
+                } catch (e) {
+                    // Ignorar errores
+                }
+            }
+            
+            // Desmarcar una notificación como "mostrándose" y marcarla como "mostrada permanentemente"
             function markNotificationAsShown(notificationId) {
+                // Remover de "mostrándose"
+                currentlyShowingPopups.delete(notificationId);
+                try {
+                    const showing = localStorage.getItem(POPUP_SHOWING_KEY);
+                    if (showing) {
+                        const showingIds = new Set(JSON.parse(showing));
+                        showingIds.delete(notificationId);
+                        localStorage.setItem(POPUP_SHOWING_KEY, JSON.stringify(Array.from(showingIds)));
+                    }
+                } catch (e) {
+                    // Ignorar errores
+                }
+                
+                // Agregar a "mostradas permanentemente"
                 const shownIds = getShownNotificationIds();
                 shownIds.add(notificationId);
                 saveShownNotificationIds(shownIds);
@@ -756,6 +822,20 @@
             }
             
             function showNotificationPopup(notification){
+                // Verificar si ya está siendo mostrada (evitar duplicados)
+                if (isNotificationCurrentlyShowing(notification.id)) {
+                    return; // Ya está siendo mostrada, no mostrar de nuevo
+                }
+                
+                // Verificar si ya fue mostrada permanentemente
+                const shownIds = getShownNotificationIds();
+                if (shownIds.has(notification.id)) {
+                    return; // Ya fue mostrada antes, no mostrar de nuevo
+                }
+                
+                // Marcar como "mostrándose ahora" ANTES de crear el popup
+                markNotificationAsShowing(notification.id);
+                
                 // Crear contenedor si no existe
                 let container = document.getElementById('notification-popup-container');
                 if (!container) {
@@ -764,9 +844,6 @@
                     container.className = 'fixed top-20 right-4 z-[100] space-y-2';
                     document.body.appendChild(container);
                 }
-                
-                // Marcar esta notificación como mostrada inmediatamente
-                markNotificationAsShown(notification.id);
                 
                 const popup = document.createElement('div');
                 popup.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm';
@@ -809,7 +886,11 @@
                 // Auto-remover después de 5 segundos
                 setTimeout(() => {
                     popup.style.animation = 'slideOutRight 0.3s ease-out';
-                    setTimeout(() => popup.remove(), 300);
+                    setTimeout(() => {
+                        popup.remove();
+                        // Marcar como mostrada permanentemente cuando se remueve
+                        markNotificationAsShown(notification.id);
+                    }, 300);
                 }, 5000);
                 
                 // Marcar como leída al hacer click
@@ -868,13 +949,16 @@
                             const unreadCount = notifications.filter(n => !n.is_read).length;
                             updateBadge(unreadCount);
                             
-                            // Obtener IDs de notificaciones ya mostradas
-                            const shownIds = getShownNotificationIds();
-                            
                             // Detectar notificaciones nuevas (no leídas y no mostradas antes)
                             notifications.forEach(n => {
-                                if (!n.is_read && !shownIds.has(n.id)) {
-                                    showNotificationPopup(n);
+                                if (!n.is_read) {
+                                    // Verificar si ya fue mostrada o está siendo mostrada
+                                    if (!isNotificationCurrentlyShowing(n.id)) {
+                                        const shownIds = getShownNotificationIds();
+                                        if (!shownIds.has(n.id)) {
+                                            showNotificationPopup(n);
+                                        }
+                                    }
                                 }
                             });
                             
