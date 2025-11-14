@@ -178,7 +178,7 @@ if not DEBUG:
     
     # Solo configurar Cloudinary si todas las credenciales están presentes
     if cloudinary_cloud_name and cloudinary_api_key and cloudinary_api_secret:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
         logger = logging.getLogger(__name__)
         logger.info("Cloudinary configurado para almacenamiento de archivos media")
     else:
