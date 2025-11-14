@@ -277,20 +277,14 @@ class BuyerRegistrationForm(forms.ModelForm):
                 is_google_user=False
             )
         
-        # Descargar y guardar imagen de perfil de Google si está disponible
-        logger.info(f"=== REGISTRO CON GOOGLE DEBUG ===")
-        logger.info(f"is_google_signup: {self.is_google_signup}")
-        logger.info(f"google_photo_url: {google_photo_url}")
-        
+        # NOTA: La descarga de la imagen se hará DESPUÉS del login en la vista
+        # para evitar problemas con la sesión. Solo guardamos la URL si está disponible.
         if self.is_google_signup and google_photo_url:
-            logger.info(f"✅ Descargando imagen de Google durante registro para usuario: {user.email}")
-            result = download_google_profile_image(google_photo_url, user)
-            if result:
-                logger.info(f"✅ Imagen descargada exitosamente durante registro para: {user.email}")
-            else:
-                logger.error(f"❌ Error al descargar imagen durante registro para: {user.email}")
+            logger.info(f"Registro con Google detectado. Photo URL disponible para usuario: {user.email}")
+            # Guardar la URL en el usuario para descargarla después del login
+            # Esto se manejará en la vista después de hacer login
         else:
-            logger.warning(f"⚠️ No se descargará imagen: is_google_signup={self.is_google_signup}, photo_url={bool(google_photo_url)}")
+            logger.info(f"Registro normal o sin photo_url. is_google_signup={self.is_google_signup}, photo_url={bool(google_photo_url)}")
         
         if commit:
             # Crear BuyerProfile

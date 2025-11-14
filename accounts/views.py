@@ -184,14 +184,39 @@ def register(request):
             google_photo_url = google_data.get('photo_url', '') if google_data else None
             user = form.save(google_photo_url=google_photo_url)  # El formulario ya maneja la creación del perfil
             
-            # Limpiar datos de Google de la sesión
+            # Limpiar datos de Google de la sesión ANTES del login
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
             
-            # Hacer login y asegurar que la sesión se guarde
+            # Asegurar que el usuario esté completamente guardado antes del login
+            user.refresh_from_db()
+            
+            # Hacer login PRIMERO para establecer la sesión
             login(request, user)
-            # Forzar el guardado de la sesión para evitar problemas
+            
+            # Forzar el guardado de la sesión y asegurar que se mantenga
             request.session.save()
+            request.session.modified = True
+            
+            # Verificar que el usuario esté autenticado
+            if request.user.is_authenticated:
+                print(f"[REGISTER] Usuario autenticado correctamente: {request.user.email}")
+                logger.info(f"Usuario autenticado después del registro: {request.user.email}")
+                
+                # Ahora descargar la imagen de Google DESPUÉS del login (en segundo plano)
+                if google_photo_url:
+                    try:
+                        from accounts.forms import download_google_profile_image
+                        print(f"[REGISTER] Descargando imagen de Google después del login...")
+                        # Descargar la imagen (esto puede tomar tiempo, pero ya estamos autenticados)
+                        download_google_profile_image(google_photo_url, user)
+                    except Exception as e:
+                        print(f"[REGISTER] Error descargando imagen: {e}")
+                        logger.error(f"Error descargando imagen después del registro: {e}")
+            else:
+                print(f"[REGISTER] ❌ ERROR: Usuario NO autenticado después del login")
+                logger.error(f"Usuario NO autenticado después del login: {user.email}")
+            
             messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
             # Redirigir al dashboard del comprador en lugar de index
             return redirect('buyer_dashboard')
@@ -251,14 +276,26 @@ def register_producer(request):
                 ciudad=form.cleaned_data['finca_ciudad']
             )
             
-            # Limpiar datos de Google de la sesión
+            # Limpiar datos de Google de la sesión ANTES del login
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
             
-            # Hacer login y asegurar que la sesión se guarde
+            # Asegurar que el usuario esté completamente guardado antes del login
+            user.refresh_from_db()
+            
+            # Hacer login
             login(request, user)
-            # Forzar el guardado de la sesión para evitar problemas
+            
+            # Forzar el guardado de la sesión y asegurar que se mantenga
             request.session.save()
+            request.session.modified = True
+            
+            # Verificar que el usuario esté autenticado
+            if request.user.is_authenticated:
+                logger.info(f"Usuario autenticado después del registro de productor: {request.user.email}")
+            else:
+                logger.error(f"Usuario NO autenticado después del login de productor: {user.email}")
+            
             messages.success(request, '¡Registro exitoso! Tu cuenta de productor y finca han sido creadas.')
             return redirect('producer_dashboard')
     else:
