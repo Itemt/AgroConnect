@@ -436,7 +436,9 @@
                                 <li>
                                     <a href="{% url 'core:notifications_page' %}" 
                                        class="relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm {% if 'notifications' in request.resolver_match.url_name %}bg-success-50 text-success-600 dark:bg-success-500/12 dark:text-success-400{% else %}text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5{% endif %}">
-                                        <i class="fas fa-bell text-lg w-5"></i>
+                                        <i class="fas fa-bell text-lg w-5 relative">
+                                            <span id="sidebar-notification-badge" class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                                        </i>
                                         <span class="sidebar-text">Notificaciones</span>
                                     </a>
                                 </li>
@@ -1000,6 +1002,199 @@
             });
         })();
     </script>
+    
+    <!-- Sistema de Notificaciones con Popups -->
+    {% if user.is_authenticated and user.role == 'Productor' %}
+    <div id="notification-popup-container" class="fixed top-20 right-4 z-[100] space-y-2"></div>
+    <script>
+        (function(){
+            let pollingInterval = null;
+            let lastNotificationIds = new Set();
+            let isPollingActive = false;
+            
+            function updateSidebarBadge(count){
+                const badge = document.getElementById('sidebar-notification-badge');
+                if (!badge) return;
+                if (count > 0){
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+            
+            function showNotificationPopup(notification){
+                const container = document.getElementById('notification-popup-container');
+                if (!container) return;
+                
+                const popup = document.createElement('div');
+                popup.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm';
+                popup.style.animation = 'slideInRight 0.3s ease-out';
+                
+                const icon = notification.category === 'payment' ? 'fa-credit-card' : 
+                            (notification.category === 'order' ? 'fa-box' : 'fa-info-circle');
+                let iconColorClass = 'text-gray-500';
+                let bgColorClass = 'bg-gray-50 dark:bg-gray-500/20';
+                if (notification.category === 'payment') {
+                    iconColorClass = 'text-blue-500';
+                    bgColorClass = 'bg-blue-50 dark:bg-blue-500/20';
+                } else if (notification.category === 'order') {
+                    iconColorClass = 'text-green-500';
+                    bgColorClass = 'bg-green-50 dark:bg-green-500/20';
+                }
+                
+                const orderLink = notification.order_id ? 
+                    '<a href="/order/' + notification.order_id + '/" class="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block">Ver pedido →</a>' : '';
+                
+                popup.innerHTML = 
+                    '<div class="flex items-start gap-3">' +
+                        '<div class="flex-shrink-0">' +
+                            '<div class="w-10 h-10 ' + iconColorClass + ' ' + bgColorClass + ' rounded-full flex items-center justify-center">' +
+                                '<i class="fas ' + icon + '"></i>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<p class="text-sm font-semibold text-gray-900 dark:text-white">' + (notification.title || 'Notificación') + '</p>' +
+                            '<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">' + (notification.message || '') + '</p>' +
+                            orderLink +
+                        '</div>' +
+                        '<button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">' +
+                            '<i class="fas fa-times"></i>' +
+                        '</button>' +
+                    '</div>';
+                
+                container.appendChild(popup);
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    popup.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => popup.remove(), 300);
+                }, 5000);
+                
+                // Marcar como leída al hacer click
+                if (notification.order_id) {
+                    popup.querySelector('a').addEventListener('click', function() {
+                        markAsRead(notification.id);
+                    });
+                }
+            }
+            
+            function markAsRead(notificationId){
+                fetch('{% url "core:notifications_mark_read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ notification_id: notificationId }),
+                    credentials: 'same-origin'
+                }).catch(() => {});
+            }
+            
+            function fetchNotifications() {
+                const timestamp = new Date().getTime();
+                fetch('{% url "core:notifications_list" %}?t=' + timestamp, { 
+                    credentials: 'same-origin',
+                    cache: 'no-cache'
+                })
+                    .then(r => {
+                        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                        return r.json();
+                    })
+                    .then(res => {
+                        if (res && res.success) {
+                            const notifications = res.notifications || [];
+                            const unreadNotifications = notifications.filter(n => !n.is_read);
+                            const unreadCount = unreadNotifications.length;
+                            
+                            updateSidebarBadge(unreadCount);
+                            
+                            // Detectar notificaciones nuevas
+                            notifications.forEach(n => {
+                                if (!n.is_read && !lastNotificationIds.has(n.id)) {
+                                    showNotificationPopup(n);
+                                }
+                                lastNotificationIds.add(n.id);
+                            });
+                            
+                            // Limpiar IDs antiguos (mantener solo los últimos 50)
+                            if (lastNotificationIds.size > 50) {
+                                const idsArray = Array.from(lastNotificationIds);
+                                lastNotificationIds = new Set(idsArray.slice(-50));
+                            }
+                        }
+                    })
+                    .catch(() => {});
+            }
+            
+            function startPolling() {
+                if (isPollingActive || pollingInterval) return;
+                isPollingActive = true;
+                fetchNotifications(); // Fetch inmediatamente
+                pollingInterval = setInterval(fetchNotifications, 5000); // Poll cada 5 segundos
+            }
+            
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                    isPollingActive = false;
+                }
+            }
+            
+            // Inicializar
+            document.addEventListener('DOMContentLoaded', function(){
+                startPolling();
+                
+                // Pausar cuando la página está oculta
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        stopPolling();
+                    } else {
+                        startPolling();
+                    }
+                });
+            });
+            
+            // Helper para obtener cookie
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        })();
+    </script>
+    <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+    {% endif %}
     
     {% block extra_js %}{% endblock %}
 </body>

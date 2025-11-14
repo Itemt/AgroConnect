@@ -146,7 +146,7 @@ class MercadoPagoService:
             
             # Obtener la URL base - SIEMPRE usar la URL de producción
             # No usar Site.objects.get_current() porque puede tener example.com
-            base_url = "https://agroconnect.itemt.tech"
+                base_url = "https://agroconnect.itemt.tech"
             
             # Configuración específica para modo sandbox
             is_sandbox = self.access_token.startswith('TEST-')
