@@ -82,6 +82,17 @@ def google_auth_callback(request):
                     user = User.objects.get(email=user_info['email'])
                     # Usuario existe, hacer login
                     from django.contrib.auth import login
+                    
+                    # Actualizar imagen de perfil de Google si no tiene una o si es usuario de Google
+                    photo_url = user_info.get('picture', '')
+                    if photo_url and (not user.profile_image or user.is_google_user):
+                        from accounts.forms import download_google_profile_image
+                        try:
+                            download_google_profile_image(photo_url, user)
+                            logger.info(f"Imagen de perfil de Google actualizada para usuario existente: {user.email}")
+                        except Exception as e:
+                            logger.error(f"Error actualizando imagen de perfil de Google para usuario existente {user.email}: {str(e)}")
+                    
                     login(request, user)
                     # Forzar el guardado de la sesión para evitar problemas
                     request.session.save()

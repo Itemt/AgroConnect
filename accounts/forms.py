@@ -20,12 +20,21 @@ def download_google_profile_image(photo_url, user):
     Descarga la imagen de perfil de Google y la guarda en el campo profile_image del usuario
     """
     if not photo_url:
+        logger.warning(f"No hay photo_url proporcionada para usuario {user.email}")
         return False
     
     try:
+        logger.info(f"Intentando descargar imagen de perfil de Google para usuario {user.email} desde: {photo_url}")
+        
         # Descargar la imagen
         response = requests.get(photo_url, timeout=10)
         response.raise_for_status()
+        
+        # Verificar que la respuesta sea una imagen
+        content_type = response.headers.get('content-type', '')
+        if not content_type.startswith('image/'):
+            logger.error(f"La URL de Google no devolvió una imagen. Content-Type: {content_type}")
+            return False
         
         # Obtener el nombre del archivo de la URL o generar uno
         filename = f"google_profile_{user.id}_{int(time.time())}.jpg"
@@ -33,13 +42,27 @@ def download_google_profile_image(photo_url, user):
         # Crear un archivo en memoria
         image_file = ContentFile(response.content)
         
+        # Eliminar imagen anterior si existe (para Cloudinary)
+        if user.profile_image:
+            try:
+                user.profile_image.delete(save=False)
+                logger.info(f"Imagen anterior eliminada para usuario {user.email}")
+            except Exception as e:
+                logger.warning(f"No se pudo eliminar la imagen anterior para usuario {user.email}: {e}")
+        
         # Guardar en el campo profile_image
         user.profile_image.save(filename, image_file, save=True)
         
-        logger.info(f"Imagen de perfil de Google descargada y guardada para usuario {user.email}")
+        # Recargar el usuario para obtener la URL actualizada
+        user.refresh_from_db()
+        
+        logger.info(f"Imagen de perfil de Google descargada y guardada exitosamente para usuario {user.email}. URL: {user.profile_image.url if user.profile_image else 'N/A'}")
         return True
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error de red descargando imagen de perfil de Google para usuario {user.email}: {str(e)}")
+        return False
     except Exception as e:
-        logger.error(f"Error descargando imagen de perfil de Google: {str(e)}")
+        logger.error(f"Error descargando imagen de perfil de Google para usuario {user.email}: {str(e)}", exc_info=True)
         return False
 
 
