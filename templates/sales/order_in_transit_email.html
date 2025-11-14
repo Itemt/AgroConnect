@@ -18,8 +18,6 @@
         .row { display:flex; justify-content:space-between; align-items:center; margin:10px 0; padding:8px 0; }
         .chip { display:inline-flex; align-items:center; padding:8px 14px; border-radius:999px; border:1px solid #022C22; background:#fff; margin-right:8px; font-size:13px; color:#022C22; }
         .highlight-box { background: #fef3c7; border: 2px solid #fde047; border-radius:16px; padding:20px; margin-top:12px; }
-        .qr-section { background: #f0fdfa; border: 2px solid #14b8a6; border-radius:16px; padding:24px; text-align:center; margin:24px 0; }
-        .qr-code { max-width:200px; margin:16px auto; border-radius:12px; }
         .footer { color:#64748b; font-size:13px; margin-top:20px; line-height:1.6; }
         .muted { color:#64748b; font-size:13px; }
         .title { font-weight:700; font-size:18px; margin:0 0 16px; color:#022C22; }
@@ -77,18 +75,6 @@
                     </ul>
                 </div>
 
-                <div class="qr-section">
-                    <p style="margin:0 0 8px; font-weight:700; color:#022C22; font-size:16px;">📱 Rastrea tu pedido con QR</p>
-                    <p style="margin:0 0 16px; font-size:14px; color:#64748b;">Escanea para ver el estado en tiempo real</p>
-                    {% if qr_code %}
-                    <div style="background:#fff; padding:16px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(2,44,34,0.1);">
-                        <img src="{{ qr_code }}" alt="QR Code" class="qr-code" style="max-width:200px; display:block; margin:0 auto;"/>
-                    </div>
-                    {% endif %}
-                    <p style="margin:16px 0 0; font-size:13px; color:#64748b;">
-                        <a href="{{ order_url }}" style="color:#022C22; text-decoration:none; font-weight:600; border-bottom:2px solid #84cc16; padding-bottom:2px;">Haz clic aquí para ver tu pedido</a>
-                    </p>
-                </div>
 
                 <p class="footer">
                     Te notificaremos cuando tu pedido sea entregado. ¡Gracias por confiar en AgroConnect!

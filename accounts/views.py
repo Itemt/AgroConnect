@@ -285,6 +285,11 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     if request.method == 'POST':
+        # Verificar que el formulario tenga enctype="multipart/form-data" (se hace en el template)
+        # Verificar si hay archivos en request.FILES
+        has_files = bool(request.FILES)
+        logger.info(f"Profile edit POST - Usuario: {request.user.username}, Tiene archivos: {has_files}, Archivos: {list(request.FILES.keys())}")
+        
         if request.user.role == 'Productor':
             # Usar formulario completo para productores
             try:
@@ -299,6 +304,9 @@ def profile_edit_view(request):
                 form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
                 return redirect('profile_edit')
+            else:
+                # Log de errores del formulario para debugging
+                logger.warning(f"Errores en formulario de productor: {form.errors}")
         else:
             # Usar formulario completo para compradores
             form = BuyerEditForm(request.POST, request.FILES, instance=request.user)
@@ -307,6 +315,9 @@ def profile_edit_view(request):
                 form.save()
                 messages.success(request, 'Perfil actualizado exitosamente.')
                 return redirect('profile_edit')
+            else:
+                # Log de errores del formulario para debugging
+                logger.warning(f"Errores en formulario de comprador: {form.errors}")
     else:
         if request.user.role == 'Productor':
             try:

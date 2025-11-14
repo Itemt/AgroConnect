@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import logging
 from decouple import config
 import dj_database_url
 
@@ -169,8 +170,22 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Usar Cloudinary en producción para archivos media
+# Solo usar Cloudinary si las credenciales están configuradas
 if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    cloudinary_cloud_name = config('CLOUDINARY_CLOUD_NAME', default='')
+    cloudinary_api_key = config('CLOUDINARY_API_KEY', default='')
+    cloudinary_api_secret = config('CLOUDINARY_API_SECRET', default='')
+    
+    # Solo configurar Cloudinary si todas las credenciales están presentes
+    if cloudinary_cloud_name and cloudinary_api_key and cloudinary_api_secret:
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        logger = logging.getLogger(__name__)
+        logger.info("Cloudinary configurado para almacenamiento de archivos media")
+    else:
+        # Si no hay credenciales de Cloudinary, usar almacenamiento local
+        # Esto puede causar problemas en producción si no hay espacio suficiente
+        logger = logging.getLogger(__name__)
+        logger.warning("Cloudinary no configurado - usando almacenamiento local. Las imágenes pueden no persistir en producción.")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

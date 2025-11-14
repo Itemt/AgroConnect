@@ -96,20 +96,13 @@ class EmailService:
     
     def send_order_confirmation_email(self, user_email, order, user_name=None):
         """
-        Envía confirmación de pedido (usa el nuevo template con QR)
+        Envía confirmación de pedido
         """
         # Este método ahora usa send_order_buyer_confirmation_email con los nuevos templates
-        from sales.qr_utils import get_order_buyer_qr
-        
         try:
-            buyer_qr = get_order_buyer_qr(order)
-            buyer_url = order.get_buyer_qr_url()
-            
             context = {
                 'user_name': user_name or 'Usuario',
                 'order': order,
-                'qr_code': buyer_qr,
-                'order_url': buyer_url,
                 'site_name': 'AgroConnect',
                 'logo_url': get_logo_url()
             }
@@ -160,9 +153,9 @@ class EmailService:
             logger.error(f"Error sending seller order paid email to {seller_email}: {str(e)}")
             return False, str(e)
     
-    def send_order_buyer_confirmation_email(self, buyer_email, order, buyer_name=None, qr_code=None, order_url=None):
+    def send_order_buyer_confirmation_email(self, buyer_email, order, buyer_name=None):
         """
-        Envía confirmación de compra al comprador con código QR
+        Envía confirmación de compra al comprador
         """
         if not self.api_key or not self.api_key.strip():
             error_msg = "API key is invalid"
@@ -173,8 +166,6 @@ class EmailService:
             context = {
                 'user_name': buyer_name or 'Usuario',
                 'order': order,
-                'qr_code': qr_code,
-                'order_url': order_url,
                 'site_name': 'AgroConnect',
                 'logo_url': get_logo_url()
             }
@@ -198,9 +189,9 @@ class EmailService:
             logger.error(f"Error sending buyer confirmation email to {buyer_email}: {str(e)}")
             return False, str(e)
     
-    def send_order_seller_notification_email(self, seller_email, order, seller_name=None, qr_code=None, order_url=None):
+    def send_order_seller_notification_email(self, seller_email, order, seller_name=None):
         """
-        Notifica al vendedor sobre una nueva venta con código QR
+        Notifica al vendedor sobre una nueva venta
         """
         if not self.api_key or not self.api_key.strip():
             error_msg = "API key is invalid"
@@ -211,8 +202,6 @@ class EmailService:
             context = {
                 'seller_name': seller_name or 'Vendedor',
                 'order': order,
-                'qr_code': qr_code,
-                'order_url': order_url,
                 'site_name': 'AgroConnect',
                 'logo_url': get_logo_url()
             }
@@ -236,9 +225,9 @@ class EmailService:
             logger.error(f"Error sending seller notification email to {seller_email}: {str(e)}")
             return False, str(e)
     
-    def send_order_in_transit_email(self, buyer_email, order, buyer_name=None, qr_code=None, order_url=None):
+    def send_order_in_transit_email(self, buyer_email, order, buyer_name=None):
         """
-        Notifica al comprador que su pedido está en tránsito con código QR
+        Notifica al comprador que su pedido está en tránsito
         """
         if not self.api_key or not self.api_key.strip():
             error_msg = "API key is invalid"
@@ -249,8 +238,6 @@ class EmailService:
             context = {
                 'user_name': buyer_name or 'Usuario',
                 'order': order,
-                'qr_code': qr_code,
-                'order_url': order_url,
                 'site_name': 'AgroConnect',
                 'logo_url': get_logo_url()
             }
@@ -274,9 +261,9 @@ class EmailService:
             logger.error(f"Error sending in transit email to {buyer_email}: {str(e)}")
             return False, str(e)
     
-    def send_order_received_seller_email(self, seller_email, order, seller_name=None, qr_code=None, order_url=None, buyer_rating=None, seller_rating=None):
+    def send_order_received_seller_email(self, seller_email, order, seller_name=None, buyer_rating=None, seller_rating=None):
         """
-        Notifica al vendedor que el comprador recibió el producto con código QR
+        Notifica al vendedor que el comprador recibió el producto
         """
         if not self.api_key or not self.api_key.strip():
             error_msg = "API key is invalid"
@@ -287,8 +274,6 @@ class EmailService:
             context = {
                 'seller_name': seller_name or 'Vendedor',
                 'order': order,
-                'qr_code': qr_code,
-                'order_url': order_url,
                 'buyer_rating': buyer_rating,
                 'seller_rating': seller_rating,
                 'site_name': 'AgroConnect',

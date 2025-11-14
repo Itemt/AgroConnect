@@ -11,7 +11,7 @@
     form input[type="password"],
     form input[type="tel"],
     form input[type="number"],
-    form select,
+    form select:not(#country-code-select-producer):not(#country-code-select-register):not(#country-code-select-edit),
     form textarea {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -86,18 +86,13 @@
     }
     
     /* Selects de código de país con ancho uniforme */
-    #country-code-select-producer {
+    #country-code-select-producer,
+    #country-code-select-register,
+    #country-code-select-edit {
+        max-width: 180px !important;
         width: 180px !important;
         min-width: 180px !important;
-        max-width: 180px !important;
         box-sizing: border-box !important;
-    }
-    
-    /* Asegurar que el menú desplegable tenga el mismo ancho */
-    #country-code-select-producer option {
-        max-width: 180px !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 </style>
 {% endblock %}
@@ -215,7 +210,7 @@
                                     Teléfono *
                                 </label>
                                 <div class="flex gap-2">
-                                    <select id="country-code-select-producer" class="flex-shrink-0 px-2 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm" style="width: 180px !important; min-width: 180px !important; max-width: 180px !important; box-sizing: border-box !important; text-align: center; text-align-last: center;">
+                                    <select id="country-code-select-producer" class="flex-shrink-0 px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-xs" style="width: 130px; text-align: center; text-align-last: center;">
                                         <option value="+93">Afganistán +93</option>
                                         <option value="+355">Albania +355</option>
                                         <option value="+49">Alemania +49</option>
@@ -409,7 +404,7 @@
                                         <option value="+260">Zambia +260</option>
                                         <option value="+263">Zimbabue +263</option>
                                     </select>
-                                    <input type="text" name="phone_number" id="phone-number-input-producer" class="flex-1 px-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="320 123 4567" maxlength="15" pattern="[0-9\s]+" title="Solo números">
+                                    <input type="text" name="phone_number" id="phone-number-input-producer" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-xs" placeholder="320 123 4567" maxlength="15" pattern="[0-9\s]+" title="Solo números">
                                     {{ form.telefono }}
                                 </div>
                                 {% if form.telefono.errors %}

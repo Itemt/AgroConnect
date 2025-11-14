@@ -93,11 +93,6 @@
   - Email al vendedor al recibir una nueva venta
   - Email al comprador cuando el pedido está en tránsito
   - Email al vendedor cuando el comprador recibe el producto
-- **🎯 Códigos QR únicos**: 
-  - QR personalizado para comprador y vendedor
-  - Acceso directo a detalles del pedido sin autenticación
-  - Tokens seguros UUID únicos por pedido
-  - Integrado en todos los emails de confirmación
 
 ### 💳 **Pagos con MercadoPago**
 - **Múltiples métodos**: Tarjetas de crédito/débito, PSE, efectivo (Baloto, Efecty)
@@ -133,7 +128,6 @@
   - Pedido en tránsito
   - Pedido recibido
   - Recuperación de contraseña
-- **Códigos QR embebidos**: QR único en cada email de pedido
 - **Modo oscuro incluido**: Templates adaptables a preferencias del usuario
 
 ### 🔐 **Autenticación Avanzada con Firebase**
@@ -183,7 +177,6 @@
 - **🤖 Google Gemini** - IA para asistente y sugerencias (opcional)
 - **🔥 Firebase Authentication** - Autenticación con Google y SMS OTP
 - **📧 Resend** - Servicio de emails transaccionales profesional
-- **🎯 QRCode 8.0 + Pillow 11.3.0** - Generación de códigos QR personalizados
 
 ### 🎨 **Frontend**
 - **🌐 HTML5/CSS3** - Semántica moderna
@@ -216,7 +209,6 @@ python-decouple==3.8
 
 # Media & Images
 pillow==11.3.0
-qrcode==8.0
 
 # AI & Authentication
 google-generativeai==0.7.2

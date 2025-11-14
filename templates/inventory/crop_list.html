@@ -3,32 +3,165 @@
 {% block extra_css %}
 <style>
 /* Make this page use full available width */
+#inventory-crops-page #main-content > .mx-auto.max-w-7xl,
 #main-content > .mx-auto.max-w-7xl { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
 
-/* Evitar desbordes de métricas entre 1024px y 1200px */
-@media (min-width: 1024px) and (max-width: 1200px) {
-  .metrics-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
-  .metrics-card-icon { width: 2.5rem !important; height: 2.5rem !important; }
-  .metrics-number { font-size: 1.5rem !important; line-height: 1.1 !important; }
-  .metrics-sub { font-size: 0.7rem !important; }
+/* Los ajustes responsive ahora no aplican hasta pantallas menores a 1920px */
+
+/* Estilos para la barra de desplazamiento horizontal de la tabla */
+#inventory-crops-page .table-container {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+  width: 100%;
+  display: block;
+  max-width: 100%;
 }
 
-/* Ajustes finos para 1024–1100px: evitar overflow de títulos y botones */
-@media (min-width: 1024px) and (max-width: 1100px) {
-  .metric-title { font-size: 0.75rem !important; line-height: 1.05 !important; }
-  .crop-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .action-btn { padding: 0.5rem 0.5rem !important; font-size: 0.75rem !important; }
-  .metric-card { padding: 0.9rem !important; }
-  .metrics-number { font-size: 1.35rem !important; }
-  .metrics-card-icon { width: 2.25rem !important; height: 2.25rem !important; }
-  .crop-actions { gap: 0.375rem !important; }
-  .btn-icon { font-size: 0.8rem !important; margin-right: 0.25rem !important; }
-  .metrics-container { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+#inventory-crops-page .table-container::-webkit-scrollbar {
+  height: 12px;
 }
 
-/* A partir de 1280px (xl) ensanchar tarjetas: bajar a 5 por fila */
-@media (min-width: 1280px) and (max-width: 1535px) {
-  .metrics-container { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+#inventory-crops-page .table-container::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+#inventory-crops-page .table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 6px;
+  border: 2px solid #f7fafc;
+}
+
+#inventory-crops-page .table-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Dark mode para la barra de desplazamiento */
+.dark #inventory-crops-page .table-container,
+#inventory-crops-page .dark .table-container {
+  scrollbar-color: #4a5568 #2d3748;
+}
+
+.dark #inventory-crops-page .table-container::-webkit-scrollbar-track,
+#inventory-crops-page .dark .table-container::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.dark #inventory-crops-page .table-container::-webkit-scrollbar-thumb,
+#inventory-crops-page .dark .table-container::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border: 2px solid #2d3748;
+}
+
+.dark #inventory-crops-page .table-container::-webkit-scrollbar-thumb:hover,
+#inventory-crops-page .dark .table-container::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Estilos base para pantallas grandes - tablas adaptativas */
+#inventory-crops-page .table-container {
+    overflow-x: hidden; /* Ocultar scroll en pantallas grandes */
+}
+
+#inventory-crops-page .table-container table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed; /* Usar layout fijo para controlar mejor el ancho */
+}
+
+/* Wrapper scrollable para tarjetas de cultivos listos/cosechados */
+#inventory-crops-page .harvest-scroll-wrapper {
+    width: 100%;
+    overflow-x: hidden; /* Ocultar scroll en pantallas grandes */
+}
+
+#inventory-crops-page .harvest-scroll-content {
+    width: 100%;
+}
+
+/* Evitar que el contenido de las celdas se reduzca demasiado */
+#inventory-crops-page .table-container table th,
+#inventory-crops-page .table-container table td {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Tabla de métricas - ancho mínimo para evitar sobreposición */
+#inventory-crops-page .table-container table tbody tr td {
+  border-collapse: collapse;
+}
+
+/* Media queries para pantallas menores a 1920px - forzar scroll horizontal */
+@media (max-width: 1919px) {
+    #inventory-crops-page .table-container {
+        overflow-x: auto !important; /* Mostrar scroll en pantallas pequeñas */
+    }
+    
+    #inventory-crops-page .table-container table {
+        width: auto !important;
+        min-width: 1920px !important;
+        max-width: none !important;
+        table-layout: fixed !important;
+    }
+    
+    #inventory-crops-page .table-container table th,
+    #inventory-crops-page .table-container table td {
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+    }
+    
+    /* Tabla de métricas - ancho mínimo para evitar sobreposición */
+    #inventory-crops-page .table-container table tbody tr td {
+        min-width: 160px !important;
+    }
+    
+    /* Para la primera columna de cada tabla, permitir un ancho menor */
+    #inventory-crops-page .table-container table tbody tr td:first-child {
+        min-width: 140px !important;
+    }
+    
+    #inventory-crops-page .harvest-scroll-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #inventory-crops-page .harvest-scroll-content {
+        min-width: 1920px !important;
+        display: inline-grid;
+        gap: 1rem;
+    }
+}
+
+/* A partir de 1920px, todo se adapta sin scroll */
+@media (min-width: 1920px) {
+    #inventory-crops-page .metrics-container { 
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important; 
+    }
+}
+
+/* Ajustes solo para pantallas muy pequeñas (tablets y móviles) */
+@media (max-width: 1024px) {
+    #inventory-crops-page .table-container table tbody tr td {
+        min-width: 120px;
+    }
+    #inventory-crops-page .table-container table tbody tr td:first-child {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 640px) {
+    #inventory-crops-page .table-container table th,
+    #inventory-crops-page .table-container table td {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    #inventory-crops-page .table-container table tbody tr td {
+        min-width: 100px;
+    }
 }
 </style>
 {% endblock %}
@@ -36,26 +169,14 @@
 {% block title %}Mis Cultivos - AgroConnect{% endblock %}
 
 {% block producer_content %}
-<div class="min-h-screen">
-    <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
+<div id="inventory-crops-page" class="min-h-screen">
+    <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8 py-12">
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center mr-4">
-                        <i class="fas fa-seedling text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Cultivos</h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Gestiona tus cultivos y publicaciones</p>
-                    </div>
-                </div>
-                <a href="{% url 'crop_add' %}" class="inline-flex items-center px-4 py-2.5 bg-success-600 hover:bg-success-700 text-white rounded-lg transition-colors font-medium shadow-sm hover:shadow-md">
-                    <i class="fas fa-plus mr-2"></i>
-                    <span class="hidden sm:inline">Crear Cultivo</span>
-                    <span class="sm:hidden">Crear</span>
-                </a>
-            </div>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Cultivos</h1>
+            <a href="{% url 'crop_add' %}" class="bg-success-600 text-white px-6 py-3 rounded-lg hover:bg-success-700 transition-colors font-semibold text-sm">
+                <i class="fas fa-plus mr-2"></i>Crear Cultivo
+            </a>
         </div>
 
         <!-- Cuadro Informativo TailAdmin -->
@@ -78,119 +199,123 @@
             </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="metrics-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3 md:gap-4 mb-6 auto-rows-fr">
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center min-w-0">
-                    <div class="metrics-card-icon w-10 h-10 sm:w-12 sm:h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-seedling text-success-500 text-xl"></i>
-                    </div>
-                    <div class="ml-4 min-w-0">
-                        <h3 class="metrics-number text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ crops.count }}</h3>
-                        <p class="metric-title metrics-sub text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm whitespace-normal">Cultivos Totales</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center min-w-0">
-                    <div class="metrics-card-icon w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-home text-blue-500 text-xl"></i>
-                    </div>
-                    <div class="ml-4 min-w-0">
-                        <h3 class="metrics-number text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_fincas }}</h3>
-                        <p class="metric-title metrics-sub text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm whitespace-normal">Fincas Asociadas</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center min-w-0">
-                    <div class="metrics-card-icon w-10 h-10 sm:w-12 sm:h-12 bg-purple-50 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-store text-purple-500 text-xl"></i>
-                    </div>
-                    <div class="ml-4 min-w-0">
-                        <h3 class="metrics-number text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_publicaciones }}</h3>
-                        <p class="metric-title metrics-sub text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm whitespace-normal">Publicaciones</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center min-w-0">
-                    <div class="metrics-card-icon w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 dark:bg-orange-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-line text-orange-500 text-xl"></i>
-                    </div>
-                    <div class="ml-4 min-w-0">
-                        <div class="leading-tight">
-                            <div class="metrics-number text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ cantidad_total_kg|floatformat:0 }}</div>
-                        </div>
-                        <p class="metric-title metrics-sub text-gray-600 dark:text-gray-400 font-medium text-xs sm:text-sm whitespace-normal">Cantidad en Kilogramos</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Card: Unidades -->
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-cubes text-indigo-600 dark:text-indigo-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            {% if cantidad_no_convertible.unidades %}
-                                {{ cantidad_no_convertible.unidades|floatformat:0 }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Unidades</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Cajas -->
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-cyan-50 dark:bg-cyan-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-cyan-600 dark:text-cyan-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            {% if cantidad_no_convertible.cajas %}
-                                {{ cantidad_no_convertible.cajas|floatformat:0 }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Cajas</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Bultos -->
-            <div class="metric-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 min-w-0">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-boxes text-amber-600 dark:text-amber-400 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            {% if cantidad_no_convertible.bultos %}
-                                {{ cantidad_no_convertible.bultos|floatformat:0 }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-normal">Bultos</p>
-                    </div>
-                </div>
+        <!-- Statistics Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6">
+            <div class="table-container metrics-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr>
+                        <!-- Cultivos Totales -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-seedling text-success-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ crops.count }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Cultivos Totales</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Fincas Asociadas -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-home text-blue-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_fincas }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Fincas Asociadas</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Publicaciones -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-50 dark:bg-purple-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-store text-purple-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_publicaciones }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Publicaciones</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Cantidad en Kilogramos -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-orange-50 dark:bg-orange-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-chart-line text-orange-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ cantidad_total_kg|floatformat:0 }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Cantidad en Kilogramos</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Unidades -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-cubes text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+                                        {% if cantidad_no_convertible.unidades %}
+                                            {{ cantidad_no_convertible.unidades|floatformat:0 }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Unidades</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Cajas -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-cyan-50 dark:bg-cyan-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-box text-cyan-600 dark:text-cyan-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+                                        {% if cantidad_no_convertible.cajas %}
+                                            {{ cantidad_no_convertible.cajas|floatformat:0 }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Cajas</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Bultos -->
+                        <td class="px-6 py-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-boxes text-amber-600 dark:text-amber-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+                                        {% if cantidad_no_convertible.bultos %}
+                                            {{ cantidad_no_convertible.bultos|floatformat:0 }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Bultos</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             </div>
         </div>
         
         <!-- Sección: Cultivos Prontos a Cosechar / Cosechados -->
         {% if crops_prontos_cosechar or crops_cosechados %}
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 harvest-scroll-wrapper">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                     <i class="fas fa-calendar-check text-green-600 dark:text-green-400 mr-3"></i>
@@ -198,7 +323,7 @@
                 </h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="harvest-scroll-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Cultivos Prontos a Cosechar -->
                 {% for crop in crops_prontos_cosechar %}
                 <div class="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-800 p-4 hover:shadow-md transition-shadow">
@@ -280,118 +405,103 @@
         
         <!-- Cultivos List -->
         {% if crops %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
-            {% for crop in crops %}
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 group hover:shadow-lg transition-all duration-300">
-                <div class="p-6">
-                    <!-- Header del cultivo -->
-                    <div class="flex items-start justify-between mb-4 min-w-0">
-                        <div class="flex-1 min-w-0">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors duration-300 whitespace-normal break-words">
-                                {{ crop.nombre }}
-                            </h3>
-                            <p class="text-gray-700 dark:text-gray-300 text-xs sm:text-sm mt-1 font-medium truncate">
-                                <i class="fas fa-tag mr-1"></i>
-                                {{ crop.get_categoria_display }}
-                            </p>
-                        </div>
-                        <div class="flex items-center space-x-2 shrink-0">
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] sm:text-xs font-medium max-w-[9rem] truncate
-                                {% if crop.estado == 'sembrado' %}bg-blue-100 text-blue-800
-                                {% elif crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800
-                                {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800
-                                {% elif crop.estado == 'cosechado' %}bg-purple-100 text-purple-800
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div class="table-container crops-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cultivo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Finca</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cantidad</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Publicación</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Disponible</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for crop in crops %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ crop.nombre }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ crop.get_categoria_display }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if crop.finca %}
+                                <div class="text-sm text-gray-900 dark:text-white">{{ crop.finca.nombre }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ crop.finca.ciudad }}, {{ crop.finca.departamento }}</div>
+                            {% else %}
+                                <span class="text-sm text-gray-400 dark:text-gray-500 italic">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ crop.cantidad_estimada }} {{ crop.unidad_medida }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if crop.estado == 'sembrado' %}bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300
+                                {% elif crop.estado == 'en_crecimiento' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300
+                                {% elif crop.estado == 'listo_para_cosechar' %}bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300
+                                {% elif crop.estado == 'cosechado' %}bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300
                                 {% endif %}">
-                                <i class="fas fa-circle text-xs mr-1"></i>
                                 {{ crop.get_estado_display }}
                             </span>
-                        </div>
-                    </div>
-
-                    <!-- Información de la finca -->
-                    <div class="mb-4">
-                        {% if crop.finca %}
-                            <div class="flex items-center text-sm text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                                <i class="fas fa-home text-green-600 mr-2"></i>
-                                <span>{{ crop.finca.nombre }}</span>
-                            </div>
-                            <p class="text-xs text-gray-600 dark:text-gray-400 ml-6">
-                                <i class="fas fa-map-marker-alt mr-1"></i>
-                                {{ crop.finca.ciudad }}, {{ crop.finca.departamento }}
-                            </p>
-                        {% else %}
-                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 italic">
-                                <i class="fas fa-home mr-2"></i>
-                                Sin asignar
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Información del cultivo -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">{{ crop.cantidad_estimada }}</div>
-                            <div class="text-[11px] sm:text-xs text-gray-700 dark:text-gray-300 font-medium">{{ crop.unidad_medida }}</div>
-                        </div>
-                        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">{{ crop.fecha_disponibilidad|date:"d M" }}</div>
-                            <div class="text-[11px] sm:text-xs text-gray-700 dark:text-gray-300 font-medium">Disponible</div>
-                        </div>
-                    </div>
-
-                    <!-- Estado de publicación -->
-                    <div class="mb-4">
-                        {% if crop.publicacion %}
-                            <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <i class="fas fa-store text-green-600 mr-2"></i>
-                                    <span class="text-xs sm:text-sm font-medium text-green-800">Publicado</span>
-                                </div>
-                                <a href="{% url 'publication_detail' crop.publicacion.pk %}" 
-                                   class="text-green-600 hover:text-green-700 text-xs sm:text-sm font-medium">
-                                    <i class="fas fa-external-link-alt mr-1"></i>Ver
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if crop.publicacion %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                                    Publicado
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                    Sin publicar
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {% if crop.fecha_disponibilidad %}
+                                {{ crop.fecha_disponibilidad|date:"d M Y" }}
+                            {% else %}
+                                <span class="text-gray-400 dark:text-gray-500">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'crop_detail' crop.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-colors" title="Ver Detalle">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <span class="text-xs">Ver</span>
                                 </a>
-                            </div>
-                        {% else %}
-                            <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <i class="fas fa-store-slash text-gray-400 mr-2"></i>
-                                    <span class="text-xs sm:text-sm font-medium text-gray-600">Sin publicar</span>
-                                </div>
-                                {% if crop.estado == 'cosechado' %}
+                                <a href="{% url 'crop_edit' crop.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    <span class="text-xs">Editar</span>
+                                </a>
+                                {% if crop.publicacion %}
+                                    <a href="{% url 'publication_edit' crop.publicacion.pk %}" 
+                                       class="inline-flex items-center px-3 py-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors" title="Editar Publicación">
+                                        <i class="fas fa-store mr-1"></i>
+                                        <span class="text-xs">Pub.</span>
+                                    </a>
+                                {% elif crop.estado == 'cosechado' %}
                                     <a href="{% url 'publication_create' crop.pk %}" 
-                                       class="text-green-600 hover:text-green-700 text-xs sm:text-sm font-medium">
-                                        <i class="fas fa-share mr-1"></i>Publicar
+                                       class="inline-flex items-center px-3 py-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors" title="Publicar">
+                                        <i class="fas fa-share mr-1"></i>
+                                        <span class="text-xs">Publicar</span>
                                     </a>
                                 {% endif %}
+                                <button onclick="showDeleteModal({{ crop.pk }}, '{{ crop.nombre|escapejs }}', '{{ crop.cantidad_estimada }}', '{{ crop.unidad_medida }}', {% if crop.publicacion %}true{% else %}false{% endif %})" 
+                                   class="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash mr-1"></i>
+                                    <span class="text-xs">Eliminar</span>
+                                </button>
                             </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Botones de acción -->
-                    <div class="crop-actions grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        <a href="{% url 'crop_detail' crop.pk %}" class="action-btn px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center group font-medium text-xs sm:text-sm">
-                            <i class="fas fa-eye btn-icon mr-1 text-sm"></i>
-                            Ver
-                        </a>
-                        <a href="{% url 'crop_edit' crop.pk %}" class="action-btn px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center group font-medium text-xs sm:text-sm">
-                            <i class="fas fa-edit btn-icon mr-1 text-sm"></i>
-                            Editar
-                        </a>
-                        {% if crop.publicacion %}
-                            <a href="{% url 'publication_edit' crop.publicacion.pk %}" class="action-btn px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-center group font-medium text-xs sm:text-sm">
-                                <i class="fas fa-store btn-icon mr-1 text-sm"></i>
-                                Pub.
-                            </a>
-                        {% endif %}
-                        <button onclick="showDeleteModal({{ crop.pk }}, '{{ crop.nombre|escapejs }}', '{{ crop.cantidad_estimada }}', '{{ crop.unidad_medida }}', {% if crop.publicacion %}true{% else %}false{% endif %})" 
-                                class="action-btn px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-200 text-xs sm:text-sm">
-                            <i class="fas fa-trash btn-icon"></i>
-                        </button>
-                    </div>
-                </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             </div>
-            {% endfor %}
         </div>
         {% else %}
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
@@ -413,7 +523,7 @@
 
 <!-- Modal de confirmación de eliminación -->
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
-    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="deleteModalContent">
         <!-- Header -->
         <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-lg">
             <div class="flex items-center">
@@ -425,22 +535,22 @@
         </div>
 
         <!-- Body -->
-        <div class="px-6 py-6">
-            <p class="text-gray-700 text-lg mb-4">
-                Estás a punto de eliminar permanentemente el cultivo <strong id="cropName" class="text-gray-900"></strong> 
+        <div class="px-6 py-6 bg-white dark:bg-gray-800">
+            <p class="text-gray-700 dark:text-gray-300 text-lg mb-4">
+                Estás a punto de eliminar permanentemente el cultivo <strong id="cropName" class="text-gray-900 dark:text-white"></strong> 
                 (<span id="cropQuantity"></span>).
             </p>
             
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+            <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 p-4 rounded mb-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                        <i class="fas fa-exclamation-circle text-red-500 dark:text-red-400"></i>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700 font-medium">
+                        <p class="text-sm text-red-700 dark:text-red-300 font-medium">
                             Esta acción no se puede deshacer.
                         </p>
-                        <p id="publicationWarning" class="text-sm text-red-600 mt-2 hidden">
+                        <p id="publicationWarning" class="text-sm text-red-600 dark:text-red-400 mt-2 hidden">
                             <i class="fas fa-info-circle mr-1"></i>
                             Este cultivo tiene una publicación activa que también será eliminada.
                         </p>
@@ -451,7 +561,7 @@
             <!-- Botones -->
             <div class="flex gap-3">
                 <button onclick="closeDeleteModal()" 
-                        class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
                 <form id="deleteForm" method="post" class="flex-1">

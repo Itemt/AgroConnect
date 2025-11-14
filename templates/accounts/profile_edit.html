@@ -65,16 +65,13 @@
         border-color: rgba(56, 189, 248, 0.25);
     }
 
-    .sr-only {
+    /* Ocultar el input file nativo */
+    input[type="file"] {
         position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border-width: 0;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
     }
     
     /* Ocultar elementos del widget ClearableFileInput de Django */
@@ -98,7 +95,7 @@
     form input[type="email"],
     form input[type="password"],
     form input[type="tel"],
-    form select,
+    form select:not(#id_pais):not(#country-code-select-edit):not(#country-code-select-register):not(#country-code-select-producer),
     form textarea {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -164,19 +161,26 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     }
     
-    /* Campo de país con ancho limitado */
-    #country-code-select-edit {
+    /* Campo de país con ancho limitado - sobrescribe w-full y otros estilos */
+    #id_pais,
+    #id_pais.w-full {
+        max-width: 180px !important;
         width: 180px !important;
         min-width: 180px !important;
-        max-width: 180px !important;
-        box-sizing: border-box !important;
     }
     
-    /* Asegurar que el menú desplegable tenga el mismo ancho */
-    #country-code-select-edit option {
+    /* Selects de código de país con ancho uniforme */
+    #country-code-select-edit,
+    #country-code-select-register,
+    #country-code-select-producer {
         max-width: 180px !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        width: 180px !important;
+        min-width: 180px !important;
+    }
+    
+    /* Asegurar que el contenedor del campo pais también respete el ancho */
+    #id_pais {
+        box-sizing: border-box !important;
     }
     
     /* Labels en modo oscuro */
@@ -222,7 +226,7 @@
                     {% csrf_token %}
 
                     <!-- Información Personal -->
-                    <div class="profile-section mb-6">
+                    <div class="mb-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
                             <i class="fas fa-user text-green-600 dark:text-green-400 mr-3"></i>
                             Información Personal
@@ -336,8 +340,8 @@
                             <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {{ form.telefono.label }}
                             </label>
-                            <div class="mt-1 flex gap-2">
-                                <select id="country-code-select-edit" class="flex-shrink-0 px-2 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm" style="width: 180px !important; min-width: 180px !important; max-width: 180px !important; box-sizing: border-box !important; text-align: center; text-align-last: center;">
+                            <div class="flex gap-2 mt-1">
+                                <select id="country-code-select-edit" class="flex-shrink-0 px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-xs" style="width: 130px; text-align: center; text-align-last: center;">
                                     <option value="+93">Afganistán +93</option>
                                     <option value="+355">Albania +355</option>
                                     <option value="+49">Alemania +49</option>
@@ -377,7 +381,7 @@
                                     <option value="+56">Chile +56</option>
                                     <option value="+86">China +86</option>
                                     <option value="+357">Chipre +357</option>
-                                    <option value="+57" selected>Colombia +57</option>
+                                    <option value="+57">Colombia +57</option>
                                     <option value="+269">Comoras +269</option>
                                     <option value="+242">Congo +242</option>
                                     <option value="+850">Corea del Norte +850</option>
@@ -531,8 +535,8 @@
                                     <option value="+260">Zambia +260</option>
                                     <option value="+263">Zimbabue +263</option>
                                 </select>
-                                <input type="text" name="phone_number" id="phone-number-input-edit" class="flex-1 px-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="320 123 4567" maxlength="15" pattern="[0-9\s]+" title="Solo números">
-                                {{ form.telefono|attr:"type:hidden" }}
+                                                                <input type="tel" id="phone-number-input-edit" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-xs" placeholder="Número de teléfono" maxlength="15">
+                                {{ form.telefono }}
                                 <div style="display: none !important;">
                                     {{ form.pais }}
                                 </div>
@@ -544,11 +548,26 @@
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
                             {% endfor %}
                         </div>
+
+                        <div class="field-wrapper">
+                            <label for="{{ form.pais.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {{ form.pais.label }}
+                            </label>
+                            <div class="mt-1" style="width: 180px;">
+                                {{ form.pais }}
+                            </div>
+                            {% if form.pais.help_text %}
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.pais.help_text }}</p>
+                            {% endif %}
+                            {% for error in form.pais.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
                 <!-- Ubicación -->
-                <div class="profile-section mb-6">
+                <div class="mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
                         <i class="fas fa-map-marker-alt text-green-600 dark:text-green-400 mr-3"></i>
                         Ubicación
@@ -581,7 +600,7 @@
                 </div>
 
                 <!-- Cambio de Contraseña -->
-                <div class="profile-section mb-6">
+                <div class="mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
                         <i class="fas fa-lock text-green-600 dark:text-green-400 mr-3"></i>
                         Cambio de Contraseña
@@ -620,7 +639,7 @@
 
                 <!-- Campos específicos del productor -->
                 {% if user.role == 'Productor' %}
-                <div class="profile-section mb-6">
+                <div class="mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
                         <i class="fas fa-tractor text-green-600 dark:text-green-400 mr-3"></i>
                         Información de la Finca

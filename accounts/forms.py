@@ -879,9 +879,28 @@ class BuyerEditForm(forms.ModelForm):
         self.instance.departamento = self.cleaned_data.get('departamento')
         self.instance.ciudad = self.cleaned_data.get('ciudad')
         
-        # Actualizar foto de perfil si se proporciona
-        if self.cleaned_data.get('profile_image'):
-            self.instance.profile_image = self.cleaned_data.get('profile_image')
+        # Actualizar foto de perfil si se proporciona una nueva imagen
+        # Verificar si hay una nueva imagen en request.FILES
+        new_image = self.cleaned_data.get('profile_image')
+        # Solo actualizar si hay una nueva imagen (no None, no False, y tiene atributo name)
+        # Django puede devolver False si el campo está vacío, así que verificamos explícitamente
+        if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
+            try:
+                # Eliminar imagen anterior si existe (para Cloudinary)
+                if self.instance.profile_image:
+                    try:
+                        # Eliminar la imagen anterior del storage
+                        self.instance.profile_image.delete(save=False)
+                        logger.info(f"Imagen anterior eliminada para usuario {self.instance.username}")
+                    except Exception as e:
+                        logger.warning(f"No se pudo eliminar la imagen anterior: {e}")
+                
+                # Asignar la nueva imagen
+                self.instance.profile_image = new_image
+                logger.info(f"Nueva imagen de perfil asignada para usuario {self.instance.username}: {new_image.name}")
+            except Exception as e:
+                logger.error(f"Error al procesar nueva imagen de perfil para usuario {self.instance.username}: {e}")
+                # No lanzar excepción para no bloquear el guardado del resto del formulario
         
         # Cambiar contraseña si se proporciona
         new_password = self.cleaned_data.get('new_password')
@@ -889,7 +908,21 @@ class BuyerEditForm(forms.ModelForm):
             self.instance.set_password(new_password)
         
         if commit:
+            # Guardar el usuario (esto subirá la imagen a Cloudinary si está configurado)
             self.instance.save()
+            
+            # Forzar actualización del campo profile_image para asegurar que la URL se actualice
+            if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
+                # Recargar el usuario desde la base de datos para obtener la URL actualizada
+                self.instance.refresh_from_db()
+                if self.instance.profile_image:
+                    try:
+                        image_url = self.instance.profile_image.url
+                        logger.info(f"Imagen de perfil actualizada. URL: {image_url}")
+                    except Exception as e:
+                        logger.error(f"Error al obtener URL de imagen de perfil: {e}")
+                else:
+                    logger.warning(f"Imagen de perfil no encontrada después de guardar para usuario {self.instance.username}")
             
             # Actualizar BuyerProfile
             buyer_profile, created = BuyerProfile.objects.get_or_create(user=self.instance)
@@ -1445,9 +1478,28 @@ class ProducerProfileEditForm(forms.ModelForm):
             self.user.departamento = self.cleaned_data.get('departamento')
             self.user.ciudad = self.cleaned_data.get('ciudad')
             
-            # Actualizar foto de perfil si se proporciona
-            if self.cleaned_data.get('profile_image'):
-                self.user.profile_image = self.cleaned_data.get('profile_image')
+            # Actualizar foto de perfil si se proporciona una nueva imagen
+            # Verificar si hay una nueva imagen en request.FILES
+            new_image = self.cleaned_data.get('profile_image')
+            # Solo actualizar si hay una nueva imagen (no None, no False, y tiene atributo name)
+            # Django puede devolver False si el campo está vacío, así que verificamos explícitamente
+            if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
+                try:
+                    # Eliminar imagen anterior si existe (para Cloudinary)
+                    if self.user.profile_image:
+                        try:
+                            # Eliminar la imagen anterior del storage
+                            self.user.profile_image.delete(save=False)
+                            logger.info(f"Imagen anterior eliminada para usuario {self.user.username}")
+                        except Exception as e:
+                            logger.warning(f"No se pudo eliminar la imagen anterior: {e}")
+                    
+                    # Asignar la nueva imagen
+                    self.user.profile_image = new_image
+                    logger.info(f"Nueva imagen de perfil asignada para usuario {self.user.username}: {new_image.name}")
+                except Exception as e:
+                    logger.error(f"Error al procesar nueva imagen de perfil para usuario {self.user.username}: {e}")
+                    # No lanzar excepción para no bloquear el guardado del resto del formulario
             
             # Cambiar contraseña si se proporciona
             new_password = self.cleaned_data.get('new_password')
@@ -1455,7 +1507,21 @@ class ProducerProfileEditForm(forms.ModelForm):
                 self.user.set_password(new_password)
             
             if commit:
+                # Guardar el usuario (esto subirá la imagen a Cloudinary si está configurado)
                 self.user.save()
+                
+                # Forzar actualización del campo profile_image para asegurar que la URL se actualice
+                if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
+                    # Recargar el usuario desde la base de datos para obtener la URL actualizada
+                    self.user.refresh_from_db()
+                    if self.user.profile_image:
+                        try:
+                            image_url = self.user.profile_image.url
+                            logger.info(f"Imagen de perfil actualizada. URL: {image_url}")
+                        except Exception as e:
+                            logger.error(f"Error al obtener URL de imagen de perfil: {e}")
+                    else:
+                        logger.warning(f"Imagen de perfil no encontrada después de guardar para usuario {self.user.username}")
                 
                 # Actualizar ProducerProfile
                 producer_profile, created = ProducerProfile.objects.get_or_create(user=self.user)
