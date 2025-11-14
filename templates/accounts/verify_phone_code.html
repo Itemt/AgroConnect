@@ -90,6 +90,9 @@
                                 </div>
                             </div>
                             
+                            <!-- Campo oculto para indicar que el OTP fue verificado -->
+                            <input type="hidden" name="otp_verified" id="otp_verified" value="false">
+                            
                             <div>
                                 <label for="new_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Nueva Contraseña
@@ -193,25 +196,45 @@
                                     console.log('Código OTP enviado correctamente');
                                 } else {
                                     console.error('Error enviando OTP:', result.message);
-                                    alert('Error enviando código OTP: ' + result.message);
+                                    if (window.showToast) {
+                                        showToast('Error enviando código OTP: ' + result.message, 'error');
+                                    } else {
+                                        alert('Error enviando código OTP: ' + result.message);
+                                    }
                                 }
                             })
                             .catch(error => {
                                 console.error('Error enviando OTP:', error);
-                                alert('Error enviando código OTP: ' + error.message);
+                                if (window.showToast) {
+                                    showToast('Error enviando código OTP: ' + error.message, 'error');
+                                } else {
+                                    alert('Error enviando código OTP: ' + error.message);
+                                }
                             });
                     }, 2000); // Esperar 2 segundos
                 } else {
                     console.error('No se proporcionó número de teléfono');
-                    alert('Error: No se proporcionó número de teléfono');
+                    if (window.showToast) {
+                        showToast('Error: No se proporcionó número de teléfono', 'error');
+                    } else {
+                        alert('Error: No se proporcionó número de teléfono');
+                    }
                 }
             } else {
                 console.error('No se pudo inicializar Firebase Phone Auth');
-                alert('Error: No se pudo inicializar el sistema de autenticación');
+                if (window.showToast) {
+                    showToast('Error: No se pudo inicializar el sistema de autenticación', 'error');
+                } else {
+                    alert('Error: No se pudo inicializar el sistema de autenticación');
+                }
             }
         } else {
             console.error('Firebase Phone Auth no está disponible');
-            alert('Error: Sistema de autenticación no disponible');
+            if (window.showToast) {
+                showToast('Error: Sistema de autenticación no disponible', 'error');
+            } else {
+                alert('Error: Sistema de autenticación no disponible');
+            }
         }
         
         // Variables globales
@@ -257,7 +280,11 @@
             const submitBtn = document.getElementById('submit-btn');
             
             if (!verificationCode || verificationCode.length !== 6) {
-                alert('Por favor ingresa un código de 6 dígitos');
+                if (window.showToast) {
+                    showToast('Por favor ingresa un código de 6 dígitos', 'warning');
+                } else {
+                    alert('Por favor ingresa un código de 6 dígitos');
+                }
                 return;
             }
             
@@ -274,7 +301,11 @@
                 
                 if (!confirmationToUse) {
                     console.error('No hay confirmación disponible para verificar');
-                    alert('Error: No hay código de verificación disponible. Por favor reenvía el código.');
+                    if (window.showToast) {
+                        showToast('Error: No hay código de verificación disponible. Por favor reenvía el código.', 'error');
+                    } else {
+                        alert('Error: No hay código de verificación disponible. Por favor reenvía el código.');
+                    }
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Verificar Código';
                     return;
@@ -286,6 +317,9 @@
                         console.log('Resultado de verificación:', result);
                         console.log('✅ Código OTP verificado correctamente');
                         otpVerified = true;
+                        
+                        // Marcar OTP como verificado en el campo hidden
+                        document.getElementById('otp_verified').value = 'true';
                         
                         // Mostrar campos de contraseña
                         document.getElementById('otp-step').classList.add('hidden');
@@ -305,7 +339,11 @@
                     })
                     .catch(error => {
                         console.error('Error verificando OTP:', error);
-                        alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
+                        if (window.showToast) {
+                            showToast('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.', 'error');
+                        } else {
+                            alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
+                        }
                         
                         // Rehabilitar botón
                         verifyBtn.disabled = false;
@@ -313,7 +351,11 @@
                     });
             } else {
                 console.warn('Firebase Phone Auth no disponible');
-                alert('Error: Sistema de autenticación no disponible');
+                if (window.showToast) {
+                    showToast('Error: Sistema de autenticación no disponible', 'error');
+                } else {
+                    alert('Error: Sistema de autenticación no disponible');
+                }
                 
                 // Rehabilitar botón
                 verifyBtn.disabled = false;
@@ -384,61 +426,50 @@
                             document.getElementById('verification_code').value = '';
                             document.getElementById('verification_code').focus();
                             
+                            // Resetear estado de verificación
+                            otpVerified = false;
+                            document.getElementById('otp_verified').value = 'false';
+                            
+                            // Ocultar campos de contraseña si estaban visibles
+                            document.getElementById('otp-step').classList.remove('hidden');
+                            document.getElementById('password-step').classList.add('hidden');
+                            document.getElementById('new_password').disabled = true;
+                            document.getElementById('confirm_password').disabled = true;
+                            document.getElementById('submit-btn').disabled = true;
+                            document.getElementById('submit-btn').className = 'inline-flex w-full py-3 px-6 items-center justify-center text-base font-medium text-white bg-gray-400 dark:bg-gray-600 rounded-full transition duration-200';
+                            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-lock mr-2"></i>Verifica el código primero';
+                            
                             // Mostrar mensaje de éxito
-                            showMessage('Código reenviado correctamente. El código anterior ya no es válido.', 'success');
+                            if (window.showToast) {
+                                showToast('Código reenviado correctamente. El código anterior ya no es válido.', 'success');
+                            } else {
+                                alert('Código reenviado correctamente. El código anterior ya no es válido.');
+                            }
                         } else {
                             console.error('❌ Error reenviando OTP:', result.message);
-                            showMessage('Error reenviando código: ' + result.message, 'error');
+                            if (window.showToast) {
+                                showToast('Error reenviando código: ' + result.message, 'error');
+                            } else {
+                                alert('Error reenviando código: ' + result.message);
+                            }
                         }
                     })
                     .catch(error => {
                         console.error('Error reenviando OTP:', error);
-                        showMessage('Error reenviando código: ' + error.message, 'error');
+                        if (window.showToast) {
+                            showToast('Error reenviando código: ' + error.message, 'error');
+                        } else {
+                            alert('Error reenviando código: ' + error.message);
+                        }
                     });
             } else {
                 console.error('Firebase Phone Auth no disponible o número no encontrado');
-                showMessage('Error: Sistema de autenticación no disponible', 'error');
+                if (window.showToast) {
+                    showToast('Error: Sistema de autenticación no disponible', 'error');
+                } else {
+                    alert('Error: Sistema de autenticación no disponible');
+                }
             }
-        }
-        
-        // Función para mostrar mensajes
-        function showMessage(message, type) {
-            // Crear elemento de mensaje
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
-            
-            if (type === 'success') {
-                messageDiv.className += ' bg-green-500 text-white';
-            } else if (type === 'error') {
-                messageDiv.className += ' bg-red-500 text-white';
-            }
-            
-            messageDiv.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
-                    <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(messageDiv);
-            
-            // Animar entrada
-            setTimeout(() => {
-                messageDiv.classList.remove('translate-x-full');
-            }, 100);
-            
-            // Auto-remover después de 5 segundos
-            setTimeout(() => {
-                messageDiv.classList.add('translate-x-full');
-                setTimeout(() => {
-                    if (messageDiv.parentElement) {
-                        messageDiv.remove();
-                    }
-                }, 300);
-            }, 5000);
         }
         
         // Manejar envío del formulario (solo después de verificar OTP)
@@ -447,7 +478,11 @@
             
             // Verificar que el OTP haya sido verificado
             if (!otpVerified) {
-                alert('Por favor verifica el código OTP primero');
+                if (window.showToast) {
+                    showToast('Por favor verifica el código OTP primero', 'warning');
+                } else {
+                    alert('Por favor verifica el código OTP primero');
+                }
                 return;
             }
             
@@ -456,18 +491,30 @@
             
             // Validar campos requeridos
             if (!newPassword || !confirmPassword) {
-                alert('Por favor completa todos los campos de contraseña');
+                if (window.showToast) {
+                    showToast('Por favor completa todos los campos de contraseña', 'warning');
+                } else {
+                    alert('Por favor completa todos los campos de contraseña');
+                }
                 return;
             }
             
             // Validar contraseñas
             if (newPassword !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
+                if (window.showToast) {
+                    showToast('Las contraseñas no coinciden', 'error');
+                } else {
+                    alert('Las contraseñas no coinciden');
+                }
                 return;
             }
             
             if (newPassword.length < 8) {
-                alert('La contraseña debe tener al menos 8 caracteres');
+                if (window.showToast) {
+                    showToast('La contraseña debe tener al menos 8 caracteres', 'error');
+                } else {
+                    alert('La contraseña debe tener al menos 8 caracteres');
+                }
                 return;
             }
             

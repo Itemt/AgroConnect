@@ -648,7 +648,7 @@ def send_otp_ajax(request):
 def verify_phone_code(request):
     """Vista para verificar el código OTP enviado por SMS usando Firebase"""
     if request.method == 'POST':
-        verification_code = request.POST.get('verification_code')
+        otp_verified = request.POST.get('otp_verified') == 'true'
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
         
@@ -673,6 +673,34 @@ def verify_phone_code(request):
             del request.session['password_reset_otp']
             del request.session['firebase_phone_auth']
             return redirect('password_reset')
+        
+        # Verificar que el OTP haya sido verificado en el frontend
+        if not otp_verified:
+            messages.error(request, 'Por favor verifica el código OTP primero.')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': firebase_data.get('phone_number', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+            })
+        
+        # Verificar que las contraseñas estén presentes
+        if not new_password or not confirm_password:
+            messages.error(request, 'Por favor completa todos los campos de contraseña.')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': firebase_data.get('phone_number', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+            })
         
         # Verificar que las contraseñas coincidan
         if new_password != confirm_password:
@@ -705,8 +733,10 @@ def verify_phone_code(request):
         try:
             User = get_user_model()
             user = User.objects.get(id=otp_data['user_id'])
+            logger.info(f"Cambiando contraseña para usuario ID: {user.id}, Email: {user.email}")
             user.set_password(new_password)
             user.save()
+            logger.info(f"Contraseña actualizada exitosamente para usuario: {user.email}")
             
             # Limpiar la sesión
             del request.session['password_reset_otp']
@@ -714,13 +744,28 @@ def verify_phone_code(request):
             
             # Iniciar sesión automáticamente
             login(request, user)
+            logger.info(f"Sesión iniciada para usuario: {user.email}")
             
             messages.success(request, 'Contraseña restablecida exitosamente. Sesión iniciada.')
             return redirect('index')
             
         except User.DoesNotExist:
+            logger.error(f"Usuario no encontrado con ID: {otp_data.get('user_id')}")
             messages.error(request, 'Usuario no encontrado.')
             return redirect('password_reset')
+        except Exception as e:
+            logger.error(f"Error cambiando contraseña: {e}")
+            messages.error(request, f'Error al cambiar la contraseña: {str(e)}')
+            return render(request, 'accounts/verify_phone_code.html', {
+                'phone_number': firebase_data.get('phone_number', ''),
+                'email': otp_data.get('email', ''),
+                'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
+                'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
+                'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
+                'FIREBASE_STORAGE_BUCKET': settings.FIREBASE_STORAGE_BUCKET,
+                'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
+                'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
+            })
     
     # GET request - mostrar formulario
     otp_data = request.session.get('password_reset_otp', {})
