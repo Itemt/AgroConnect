@@ -526,8 +526,8 @@ def password_reset_confirm_with_code(request, uidb64, token):
             messages.error(request, 'Las contraseñas no coinciden.')
             return render(request, 'accounts/password_reset_confirm.html')
         
-        if len(new_password) < 6:
-            messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
+        if len(new_password) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
             return render(request, 'accounts/password_reset_confirm.html')
         
         # Buscar el código usado
@@ -549,9 +549,12 @@ def password_reset_confirm_with_code(request, uidb64, token):
                 # Eliminar el código usado
                 reset_code.delete()
                 
+                # Iniciar sesión automáticamente
+                login(request, user)
+                
                 logger.info(f"Contraseña actualizada para usuario: {user.email}")
-                messages.success(request, 'Contraseña actualizada exitosamente. Ya puedes iniciar sesión.')
-                return redirect('login')
+                messages.success(request, 'Contraseña actualizada exitosamente. Sesión iniciada.')
+                return redirect('index')
             else:
                 messages.error(request, 'Código de recuperación inválido o expirado.')
                 
@@ -685,8 +688,8 @@ def verify_phone_code(request):
                 'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
             })
         
-        if len(new_password) < 6:
-            messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
+        if len(new_password) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
             return render(request, 'accounts/verify_phone_code.html', {
                 'phone_number': firebase_data.get('phone_number', ''),
                 'email': otp_data.get('email', ''),
@@ -709,8 +712,11 @@ def verify_phone_code(request):
             del request.session['password_reset_otp']
             del request.session['firebase_phone_auth']
             
-            messages.success(request, 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.')
-            return redirect('login')
+            # Iniciar sesión automáticamente
+            login(request, user)
+            
+            messages.success(request, 'Contraseña restablecida exitosamente. Sesión iniciada.')
+            return redirect('index')
             
         except User.DoesNotExist:
             messages.error(request, 'Usuario no encontrado.')

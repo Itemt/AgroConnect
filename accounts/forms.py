@@ -520,7 +520,7 @@ class CustomUserCreationForm(UserCreationForm):
         }
         help_texts = {
             'username': 'Requerido. 150 caracteres o menos. Solo letras, dígitos y @/./+/-/_',
-            'password1': 'Tu contraseña debe tener al menos 6 caracteres.',
+            'password1': 'Tu contraseña debe tener al menos 8 caracteres.',
             'password2': 'Ingresa la misma contraseña que antes, para verificación.'
         }
         error_messages = {
@@ -543,7 +543,7 @@ class CustomUserCreationForm(UserCreationForm):
         # Aplicar clases CSS a los campos de contraseña
         self.fields['password1'].widget.attrs.update({
             'class': 'form-input',
-            'placeholder': 'Mínimo 6 caracteres'
+            'placeholder': 'Mínimo 8 caracteres'
         })
         self.fields['password2'].widget.attrs.update({
             'class': 'form-input',
@@ -561,8 +561,8 @@ class CustomUserCreationForm(UserCreationForm):
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
         if password1:
-            if len(password1) < 6:
-                raise ValidationError('Tu contraseña debe tener al menos 6 caracteres.')
+            if len(password1) < 8:
+                raise ValidationError('Tu contraseña debe tener al menos 8 caracteres.')
         return password1
 
     def clean_password2(self):
