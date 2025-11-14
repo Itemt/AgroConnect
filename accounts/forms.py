@@ -6,6 +6,41 @@ from .models import User, ProducerProfile, BuyerProfile
 from core.colombia_locations import get_departments, get_all_cities, COLOMBIA_LOCATIONS
 from core.country_codes import get_country_codes
 from core.models import Farm
+import requests
+import time
+import logging
+from io import BytesIO
+from django.core.files import File
+from django.core.files.base import ContentFile
+
+logger = logging.getLogger(__name__)
+
+def download_google_profile_image(photo_url, user):
+    """
+    Descarga la imagen de perfil de Google y la guarda en el campo profile_image del usuario
+    """
+    if not photo_url:
+        return False
+    
+    try:
+        # Descargar la imagen
+        response = requests.get(photo_url, timeout=10)
+        response.raise_for_status()
+        
+        # Obtener el nombre del archivo de la URL o generar uno
+        filename = f"google_profile_{user.id}_{int(time.time())}.jpg"
+        
+        # Crear un archivo en memoria
+        image_file = ContentFile(response.content)
+        
+        # Guardar en el campo profile_image
+        user.profile_image.save(filename, image_file, save=True)
+        
+        logger.info(f"Imagen de perfil de Google descargada y guardada para usuario {user.email}")
+        return True
+    except Exception as e:
+        logger.error(f"Error descargando imagen de perfil de Google: {str(e)}")
+        return False
 
 
 class BuyerRegistrationForm(forms.ModelForm):
@@ -160,7 +195,7 @@ class BuyerRegistrationForm(forms.ModelForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'cedula', 'telefono', 'departamento', 'ciudad')
     
-    def save(self, commit=True):
+    def save(self, commit=True, google_photo_url=None):
         # Crear usuario usando User.objects.create_user para manejar contraseñas
         password = self.cleaned_data.get('password1')
         
@@ -196,6 +231,10 @@ class BuyerRegistrationForm(forms.ModelForm):
                 has_password=True,
                 is_google_user=False
             )
+        
+        # Descargar y guardar imagen de perfil de Google si está disponible
+        if self.is_google_signup and google_photo_url:
+            download_google_profile_image(google_photo_url, user)
         
         if commit:
             # Crear BuyerProfile

@@ -136,7 +136,9 @@ def register(request):
     if request.method == 'POST':
         form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
-            user = form.save()  # El formulario ya maneja la creación del perfil
+            # Obtener photo_url de Google si existe
+            google_photo_url = google_data.get('photo_url', '') if google_data else None
+            user = form.save(google_photo_url=google_photo_url)  # El formulario ya maneja la creación del perfil
             
             # Limpiar datos de Google de la sesión
             if 'google_user_data' in request.session:
@@ -190,7 +192,9 @@ def register_producer(request):
     if request.method == 'POST':
         form = ProducerRegistrationForm(request.POST, is_google_signup=bool(google_data))
         if form.is_valid():
-            user = form.save()
+            # Obtener photo_url de Google si existe
+            google_photo_url = google_data.get('photo_url', '') if google_data else None
+            user = form.save(google_photo_url=google_photo_url)
             
             # Crear BuyerProfile también (pueden comprar)
             BuyerProfile.objects.create(
@@ -391,27 +395,70 @@ class CustomPasswordResetView(PasswordResetView):
         from .forms import PhonePasswordResetForm
         return PhonePasswordResetForm
 
+    @staticmethod
+    def _normalize_phone_variants(phone_number: str):
+        """
+        Devuelve el número normalizado (formato +57XXXXXXXXXX) y las variantes posibles
+        que pueden existir en la base de datos (con/sin +, sin código de país, etc.)
+        """
+        if not phone_number:
+            return '', []
+        
+        digits_only = ''.join(filter(str.isdigit, phone_number))
+        normalized = firebase_phone_auth._clean_phone_number(phone_number)
+        
+        if not normalized and digits_only:
+            if digits_only.startswith('3') and len(digits_only) == 10:
+                normalized = f"+57{digits_only}"
+            elif digits_only.startswith('57'):
+                normalized = f"+{digits_only}"
+            else:
+                normalized = f"+{digits_only}"
+        
+        variants = []
+        if normalized:
+            variants.append(normalized)
+            digits = normalized.replace('+', '')
+            variants.append(digits)
+            if digits.startswith('57') and len(digits) > 2:
+                variants.append(digits[2:])
+        else:
+            variants.append(phone_number)
+        
+        # Variante sin espacios ni guiones del número original
+        if digits_only:
+            compact = f"+{digits_only}" if not digits_only.startswith('+') else digits_only
+            if compact not in variants:
+                variants.append(compact)
+        
+        # Eliminar duplicados preservando orden
+        variants = [v for i, v in enumerate(variants) if v and v not in variants[:i]]
+        return normalized or phone_number, variants
+
     def form_valid(self, form):
         # Obtener el teléfono del formulario
         telefono = form.cleaned_data['telefono']
+        normalized_phone, phone_variants = self._normalize_phone_variants(telefono)
         
         # Buscar el usuario por teléfono
         User = get_user_model()
+        user = User.objects.filter(telefono__in=phone_variants or [telefono]).first()
         
         # Ocultar parte del número para mostrar en el mensaje
         # Por ejemplo: +57 300 123 4567 -> +57 300 XXX XX67
-        phone_display = telefono
+        phone_display = normalized_phone or telefono
         if len(telefono) > 6:
             phone_display = telefono[:-4] + ' XXX XX' + telefono[-2:]
         
         try:
-            user = User.objects.get(telefono=telefono)
-            
+            if not user:
+                raise User.DoesNotExist
+
             # Generar código OTP de 6 dígitos
             otp_code = ''.join(random.choices(string.digits, k=6))
             
             # Preparar datos para Firebase Phone Auth
-            phone_auth_data = firebase_phone_auth.create_phone_auth_data(user.telefono, otp_code)
+            phone_auth_data = firebase_phone_auth.create_phone_auth_data(normalized_phone or user.telefono, otp_code)
             
             # Guardar datos en la sesión para el frontend
             self.request.session['firebase_phone_auth'] = phone_auth_data
@@ -428,12 +475,12 @@ class CustomPasswordResetView(PasswordResetView):
         except User.DoesNotExist:
             # Guardar datos ficticios en la sesión para no revelar que el usuario no existe
             self.request.session['firebase_phone_auth'] = {
-                'phone_number': telefono,
+                'phone_number': normalized_phone or telefono,
                 'invalid_user': True
             }
             self.request.session['password_reset_otp'] = {
                 'user_id': None,
-                'phone': telefono,
+                'phone': normalized_phone or telefono,
                 'email': '',
                 'otp_code': '',
                 'timestamp': time.time(),

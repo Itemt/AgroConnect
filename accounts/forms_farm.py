@@ -3,6 +3,41 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, ProducerProfile, BuyerProfile
 from core.models import Farm
 from core.colombia_locations import get_departments, get_cities_by_department
+import requests
+import time
+import logging
+from io import BytesIO
+from django.core.files import File
+from django.core.files.base import ContentFile
+
+logger = logging.getLogger(__name__)
+
+def download_google_profile_image(photo_url, user):
+    """
+    Descarga la imagen de perfil de Google y la guarda en el campo profile_image del usuario
+    """
+    if not photo_url:
+        return False
+    
+    try:
+        # Descargar la imagen
+        response = requests.get(photo_url, timeout=10)
+        response.raise_for_status()
+        
+        # Obtener el nombre del archivo de la URL o generar uno
+        filename = f"google_profile_{user.id}_{int(time.time())}.jpg"
+        
+        # Crear un archivo en memoria
+        image_file = ContentFile(response.content)
+        
+        # Guardar en el campo profile_image
+        user.profile_image.save(filename, image_file, save=True)
+        
+        logger.info(f"Imagen de perfil de Google descargada y guardada para usuario {user.email}")
+        return True
+    except Exception as e:
+        logger.error(f"Error descargando imagen de perfil de Google: {str(e)}")
+        return False
 
 class ProducerRegistrationForm(forms.ModelForm):
     """Formulario de registro para productores con finca inicial"""
@@ -217,7 +252,7 @@ class ProducerRegistrationForm(forms.ModelForm):
         
         return cleaned_data
     
-    def save(self, commit=True):
+    def save(self, commit=True, google_photo_url=None):
         # Crear usuario
         user = User.objects.create_user(
             username=self.cleaned_data['username'],
@@ -230,11 +265,17 @@ class ProducerRegistrationForm(forms.ModelForm):
         # Manejar contraseña según el tipo de registro
         if self.is_google_signup:
             user.set_unusable_password()
+            user.is_google_user = True
         else:
             user.set_password(self.cleaned_data['password1'])
+            user.is_google_user = False
         
         if commit:
             user.save()
+            
+            # Descargar y guardar imagen de perfil de Google si está disponible
+            if self.is_google_signup and google_photo_url:
+                download_google_profile_image(google_photo_url, user)
             
             # Crear perfil del productor
             ProducerProfile.objects.create(

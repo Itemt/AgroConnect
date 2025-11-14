@@ -38,6 +38,15 @@
                         </div>
                     {% endfor %}
                 {% endif %}
+
+                <div id="inline-alert" class="hidden mb-6 rounded-2xl border px-4 py-3">
+                    <div class="flex items-start space-x-3">
+                        <div id="inline-alert-icon" class="p-2 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-info-circle text-lg"></i>
+                        </div>
+                        <p id="inline-alert-text" class="text-sm text-blue-800 dark:text-blue-200"></p>
+                    </div>
+                </div>
                 
                 <form class="space-y-6" method="post" id="verify-form">
                     {% csrf_token %}
@@ -106,7 +115,7 @@
                                        disabled>
                             </div>
                             
-                            <div>
+                            <div class="mt-5">
                                 <label for="confirm_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Confirmar Contraseña
                                 </label>
@@ -166,6 +175,49 @@
             messagingSenderId: "{{ FIREBASE_MESSAGING_SENDER_ID }}",
             appId: "{{ FIREBASE_APP_ID }}"
         };
+
+        // Componentes de alerta inline
+        const inlineAlert = document.getElementById('inline-alert');
+        const inlineAlertText = document.getElementById('inline-alert-text');
+        const inlineAlertIcon = document.getElementById('inline-alert-icon');
+
+        const ALERT_STYLES = {
+            info: {
+                container: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200',
+                iconBg: 'bg-blue-100 dark:bg-blue-800/40 text-blue-600 dark:text-blue-200',
+                icon: 'fa-info-circle'
+            },
+            success: {
+                container: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200',
+                iconBg: 'bg-green-100 dark:bg-green-800/40 text-green-600 dark:text-green-200',
+                icon: 'fa-check-circle'
+            },
+            error: {
+                container: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-200',
+                iconBg: 'bg-red-100 dark:bg-red-800/40 text-red-600 dark:text-red-200',
+                icon: 'fa-times-circle'
+            }
+        };
+
+        function showInlineAlert(message, type = 'info') {
+            if (!inlineAlert || !inlineAlertText || !inlineAlertIcon) {
+                alert(message);
+                return;
+            }
+
+            const config = ALERT_STYLES[type] || ALERT_STYLES.info;
+            inlineAlert.className = `mb-6 rounded-2xl px-4 py-3 ${config.container}`;
+            inlineAlertIcon.className = `p-2 rounded-full ${config.iconBg}`;
+            inlineAlertIcon.innerHTML = `<i class="fas ${config.icon} text-lg"></i>`;
+            inlineAlertText.textContent = message;
+            inlineAlert.classList.remove('hidden');
+        }
+
+        function hideInlineAlert() {
+            if (inlineAlert) {
+                inlineAlert.classList.add('hidden');
+            }
+        }
         
         // Inicializar Firebase
         if (!firebase.apps.length) {
@@ -196,45 +248,25 @@
                                     console.log('Código OTP enviado correctamente');
                                 } else {
                                     console.error('Error enviando OTP:', result.message);
-                                    if (window.showToast) {
-                                        showToast('Error enviando código OTP: ' + result.message, 'error');
-                                    } else {
-                                        alert('Error enviando código OTP: ' + result.message);
-                                    }
+                                    showInlineAlert('Error enviando código OTP: ' + result.message, 'info');
                                 }
                             })
                             .catch(error => {
                                 console.error('Error enviando OTP:', error);
-                                if (window.showToast) {
-                                    showToast('Error enviando código OTP: ' + error.message, 'error');
-                                } else {
-                                    alert('Error enviando código OTP: ' + error.message);
-                                }
+                                showInlineAlert('Error enviando código OTP: ' + error.message, 'info');
                             });
                     }, 2000); // Esperar 2 segundos
                 } else {
                     console.error('No se proporcionó número de teléfono');
-                    if (window.showToast) {
-                        showToast('Error: No se proporcionó número de teléfono', 'error');
-                    } else {
-                        alert('Error: No se proporcionó número de teléfono');
-                    }
+                    showInlineAlert('Error: No se proporcionó número de teléfono', 'info');
                 }
             } else {
                 console.error('No se pudo inicializar Firebase Phone Auth');
-                if (window.showToast) {
-                    showToast('Error: No se pudo inicializar el sistema de autenticación', 'error');
-                } else {
-                    alert('Error: No se pudo inicializar el sistema de autenticación');
-                }
+                showInlineAlert('Error: No se pudo inicializar el sistema de autenticación', 'info');
             }
         } else {
             console.error('Firebase Phone Auth no está disponible');
-            if (window.showToast) {
-                showToast('Error: Sistema de autenticación no disponible', 'error');
-            } else {
-                alert('Error: Sistema de autenticación no disponible');
-            }
+            showInlineAlert('Error: Sistema de autenticación no disponible', 'info');
         }
         
         // Variables globales
@@ -280,11 +312,7 @@
             const submitBtn = document.getElementById('submit-btn');
             
             if (!verificationCode || verificationCode.length !== 6) {
-                if (window.showToast) {
-                    showToast('Por favor ingresa un código de 6 dígitos', 'warning');
-                } else {
-                    alert('Por favor ingresa un código de 6 dígitos');
-                }
+                showInlineAlert('Por favor ingresa un código de 6 dígitos.', 'info');
                 return;
             }
             
@@ -301,11 +329,7 @@
                 
                 if (!confirmationToUse) {
                     console.error('No hay confirmación disponible para verificar');
-                    if (window.showToast) {
-                        showToast('Error: No hay código de verificación disponible. Por favor reenvía el código.', 'error');
-                    } else {
-                        alert('Error: No hay código de verificación disponible. Por favor reenvía el código.');
-                    }
+                    showInlineAlert('Error: No hay código de verificación disponible. Por favor reenvía el código.', 'info');
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Verificar Código';
                     return;
@@ -317,6 +341,7 @@
                         console.log('Resultado de verificación:', result);
                         console.log('✅ Código OTP verificado correctamente');
                         otpVerified = true;
+                        hideInlineAlert();
                         
                         // Marcar OTP como verificado en el campo hidden
                         document.getElementById('otp_verified').value = 'true';
@@ -339,11 +364,7 @@
                     })
                     .catch(error => {
                         console.error('Error verificando OTP:', error);
-                        if (window.showToast) {
-                            showToast('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.', 'error');
-                        } else {
-                            alert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.');
-                        }
+                        showInlineAlert('Código de verificación incorrecto. Por favor verifica el código e intenta nuevamente.', 'error');
                         
                         // Rehabilitar botón
                         verifyBtn.disabled = false;
@@ -351,11 +372,7 @@
                     });
             } else {
                 console.warn('Firebase Phone Auth no disponible');
-                if (window.showToast) {
-                    showToast('Error: Sistema de autenticación no disponible', 'error');
-                } else {
-                    alert('Error: Sistema de autenticación no disponible');
-                }
+                showInlineAlert('Error: Sistema de autenticación no disponible', 'info');
                 
                 // Rehabilitar botón
                 verifyBtn.disabled = false;
@@ -440,35 +457,19 @@
                             document.getElementById('submit-btn').innerHTML = '<i class="fas fa-lock mr-2"></i>Verifica el código primero';
                             
                             // Mostrar mensaje de éxito
-                            if (window.showToast) {
-                                showToast('Código reenviado correctamente. El código anterior ya no es válido.', 'success');
-                            } else {
-                                alert('Código reenviado correctamente. El código anterior ya no es válido.');
-                            }
+                            showInlineAlert('Código reenviado correctamente. El código anterior ya no es válido.', 'success');
                         } else {
                             console.error('❌ Error reenviando OTP:', result.message);
-                            if (window.showToast) {
-                                showToast('Error reenviando código: ' + result.message, 'error');
-                            } else {
-                                alert('Error reenviando código: ' + result.message);
-                            }
+                            showInlineAlert('Error reenviando código: ' + result.message, 'info');
                         }
                     })
                     .catch(error => {
                         console.error('Error reenviando OTP:', error);
-                        if (window.showToast) {
-                            showToast('Error reenviando código: ' + error.message, 'error');
-                        } else {
-                            alert('Error reenviando código: ' + error.message);
-                        }
+                        showInlineAlert('Error reenviando código: ' + error.message, 'info');
                     });
             } else {
                 console.error('Firebase Phone Auth no disponible o número no encontrado');
-                if (window.showToast) {
-                    showToast('Error: Sistema de autenticación no disponible', 'error');
-                } else {
-                    alert('Error: Sistema de autenticación no disponible');
-                }
+                showInlineAlert('Error: Sistema de autenticación no disponible', 'info');
             }
         }
         
@@ -478,11 +479,7 @@
             
             // Verificar que el OTP haya sido verificado
             if (!otpVerified) {
-                if (window.showToast) {
-                    showToast('Por favor verifica el código OTP primero', 'warning');
-                } else {
-                    alert('Por favor verifica el código OTP primero');
-                }
+                showInlineAlert('Por favor verifica el código OTP primero.', 'info');
                 return;
             }
             
@@ -491,30 +488,18 @@
             
             // Validar campos requeridos
             if (!newPassword || !confirmPassword) {
-                if (window.showToast) {
-                    showToast('Por favor completa todos los campos de contraseña', 'warning');
-                } else {
-                    alert('Por favor completa todos los campos de contraseña');
-                }
+                showInlineAlert('Por favor completa todos los campos de contraseña.', 'info');
                 return;
             }
             
             // Validar contraseñas
             if (newPassword !== confirmPassword) {
-                if (window.showToast) {
-                    showToast('Las contraseñas no coinciden', 'error');
-                } else {
-                    alert('Las contraseñas no coinciden');
-                }
+                showInlineAlert('Las contraseñas no coinciden.', 'info');
                 return;
             }
             
             if (newPassword.length < 8) {
-                if (window.showToast) {
-                    showToast('La contraseña debe tener al menos 8 caracteres', 'error');
-                } else {
-                    alert('La contraseña debe tener al menos 8 caracteres');
-                }
+                showInlineAlert('La contraseña debe tener al menos 8 caracteres.', 'info');
                 return;
             }
             
