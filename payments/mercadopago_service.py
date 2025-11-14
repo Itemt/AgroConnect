@@ -95,7 +95,7 @@ class MercadoPagoService:
                 "name": full_name
             },
             "external_reference": reference,
-            "notification_url": f"{settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'}/payments/notification/",
+            "notification_url": "https://agroconnect.itemt.tech/payments/notification/",
             "additional_info": {
                 "items": [
                     {
@@ -144,25 +144,16 @@ class MercadoPagoService:
         try:
             reference = self.create_payment_reference(order)
             
-            # Obtener la URL base dinámicamente
-            try:
-                from django.contrib.sites.models import Site
-                current_site = Site.objects.get_current()
-                base_url = f"https://{current_site.domain}" if not settings.DEBUG else "https://agroconnect.itemt.tech"
-            except:
-                # Fallback si Site no está disponible
-                base_url = "https://agroconnect.itemt.tech"
+            # Obtener la URL base - SIEMPRE usar la URL de producción
+            # No usar Site.objects.get_current() porque puede tener example.com
+            base_url = "https://agroconnect.itemt.tech"
             
             # Configuración específica para modo sandbox
             is_sandbox = self.access_token.startswith('TEST-')
             
-            # Para sandbox en producción, usar URLs más simples
-            if is_sandbox and not settings.DEBUG:
-                base_url = "https://agroconnect.itemt.tech"
-            
             # Datos para MercadoPago - configuración corregida para sandbox
             # Usar email de prueba específico para sandbox
-            test_email = "test_user_123456@testuser.com" if is_sandbox else (user.email or "test@example.com")
+            test_email = "test_user_123456@testuser.com" if is_sandbox else (user.email or "test@agroconnect.com")
             
             # Para proyecto universitario: usar datos específicos de sandbox
             if is_sandbox:
@@ -173,7 +164,7 @@ class MercadoPagoService:
             else:
                 # Para credenciales de producción de cuenta de prueba
                 # Usar datos completos para evitar botón gris
-                test_email = user.email or "test@example.com"
+                test_email = user.email or "test@agroconnect.com"
                 payer_name = user.get_full_name() or user.username or "Usuario"
                 payer_surname = user.last_name or "Prueba"
                 

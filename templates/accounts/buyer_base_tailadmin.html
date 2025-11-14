@@ -492,9 +492,9 @@
                                 {% if user.profile_image %}
                                     <img class="w-8 h-8 rounded-full object-cover" src="{{ user.profile_image.url }}" alt="user photo">
                                 {% else %}
-                                    <div class="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user text-white text-sm"></i>
-                                    </div>
+                                <div class="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-sm"></i>
+                                </div>
                                 {% endif %}
                                 <div class="hidden text-left lg:block">
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">

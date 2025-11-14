@@ -136,11 +136,25 @@
                     
                     <!-- Botón de MercadoPago -->
                     <div class="mb-4">
+                        {% if preference_data.success and preference_data.init_point %}
                         <a href="{{ preference_data.init_point }}" 
+                           target="_blank"
+                           rel="noopener noreferrer"
                            class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center no-underline">
                             <i class="fas fa-credit-card mr-2"></i>
                             Pagar con MercadoPago
                         </a>
+                        {% else %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <p class="text-red-800 text-sm">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Error al crear la preferencia de pago. Por favor, intenta nuevamente.
+                            </p>
+                            {% if preference_data.error %}
+                            <p class="text-red-600 text-xs mt-2">{{ preference_data.error }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="text-center">

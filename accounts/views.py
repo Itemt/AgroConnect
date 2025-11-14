@@ -204,7 +204,7 @@ def register(request):
         if 'came_from_google' in request.session:
             del request.session['came_from_google']
         google_data = {}
-    
+
     if request.method == 'POST':
         # Re-obtener datos de Google de la sesión en caso de que se hayan perdido
         # IMPORTANTE: Obtener directamente de la sesión sin modificar
@@ -222,7 +222,7 @@ def register(request):
         else:
             print(f"[REGISTER] POST - ⚠️ google_data está vacío o no existe en la sesión")
             # Intentar obtener directamente
-            if 'google_user_data' in request.session:
+        if 'google_user_data' in request.session:
                 print(f"[REGISTER] POST - 'google_user_data' existe en request.session pero está vacío")
             else:
                 print(f"[REGISTER] POST - 'google_user_data' NO existe en request.session")
