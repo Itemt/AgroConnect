@@ -746,15 +746,6 @@ class BuyerEditForm(forms.ModelForm):
     )
     
     # Campos de contraseña
-    current_password = forms.CharField(
-        required=False,
-        label="Contraseña Actual",
-        widget=forms.PasswordInput(attrs={
-            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-            'placeholder': 'Ingresa tu contraseña actual'
-        }),
-        help_text="Requerida solo si quieres cambiar tu contraseña"
-    )
     new_password = forms.CharField(
         required=False,
         label="Nueva Contraseña",
@@ -841,26 +832,13 @@ class BuyerEditForm(forms.ModelForm):
                 raise forms.ValidationError('Esta cédula ya está registrada por otro usuario.')
         return cedula
     
-    def clean_current_password(self):
-        current_password = self.cleaned_data.get('current_password')
-        new_password = self.cleaned_data.get('new_password')
-        
-        # Si se proporciona nueva contraseña, la contraseña actual es requerida
-        if new_password and not current_password:
-            raise forms.ValidationError('Debes ingresar tu contraseña actual para cambiarla.')
-        
-        # Si se proporciona contraseña actual, verificar que sea correcta
-        if current_password and self.instance.pk:
-            if not self.instance.check_password(current_password):
-                raise forms.ValidationError('La contraseña actual es incorrecta.')
-        
-        return current_password
-    
     def clean_confirm_password(self):
         new_password = self.cleaned_data.get('new_password')
         confirm_password = self.cleaned_data.get('confirm_password')
         
-        if new_password and confirm_password:
+        if new_password:
+            if not confirm_password:
+                raise forms.ValidationError('Debes confirmar tu nueva contraseña.')
             if new_password != confirm_password:
                 raise forms.ValidationError('Las contraseñas no coinciden.')
         
@@ -1290,15 +1268,6 @@ class ProducerProfileEditForm(forms.ModelForm):
     )
     
     # Campos de contraseña
-    current_password = forms.CharField(
-        required=False,
-        label="Contraseña Actual",
-        widget=forms.PasswordInput(attrs={
-            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300',
-            'placeholder': 'Ingresa tu contraseña actual'
-        }),
-        help_text="Requerida solo si quieres cambiar tu contraseña"
-    )
     new_password = forms.CharField(
         required=False,
         label="Nueva Contraseña",
@@ -1428,26 +1397,13 @@ class ProducerProfileEditForm(forms.ModelForm):
                 raise forms.ValidationError('Esta cédula ya está registrada por otro usuario.')
         return cedula
     
-    def clean_current_password(self):
-        current_password = self.cleaned_data.get('current_password')
-        new_password = self.cleaned_data.get('new_password')
-        
-        # Si se proporciona nueva contraseña, la contraseña actual es requerida
-        if new_password and not current_password:
-            raise forms.ValidationError('Debes ingresar tu contraseña actual para cambiarla.')
-        
-        # Si se proporciona contraseña actual, verificar que sea correcta
-        if current_password and self.user:
-            if not self.user.check_password(current_password):
-                raise forms.ValidationError('La contraseña actual es incorrecta.')
-        
-        return current_password
-    
     def clean_confirm_password(self):
         new_password = self.cleaned_data.get('new_password')
         confirm_password = self.cleaned_data.get('confirm_password')
         
-        if new_password and confirm_password:
+        if new_password:
+            if not confirm_password:
+                raise forms.ValidationError('Debes confirmar tu nueva contraseña.')
             if new_password != confirm_password:
                 raise forms.ValidationError('Las contraseñas no coinciden.')
         

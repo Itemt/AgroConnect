@@ -6,10 +6,36 @@
 
 {% block extra_head %}
 <style>
-    .profile-gradient {
-        background: radial-gradient(circle at top, rgba(57, 201, 134, 0.15), transparent 45%),
-                    radial-gradient(circle at top right, rgba(91, 192, 222, 0.12), transparent 55%),
-                    #04151a;
+    /* Dark mode inputs in profile edit form */
+    .dark input, .dark select, .dark textarea {
+        background-color: #374151 !important;
+        border-color: #4b5563 !important;
+        color: #f9fafb !important;
+    }
+    
+    .dark input::placeholder, .dark textarea::placeholder {
+        color: #9ca3af !important;
+    }
+    
+    .dark label {
+        color: #e5e7eb !important;
+    }
+    
+    /* Dark mode dividers */
+    .dark .border-gray-300 {
+        border-color: #475569 !important;
+    }
+    
+    .dark .text-gray-500 {
+        color: #94a3b8 !important;
+    }
+    
+    .dark .bg-white {
+        background-color: #1e293b !important;
+    }
+    
+    .dark .text-gray-700 {
+        color: #cbd5e1 !important;
     }
 
     .profile-glass {
@@ -39,13 +65,32 @@
         border-color: rgba(56, 189, 248, 0.25);
     }
 
-    /* Ocultar el input file nativo */
-    input[type="file"] {
+    .sr-only {
         position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+    
+    /* Ocultar elementos del widget ClearableFileInput de Django */
+    /* Solo ocultar elementos que vengan directamente del widget, no nuestros elementos personalizados */
+    .flex-1 > input[type="checkbox"],
+    .flex-1 > input[type="checkbox"] + label:not(.profile-image-button),
+    .flex-1 > a[href*="profile_images"],
+    .flex-1 > br:not(.profile-image-controls br) {
+        display: none !important;
+    }
+    
+    /* Asegurar que nuestros controles personalizados siempre sean visibles */
+    .profile-image-controls,
+    .profile-image-button {
+        display: flex !important;
+        visibility: visible !important;
     }
     
     /* Estilos para inputs, selects y textareas del formulario */
@@ -120,17 +165,7 @@
     }
     
     /* Campo de país con ancho limitado */
-    #id_pais {
-        width: 180px !important;
-        min-width: 180px !important;
-        max-width: 180px !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Selects de código de país con ancho uniforme */
-    #country-code-select-edit,
-    #country-code-select-register,
-    #country-code-select-producer {
+    #country-code-select-edit {
         width: 180px !important;
         min-width: 180px !important;
         max-width: 180px !important;
@@ -138,10 +173,7 @@
     }
     
     /* Asegurar que el menú desplegable tenga el mismo ancho */
-    #id_pais option,
-    #country-code-select-edit option,
-    #country-code-select-register option,
-    #country-code-select-producer option {
+    #country-code-select-edit option {
         max-width: 180px !important;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -151,11 +183,22 @@
     .dark label {
         color: #e5e7eb !important;
     }
+    
+    /* Ocultar completamente el campo pais */
+    #id_pais {
+        display: none !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-gradient min-h-screen py-12 px-4 sm:px-6 lg:px-10">
+<div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 min-h-screen py-12 px-4 sm:px-6 lg:px-10">
     <div class="max-w-5xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-12">
@@ -165,10 +208,10 @@
                 </svg>
                 <span class="inline-block ml-2 text-sm font-medium text-green-900 dark:text-green-300">Perfil</span>
             </div>
-            <h1 class="font-heading text-4xl sm:text-5xl font-bold text-white">
+            <h1 class="font-heading text-4xl sm:text-5xl font-bold text-green-900 dark:text-white">
                 Editar Perfil
             </h1>
-            <p class="text-base lg:text-lg text-emerald-100/95">
+            <p class="text-base lg:text-lg text-gray-600 dark:text-emerald-100/95">
                 Actualiza tu información personal y de perfil
             </p>
         </div>
@@ -196,17 +239,25 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1" style="position: relative;">
                             <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {{ form.profile_image.label }}
                             </label>
-                            <div class="mt-1 flex items-center">
-                                <label for="{{ form.profile_image.id_for_label }}" class="cursor-pointer inline-flex items-center px-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400 transition-all duration-200">
+                            <div class="mt-1 flex items-center gap-3 profile-image-controls">
+                                <label for="{{ form.profile_image.id_for_label }}" class="profile-image-button cursor-pointer inline-flex items-center px-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400 transition-all duration-200 shadow-sm">
                                     <i class="fas fa-upload mr-2 text-gray-500 dark:text-gray-300"></i>
-                                    Seleccionar archivo
+                                    Actualizar
                                 </label>
+                                <span id="file-name" data-default-text="Ningún archivo seleccionado" class="text-sm text-gray-500 dark:text-gray-400">
+                                    {% if user.profile_image %}
+                                        {{ user.profile_image.name|cut:"profile_images/" }}
+                                    {% else %}
+                                        Ningún archivo seleccionado
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; overflow: hidden;">
                                 {{ form.profile_image }}
-                                <span id="file-name" class="ml-3 text-sm text-gray-500 dark:text-gray-400">Ningún archivo seleccionado</span>
                             </div>
                             {% if form.profile_image.help_text %}
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ form.profile_image.help_text }}</p>
@@ -285,7 +336,7 @@
                             <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {{ form.telefono.label }}
                             </label>
-                            <div class="flex gap-2 mt-1">
+                            <div class="mt-1 flex gap-2">
                                 <select id="country-code-select-edit" class="flex-shrink-0 px-2 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm" style="width: 180px !important; min-width: 180px !important; max-width: 180px !important; box-sizing: border-box !important; text-align: center; text-align-last: center;">
                                     <option value="+93">Afganistán +93</option>
                                     <option value="+355">Albania +355</option>
@@ -326,7 +377,7 @@
                                     <option value="+56">Chile +56</option>
                                     <option value="+86">China +86</option>
                                     <option value="+357">Chipre +357</option>
-                                    <option value="+57">Colombia +57</option>
+                                    <option value="+57" selected>Colombia +57</option>
                                     <option value="+269">Comoras +269</option>
                                     <option value="+242">Congo +242</option>
                                     <option value="+850">Corea del Norte +850</option>
@@ -481,27 +532,15 @@
                                     <option value="+263">Zimbabue +263</option>
                                 </select>
                                 <input type="text" name="phone_number" id="phone-number-input-edit" class="flex-1 px-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="320 123 4567" maxlength="15" pattern="[0-9\s]+" title="Solo números">
-                                {{ form.telefono }}
+                                {{ form.telefono|attr:"type:hidden" }}
+                                <div style="display: none !important;">
+                                    {{ form.pais }}
+                                </div>
                             </div>
                             {% if form.telefono.help_text %}
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.telefono.help_text }}</p>
                             {% endif %}
                             {% for error in form.telefono.errors %}
-                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
-                        <div class="field-wrapper">
-                            <label for="{{ form.pais.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {{ form.pais.label }}
-                            </label>
-                            <div class="mt-1" style="width: 180px;">
-                                {{ form.pais }}
-                            </div>
-                            {% if form.pais.help_text %}
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.pais.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.pais.errors %}
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
                             {% endfor %}
                         </div>
@@ -547,24 +586,9 @@
                         <i class="fas fa-lock text-green-600 dark:text-green-400 mr-3"></i>
                         Cambio de Contraseña
                     </h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Deja estos campos vacíos si no quieres cambiar tu contraseña.</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Solo ingresa tu nueva contraseña y su confirmación si deseas cambiarla.</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="field-wrapper">
-                            <label for="{{ form.current_password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {{ form.current_password.label }}
-                            </label>
-                            <div class="mt-1">
-                                {{ form.current_password }}
-                            </div>
-                            {% if form.current_password.help_text %}
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.current_password.help_text }}</p>
-                            {% endif %}
-                            {% for error in form.current_password.errors %}
-                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-
                         <div class="field-wrapper">
                             <label for="{{ form.new_password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {{ form.new_password.label }}
@@ -580,7 +604,7 @@
                             {% endfor %}
                         </div>
 
-                        <div class="field-wrapper md:col-span-2">
+                        <div class="field-wrapper">
                             <label for="{{ form.confirm_password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {{ form.confirm_password.label }}
                             </label>
@@ -663,265 +687,380 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📝 Formulario de edición de perfil cargado');
     
-    // Obtener el valor inicial de la ciudad desde Django
-    const initialCityValue = '{{ form.ciudad.initial|default:"" }}';
+    // Ocultar completamente el campo pais original de Django
+    function hidePaisField() {
+        const paisInput = document.getElementById('id_pais');
+        if (paisInput) {
+            paisInput.style.display = 'none';
+            paisInput.style.visibility = 'hidden';
+            paisInput.style.position = 'absolute';
+            paisInput.style.opacity = '0';
+            paisInput.style.width = '0';
+            paisInput.style.height = '0';
+            paisInput.style.overflow = 'hidden';
+            paisInput.setAttribute('tabindex', '-1');
+            // Ocultar también el label si existe
+            const paisLabel = document.querySelector('label[for="id_pais"]');
+            if (paisLabel) {
+                paisLabel.style.display = 'none';
+                paisLabel.style.visibility = 'hidden';
+            }
+            // Ocultar cualquier wrapper o contenedor del campo que contenga "País"
+            const allDivs = document.querySelectorAll('div');
+            allDivs.forEach(div => {
+                const text = div.textContent || '';
+                if (div.contains(paisInput) && (text.includes('País') || text.includes('pais')) && div !== paisInput.parentElement) {
+                    // Verificar que no sea nuestro div personalizado
+                    if (!div.querySelector('#country-code-select-edit')) {
+                        div.style.display = 'none';
+                    }
+                }
+            });
+        }
+    }
+    
+    // Ejecutar inmediatamente y después de un pequeño delay
+    hidePaisField();
+    setTimeout(hidePaisField, 100);
+    setTimeout(hidePaisField, 500);
     
     // Manejar la interacción entre país y teléfono
-    const paisSelect = document.getElementById('id_pais');
+    const countryCodeSelect = document.getElementById('country-code-select-edit');
     const telefonoInput = document.getElementById('id_telefono');
+    const visiblePhoneInput = document.getElementById('phone-number-input-edit');
     
-    if (paisSelect && telefonoInput) {
-        // Función para actualizar el placeholder del teléfono
+    if (countryCodeSelect && telefonoInput && visiblePhoneInput) {
+        const defaultCountryCode = '+57';
+        const placeholderByCountry = {
+            '+1': '555 123 4567',
+            '+34': '612 345 678',
+            '+44': '7700 900123',
+            '+49': '151 12345678',
+            '+52': '55 1234 5678',
+            '+54': '11 1234 5678',
+            '+55': '11 91234 5678',
+            '+56': '9 1234 5678',
+            '+57': '320 123 4567',
+            '+58': '412 123 4567',
+            '+61': '412 345 678',
+            '+81': '90 1234 5678',
+            '+82': '10 1234 5678',
+            '+86': '138 0013 8000',
+            '+91': '98765 43210',
+            '+351': '912 345 678'
+        };
+        
+        telefonoInput.type = 'hidden';
+        
+        function sanitizeNumber(value) {
+            return value.replace(/[^0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        }
+        
         function updatePhonePlaceholder() {
-            const selectedCountry = paisSelect.value;
-            if (selectedCountry) {
-                // Extraer el código de país del texto seleccionado
-                const countryText = paisSelect.options[paisSelect.selectedIndex].text;
-                const countryCode = selectedCountry;
-                
-                // Actualizar placeholder basado en el país
-                const placeholders = {
-                    '+1': '+1 555 123 4567',  // Estados Unidos/Canadá
-                    '+52': '+52 55 1234 5678',  // México
-                    '+54': '+54 11 1234 5678',  // Argentina
-                    '+55': '+55 11 91234 5678',  // Brasil
-                    '+56': '+56 9 1234 5678',  // Chile
-                    '+57': '+57 320 123 4567',  // Colombia
-                    '+58': '+58 412 123 4567',  // Venezuela
-                    '+51': '+51 987 654 321',  // Perú
-                    '+591': '+591 7 123 4567',  // Bolivia
-                    '+593': '+593 99 123 4567',  // Ecuador
-                    '+595': '+595 981 123 456',  // Paraguay
-                    '+598': '+598 99 123 456',  // Uruguay
-                    '+34': '+34 612 345 678',  // España
-                    '+33': '+33 6 12 34 56 78',  // Francia
-                    '+49': '+49 151 12345678',  // Alemania
-                    '+39': '+39 320 123 4567',  // Italia
-                    '+44': '+44 7700 900123',  // Reino Unido
-                    '+7': '+7 912 345 6789',  // Rusia
-                    '+86': '+86 138 0013 8000',  // China
-                    '+81': '+81 90 1234 5678',  // Japón
-                    '+82': '+82 10 1234 5678',  // Corea del Sur
-                    '+91': '+91 98765 43210',  // India
-                    '+61': '+61 412 345 678',  // Australia
-                    '+27': '+27 82 123 4567',  // Sudáfrica
-                    '+20': '+20 10 1234 5678',  // Egipto
-                    '+90': '+90 532 123 4567',  // Turquía
-                    '+966': '+966 50 123 4567',  // Arabia Saudí
-                    '+971': '+971 50 123 4567',  // Emiratos Árabes Unidos
-                };
-                
-                const placeholder = placeholders[countryCode] || `${countryCode} XXX XXX XXX`;
-                telefonoInput.placeholder = placeholder;
-                telefonoInput.title = `Formato: ${placeholder}`;
-            } else {
-                telefonoInput.placeholder = '+57 320 123 4567';
-                telefonoInput.title = 'Formato: +57 320 123 4567';
+            const code = countryCodeSelect.value || defaultCountryCode;
+            const placeholder = placeholderByCountry[code] || 'Número de teléfono';
+            visiblePhoneInput.placeholder = placeholder;
+            visiblePhoneInput.title = `Formato: ${placeholder}`;
+        }
+        
+        function updateHiddenPhone() {
+            const code = countryCodeSelect.value || defaultCountryCode;
+            const number = sanitizeNumber(visiblePhoneInput.value);
+            telefonoInput.value = number ? `${code} ${number}` : '';
+            // Actualizar también el campo pais si existe
+            if (paisInput) {
+                paisInput.value = code;
             }
         }
         
-        // Actualizar placeholder al cargar la página
-        updatePhonePlaceholder();
-        
-        // Actualizar placeholder cuando cambie el país
-        paisSelect.addEventListener('change', updatePhonePlaceholder);
-    }
-    
-    // Manejar la visualización del nombre del archivo seleccionado
-    const fileInput = document.getElementById('id_profile_image');
-    const fileNameSpan = document.getElementById('file-name');
-    
-    if (fileInput && fileNameSpan) {
-        fileInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                fileNameSpan.textContent = this.files[0].name;
-                fileNameSpan.classList.remove('text-gray-500');
-                fileNameSpan.classList.add('text-green-600', 'font-medium');
-            } else {
-                fileNameSpan.textContent = 'Ningún archivo seleccionado';
-                fileNameSpan.classList.remove('text-green-600', 'font-medium');
-                fileNameSpan.classList.add('text-gray-500');
-            }
-        });
-    }
-    
-    // Manejar dropdown dinámico de departamento/ciudad
-    setTimeout(() => {
-        const departamentoSelect = document.getElementById('id_departamento');
-        const ciudadSelect = document.getElementById('id_ciudad');
-        
-        if (departamentoSelect && ciudadSelect) {
-            // Deshabilitar Flowbite para ambos selects
-            [departamentoSelect, ciudadSelect].forEach(select => {
-                select.removeAttribute('data-dropdown-toggle');
-                select.removeAttribute('data-dropdown-trigger');
-                select.classList.remove('flowbite-dropdown');
-                select.setAttribute('data-flowbite-ignore', 'true');
-            });
+        function initializePhoneFields() {
+            const storedPhone = telefonoInput.value || '';
+            let storedCode = '';
+            let storedNumber = '';
             
-            // Función para cargar ciudades
-            function loadCities(departamento, preserveCurrentValue = false, initialCityValue = '') {
-                if (departamento) {
-                    const currentValue = preserveCurrentValue ? (initialCityValue || ciudadSelect.value) : '';
-                    ciudadSelect.innerHTML = '<option value="">Cargando...</option>';
-                    
-                    fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento))
-                    .then(response => response.json())
-                    .then(data => {
-                        ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
-                        
-                        if (data.success && data.cities) {
-                            // Recrear completamente el select
-                            const parent = ciudadSelect.parentNode;
-                            const newSelect = document.createElement('select');
-                            
-                            // Copiar atributos del select original
-                            newSelect.id = ciudadSelect.id;
-                            newSelect.name = ciudadSelect.name;
-                            newSelect.className = ciudadSelect.className;
-                            
-                            // Agregar opción inicial
-                            const defaultOption = document.createElement('option');
-                            defaultOption.value = '';
-                            defaultOption.textContent = 'Seleccionar ciudad';
-                            newSelect.appendChild(defaultOption);
-                            
-                            // Agregar ciudades
-                            data.cities.forEach(ciudad => {
-                                const option = document.createElement('option');
-                                option.value = ciudad;
-                                option.textContent = ciudad;
-                                if (preserveCurrentValue && ciudad === currentValue) {
-                                    option.selected = true;
-                                }
-                                newSelect.appendChild(option);
-                            });
-                            
-                            // Si no se encontró coincidencia exacta, intentar con trim
-                            if (preserveCurrentValue && currentValue && !newSelect.value) {
-                                const trimmedValue = currentValue.trim();
-                                const matchingOption = Array.from(newSelect.options).find(opt => opt.value.trim() === trimmedValue);
-                                if (matchingOption) {
-                                    matchingOption.selected = true;
-                                }
-                            }
-                            
-                            // Reemplazar el select original
-                            parent.replaceChild(newSelect, ciudadSelect);
-                            
-                            // Reasignar el event listener al nuevo select
-                            ciudadSelect = newSelect;
-                        } else {
-                            ciudadSelect.innerHTML = '<option value="">No hay ciudades</option>';
+            if (storedPhone) {
+                // Primero intentar con formato "+57 3201234567" o "+573201234567"
+                const match = storedPhone.match(/^(\+\d{1,4})\s*(.*)$/);
+                if (match) {
+                    storedCode = match[1];
+                    storedNumber = match[2].trim();
+                } else if (storedPhone.startsWith('+')) {
+                    // Si empieza con + pero no hay espacio, intentar extraer código
+                    // Ordenar códigos de más largos a más cortos para evitar coincidencias incorrectas
+                    const codes = ['+351', '+591', '+593', '+595', '+598', '+57', '+58', '+55', '+56', '+54', '+52', '+51', '+49', '+44', '+39', '+34', '+33', '+86', '+82', '+81', '+61', '+91', '+7', '+1'];
+                    for (const code of codes) {
+                        if (storedPhone.startsWith(code)) {
+                            storedCode = code;
+                            storedNumber = storedPhone.substring(code.length).trim();
+                            // Limpiar el número de cualquier carácter no numérico excepto espacios
+                            storedNumber = storedNumber.replace(/[^0-9\s]/g, '').trim();
+                            break;
                         }
-                    })
-                    .catch(error => {
-                        ciudadSelect.innerHTML = '<option value="">Error</option>';
-                    });
+                    }
                 } else {
-                    ciudadSelect.innerHTML = '<option value="">Seleccionar departamento primero</option>';
+                    // Si no empieza con +, asumir que es solo el número
+                    // Si es un número colombiano (10 dígitos empezando con 3), usar +57
+                    const cleanNumber = storedPhone.replace(/[^0-9]/g, '');
+                    if (cleanNumber.length === 10 && cleanNumber.startsWith('3')) {
+                        storedCode = '+57';
+                        storedNumber = cleanNumber;
+                    } else {
+                        // Si no, usar el número tal cual y código por defecto
+                        storedCode = defaultCountryCode;
+                        storedNumber = cleanNumber;
+                    }
                 }
             }
             
-            // Cargar ciudades automáticamente si ya hay un departamento seleccionado
-            if (departamentoSelect.value) {
-                loadCities(departamentoSelect.value, true, initialCityValue);
+            // Establecer el código de país en el select
+            if (storedCode && countryCodeSelect.querySelector(`option[value="${storedCode}"]`)) {
+                countryCodeSelect.value = storedCode;
+            } else if (!countryCodeSelect.value) {
+                countryCodeSelect.value = defaultCountryCode;
             }
             
-            // Event listener para cambios en el departamento
-            departamentoSelect.addEventListener('change', function() {
-                loadCities(this.value, false);
-            });
-        }
-    }, 1000);
-    
-    // Mostrar/ocultar campos de contraseña según necesidad
-    const newPasswordField = document.getElementById('id_new_password');
-    const confirmPasswordField = document.getElementById('id_confirm_password');
-    
-    if (newPasswordField && confirmPasswordField) {
-        function togglePasswordFields() {
-            const hasNewPassword = newPasswordField.value.length > 0;
-            confirmPasswordField.closest('.field-wrapper').style.display = hasNewPassword ? 'block' : 'none';
+            // Limpiar y formatear el número para mostrar
+            if (storedNumber) {
+                // Remover el código de país si está duplicado al inicio
+                storedNumber = storedNumber.replace(/^\+?\d{1,4}\s*/, '');
+                // Limpiar espacios y caracteres no numéricos
+                storedNumber = sanitizeNumber(storedNumber);
+            }
+            
+            visiblePhoneInput.value = storedNumber;
+            updatePhonePlaceholder();
+            // No actualizar el campo oculto todavía, solo cuando el usuario interactúe
         }
         
-        newPasswordField.addEventListener('input', togglePasswordFields);
-        togglePasswordFields(); // Ejecutar al cargar
-    }
-    
-    // Forzar ancho fijo en selects de país
-    const paisSelect = document.getElementById('id_pais');
-    if (paisSelect) {
-        paisSelect.style.width = '180px';
-        paisSelect.style.minWidth = '180px';
-        paisSelect.style.maxWidth = '180px';
-        // Forzar ancho en el menú desplegable cuando se abra
-        paisSelect.addEventListener('mousedown', function() {
-            this.style.width = '180px';
+        initializePhoneFields();
+        
+        countryCodeSelect.addEventListener('change', () => {
+            updatePhonePlaceholder();
+            updateHiddenPhone();
         });
-        paisSelect.addEventListener('focus', function() {
-            this.style.width = '180px';
+        
+        visiblePhoneInput.addEventListener('input', () => {
+            visiblePhoneInput.value = sanitizeNumber(visiblePhoneInput.value);
+            updateHiddenPhone();
         });
-    }
-    
-    // Sincronizar select de código de país con campo telefono
-    const countryCodeSelect = document.getElementById('country-code-select-edit');
-    const phoneNumberInput = document.getElementById('phone-number-input-edit');
-    const telefonoField = document.getElementById('id_telefono');
-    
-    if (countryCodeSelect && phoneNumberInput && telefonoField) {
-        // Forzar ancho fijo
+        
+        // Forzar ancho fijo en el select de país
         countryCodeSelect.style.width = '180px';
         countryCodeSelect.style.minWidth = '180px';
         countryCodeSelect.style.maxWidth = '180px';
-        
-        // Forzar ancho en el menú desplegable cuando se abra
         countryCodeSelect.addEventListener('mousedown', function() {
             this.style.width = '180px';
         });
         countryCodeSelect.addEventListener('focus', function() {
             this.style.width = '180px';
         });
+    }
+    
+    // Manejar la visualización del nombre del archivo seleccionado
+    const fileInput = document.getElementById('id_profile_image');
+    const fileNameSpan = document.getElementById('file-name');
+    const fileLabel = document.querySelector('label[for="' + (fileInput ? fileInput.id : '') + '"]');
+    
+    if (fileInput && fileNameSpan) {
+        const defaultText = fileNameSpan.dataset.defaultText || 'Ningún archivo seleccionado';
         
-        // Ocultar el campo original
-        telefonoField.type = 'hidden';
+        // Ocultar completamente el input file nativo
+        fileInput.style.position = 'absolute';
+        fileInput.style.opacity = '0';
+        fileInput.style.width = '0';
+        fileInput.style.height = '0';
+        fileInput.style.pointerEvents = 'none';
         
-        // Parsear el valor actual del teléfono si existe
-        const currentPhone = telefonoField.value;
-        if (currentPhone) {
-            // Intentar extraer código de país y número
-            const match = currentPhone.match(/^(\+\d+)\s*(.*)$/);
-            if (match) {
-                countryCodeSelect.value = match[1];
-                phoneNumberInput.value = match[2].trim();
-            } else if (currentPhone.startsWith('+')) {
-                // Si empieza con + pero no hay espacio
-                const codes = ['+57', '+1', '+52', '+54', '+55', '+56', '+58', '+51', '+591', '+593', '+595', '+598', '+34', '+33', '+49', '+39', '+44'];
-                for (const code of codes) {
-                    if (currentPhone.startsWith(code)) {
-                        countryCodeSelect.value = code;
-                        phoneNumberInput.value = currentPhone.substring(code.length).trim();
-                        break;
+        // Hacer que el label actúe como botón para el input file
+        if (fileLabel && fileLabel !== fileInput.previousElementSibling) {
+            fileLabel.addEventListener('click', function(e) {
+                if (e.target === fileLabel || fileLabel.contains(e.target)) {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+        }
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameSpan.textContent = this.files[0].name;
+                fileNameSpan.classList.remove('text-gray-500', 'dark:text-gray-400');
+                fileNameSpan.classList.add('text-green-600', 'dark:text-green-400', 'font-medium');
+            } else {
+                fileNameSpan.textContent = defaultText;
+                fileNameSpan.classList.remove('text-green-600', 'dark:text-green-400', 'font-medium');
+                fileNameSpan.classList.add('text-gray-500', 'dark:text-gray-400');
+            }
+        });
+        
+        // Ocultar elementos adicionales del widget ClearableFileInput
+        setTimeout(function() {
+            const wrapper = fileInput.closest('.flex-1');
+            if (wrapper) {
+                // Ocultar checkboxes (pero no nuestro botón label)
+                const checkboxes = wrapper.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    cb.style.display = 'none';
+                    const nextLabel = cb.nextElementSibling;
+                    if (nextLabel && nextLabel.tagName === 'LABEL' && !nextLabel.getAttribute('for')?.includes('profile_image')) {
+                        nextLabel.style.display = 'none';
                     }
+                });
+                
+                // Ocultar enlaces
+                const links = wrapper.querySelectorAll('a[href*="profile_images"]');
+                links.forEach(link => link.style.display = 'none');
+                
+                // Ocultar elementos <br> que no estén dentro de nuestro div personalizado
+                const customDiv = wrapper.querySelector('.mt-1.flex.items-center');
+                if (customDiv) {
+                    const brs = wrapper.querySelectorAll('br');
+                    brs.forEach(br => {
+                        if (!customDiv.contains(br)) {
+                            br.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Ocultar texto que contenga "Actualmente", "Modificar" o "Limpiar" pero solo fuera de nuestro div personalizado
+                const customDiv2 = wrapper.querySelector('.mt-1.flex.items-center');
+                if (customDiv2) {
+                    const allElements = wrapper.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        // No ocultar elementos dentro de nuestro div personalizado
+                        if (customDiv2.contains(el)) {
+                            return;
+                        }
+                        // No ocultar labels, spans con id file-name, párrafos, o el input file
+                        if (el.tagName === 'LABEL' || el.id === 'file-name' || el.tagName === 'P' || el === fileInput) {
+                            return;
+                        }
+                        const text = el.textContent || '';
+                        if (text.includes('Actualmente') || text.includes('Modificar') || text.includes('Limpiar')) {
+                            el.style.display = 'none';
+                        }
+                    });
                 }
             }
+        }, 100);
+    }
+    
+    // Manejar dropdown dinámico de departamento/ciudad
+    const departamentoSelect = document.getElementById('id_departamento');
+    const ciudadSelect = document.getElementById('id_ciudad');
+    
+    if (departamentoSelect && ciudadSelect) {
+        [departamentoSelect, ciudadSelect].forEach(select => {
+            select.removeAttribute('data-dropdown-toggle');
+            select.removeAttribute('data-dropdown-trigger');
+            select.classList.remove('flowbite-dropdown');
+            select.setAttribute('data-flowbite-ignore', 'true');
+        });
+        
+        // Obtener valores iniciales desde Django template
+        const initialCityValue = '{{ form.ciudad.value|default:form.ciudad.initial|default:user.ciudad|default:"" }}';
+        const initialDepartamentoValue = '{{ form.departamento.value|default:form.departamento.initial|default:user.departamento|default:"" }}';
+        
+        function loadCities(departamento, preserveCity = false, cityToSelect = '') {
+            if (!departamento) {
+                ciudadSelect.innerHTML = '<option value="">Selecciona primero un departamento</option>';
+                ciudadSelect.disabled = true;
+                return;
+            }
+            
+            ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+            ciudadSelect.disabled = true;
+            
+            fetch('{% url "ajax_get_cities" %}?department=' + encodeURIComponent(departamento))
+                .then(response => response.json())
+                .then(data => {
+                    ciudadSelect.innerHTML = '<option value="">Seleccionar ciudad</option>';
+                    ciudadSelect.disabled = false;
+                    
+                    if (data.success && data.cities) {
+                        let foundMatch = false;
+                        const cityValue = preserveCity ? (cityToSelect || initialCityValue) : '';
+                        
+                        data.cities.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad;
+                            
+                            // Si estamos preservando la ciudad y coincide, seleccionarla
+                            if (preserveCity && cityValue) {
+                                if (ciudad === cityValue || 
+                                    ciudad.trim() === cityValue.trim() ||
+                                    ciudad.toLowerCase() === cityValue.toLowerCase()) {
+                                    option.selected = true;
+                                    foundMatch = true;
+                                }
+                            }
+                            
+                            ciudadSelect.appendChild(option);
+                        });
+                        
+                        // Si no se encontró match pero hay un valor inicial, agregarlo
+                        if (preserveCity && cityValue && !foundMatch) {
+                            const customOption = document.createElement('option');
+                            customOption.value = cityValue;
+                            customOption.textContent = cityValue;
+                            customOption.selected = true;
+                            ciudadSelect.insertBefore(customOption, ciudadSelect.firstChild.nextSibling);
+                        }
+                    } else {
+                        ciudadSelect.innerHTML = '<option value="">No hay ciudades disponibles</option>';
+                        ciudadSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando ciudades:', error);
+                    ciudadSelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                    ciudadSelect.disabled = true;
+                });
         }
         
-        // Actualizar campo telefono cuando cambie cualquiera de los dos
-        function updatePhoneField() {
-            const countryCode = countryCodeSelect.value;
-            const phoneNumber = phoneNumberInput.value.replace(/[^0-9\s]/g, '');
-            telefonoField.value = phoneNumber ? `${countryCode} ${phoneNumber}` : '';
+        // Cargar ciudades automáticamente si ya hay un departamento seleccionado
+        // Usar el valor del select o el valor inicial del template
+        const currentDepartamento = departamentoSelect.value || initialDepartamentoValue;
+        const currentCity = ciudadSelect.value || initialCityValue;
+        
+        console.log('🔍 Inicializando ciudades:', {
+            currentDepartamento,
+            currentCity,
+            selectValue: departamentoSelect.value,
+            initialDepartamentoValue,
+            initialCityValue
+        });
+        
+        if (currentDepartamento && currentDepartamento.trim() !== '') {
+            // Asegurar que el departamento esté seleccionado
+            if (departamentoSelect.value !== currentDepartamento) {
+                departamentoSelect.value = currentDepartamento;
+            }
+            // Cargar ciudades con la ciudad actual
+            console.log('📞 Cargando ciudades para:', currentDepartamento, 'con ciudad:', currentCity);
+            loadCities(currentDepartamento, true, currentCity);
+        } else if (!ciudadSelect.value && ciudadSelect.options.length <= 1) {
+            ciudadSelect.disabled = true;
         }
         
-        countryCodeSelect.addEventListener('change', updatePhoneField);
-        phoneNumberInput.addEventListener('input', updatePhoneField);
+        // También intentar cargar después de un pequeño delay por si acaso
+        setTimeout(function() {
+            const deptValue = departamentoSelect.value || initialDepartamentoValue;
+            const cityValue = ciudadSelect.value || initialCityValue;
+            if (deptValue && deptValue.trim() !== '' && (!ciudadSelect.value || ciudadSelect.disabled)) {
+                console.log('⏰ Cargando ciudades con delay para:', deptValue);
+                loadCities(deptValue, true, cityValue);
+            }
+        }, 300);
         
-        // Validar solo números en el input
-        phoneNumberInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9\s]/g, '');
+        departamentoSelect.addEventListener('change', function() {
+            ciudadSelect.value = '';
+            loadCities(this.value, false);
         });
     }
+    
+    
 });
 </script>
 {% endblock %}

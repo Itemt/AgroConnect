@@ -86,28 +86,30 @@
                     </div>
                 </div>
 
-                <!-- Role-specific Information -->
+                <!-- Additional Information -->
                 <div class="space-y-4">
-                    {% if user.buyer_profile %}
-                        <div>
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-                                <i class="fas fa-building mr-2 text-blue-600"></i>
-                                Empresa
-                            </label>
-                            <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
-                                {{ user.buyer_profile.company_name|default:"No especificado" }}
-                            </div>
+                    {% if user.telefono %}
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                            <i class="fas fa-phone mr-2 text-blue-600"></i>
+                            Teléfono
+                        </label>
+                        <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            {{ user.telefono }}
                         </div>
-                        
-                        <div>
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-                                <i class="fas fa-briefcase mr-2 text-blue-600"></i>
-                                Tipo de Negocio
-                            </label>
-                            <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
-                                {{ user.buyer_profile.business_type|default:"No especificado" }}
-                            </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.first_name or user.last_name %}
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                            <i class="fas fa-user-circle mr-2 text-blue-600"></i>
+                            Nombre Completo
+                        </label>
+                        <div class="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-xl">
+                            {{ user.get_full_name|default:"No especificado" }}
                         </div>
+                    </div>
                     {% endif %}
                 </div>
             </div>
