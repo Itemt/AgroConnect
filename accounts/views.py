@@ -83,15 +83,39 @@ def google_auth_callback(request):
                     # Usuario existe, hacer login
                     from django.contrib.auth import login
                     
-                    # Actualizar imagen de perfil de Google si no tiene una o si es usuario de Google
+                    # Actualizar imagen de perfil de Google SIEMPRE que haya photo_url disponible
                     photo_url = user_info.get('picture', '')
-                    if photo_url and (not user.profile_image or user.is_google_user):
+                    print(f"[GOOGLE LOGIN] Usuario: {user.email}")
+                    print(f"[GOOGLE LOGIN] Photo URL: {photo_url}")
+                    print(f"[GOOGLE LOGIN] Tiene imagen: {bool(user.profile_image)}")
+                    logger.info(f"=== GOOGLE LOGIN DEBUG ===")
+                    logger.info(f"Usuario: {user.email}")
+                    logger.info(f"Photo URL de Google: {photo_url}")
+                    logger.info(f"Usuario tiene profile_image: {bool(user.profile_image)}")
+                    logger.info(f"Usuario es google_user: {user.is_google_user}")
+                    
+                    # SIEMPRE intentar descargar/actualizar la imagen si hay photo_url
+                    if photo_url:
+                        print(f"[GOOGLE LOGIN] ✅ Descargando imagen de Google...")
+                        logger.info(f"✅ Photo URL disponible - Descargando imagen de Google...")
                         from accounts.forms import download_google_profile_image
                         try:
-                            download_google_profile_image(photo_url, user)
-                            logger.info(f"Imagen de perfil de Google actualizada para usuario existente: {user.email}")
+                            result = download_google_profile_image(photo_url, user)
+                            if result:
+                                print(f"[GOOGLE LOGIN] ✅ Imagen descargada exitosamente")
+                                logger.info(f"✅ Imagen de perfil de Google descargada exitosamente para usuario: {user.email}")
+                                # Recargar usuario para asegurar que la imagen esté disponible
+                                user.refresh_from_db()
+                                print(f"[GOOGLE LOGIN] Usuario recargado. Tiene imagen ahora: {bool(user.profile_image)}")
+                            else:
+                                print(f"[GOOGLE LOGIN] ❌ La función retornó False")
+                                logger.error(f"❌ La función download_google_profile_image retornó False para usuario: {user.email}")
                         except Exception as e:
-                            logger.error(f"Error actualizando imagen de perfil de Google para usuario existente {user.email}: {str(e)}")
+                            print(f"[GOOGLE LOGIN] ❌ EXCEPCIÓN: {str(e)}")
+                            logger.error(f"❌ EXCEPCIÓN al actualizar imagen de perfil de Google para usuario {user.email}: {str(e)}", exc_info=True)
+                    else:
+                        print(f"[GOOGLE LOGIN] ⚠️ No hay photo_url disponible")
+                        logger.warning(f"⚠️ No hay photo_url disponible de Google para usuario: {user.email}")
                     
                     login(request, user)
                     # Forzar el guardado de la sesión para evitar problemas

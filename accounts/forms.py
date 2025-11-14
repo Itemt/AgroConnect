@@ -24,39 +24,61 @@ def download_google_profile_image(photo_url, user):
         return False
     
     try:
+        print(f"[DOWNLOAD IMAGE] Intentando descargar para {user.email} desde: {photo_url}")
         logger.info(f"Intentando descargar imagen de perfil de Google para usuario {user.email} desde: {photo_url}")
         
         # Descargar la imagen
         response = requests.get(photo_url, timeout=10)
         response.raise_for_status()
+        print(f"[DOWNLOAD IMAGE] Respuesta recibida. Status: {response.status_code}, Content-Type: {response.headers.get('content-type', 'N/A')}")
         
         # Verificar que la respuesta sea una imagen
         content_type = response.headers.get('content-type', '')
         if not content_type.startswith('image/'):
+            print(f"[DOWNLOAD IMAGE] ❌ No es una imagen. Content-Type: {content_type}")
             logger.error(f"La URL de Google no devolvió una imagen. Content-Type: {content_type}")
             return False
         
         # Obtener el nombre del archivo de la URL o generar uno
         filename = f"google_profile_{user.id}_{int(time.time())}.jpg"
+        print(f"[DOWNLOAD IMAGE] Nombre de archivo: {filename}")
         
         # Crear un archivo en memoria
         image_file = ContentFile(response.content)
+        print(f"[DOWNLOAD IMAGE] Archivo creado. Tamaño: {len(response.content)} bytes")
         
         # Eliminar imagen anterior si existe (para Cloudinary)
         if user.profile_image:
             try:
+                print(f"[DOWNLOAD IMAGE] Eliminando imagen anterior...")
                 user.profile_image.delete(save=False)
                 logger.info(f"Imagen anterior eliminada para usuario {user.email}")
             except Exception as e:
+                print(f"[DOWNLOAD IMAGE] ⚠️ No se pudo eliminar imagen anterior: {e}")
                 logger.warning(f"No se pudo eliminar la imagen anterior para usuario {user.email}: {e}")
         
         # Guardar en el campo profile_image
+        print(f"[DOWNLOAD IMAGE] Guardando imagen en profile_image...")
         user.profile_image.save(filename, image_file, save=True)
+        print(f"[DOWNLOAD IMAGE] Imagen guardada. profile_image.name: {user.profile_image.name if user.profile_image else 'None'}")
         
         # Recargar el usuario para obtener la URL actualizada
         user.refresh_from_db()
+        print(f"[DOWNLOAD IMAGE] Usuario recargado. profile_image: {user.profile_image.name if user.profile_image else 'None'}")
         
-        logger.info(f"Imagen de perfil de Google descargada y guardada exitosamente para usuario {user.email}. URL: {user.profile_image.url if user.profile_image else 'N/A'}")
+        if user.profile_image:
+            try:
+                image_url = user.profile_image.url
+                print(f"[DOWNLOAD IMAGE] ✅ URL de imagen: {image_url}")
+                logger.info(f"Imagen de perfil de Google descargada y guardada exitosamente para usuario {user.email}. URL: {image_url}")
+            except Exception as e:
+                print(f"[DOWNLOAD IMAGE] ⚠️ Error obteniendo URL: {e}")
+                logger.warning(f"Imagen guardada pero error obteniendo URL: {e}")
+        else:
+            print(f"[DOWNLOAD IMAGE] ❌ profile_image es None después de guardar")
+            logger.error(f"profile_image es None después de guardar para usuario {user.email}")
+            return False
+        
         return True
     except requests.exceptions.RequestException as e:
         logger.error(f"Error de red descargando imagen de perfil de Google para usuario {user.email}: {str(e)}")
@@ -256,8 +278,19 @@ class BuyerRegistrationForm(forms.ModelForm):
             )
         
         # Descargar y guardar imagen de perfil de Google si está disponible
+        logger.info(f"=== REGISTRO CON GOOGLE DEBUG ===")
+        logger.info(f"is_google_signup: {self.is_google_signup}")
+        logger.info(f"google_photo_url: {google_photo_url}")
+        
         if self.is_google_signup and google_photo_url:
-            download_google_profile_image(google_photo_url, user)
+            logger.info(f"✅ Descargando imagen de Google durante registro para usuario: {user.email}")
+            result = download_google_profile_image(google_photo_url, user)
+            if result:
+                logger.info(f"✅ Imagen descargada exitosamente durante registro para: {user.email}")
+            else:
+                logger.error(f"❌ Error al descargar imagen durante registro para: {user.email}")
+        else:
+            logger.warning(f"⚠️ No se descargará imagen: is_google_signup={self.is_google_signup}, photo_url={bool(google_photo_url)}")
         
         if commit:
             # Crear BuyerProfile
