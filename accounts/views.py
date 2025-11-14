@@ -83,7 +83,16 @@ def google_auth_callback(request):
                     # Usuario existe, hacer login
                     from django.contrib.auth import login
                     login(request, user)
-                    return redirect('/')  # Redirigir al dashboard
+                    # Forzar el guardado de la sesión para evitar problemas
+                    request.session.save()
+                    # Redirigir al dashboard según el rol del usuario
+                    if user.is_staff:
+                        return redirect('admin_dashboard')
+                    elif user.role == 'Productor':
+                        return redirect('producer_dashboard')
+                    elif user.role == 'Comprador':
+                        return redirect('buyer_dashboard')
+                    return redirect('/')  # Fallback
                     
                 except User.DoesNotExist:
                     # Usuario no existe, redirigir a completar registro
@@ -144,9 +153,13 @@ def register(request):
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
             
+            # Hacer login y asegurar que la sesión se guarde
             login(request, user)
+            # Forzar el guardado de la sesión para evitar problemas
+            request.session.save()
             messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
-            return redirect('index')
+            # Redirigir al dashboard del comprador en lugar de index
+            return redirect('buyer_dashboard')
     else:
         # Pre-llenar formulario con datos de Google solo si existen
         initial_data = {}
@@ -207,9 +220,12 @@ def register_producer(request):
             if 'google_user_data' in request.session:
                 del request.session['google_user_data']
             
+            # Hacer login y asegurar que la sesión se guarde
             login(request, user)
+            # Forzar el guardado de la sesión para evitar problemas
+            request.session.save()
             messages.success(request, '¡Registro exitoso! Tu cuenta de productor y finca han sido creadas.')
-            return redirect('core:farm_list')
+            return redirect('producer_dashboard')
     else:
         # Pre-llenar formulario con datos de Google
         initial_data = {}
