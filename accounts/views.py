@@ -120,14 +120,9 @@ def google_auth_callback(request):
                     login(request, user)
                     # Forzar el guardado de la sesión para evitar problemas
                     request.session.save()
-                    # Redirigir al dashboard según el rol del usuario
-                    if user.is_staff:
-                        return redirect('admin_dashboard')
-                    elif user.role == 'Productor':
-                        return redirect('producer_dashboard')
-                    elif user.role == 'Comprador':
-                        return redirect('buyer_dashboard')
-                    return redirect('/')  # Fallback
+                    request.session.modified = True
+                    # Redirigir a la página principal (index) en lugar del dashboard
+                    return redirect('index')
                     
                 except User.DoesNotExist:
                     # Usuario no existe, redirigir a completar registro
@@ -218,8 +213,8 @@ def register(request):
                 logger.error(f"Usuario NO autenticado después del login: {user.email}")
             
             messages.success(request, f'¡Bienvenido a AgroConnect, {user.first_name}!')
-            # Redirigir al dashboard del comprador en lugar de index
-            return redirect('buyer_dashboard')
+            # Redirigir a la página principal (index) en lugar del dashboard
+            return redirect('index')
     else:
         # Pre-llenar formulario con datos de Google solo si existen
         initial_data = {}
@@ -297,7 +292,8 @@ def register_producer(request):
                 logger.error(f"Usuario NO autenticado después del login de productor: {user.email}")
             
             messages.success(request, '¡Registro exitoso! Tu cuenta de productor y finca han sido creadas.')
-            return redirect('producer_dashboard')
+            # Redirigir a la página principal (index) en lugar del dashboard
+            return redirect('index')
     else:
         # Pre-llenar formulario con datos de Google
         initial_data = {}
