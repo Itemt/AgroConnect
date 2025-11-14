@@ -884,6 +884,7 @@ class BuyerEditForm(forms.ModelForm):
         new_image = self.cleaned_data.get('profile_image')
         # Solo actualizar si hay una nueva imagen (no None, no False, y tiene atributo name)
         # Django puede devolver False si el campo está vacío, así que verificamos explícitamente
+        # También verificamos que sea un objeto de archivo real (no False de ClearableFileInput)
         if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
             try:
                 # Eliminar imagen anterior si existe (para Cloudinary)
@@ -901,6 +902,12 @@ class BuyerEditForm(forms.ModelForm):
             except Exception as e:
                 logger.error(f"Error al procesar nueva imagen de perfil para usuario {self.instance.username}: {e}")
                 # No lanzar excepción para no bloquear el guardado del resto del formulario
+        else:
+            # Si no hay nueva imagen, excluir el campo del cleaned_data para preservar la imagen existente
+            # Esto evita que Django establezca el campo a False o None
+            if 'profile_image' in self.cleaned_data:
+                del self.cleaned_data['profile_image']
+            logger.info(f"No hay nueva imagen para usuario {self.instance.username}, preservando imagen existente")
         
         # Cambiar contraseña si se proporciona
         new_password = self.cleaned_data.get('new_password')
@@ -1483,6 +1490,7 @@ class ProducerProfileEditForm(forms.ModelForm):
             new_image = self.cleaned_data.get('profile_image')
             # Solo actualizar si hay una nueva imagen (no None, no False, y tiene atributo name)
             # Django puede devolver False si el campo está vacío, así que verificamos explícitamente
+            # También verificamos que sea un objeto de archivo real (no False de ClearableFileInput)
             if new_image is not None and new_image is not False and hasattr(new_image, 'name') and new_image.name:
                 try:
                     # Eliminar imagen anterior si existe (para Cloudinary)
@@ -1500,6 +1508,12 @@ class ProducerProfileEditForm(forms.ModelForm):
                 except Exception as e:
                     logger.error(f"Error al procesar nueva imagen de perfil para usuario {self.user.username}: {e}")
                     # No lanzar excepción para no bloquear el guardado del resto del formulario
+            else:
+                # Si no hay nueva imagen, excluir el campo del cleaned_data para preservar la imagen existente
+                # Esto evita que Django establezca el campo a False o None
+                if 'profile_image' in self.cleaned_data:
+                    del self.cleaned_data['profile_image']
+                logger.info(f"No hay nueva imagen para usuario {self.user.username}, preservando imagen existente")
             
             # Cambiar contraseña si se proporciona
             new_password = self.cleaned_data.get('new_password')

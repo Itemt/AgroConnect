@@ -5,6 +5,25 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block extra_head %}
+<!-- Critical script to ensure dark mode is preserved -->
+<script>
+    // Apply theme IMMEDIATELY before rendering - must run before any other scripts
+    (function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            // Default to system preference if no saved theme
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    })();
+</script>
 <style>
     /* Dark mode inputs in profile edit form */
     .dark input, .dark select, .dark textarea {
