@@ -227,13 +227,19 @@ def register(request):
             else:
                 print(f"[REGISTER] POST - 'google_user_data' NO existe en request.session")
         
-        form = BuyerRegistrationForm(request.POST, is_google_signup=bool(google_data))
+        # Determinar si es registro con Google basándose en si hay photo_url disponible
+        google_photo_url_from_post = request.POST.get('google_photo_url', '')
+        google_photo_url_from_session = google_data.get('photo_url', '') if google_data else None
+        google_photo_url = google_photo_url_from_post or google_photo_url_from_session
+        is_google_signup = bool(google_data) or bool(google_photo_url_from_post) or bool(came_from_google)
+        
+        form = BuyerRegistrationForm(request.POST, is_google_signup=is_google_signup)
         if form.is_valid():
-            # Obtener photo_url de Google ANTES de limpiar la sesión
-            google_photo_url = google_data.get('photo_url', '') if google_data else None
-            print(f"[REGISTER] google_data presente: {bool(google_data)}")
-            print(f"[REGISTER] google_photo_url: {google_photo_url}")
-            logger.info(f"Registro POST - google_data: {bool(google_data)}, photo_url: {google_photo_url}")
+            
+            print(f"[REGISTER] POST - google_photo_url del POST: {google_photo_url_from_post[:50] if google_photo_url_from_post else 'None'}...")
+            print(f"[REGISTER] POST - google_photo_url de sesión: {google_photo_url_from_session[:50] if google_photo_url_from_session else 'None'}...")
+            print(f"[REGISTER] POST - google_photo_url final: {google_photo_url[:50] if google_photo_url else 'None'}...")
+            logger.info(f"Registro POST - photo_url del POST: {bool(google_photo_url_from_post)}, de sesión: {bool(google_photo_url_from_session)}, final: {bool(google_photo_url)}")
             
             user = form.save(google_photo_url=google_photo_url)  # El formulario ya maneja la creación del perfil
             

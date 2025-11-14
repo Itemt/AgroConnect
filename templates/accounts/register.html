@@ -108,6 +108,10 @@
             <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-10">
                 <form method="post">
                     {% csrf_token %}
+                    {% if is_google_signup and google_data.photo_url %}
+                        <!-- Campo oculto para enviar photo_url de Google en el POST -->
+                        <input type="hidden" name="google_photo_url" value="{{ google_data.photo_url }}">
+                    {% endif %}
 
                     {% if form.non_field_errors %}
                         <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6">
