@@ -4,152 +4,290 @@
 {% block extra_css %}
 <style>
 /* Make this page use full available width */
+#farms-page #main-content > .mx-auto.max-w-7xl,
 #main-content > .mx-auto.max-w-7xl { max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
+
+/* Estilos para la barra de desplazamiento horizontal de la tabla */
+#farms-page .table-container {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+  width: 100%;
+  display: block;
+  max-width: 100%;
+}
+
+#farms-page .table-container::-webkit-scrollbar {
+  height: 12px;
+}
+
+#farms-page .table-container::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+#farms-page .table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 6px;
+  border: 2px solid #f7fafc;
+}
+
+#farms-page .table-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Dark mode para la barra de desplazamiento */
+.dark #farms-page .table-container,
+#farms-page .dark .table-container {
+  scrollbar-color: #4a5568 #2d3748;
+}
+
+.dark #farms-page .table-container::-webkit-scrollbar-track,
+#farms-page .dark .table-container::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.dark #farms-page .table-container::-webkit-scrollbar-thumb,
+#farms-page .dark .table-container::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border: 2px solid #2d3748;
+}
+
+.dark #farms-page .table-container::-webkit-scrollbar-thumb:hover,
+#farms-page .dark .table-container::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Estilos base para pantallas grandes - tablas adaptativas */
+#farms-page .table-container {
+    overflow-x: hidden; /* Ocultar scroll en pantallas grandes */
+}
+
+#farms-page .table-container table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed; /* Usar layout fijo para controlar mejor el ancho */
+}
+
+/* Evitar que el contenido de las celdas se reduzca demasiado */
+#farms-page .table-container table th,
+#farms-page .table-container table td {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Media queries para pantallas menores a 1920px - forzar scroll horizontal */
+@media (max-width: 1919px) {
+    #farms-page .table-container {
+        overflow-x: auto !important; /* Mostrar scroll en pantallas pequeñas */
+    }
+    
+    #farms-page .table-container table {
+        width: auto !important;
+        min-width: 1200px !important;
+        max-width: none !important;
+        table-layout: fixed !important;
+    }
+    
+    #farms-page .table-container table th,
+    #farms-page .table-container table td {
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        overflow-wrap: normal !important;
+    }
+    
+    #farms-page .table-container table tbody tr td {
+        min-width: 120px !important;
+    }
+    
+    #farms-page .table-container table tbody tr td:first-child {
+        min-width: 180px !important;
+    }
+}
+
+/* Ajustes solo para pantallas muy pequeñas (tablets y móviles) */
+@media (max-width: 1024px) {
+    #farms-page .table-container table tbody tr td {
+        min-width: 100px;
+    }
+    #farms-page .table-container table tbody tr td:first-child {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 640px) {
+    #farms-page .table-container table th,
+    #farms-page .table-container table td {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    #farms-page .table-container table tbody tr td {
+        min-width: 100px;
+    }
+}
 </style>
 {% endblock %}
 
 {% block title %}Mis Fincas - AgroConnect{% endblock %}
 
 {% block producer_content %}
-<div class="min-h-screen">
-    <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
-        <div class="grid grid-cols-12 gap-4 md:gap-6">
+<div id="farms-page" class="min-h-screen">
+    <div class="w-full px-2 sm:px-4 lg:px-6 xl:px-8 py-12">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mis Fincas</h1>
+            <a href="{% url 'core:farm_create' %}" class="bg-success-600 text-white px-6 py-3 rounded-lg hover:bg-success-700 transition-colors font-semibold text-sm flex items-center">
+                <i class="fas fa-plus mr-2"></i>Nueva Finca
+            </a>
+        </div>
 
-    <!-- Header -->
-    <div class="col-span-12">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-theme-md mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-tractor text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Fincas</h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Gestiona tus fincas y cultivos desde aquí</p>
-                    </div>
-                </div>
-                <a href="{% url 'core:farm_create' %}" class="px-4 py-2 bg-success-600 text-white rounded-lg hover:bg-success-700 transition-colors font-medium flex items-center gap-2">
-                    <i class="fas fa-plus"></i>
-                    Nueva Finca
-                </a>
+        <!-- Statistics Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6">
+            <div class="table-container metrics-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr>
+                        <!-- Fincas Totales -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-tractor text-success-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_fincas }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Fincas Registradas</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Cultivos Totales -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-seedling text-blue-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_cultivos }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Cultivos Totales</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Hectáreas Totales -->
+                        <td class="px-6 py-6 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-50 dark:bg-purple-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-map-marked-alt text-purple-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_hectareas|floatformat:1 }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Hectáreas Totales</p>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Hectáreas Cultivables -->
+                        <td class="px-6 py-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-orange-50 dark:bg-orange-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-seedling text-orange-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{{ total_hectareas_cultivables|floatformat:1 }}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Hectáreas Cultivables</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             </div>
         </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-success-50 dark:bg-success-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-tractor text-success-500 text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ fincas.count }}</h3>
-                    <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Fincas Registradas</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-seedling text-blue-500 text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                        {% for finca in fincas %}{{ finca.cultivos.count }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Cultivos Totales</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-purple-50 dark:bg-purple-500/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-map-marked-alt text-purple-500 text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
-                        {% for finca in fincas %}{{ finca.area_total|floatformat:1 }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 font-medium text-sm">Hectáreas Totales</p>
-                </div>
-            </div>
-        </div>
-        </div>
-
-    <!-- Fincas List -->
-    <div class="col-span-12">
+        
+        <!-- Fincas List -->
         {% if fincas %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
-            {% for finca in fincas %}
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-theme-md transition-all duration-300">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                            {{ finca.nombre }}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                            <i class="fas fa-map-marker-alt mr-1"></i>
-                            {{ finca.ubicacion_completa }}
-                        </p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        {% if finca.activa %}
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-700 dark:bg-success-500/20 dark:text-success-400">
-                            <i class="fas fa-circle text-xs mr-1"></i>
-                            Activa
-                        </span>
-                        {% else %}
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                            <i class="fas fa-circle text-xs mr-1"></i>
-                            Inactiva
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if finca.descripcion %}
-                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">{{ finca.descripcion }}</p>
-                {% endif %}
-
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ finca.area_total }} ha</div>
-                        <div class="text-xs text-gray-600 dark:text-gray-400">Área Total</div>
-                    </div>
-                    <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ finca.area_cultivable }} ha</div>
-                        <div class="text-xs text-gray-600 dark:text-gray-400">Cultivable</div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between mb-3">
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-seedling mr-1"></i>
-                        {{ finca.cultivos.count }} cultivo{{ finca.cultivos.count|pluralize }}
-                    </div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-thermometer-half mr-1"></i>
-                        {{ finca.get_tipo_suelo_display }}
-                    </div>
-                </div>
-
-                <div class="flex space-x-2">
-                    <a href="{% url 'core:farm_detail' finca.pk %}" class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center text-sm font-medium">
-                        <i class="fas fa-eye mr-1"></i>Ver
-                    </a>
-                    <a href="{% url 'core:farm_edit' finca.pk %}" class="flex-1 px-3 py-2 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors text-center text-sm font-medium">
-                        <i class="fas fa-edit mr-1"></i>Editar
-                    </a>
-                    <button onclick="showDeleteModal({{ finca.pk }}, '{{ finca.nombre }}', {{ finca.cultivos.count }})" 
-                            class="px-3 py-2 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div class="table-container farms-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Finca</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ubicación</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Área Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Área Cultivable</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cultivos</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo de Suelo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for finca in fincas %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ finca.nombre }}</div>
+                            {% if finca.descripcion %}
+                            <div class="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{{ finca.descripcion }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ finca.ciudad }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ finca.departamento }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ finca.area_total|floatformat:2 }} ha
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ finca.area_cultivable|floatformat:2 }} ha
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center text-sm text-gray-900 dark:text-white">
+                                <i class="fas fa-seedling text-green-600 dark:text-green-400 mr-2"></i>
+                                {{ finca.cultivos.count }} cultivo{{ finca.cultivos.count|pluralize }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <div class="flex items-center">
+                                <i class="fas fa-thermometer-half text-orange-600 dark:text-orange-400 mr-2"></i>
+                                {{ finca.get_tipo_suelo_display }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if finca.activa %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800 dark:bg-success-900/40 dark:text-success-300">
+                                <i class="fas fa-circle text-xs mr-1"></i>
+                                Activa
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                <i class="fas fa-circle text-xs mr-1"></i>
+                                Inactiva
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'core:farm_detail' finca.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 dark:hover:bg-primary-500/20 rounded-lg transition-colors" title="Ver Detalle">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <span class="text-xs">Ver</span>
+                                </a>
+                                <a href="{% url 'core:farm_edit' finca.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 dark:hover:bg-blue-500/20 rounded-lg transition-colors" title="Editar">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    <span class="text-xs">Editar</span>
+                                </a>
+                                <button onclick="showDeleteModal({{ finca.pk }}, '{{ finca.nombre|escapejs }}', {{ finca.cultivos.count }})" 
+                                   class="inline-flex items-center px-3 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-500/20 rounded-lg transition-colors" title="Eliminar">
+                                    <i class="fas fa-trash mr-1"></i>
+                                    <span class="text-xs">Eliminar</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             </div>
-            {% endfor %}
         </div>
         {% else %}
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
@@ -166,7 +304,6 @@
             </a>
         </div>
         {% endif %}
-    </div>
     </div>
 </div>
 

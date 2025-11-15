@@ -19,10 +19,22 @@ def farm_list(request):
         messages.error(request, 'Acceso denegado. Solo para productores.')
         return redirect('index')
     
-    fincas = Farm.objects.filter(propietario=request.user).order_by('-created_at')
+    from django.db.models import Sum, Count
+    
+    fincas = Farm.objects.filter(propietario=request.user).prefetch_related('cultivos').order_by('-created_at')
+    
+    # Calcular estadísticas
+    total_fincas = fincas.count()
+    total_cultivos = sum(finca.cultivos.count() for finca in fincas)
+    total_hectareas = fincas.aggregate(total=Sum('area_total'))['total'] or 0
+    total_hectareas_cultivables = fincas.aggregate(total=Sum('area_cultivable'))['total'] or 0
     
     context = {
         'fincas': fincas,
+        'total_fincas': total_fincas,
+        'total_cultivos': total_cultivos,
+        'total_hectareas': total_hectareas,
+        'total_hectareas_cultivables': total_hectareas_cultivables,
     }
     return render(request, 'core/farm_list.html', context)
 

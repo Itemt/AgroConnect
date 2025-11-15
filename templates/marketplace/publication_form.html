@@ -4,17 +4,6 @@
 
 {% block producer_content %}
 <style>
-    /* Asegurar que el gradiente ocupe toda la página */
-    #main-content > div.p-4.mx-auto.max-w-7xl.md\:p-6 {
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-    
-    #main-content > footer {
-        max-width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
     /* Estilos para inputs, selects y textareas del formulario */
     #publication-form input[type="text"],
     #publication-form input[type="number"],
@@ -45,7 +34,7 @@
         border-color: #4b5563;
     }
     
-    /* Focus states */
+    /* Focus states - usar colores primary */
     #publication-form input[type="text"]:focus,
     #publication-form input[type="number"]:focus,
     #publication-form input[type="email"]:focus,
@@ -53,8 +42,8 @@
     #publication-form select:focus,
     #publication-form textarea:focus {
         outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
     }
     
     .dark #publication-form input[type="text"]:focus,
@@ -63,8 +52,8 @@
     .dark #publication-form input[type="date"]:focus,
     .dark #publication-form select:focus,
     .dark #publication-form textarea:focus {
-        border-color: #60a5fa;
-        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        border-color: #4ade80;
+        box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
     }
     
     /* Textarea específico */
@@ -114,28 +103,19 @@
     }
 </style>
 
-<div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8 min-h-screen" style="padding-bottom: 2rem !important;">
-    <div class="max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="text-center mb-10 lg:mb-12">
-            <div class="flex mb-4 items-center justify-center">
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="4" cy="4" r="4" fill="#15803d"></circle>
-                </svg>
-                <span class="inline-block ml-2 text-sm font-medium text-green-900 dark:text-green-300">Publicaciones</span>
-            </div>
-            <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-green-900 dark:text-gray-100 mb-4">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center mb-2">
+                <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus-circle{% endif %} text-primary-600 dark:text-primary-400 mr-3"></i>
                 {% if form.instance.pk %}Editar Publicación{% else %}Publicar en el Marketplace{% endif %}
             </h1>
             {% if not form.instance.pk %}
-            <p class="text-base lg:text-lg text-gray-700 dark:text-gray-300">
+            <p class="text-gray-600 dark:text-gray-400">
                 Estás creando una publicación para tu cultivo de <strong>{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</strong> de {{ crop.nombre }}.
             </p>
-            <p class="text-base lg:text-lg text-gray-700 dark:text-gray-300 mt-2">
-                Por favor, define el precio y la cantidad que deseas poner a la venta.
-            </p>
             {% else %}
-            <p class="text-base lg:text-lg text-gray-700 dark:text-gray-300">
+            <p class="text-gray-600 dark:text-gray-400">
                 Actualiza los detalles de tu publicación
             </p>
             {% endif %}
@@ -143,13 +123,16 @@
         
         <!-- Product Information Card -->
         {% if not form.instance.pk %}
-        <div class="mb-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-200 dark:border-gray-600">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">
-                    <i class="fas fa-info-circle text-green-600 dark:text-green-400 mr-2"></i>Información del Producto
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mb-6 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-primary-600 dark:text-primary-400 mr-2"></i>
+                    Información del Producto
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex items-center">
-                        <i class="fas fa-seedling text-green-600 dark:text-green-400 mr-3"></i>
+                        <div class="w-10 h-10 bg-green-50 dark:bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-seedling text-green-600 dark:text-green-400"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">Producto</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.nombre }}</p>
@@ -157,7 +140,9 @@
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-tags text-green-600 dark:text-green-400 mr-3"></i>
+                        <div class="w-10 h-10 bg-blue-50 dark:bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-tags text-blue-600 dark:text-blue-400"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">Categoría</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.categoria_display|default:"Sin categoría" }}</p>
@@ -165,7 +150,9 @@
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-weight text-green-600 dark:text-green-400 mr-3"></i>
+                        <div class="w-10 h-10 bg-purple-50 dark:bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-weight text-purple-600 dark:text-purple-400"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">Cantidad Total del Cultivo</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.cantidad_estimada }} {{ crop.unidad_medida }}</p>
@@ -173,7 +160,9 @@
                     </div>
                     
                     <div class="flex items-center">
-                        <i class="fas fa-calendar text-green-600 dark:text-green-400 mr-3"></i>
+                        <div class="w-10 h-10 bg-amber-50 dark:bg-amber-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-calendar text-amber-600 dark:text-amber-400"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">Fecha de Disponibilidad</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ crop.fecha_disponibilidad|date:"d/m/Y" }}</p>
@@ -184,7 +173,7 @@
         {% endif %}
 
         <!-- Formulario -->
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-md p-6 lg:p-10">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 lg:p-8">
             <form method="post" enctype="multipart/form-data" id="publication-form" class="space-y-6">
                 {% csrf_token %}
                 <div class="space-y-6">
@@ -214,7 +203,7 @@
                     {% endfor %}
                     
                     <!-- Sección de imágenes mejorada -->
-                    <div class="field-wrapper bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <div class="field-wrapper bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                             <i class="fas fa-images mr-2 text-primary-600 dark:text-primary-400"></i>Imágenes del Producto (hasta 10)
                         </label>
@@ -268,12 +257,13 @@
         </div>
         
         <!-- Botones de acción -->
-        <div class="flex flex-col sm:flex-row gap-4 pt-6 mt-6 justify-end">
-            <a href="{% url 'my_publications' %}" class="inline-flex items-center justify-center px-6 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">
+        <div class="flex flex-col sm:flex-row gap-4 pt-6 mt-6 justify-end border-t border-gray-200 dark:border-gray-700">
+            <a href="{% url 'my_publications' %}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-semibold">
                 <i class="fas fa-times mr-2"></i>
                 Cancelar
             </a>
-            <button type="submit" form="publication-form" id="publish-btn" class="inline-flex items-center justify-center py-3 px-8 text-base font-medium text-white bg-green-900 hover:bg-green-800 rounded-full transition duration-200">
+            <button type="submit" form="publication-form" id="publish-btn" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-primary-500 dark:to-accent-500 text-white rounded-xl hover:from-primary-700 hover:to-accent-700 dark:hover:from-primary-600 dark:hover:to-accent-600 transition-all shadow-md hover:shadow-lg font-semibold">
+                <i class="fas fa-{% if form.instance.pk %}save{% else %}check{% endif %} mr-2"></i>
                 {% if form.instance.pk %}Guardar Cambios{% else %}Publicar en el Marketplace{% endif %}
             </button>
         </div>
@@ -282,19 +272,19 @@
 
 <!-- Custom Alert Modal -->
 <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-strong max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="alert-modal">
-        <div class="p-8">
-            <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 border border-gray-200 dark:border-gray-700" id="alert-modal">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-yellow-50 dark:bg-yellow-500/20 rounded-lg flex items-center justify-center mr-4">
                     <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Confirmar Publicación</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirmar Publicación</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Esta acción hará visible tu producto en el marketplace</p>
                 </div>
             </div>
             
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-200 dark:border-gray-600">
                 <p class="text-gray-700 dark:text-gray-300 text-sm">
                     <strong>¿Estás seguro de que quieres publicar este producto en el marketplace?</strong>
                 </p>
@@ -307,7 +297,7 @@
                 <button id="cancel-alert" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors">
                     Cancelar
                 </button>
-                <button id="confirm-publish" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                <button id="confirm-publish" class="px-6 py-2 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-primary-500 dark:to-accent-500 text-white rounded-xl hover:from-primary-700 hover:to-accent-700 dark:hover:from-primary-600 dark:hover:to-accent-600 transition-all shadow-md font-medium">
                     <i class="fas fa-check mr-2"></i>
                     Sí, Publicar
                 </button>
