@@ -133,6 +133,28 @@ class Payment(BaseModel):
         self.paid_at = timezone.now()
         self.save()
         
+        # Actualizar la cantidad disponible en la publicación (restar lo vendido)
+        # Esto se hace DESPUÉS del pago para asegurar que solo se descuente cuando el pago está confirmado
+        try:
+            publication = self.order.publicacion
+            # Verificar que hay suficiente cantidad disponible antes de restar
+            if float(publication.cantidad_disponible) >= float(self.order.cantidad_acordada):
+                publication.cantidad_disponible = float(publication.cantidad_disponible) - float(self.order.cantidad_acordada)
+                publication.save()
+            else:
+                # Si no hay suficiente cantidad, registrar un error pero no fallar el pago
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(
+                    f"Pago aprobado pero cantidad insuficiente en publicación {publication.id}. "
+                    f"Disponible: {publication.cantidad_disponible}, Solicitado: {self.order.cantidad_acordada}"
+                )
+        except Exception as e:
+            # Evitar que un error en la actualización de cantidad afecte el flujo de pago
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error al actualizar cantidad disponible después del pago: {str(e)}")
+        
         # La orden permanece en 'pendiente' hasta que el vendedor la confirme manualmente
         # Esto permite que el vendedor revise y acepte el pedido antes de empezar a prepararlo
         # Las notificaciones se manejan automáticamente a través de signals
@@ -168,10 +190,17 @@ class Payment(BaseModel):
         self.status = 'rejected'
         self.save()
         
-        # Restaurar cantidad en la publicación
-        publication = self.order.publicacion
-        publication.cantidad_disponible += self.order.cantidad_acordada
-        publication.save()
+        # Si el pago fue aprobado previamente y luego rechazado, restaurar la cantidad
+        # (aunque esto no debería pasar normalmente, es una medida de seguridad)
+        if self.paid_at:
+            try:
+                publication = self.order.publicacion
+                publication.cantidad_disponible = float(publication.cantidad_disponible) + float(self.order.cantidad_acordada)
+                publication.save()
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error al restaurar cantidad después de rechazar pago: {str(e)}")
         
         # Cancelar la orden
         self.order.estado = 'cancelado'

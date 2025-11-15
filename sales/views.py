@@ -40,14 +40,13 @@ def create_order_view(request, publication_id):
             order.estado = 'pendiente'  # Estado inicial
             
             # Validar que la cantidad no exceda la disponible
+            # NOTA: No restamos la cantidad aquí, se restará cuando se apruebe el pago
             if order.cantidad_acordada > publication.cantidad_disponible:
                 form.add_error('cantidad_acordada', 'La cantidad solicitada excede la disponible.')
             else:
-                # Actualizar la cantidad disponible en la publicación
-                publication.cantidad_disponible -= order.cantidad_acordada
-                publication.save()
-                
-            order.save()
+                # Guardar el pedido sin restar cantidad aún
+                # La cantidad se restará cuando se apruebe el pago
+                order.save()
             # Notificar al vendedor que hay un nuevo pedido
             create_notification(
                 recipient=publication.cultivo.productor,
@@ -754,10 +753,18 @@ def cancel_order_view(request, order_id):
         return redirect('order_detail', order_id=order.id)
     
     if request.method == 'POST':
-        # Restaurar la cantidad disponible en la publicación
-        publication = order.publicacion
-        publication.cantidad_disponible += order.cantidad_acordada
-        publication.save()
+        # Restaurar la cantidad disponible en la publicación solo si el pago fue aprobado
+        # Si el pedido se cancela antes del pago, no hay nada que restaurar
+        try:
+            payment = order.payment
+            if payment and payment.is_approved:
+                # Si el pago fue aprobado, restaurar la cantidad que se había restado
+                publication = order.publicacion
+                publication.cantidad_disponible = float(publication.cantidad_disponible) + float(order.cantidad_acordada)
+                publication.save()
+        except:
+            # Si no hay pago o el pago no fue aprobado, no hay nada que restaurar
+            pass
         
         # Marcar el pedido como cancelado
         order.estado = 'cancelado'
@@ -765,7 +772,14 @@ def cancel_order_view(request, order_id):
         
         # Determinar quién canceló
         canceller_role = "vendedor" if request.user == order.vendedor else "comprador"
-        messages.success(request, f'Pedido cancelado exitosamente por el {canceller_role}. La cantidad ha sido restaurada.')
+        try:
+            payment = order.payment
+            if payment and payment.is_approved:
+                messages.success(request, f'Pedido cancelado exitosamente por el {canceller_role}. La cantidad ha sido restaurada.')
+            else:
+                messages.success(request, f'Pedido cancelado exitosamente por el {canceller_role}.')
+        except:
+            messages.success(request, f'Pedido cancelado exitosamente por el {canceller_role}.')
         
         return redirect('order_detail', order_id=order.id)
     
@@ -856,8 +870,8 @@ def create_order_from_cart(request):
             precio_total=item.get_item_price,
             estado='pendiente'
         )
-        publication.cantidad_disponible = float(publication.cantidad_disponible) - float(cantidad_en_unidad_vendedor)
-        publication.save()
+        # NOTA: No restamos la cantidad aquí, se restará cuando se apruebe el pago
+        # La cantidad se restará en payment.models.Payment.mark_as_approved()
         created_orders.append(order)
         # Notificar al vendedor sobre pedidos creados desde carrito
         create_notification(
