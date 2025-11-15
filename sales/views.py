@@ -244,7 +244,8 @@ def quick_update_order_status_view(request, order_id):
                     'success': True,
                     'message': f'Estado actualizado a: {order.get_estado_display()}',
                     'new_status': order.estado,
-                    'new_status_display': order.get_estado_display()
+                    'new_status_display': order.get_estado_display(),
+                    'check_notifications': True  # Indicar que se deben verificar notificaciones
                 })
             else:
                 # Si no es AJAX, redirigir con mensaje de éxito

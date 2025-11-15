@@ -440,6 +440,13 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Verificar notificaciones inmediatamente si se indica
+                if (data.check_notifications && window.checkNotificationsImmediately) {
+                    setTimeout(() => {
+                        window.checkNotificationsImmediately();
+                    }, 500);
+                }
+                
                 if (data.redirect) {
                     // Redirigir a la página de envío
                     window.location.href = data.redirect;

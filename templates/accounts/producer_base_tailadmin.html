@@ -1169,28 +1169,47 @@
                             '<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">' + (notification.message || '') + '</p>' +
                             orderLink +
                         '</div>' +
-                        '<button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">' +
+                        '<button class="popup-close-btn flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" data-notification-id="' + notification.id + '">' +
                             '<i class="fas fa-times"></i>' +
                         '</button>' +
                     '</div>';
                 
                 container.appendChild(popup);
                 
-                // Auto-remover después de 5 segundos
-                setTimeout(() => {
+                // Agregar evento al botón de cerrar
+                const closeBtn = popup.querySelector('.popup-close-btn');
+                closeBtn.addEventListener('click', function() {
+                    const notifId = parseInt(this.getAttribute('data-notification-id'));
                     popup.style.animation = 'slideOutRight 0.3s ease-out';
                     setTimeout(() => {
                         popup.remove();
-                        // Marcar como mostrada permanentemente cuando se remueve
-                        markNotificationAsShown(notification.id);
+                        // Marcar como mostrada permanentemente cuando se cierra manualmente
+                        markNotificationAsShown(notifId);
                     }, 300);
+                });
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    if (popup.parentElement) { // Verificar que el popup aún existe
+                        popup.style.animation = 'slideOutRight 0.3s ease-out';
+                        setTimeout(() => {
+                            if (popup.parentElement) {
+                                popup.remove();
+                                // Marcar como mostrada permanentemente cuando se remueve automáticamente
+                                markNotificationAsShown(notification.id);
+                            }
+                        }, 300);
+                    }
                 }, 5000);
                 
-                // Marcar como leída al hacer click
+                // Marcar como leída al hacer click en el enlace
                 if (notification.order_id) {
-                    popup.querySelector('a').addEventListener('click', function() {
-                        markAsRead(notification.id);
-                    });
+                    const link = popup.querySelector('a');
+                    if (link) {
+                        link.addEventListener('click', function() {
+                            markAsRead(notification.id);
+                        });
+                    }
                 }
             }
             
@@ -1206,7 +1225,10 @@
                 }).catch(() => {});
             }
             
-            function fetchNotifications() {
+            // Variable para rastrear el último timestamp de notificaciones
+            let lastNotificationTimestamp = null;
+            
+            function fetchNotifications(forceImmediate = false) {
                 const timestamp = new Date().getTime();
                 fetch('{% url "core:notifications_list" %}?t=' + timestamp, { 
                     credentials: 'same-origin',
@@ -1224,28 +1246,62 @@
                             
                             updateSidebarBadge(unreadCount);
                             
+                            // Si es una verificación forzada (después de una acción), limpiar el estado de "mostrándose"
+                            if (forceImmediate) {
+                                // Limpiar todas las notificaciones que están marcadas como "mostrándose"
+                                // para que las nuevas se muestren inmediatamente
+                                currentlyShowingPopups.clear();
+                                try {
+                                    localStorage.removeItem(POPUP_SHOWING_KEY);
+                                } catch (e) {
+                                    // Ignorar errores
+                                }
+                            }
+                            
                             // Detectar notificaciones nuevas (no leídas y no mostradas antes)
                             notifications.forEach(n => {
                                 if (!n.is_read) {
-                                    // Verificar si ya fue mostrada o está siendo mostrada
-                                    if (!isNotificationCurrentlyShowing(n.id)) {
-                                        const shownIds = getShownNotificationIds();
-                                        if (!shownIds.has(n.id)) {
-                                            showNotificationPopup(n);
+                                    // Verificar si ya fue mostrada permanentemente
+                                    const shownIds = getShownNotificationIds();
+                                    if (!shownIds.has(n.id)) {
+                                        // Verificar si está siendo mostrada actualmente
+                                        if (!isNotificationCurrentlyShowing(n.id)) {
+                                            // Mostrar inmediatamente si es una verificación forzada
+                                            // o si es una notificación nueva (creada después del último timestamp)
+                                            if (forceImmediate || !lastNotificationTimestamp || 
+                                                (n.created_at && new Date(n.created_at) > lastNotificationTimestamp)) {
+                                                showNotificationPopup(n);
+                                            }
                                         }
                                     }
                                 }
                             });
+                            
+                            // Actualizar el timestamp de la última notificación
+                            if (notifications.length > 0) {
+                                const latestNotification = notifications[0];
+                                if (latestNotification.created_at) {
+                                    lastNotificationTimestamp = new Date(latestNotification.created_at);
+                                }
+                            }
                         }
                     })
                     .catch(() => {});
             }
             
+            // Función para forzar verificación inmediata (llamar después de acciones)
+            function checkNotificationsImmediately() {
+                fetchNotifications(true);
+            }
+            
+            // Exponer la función globalmente para que pueda ser llamada desde otras partes
+            window.checkNotificationsImmediately = checkNotificationsImmediately;
+            
             function startPolling() {
                 if (isPollingActive || pollingInterval) return;
                 isPollingActive = true;
-                fetchNotifications(); // Fetch inmediatamente
-                pollingInterval = setInterval(fetchNotifications, 5000); // Poll cada 5 segundos
+                fetchNotifications(false); // Fetch inicial
+                pollingInterval = setInterval(() => fetchNotifications(false), 5000); // Poll cada 5 segundos
             }
             
             function stopPolling() {
@@ -1266,6 +1322,28 @@
                         stopPolling();
                     } else {
                         startPolling();
+                        // Verificar inmediatamente cuando la página vuelve a ser visible
+                        checkNotificationsImmediately();
+                    }
+                });
+                
+                // Verificar notificaciones inmediatamente después de acciones del formulario
+                // Interceptar envíos de formularios para verificar notificaciones después
+                document.addEventListener('submit', function(e) {
+                    // Esperar un momento después del envío para que el servidor procese
+                    setTimeout(() => {
+                        checkNotificationsImmediately();
+                    }, 1000);
+                });
+                
+                // Verificar notificaciones después de clics en botones de acción
+                document.addEventListener('click', function(e) {
+                    const target = e.target.closest('button[type="submit"], a[href*="/order/"], button[class*="confirm"], button[class*="update"]');
+                    if (target) {
+                        // Esperar un momento después del click para que el servidor procese
+                        setTimeout(() => {
+                            checkNotificationsImmediately();
+                        }, 1500);
                     }
                 });
             });
