@@ -435,9 +435,10 @@
             if (data.success) {
                 // Verificar notificaciones inmediatamente si se indica
                 if (data.check_notifications && window.checkNotificationsImmediately) {
-                    setTimeout(() => {
-                        window.checkNotificationsImmediately();
-                    }, 500);
+                    // Verificar múltiples veces para asegurar que se capture
+                    window.checkNotificationsImmediately();
+                    setTimeout(() => window.checkNotificationsImmediately(), 200);
+                    setTimeout(() => window.checkNotificationsImmediately(), 500);
                 }
                 
                 if (data.redirect) {

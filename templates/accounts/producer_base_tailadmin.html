@@ -1227,6 +1227,7 @@
             
             // Variable para rastrear el último timestamp de notificaciones
             let lastNotificationTimestamp = null;
+            let lastCheckTime = null;
             
             function fetchNotifications(forceImmediate = false) {
                 const timestamp = new Date().getTime();
@@ -1256,6 +1257,8 @@
                                 } catch (e) {
                                     // Ignorar errores
                                 }
+                                // Actualizar el tiempo de última verificación
+                                lastCheckTime = new Date();
                             }
                             
                             // Detectar notificaciones nuevas (no leídas y no mostradas antes)
@@ -1266,10 +1269,17 @@
                                     if (!shownIds.has(n.id)) {
                                         // Verificar si está siendo mostrada actualmente
                                         if (!isNotificationCurrentlyShowing(n.id)) {
-                                            // Mostrar inmediatamente si es una verificación forzada
-                                            // o si es una notificación nueva (creada después del último timestamp)
-                                            if (forceImmediate || !lastNotificationTimestamp || 
-                                                (n.created_at && new Date(n.created_at) > lastNotificationTimestamp)) {
+                                            // Mostrar inmediatamente si:
+                                            // 1. Es una verificación forzada, O
+                                            // 2. Es una notificación nueva (creada después del último timestamp), O
+                                            // 3. Fue creada en los últimos 10 segundos (para capturar notificaciones recientes)
+                                            const notificationTime = n.created_at ? new Date(n.created_at) : null;
+                                            const shouldShow = forceImmediate || 
+                                                !lastNotificationTimestamp || 
+                                                (notificationTime && notificationTime > lastNotificationTimestamp) ||
+                                                (notificationTime && lastCheckTime && notificationTime > new Date(lastCheckTime.getTime() - 10000));
+                                            
+                                            if (shouldShow) {
                                                 showNotificationPopup(n);
                                             }
                                         }
@@ -1281,7 +1291,10 @@
                             if (notifications.length > 0) {
                                 const latestNotification = notifications[0];
                                 if (latestNotification.created_at) {
-                                    lastNotificationTimestamp = new Date(latestNotification.created_at);
+                                    const newTimestamp = new Date(latestNotification.created_at);
+                                    if (!lastNotificationTimestamp || newTimestamp > lastNotificationTimestamp) {
+                                        lastNotificationTimestamp = newTimestamp;
+                                    }
                                 }
                             }
                         }
@@ -1291,6 +1304,8 @@
             
             // Función para forzar verificación inmediata (llamar después de acciones)
             function checkNotificationsImmediately() {
+                // Actualizar el tiempo de última verificación antes de hacer la petición
+                lastCheckTime = new Date();
                 fetchNotifications(true);
             }
             
@@ -1330,22 +1345,71 @@
                 // Verificar notificaciones inmediatamente después de acciones del formulario
                 // Interceptar envíos de formularios para verificar notificaciones después
                 document.addEventListener('submit', function(e) {
-                    // Esperar un momento después del envío para que el servidor procese
-                    setTimeout(() => {
-                        checkNotificationsImmediately();
-                    }, 1000);
+                    // Verificar inmediatamente y luego varias veces para asegurar que se capture
+                    checkNotificationsImmediately();
+                    setTimeout(() => checkNotificationsImmediately(), 300);
+                    setTimeout(() => checkNotificationsImmediately(), 600);
+                    setTimeout(() => checkNotificationsImmediately(), 1000);
                 });
                 
                 // Verificar notificaciones después de clics en botones de acción
                 document.addEventListener('click', function(e) {
-                    const target = e.target.closest('button[type="submit"], a[href*="/order/"], button[class*="confirm"], button[class*="update"]');
-                    if (target) {
-                        // Esperar un momento después del click para que el servidor procese
-                        setTimeout(() => {
-                            checkNotificationsImmediately();
-                        }, 1500);
+                    const target = e.target.closest('button[type="submit"], a[href*="/order/"], button[class*="confirm"], button[class*="update"], form button');
+                    if (target && !target.closest('form')) {
+                        // Verificar inmediatamente y luego varias veces
+                        checkNotificationsImmediately();
+                        setTimeout(() => checkNotificationsImmediately(), 300);
+                        setTimeout(() => checkNotificationsImmediately(), 600);
+                        setTimeout(() => checkNotificationsImmediately(), 1000);
                     }
                 });
+                
+                // Interceptar respuestas AJAX exitosas (fetch)
+                const originalFetch = window.fetch;
+                window.fetch = function(...args) {
+                    const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                    return originalFetch.apply(this, args).then(response => {
+                        // Si es una respuesta exitosa y parece ser una acción importante
+                        if (response.ok && (url.includes('/order/') || url.includes('/quick-update') || url.includes('/payment/'))) {
+                            // Verificar notificaciones después de la respuesta
+                            checkNotificationsImmediately();
+                            setTimeout(() => checkNotificationsImmediately(), 200);
+                            setTimeout(() => checkNotificationsImmediately(), 500);
+                            setTimeout(() => checkNotificationsImmediately(), 1000);
+                        }
+                        return response;
+                    });
+                };
+                
+                // Interceptar respuestas AJAX exitosas (XMLHttpRequest)
+                const originalXHROpen = XMLHttpRequest.prototype.open;
+                const originalXHRSend = XMLHttpRequest.prototype.send;
+                
+                XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+                    this._url = url;
+                    return originalXHROpen.apply(this, [method, url, ...rest]);
+                };
+                
+                XMLHttpRequest.prototype.send = function(...args) {
+                    const xhr = this;
+                    const url = xhr._url || '';
+                    
+                    // Interceptar el evento load
+                    xhr.addEventListener('load', function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            // Si es una respuesta exitosa y parece ser una acción importante
+                            if (url.includes('/order/') || url.includes('/quick-update') || url.includes('/payment/')) {
+                                // Verificar notificaciones después de la respuesta
+                                checkNotificationsImmediately();
+                                setTimeout(() => checkNotificationsImmediately(), 200);
+                                setTimeout(() => checkNotificationsImmediately(), 500);
+                                setTimeout(() => checkNotificationsImmediately(), 1000);
+                            }
+                        }
+                    });
+                    
+                    return originalXHRSend.apply(this, args);
+                };
             });
             
             // Helper para obtener cookie
@@ -1392,4 +1456,5 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
 
