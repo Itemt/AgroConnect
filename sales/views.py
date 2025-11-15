@@ -194,13 +194,16 @@ def quick_update_order_status_view(request, order_id):
         messages.error(request, 'No tienes permisos para actualizar este pedido.')
         return redirect('producer_sales')
     
+    # Verificar si es una petición AJAX
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     if request.method == 'POST':
         nuevo_estado = request.POST.get('estado')
         
         # Si el nuevo estado es 'enviado', redirigir a la página especial
         if nuevo_estado == 'enviado':
             # Si es una petición AJAX, devolver JSON con redirección
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if is_ajax:
                 return JsonResponse({
                     'success': True,
                     'redirect': f'/order/{order.id}/mark-shipped/',
@@ -234,22 +237,39 @@ def quick_update_order_status_view(request, order_id):
                 category='order',
                 order_id=order.id,
             )
-            return JsonResponse({
-                'success': True,
-                'message': f'Estado actualizado a: {order.get_estado_display()}',
-                'new_status': order.estado,
-                'new_status_display': order.get_estado_display()
-            })
+            
+            # Si es AJAX, devolver JSON
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Estado actualizado a: {order.get_estado_display()}',
+                    'new_status': order.estado,
+                    'new_status_display': order.get_estado_display()
+                })
+            else:
+                # Si no es AJAX, redirigir con mensaje de éxito
+                messages.success(request, f'Estado actualizado a: {order.get_estado_display()}')
+                return redirect('order_detail', order_id=order.id)
         else:
-            return JsonResponse({
-                'success': False,
-                'error': 'Estado no válido para esta transición.'
-            })
+            # Si es AJAX, devolver JSON con error
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Estado no válido para esta transición.'
+                })
+            else:
+                messages.error(request, 'Estado no válido para esta transición.')
+                return redirect('order_detail', order_id=order.id)
     
-    return JsonResponse({
-        'success': False,
-        'error': 'Método no permitido.'
-    })
+    # Si no es POST
+    if is_ajax:
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido.'
+        })
+    else:
+        messages.error(request, 'Método no permitido.')
+        return redirect('order_detail', order_id=order.id)
 
 
 @login_required
