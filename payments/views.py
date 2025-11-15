@@ -181,11 +181,15 @@ def payment_success_view(request):
     payment_id = request.GET.get('payment_id')
     preference_id = request.GET.get('preference_id')
     external_reference = request.GET.get('external_reference')
+    status = request.GET.get('status')
+    collection_status = request.GET.get('collection_status')
     
     logger.info("Payment success callback received")
     logger.info(f"Payment ID: {payment_id}")
     logger.info(f"Preference ID: {preference_id}")
     logger.info(f"External Reference: {external_reference}")
+    logger.info(f"Status: {status}")
+    logger.info(f"Collection Status: {collection_status}")
     logger.info(f"All GET params: {dict(request.GET)}")
     
     if not payment_id and not preference_id and not external_reference:
@@ -222,23 +226,57 @@ def payment_success_view(request):
             messages.error(request, 'No se encontró el pago.')
             return redirect('order_history')
         
-        # Procesar automáticamente el pago para proyecto universitario
-        if payment.status == 'pending':
+        # Verificar si el pago fue aprobado según los parámetros de MercadoPago
+        is_approved = (status == 'approved' and collection_status == 'approved') or status == 'approved'
+        
+        # Si el pago está aprobado según los parámetros de la URL, actualizar el estado
+        if is_approved and payment.status != 'approved':
             mercadopago_service = MercadoPagoService()
-            simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
             
-            # Actualizar el pago
-            payment.mercadopago_id = simulated_result['payment_id']
-            payment.response_data = simulated_result['raw_data']
-            payment.mark_as_approved()
-            
-            # Actualizar estado del pedido - mantener como 'pendiente' para que el vendedor pueda confirmar
-            order = payment.order
-            # El estado se mantiene como 'pendiente' hasta que el vendedor confirme
-            # order.estado = 'pendiente'  # Ya está en pendiente por defecto
-            order.save()
-            
-            messages.success(request, f'¡Pago procesado automáticamente! Tu pedido #{order.id} ha sido pagado.')
+            # Si tenemos un payment_id, obtener información actualizada de MercadoPago
+            if payment_id:
+                try:
+                    payment_info = mercadopago_service.get_payment_info(payment_id)
+                    if payment_info.get('success'):
+                        # Actualizar con información real de MercadoPago
+                        payment.mercadopago_id = payment_info.get('payment_id', payment_id)
+                        payment.response_data = payment_info.get('raw_data', {})
+                        if payment_info.get('status') == 'approved':
+                            payment.mark_as_approved()
+                            messages.success(request, f'¡Pago aprobado! Tu pedido #{payment.order.id} ha sido pagado exitosamente.')
+                        else:
+                            # Si no está aprobado en MercadoPago, usar simulación para proyecto universitario
+                            simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+                            payment.mercadopago_id = simulated_result['payment_id']
+                            payment.response_data = simulated_result['raw_data']
+                            payment.mark_as_approved()
+                            messages.success(request, f'¡Pago procesado! Tu pedido #{payment.order.id} ha sido pagado.')
+                    else:
+                        # Si falla la consulta, usar simulación para proyecto universitario
+                        simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+                        payment.mercadopago_id = simulated_result['payment_id']
+                        payment.response_data = simulated_result['raw_data']
+                        payment.mark_as_approved()
+                        messages.success(request, f'¡Pago procesado! Tu pedido #{payment.order.id} ha sido pagado.')
+                except Exception as e:
+                    logger.error(f"Error al obtener información del pago desde MercadoPago: {str(e)}")
+                    # En caso de error, usar simulación para proyecto universitario
+                    simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+                    payment.mercadopago_id = simulated_result['payment_id']
+                    payment.response_data = simulated_result['raw_data']
+                    payment.mark_as_approved()
+                    messages.success(request, f'¡Pago procesado! Tu pedido #{payment.order.id} ha sido pagado.')
+            else:
+                # Si no hay payment_id, usar simulación para proyecto universitario
+                simulated_result = mercadopago_service.simulate_automatic_payment(payment.order, request.user)
+                payment.mercadopago_id = simulated_result['payment_id']
+                payment.response_data = simulated_result['raw_data']
+                payment.mark_as_approved()
+                messages.success(request, f'¡Pago procesado! Tu pedido #{payment.order.id} ha sido pagado.')
+        
+        # Si el pago ya estaba aprobado, solo mostrar mensaje
+        elif payment.status == 'approved':
+            messages.info(request, f'El pago del pedido #{payment.order.id} ya estaba aprobado.')
         
         order = payment.order
         
